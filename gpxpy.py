@@ -127,8 +127,9 @@ class GPXWaypoint( Location ):
 	description = None
 	symbol = None
 	type = None
+	comment = None
 
-	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None ):
+	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
 		Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
@@ -136,6 +137,7 @@ class GPXWaypoint( Location ):
 		self.description = description
 		self.symbol = symbol
 		self.type = type
+		self.comment = comment
 
 	def __str__( self ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
@@ -143,11 +145,12 @@ class GPXWaypoint( Location ):
 	def to_xml( self ):
 		content = _to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content = _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content = _to_xml( 'name', content = self.name, cdata = True )
-		content = _to_xml( 'desc', content = self.description, cdata = True )
-		content = _to_xml( 'sym', content = self.symbol, cdata = True )
-		content = _to_xml( 'type', content = self.type, cdata = True )
+			content += _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += _to_xml( 'name', content = self.name, cdata = True )
+		content += _to_xml( 'desc', content = self.description, cdata = True )
+		content += _to_xml( 'sym', content = self.symbol, cdata = True )
+		content += _to_xml( 'type', content = self.type, cdata = True )
+		content += _to_xml( 'comment', content = self.comment, cdata = True )
 
 		return _to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
@@ -324,7 +327,6 @@ class GPXTrack:
 		return ( min( elevations ), max( elevations ) )
 
 	def to_xml( self ):
-		""" "Average" location for this track """
 		content = _to_xml( 'name', content = self.name, cdata = True )
 		content += _to_xml( 'desc', content = self.description, cdata = True )
 		content += _to_xml( 'number', content = self.number )
@@ -334,6 +336,7 @@ class GPXTrack:
 		return _to_xml( 'trk', content = content )
 
 	def get_center( self ):
+		""" "Average" location for this track """
 		if not self.track_segments:
 			return None
 		sum_lat = 0
@@ -748,7 +751,10 @@ class GPXParser:
 		type_node = _find_first_node( node, 'type' )
 		type = self.get_node_data( type_node )
 
-		return GPXWaypoint( lat, lon, elevation, time, name, desc, sym, type )
+		comment_node = _find_first_node( node, 'cmt' )
+		comment = self.get_node_data( comment_node )
+
+		return GPXWaypoint( lat, lon, elevation, time, name, desc, sym, type, comment )
 
 	def _parse_route( self, node ):
 		name_node = _find_first_node( node, 'name' )
