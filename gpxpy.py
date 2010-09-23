@@ -729,8 +729,8 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = node.attributes[ 'lat' ].nodeValue
-		lon = node.attributes[ 'lon' ].nodeValue
+		lat = _to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = _to_number( node.attributes[ 'lon' ].nodeValue )
 
 		elevation_node = _find_first_node( node, 'ele' )
 		elevation = _to_number( self.get_node_data( elevation_node ), 0 )
@@ -783,8 +783,8 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = node.attributes[ 'lat' ].nodeValue
-		lon = node.attributes[ 'lon' ].nodeValue
+		lat = _to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = _to_number( node.attributes[ 'lon' ].nodeValue )
 
 		elevation_node = _find_first_node( node, 'ele' )
 		elevation = _to_number( self.get_node_data( elevation_node ), 0 )
