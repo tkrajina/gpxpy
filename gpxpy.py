@@ -361,6 +361,11 @@ class GPXTrack:
 
 		return result
 
+	def smooth( self ):
+		""" See: GPXTrackSegment.smooth() """
+		for track_segment in self.track_segments:
+			track_segment.smooth()
+
 class GPXTrackSegment:
 
 	track_points = None
@@ -493,7 +498,26 @@ class GPXTrackSegment:
 
 		return result
 
+	def smooth( self ):
+		""" "Smooths" the elevation graph. Can be called multiple times. """
+		if len( self.track_points ) <= 3:
+			return
 
+		# First point
+		first = self.track_points[ 0 ]
+		second = self.track_points[ 1 ]
+		first.elevation = ( 0.3 * second.elenation + 0.4 * first.elevation ) / 0.7
+
+		# Last point
+		last = self.track_points[ -1 ]
+		penultimate = self.track_points[ -2 ]
+		last.elevation = ( 0.3 * penultimate.elevation + 0.4 * lat.elevation ) / 0.7
+
+		for i in range( len( self.track_points ) ):
+			self.track_points[ i ].elevation = \
+					0.3 * self.track_points[ i - 1 ].elevation + \
+					0.4 * self.track_points[ i ].elevation + \
+					0.4 * self.track_points[ i + 1 ].elevation
 
 class GPX:
 
