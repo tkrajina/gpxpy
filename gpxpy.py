@@ -506,18 +506,18 @@ class GPXTrackSegment:
 		# First point
 		first = self.track_points[ 0 ]
 		second = self.track_points[ 1 ]
-		first.elevation = ( 0.3 * second.elenation + 0.4 * first.elevation ) / 0.7
+		first.elevation = ( 0.3 * second.elevation + 0.4 * first.elevation ) / 0.7
 
 		# Last point
 		last = self.track_points[ -1 ]
 		penultimate = self.track_points[ -2 ]
-		last.elevation = ( 0.3 * penultimate.elevation + 0.4 * lat.elevation ) / 0.7
+		last.elevation = ( 0.3 * penultimate.elevation + 0.4 * last.elevation ) / 0.7
 
-		for i in range( len( self.track_points ) ):
+		for i in range( len( self.track_points ) )[ 1 : -1 ]:
 			self.track_points[ i ].elevation = \
 					0.3 * self.track_points[ i - 1 ].elevation + \
 					0.4 * self.track_points[ i ].elevation + \
-					0.4 * self.track_points[ i + 1 ].elevation
+					0.3 * self.track_points[ i + 1 ].elevation
 
 class GPX:
 
@@ -659,6 +659,10 @@ class GPX:
 			content += route.to_xml()
 
 		return _to_xml( 'gpx', attributes = {}, content = content )
+
+	def smooth( self ):
+		for track in self.tracks:
+			track.smooth()
 
 class GPXParser:
 
