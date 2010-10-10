@@ -366,6 +366,17 @@ class GPXTrack:
 		for track_segment in self.track_segments:
 			track_segment.smooth()
 
+	def has_times( self ):
+		""" See GPXTrackSegment.has_times() """
+		if not self.track_segments:
+			return None
+
+		result = True
+		for track_segment in self.track_segments:
+			result = result and track_segment.has_times()
+
+		return result
+
 class GPXTrackSegment:
 
 	track_points = None
@@ -519,6 +530,30 @@ class GPXTrackSegment:
 					0.4 * self.track_points[ i ].elevation + \
 					0.3 * self.track_points[ i + 1 ].elevation
 
+	def has_times( self ):
+		""" 
+		Returns if points in this segment contains timestamps.
+
+		At least the first, last points and 75% of others must have times fot this 
+		method to return true.
+		"""
+		if not self.track_points:
+			return True
+			# ... or otherwise one empty track segment would change the entire 
+			# track's "has_times" status!
+
+		has_first = self.track_points[ 0 ]
+		has_last = self.track_points[ -1 ]
+
+		found = 0
+		for track_point in self.track_points:
+			if track_point.time:
+				found += 1
+
+		found = float( found ) / float( len( self.track_points ) )
+
+		return has_first and found > .75 and has_last
+
 class GPX:
 
 	time = None
@@ -664,6 +699,16 @@ class GPX:
 		for track in self.tracks:
 			track.smooth()
 
+	def has_times( self ):
+		""" See GPXTrackSegment.has_times() """
+		if not self.tracks:
+			return None
+
+		result = True
+		for track in self.tracks:
+			result = result and track.has_times()
+
+		return result
 class GPXParser:
 
 	xml = None

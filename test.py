@@ -45,5 +45,13 @@ class TestWaypoint( unittest.TestCase ):
 			self.assertTrue( wpt1.comment == wpt2.comment )
 			self.assertTrue( wpt1.symbol == wpt2.symbol )
 
+	def test_has_times( self ):
+		gpx = self.__parse( 'cerknicko-jezero.gpx' )
+		self.assertTrue( gpx.has_times() )
+
+	def test_has_times_false( self ):
+		gpx = self.__parse( 'cerknicko-without-times.gpx' )
+		self.assertFalse( gpx.has_times() )
+
 if __name__ == '__main__':
 	unittest.main()
