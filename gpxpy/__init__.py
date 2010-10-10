@@ -154,6 +154,13 @@ class GPXWaypoint( Location ):
 
 		return _to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
+	def __eq__( self, waypoint ):
+		if not waypoint:
+			return None
+
+		attributes = dir( GPXWaypoint )
+		print attributes
+
 class GPXRoute:
 
 	name = None
