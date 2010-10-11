@@ -6,6 +6,8 @@ import datetime
 
 from xml.dom import minidom
 
+import utils
+
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 def _to_cdata( str ):
@@ -150,16 +152,18 @@ class GPXWaypoint( Location ):
 		content += _to_xml( 'desc', content = self.description, cdata = True )
 		content += _to_xml( 'sym', content = self.symbol, cdata = True )
 		content += _to_xml( 'type', content = self.type, cdata = True )
-		content += _to_xml( 'comment', content = self.comment, cdata = True )
+		content += _to_xml( 'cmt', content = self.comment, cdata = True )
 
 		return _to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __eq__( self, waypoint ):
-		if not waypoint:
-			return None
+		return utils.attributes_and_classes_equals( self, waypoint )
 
-		attributes = dir( GPXWaypoint )
-		print attributes
+	def __ne__( self, waypoint ):
+		return not self.__eq__( waypoint )
+
+	def __hash__( self ):
+		return id( self )
 
 class GPXRoute:
 
@@ -187,6 +191,15 @@ class GPXRoute:
 			content += route_point.to_xml()
 
 		return _to_xml( 'rte', content = content )
+
+	def __eq__( self, route ):
+		return utils.attributes_and_classes_equals( self, route )
+
+	def __ne__( self, route ):
+		return not self.__eq__( route )
+
+	def __hash__( self ):
+		return id( self )
 
 class GPXRoutePoint( Location ):
 
@@ -222,6 +235,15 @@ class GPXRoutePoint( Location ):
 
 		return _to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
+	def __eq__( self, location ):
+		return utils.attributes_and_classes_equals( self, location )
+
+	def __ne__( self, location ):
+		return not self.__eq__( location )
+
+	def __hash__( self ):
+		return id( self )
+
 class GPXTrackPoint( Location ):
 
 	time = None
@@ -245,6 +267,15 @@ class GPXTrackPoint( Location ):
 
 	def __str__( self ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
+
+	def __eq__( self, point ):
+		return utils.attributes_and_classes_equals( self, point )
+
+	def __ne__( self, point ):
+		return not self.__eq__( point )
+
+	def __hash__( self ):
+		return id( self )
 
 class GPXTrack:
 
@@ -383,6 +414,15 @@ class GPXTrack:
 			result = result and track_segment.has_times()
 
 		return result
+
+	def __eq__( self, track ):
+		return utils.attributes_and_classes_equals( self, track )
+
+	def __ne__( self, track ):
+		return not self.__eq__( track )
+
+	def __hash__( self ):
+		return id( self )
 
 class GPXTrackSegment:
 
@@ -561,6 +601,9 @@ class GPXTrackSegment:
 
 		return has_first and found > .75 and has_last
 
+	def __eq__( self, segment ):
+		return utils.attributes_and_classes_equals( self, segment )
+
 class GPX:
 
 	time = None
@@ -716,6 +759,10 @@ class GPX:
 			result = result and track.has_times()
 
 		return result
+
+	def __eq__( self, route ):
+		return utils.attributes_and_classes_equals( self, route, ignore = ( 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) )
+
 class GPXParser:
 
 	xml = None
@@ -786,7 +833,7 @@ class GPXParser:
 			elif node_name == 'rte':
 				self.gpx.routes.append( self._parse_route( node ) )
 			elif node_name == 'trk':
-				self.gpx.tracks.append( self._parse_track( node ) )
+				self.gpx.tracks.append( self.__parse_track( node ) )
 			else:
 				#print 'unknown %s' % node
 				pass
@@ -834,7 +881,7 @@ class GPXParser:
 		comment_node = _find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return GPXWaypoint( lat, lon, elevation, time, name, desc, sym, type, comment )
+		return GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, time = time, name = name, description = desc, symbol = sym, type = type, comment = comment )
 
 	def _parse_route( self, node ):
 		name_node = _find_first_node( node, 'name' )
@@ -890,7 +937,7 @@ class GPXParser:
 
 		return GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment )
 
-	def _parse_track( self, node ):
+	def __parse_track( self, node ):
 		name_node = _find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
@@ -905,25 +952,25 @@ class GPXParser:
 		child_nodes = node.childNodes
 		for child_node in child_nodes:
 			if child_node.nodeName == 'trkseg':
-				track_segment = self._parse_track_segment( child_node )
+				track_segment = self.__parse_track_segment( child_node )
 
 				track.track_segments.append( track_segment )
 
 		return track
 
-	def _parse_track_segment( self, node ):
+	def __parse_track_segment( self, node ):
 		track_segment = GPXTrackSegment()
 		child_nodes = node.childNodes
 		n = 0
 		for child_node in child_nodes:
 			if child_node.nodeName == 'trkpt':
-				track_point = self._parse_track_point( child_node )
+				track_point = self.__parse_track_point( child_node )
 				track_segment.track_points.append( track_point )
 				n += 1
 
 		return track_segment
 
-	def _parse_track_point( self, node ):
+	def __parse_track_point( self, node ):
 		latitude = None
 		if node.attributes.has_key( 'lat' ):
 			latitude = _to_number( node.attributes[ 'lat' ].nodeValue )
@@ -944,7 +991,7 @@ class GPXParser:
 		comment_node = _find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return GPXTrackPoint( latitude, longitude, elevation, time, symbol, comment )
+		return GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
 
 	def is_valid( self ):
 		return self.valid

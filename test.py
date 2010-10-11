@@ -1,6 +1,7 @@
 import unittest
 
 import gpxpy
+from gpxpy import utils
 
 class TestWaypoint( unittest.TestCase ):
 
@@ -30,20 +31,12 @@ class TestWaypoint( unittest.TestCase ):
 		gpx = self.__parse( 'cerknicko-jezero.gpx' )
 		gpx2 = self.__reparse( gpx )
 
-		self.assertTrue( len( gpx.waypoints ) > 0 )
-		self.assertTrue( len( gpx2.waypoints ) > 0 )
-		self.assertTrue( len( gpx.waypoints ) == len( gpx2.waypoints ) )
-		for i in range( len( gpx.waypoints ) ):
-			wpt1 = gpx.waypoints[ i ]
-			wpt2 = gpx.waypoints[ i ]
-			self.assertTrue( wpt1.name )
-			self.assertTrue( wpt1.description )
-			self.assertTrue( wpt1.comment )
-			self.assertTrue( wpt1.symbol )
-			self.assertTrue( wpt1.name == wpt2.name )
-			self.assertTrue( wpt1.description == wpt2.description )
-			self.assertTrue( wpt1.comment == wpt2.comment )
-			self.assertTrue( wpt1.symbol == wpt2.symbol )
+		self.assertTrue( gpx.waypoints == gpx2.waypoints )
+		self.assertTrue( gpx.routes == gpx2.routes )
+		self.assertTrue( gpx.tracks == gpx2.tracks )
+		self.assertTrue( gpx == gpx2 )
+
+		print gpx2.to_xml()
 
 	def test_has_times( self ):
 		gpx = self.__parse( 'cerknicko-jezero.gpx' )
