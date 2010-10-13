@@ -10,37 +10,10 @@ import utils
 
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
-def _to_cdata( str ):
-	if not str:
-		return '<![CDATA[]]>'
-	return '<![CDATA[%s]]>' % str.replace( ']]>', '???' )
-
-def _to_xml( tag, attributes = {}, content = None, cdata = None ):
-	result = '\n<%s' % tag
-	if attributes:
-		for attribute in attributes.keys():
-			result += ' %s="%s"' % ( attribute, attributes[ attribute ] )
-	if content:
-		if cdata:
-			result += '>%s</%s>' % ( _to_cdata( content ), tag )
-		else:
-			result += '>%s</%s>' % ( content, tag )
-	else:
-		result += ' />'
-
-	result += ''
-	
-	return result
-
 def _parse_time( str ):
 	if not str:
 		return None
 	return datetime.datetime.strptime( str, DATE_FORMAT )
-
-def _to_number( str, default = 0 ):
-	if not str:
-		return None
-	return float( str )
 
 def _length( locations = [], _3d = None ):
 	if not locations:
@@ -62,15 +35,6 @@ def _length( locations = [], _3d = None ):
 				length += d
 				#print '#%s length (%s) -> %s' % ( i, _3d, length )
 	return length
-
-def _find_first_node( node, child_node_name ):
-	if not node or not child_node_name:
-		return None
-	child_nodes = node.childNodes
-	for child_node in child_nodes:
-		if child_node.nodeName == child_node_name:
-			return child_node
-	return None
 
 def length_3d( locations = [] ):
 	return _length( locations, True )
@@ -145,16 +109,16 @@ class GPXWaypoint( Location ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = _to_xml( 'ele', content = self.elevation )
+		content = utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content += _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _to_xml( 'name', content = self.name, cdata = True )
-		content += _to_xml( 'desc', content = self.description, cdata = True )
-		content += _to_xml( 'sym', content = self.symbol, cdata = True )
-		content += _to_xml( 'type', content = self.type, cdata = True )
-		content += _to_xml( 'cmt', content = self.comment, cdata = True )
+			content += utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += utils.to_xml( 'name', content = self.name, cdata = True )
+		content += utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		content += utils.to_xml( 'type', content = self.type, cdata = True )
+		content += utils.to_xml( 'cmt', content = self.comment, cdata = True )
 
-		return _to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+		return utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __eq__( self, waypoint ):
 		return utils.attributes_and_classes_equals( self, waypoint )
@@ -184,13 +148,13 @@ class GPXRoute:
 		return length_2d( route_points )
 
 	def to_xml( self ):
-		content = _to_xml( 'name', content = self.name, cdata = True )
-		content += _to_xml( 'desc', content = self.description, cdata = True )
-		content += _to_xml( 'number', content = self.number )
+		content = utils.to_xml( 'name', content = self.name, cdata = True )
+		content += utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += utils.to_xml( 'number', content = self.number )
 		for route_point in self.route_points:
 			content += route_point.to_xml()
 
-		return _to_xml( 'rte', content = content )
+		return utils.to_xml( 'rte', content = content )
 
 	def __eq__( self, route ):
 		return utils.attributes_and_classes_equals( self, route )
@@ -224,16 +188,16 @@ class GPXRoutePoint( Location ):
 		return '[rtept{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = _to_xml( 'ele', content = self.elevation )
+		content = utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content = _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content = _to_xml( 'name', content = self.name, cdata = True )
-		content = _to_xml( 'cmt', content = self.comment, cdata = True )
-		content = _to_xml( 'desc', content = self.description, cdata = True )
-		content = _to_xml( 'sym', content = self.symbol, cdata = True )
-		content = _to_xml( 'type', content = self.type, cdata = True )
+			content = utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content = utils.to_xml( 'name', content = self.name, cdata = True )
+		content = utils.to_xml( 'cmt', content = self.comment, cdata = True )
+		content = utils.to_xml( 'desc', content = self.description, cdata = True )
+		content = utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		content = utils.to_xml( 'type', content = self.type, cdata = True )
 
-		return _to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+		return utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __eq__( self, location ):
 		return utils.attributes_and_classes_equals( self, location )
@@ -258,12 +222,12 @@ class GPXTrackPoint( Location ):
 		self.comment = comment
 
 	def to_xml( self ):
-		content = _to_xml( 'ele', content = self.elevation )
+		content = utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content += _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _to_xml( 'cmt', content = self.comment, cdata = True )
-		content += _to_xml( 'sym', content = self.symbol, cdata = True )
-		return _to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+			content += utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += utils.to_xml( 'cmt', content = self.comment, cdata = True )
+		content += utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		return utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __str__( self ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
@@ -365,13 +329,13 @@ class GPXTrack:
 		return ( min( elevations ), max( elevations ) )
 
 	def to_xml( self ):
-		content = _to_xml( 'name', content = self.name, cdata = True )
-		content += _to_xml( 'desc', content = self.description, cdata = True )
-		content += _to_xml( 'number', content = self.number )
+		content = utils.to_xml( 'name', content = self.name, cdata = True )
+		content += utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += utils.to_xml( 'number', content = self.number )
 		for track_segment in self.track_segments:
 			content += track_segment.to_xml()
 
-		return _to_xml( 'trk', content = content )
+		return utils.to_xml( 'trk', content = content )
 
 	def get_center( self ):
 		""" "Average" location for this track """
@@ -531,7 +495,7 @@ class GPXTrackSegment:
 		content = ''
 		for track_point in self.track_points:
 			content += track_point.to_xml()
-		return _to_xml( 'trkseg', content = content )
+		return utils.to_xml( 'trkseg', content = content )
 
 	def get_points_no( self ):
 		""" Number of points """
@@ -723,16 +687,16 @@ class GPX:
 		return ( min( elevations ), max( elevations ) )
 
 	def to_xml( self ):
-		content = _to_xml( 'time', content = self.time )
-		content += _to_xml( 'name', content = self.name, cdata = True )
-		content += _to_xml( 'desc', content = self.description, cdata = True )
-		content += _to_xml( 'author', content = self.author, cdata = True )
-		content += _to_xml( 'email', content = self.email, cdata = True )
-		content += _to_xml( 'url', content = self.url, cdata = True )
-		content += _to_xml( 'urlname', content = self.urlname, cdata = True )
+		content = utils.to_xml( 'time', content = self.time )
+		content += utils.to_xml( 'name', content = self.name, cdata = True )
+		content += utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += utils.to_xml( 'author', content = self.author, cdata = True )
+		content += utils.to_xml( 'email', content = self.email, cdata = True )
+		content += utils.to_xml( 'url', content = self.url, cdata = True )
+		content += utils.to_xml( 'urlname', content = self.urlname, cdata = True )
 		if self.time:
-			content = _to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _to_xml( 'keywords', content = self.keywords, cdata = True )
+			content = utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += utils.to_xml( 'keywords', content = self.keywords, cdata = True )
 
 		for waypoint in self.waypoints:
 			content += waypoint.to_xml()
@@ -743,7 +707,7 @@ class GPX:
 		for route in self.routes:
 			content += route.to_xml()
 
-		return _to_xml( 'gpx', attributes = {}, content = content )
+		return utils.to_xml( 'gpx', attributes = {}, content = content )
 
 	def smooth( self ):
 		for track in self.tracks:
@@ -842,13 +806,13 @@ class GPXParser:
 
 	def _parse_bounds( self, node ):
 		if node.attributes.has_key( 'minlat' ):
-			self.gpx.min_latitude = _to_number( node.attributes[ 'minlat' ].nodeValue )
+			self.gpx.min_latitude = utils.to_number( node.attributes[ 'minlat' ].nodeValue )
 		if node.attributes.has_key( 'maxlat' ):
-			self.gpx.min_latitude = _to_number( node.attributes[ 'maxlat' ].nodeValue )
+			self.gpx.min_latitude = utils.to_number( node.attributes[ 'maxlat' ].nodeValue )
 		if node.attributes.has_key( 'minlon' ):
-			self.gpx.min_longitude = _to_number( node.attributes[ 'minlon' ].nodeValue )
+			self.gpx.min_longitude = utils.to_number( node.attributes[ 'minlon' ].nodeValue )
 		if node.attributes.has_key( 'maxlon' ):
-			self.gpx.min_longitude = _to_number( node.attributes[ 'maxlon' ].nodeValue )
+			self.gpx.min_longitude = utils.to_number( node.attributes[ 'maxlon' ].nodeValue )
 
 	def _parse_waypoint( self, node ):
 		if not node.attributes.has_key( 'lat' ):
@@ -856,42 +820,42 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = _to_number( node.attributes[ 'lat' ].nodeValue )
-		lon = _to_number( node.attributes[ 'lon' ].nodeValue )
+		lat = utils.to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		elevation_node = _find_first_node( node, 'ele' )
-		elevation = _to_number( self.get_node_data( elevation_node ), 0 )
+		elevation_node = utils.find_first_node( node, 'ele' )
+		elevation = utils.to_number( self.get_node_data( elevation_node ), 0 )
 
-		time_node = _find_first_node( node, 'time' )
+		time_node = utils.find_first_node( node, 'time' )
 		time_str = self.get_node_data( time_node )
 		time = _parse_time( time_str )
 
-		name_node = _find_first_node( node, 'name' )
+		name_node = utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		desc_node = _find_first_node( node, 'desc' )
+		desc_node = utils.find_first_node( node, 'desc' )
 		desc = self.get_node_data( desc_node )
 
-		sym_node = _find_first_node( node, 'sym' )
+		sym_node = utils.find_first_node( node, 'sym' )
 		sym = self.get_node_data( sym_node )
 
-		type_node = _find_first_node( node, 'type' )
+		type_node = utils.find_first_node( node, 'type' )
 		type = self.get_node_data( type_node )
 
-		comment_node = _find_first_node( node, 'cmt' )
+		comment_node = utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
 		return GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, time = time, name = name, description = desc, symbol = sym, type = type, comment = comment )
 
 	def _parse_route( self, node ):
-		name_node = _find_first_node( node, 'name' )
+		name_node = utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		description_node = _find_first_node( node, 'desc' )
+		description_node = utils.find_first_node( node, 'desc' )
 		description = self.get_node_data( description_node )
 
-		number_node = _find_first_node( node, 'number' )
-		number = _to_number( self.get_node_data( number_node ) )
+		number_node = utils.find_first_node( node, 'number' )
+		number = utils.to_number( self.get_node_data( number_node ) )
 
 		route = GPXRoute( name, description, number )
 
@@ -910,42 +874,42 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = _to_number( node.attributes[ 'lat' ].nodeValue )
-		lon = _to_number( node.attributes[ 'lon' ].nodeValue )
+		lat = utils.to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		elevation_node = _find_first_node( node, 'ele' )
-		elevation = _to_number( self.get_node_data( elevation_node ), 0 )
+		elevation_node = utils.find_first_node( node, 'ele' )
+		elevation = utils.to_number( self.get_node_data( elevation_node ), 0 )
 
-		time_node = _find_first_node( node, 'time' )
+		time_node = utils.find_first_node( node, 'time' )
 		time_str = self.get_node_data( time_node )
 		time = _parse_time( time_str )
 
-		name_node = _find_first_node( node, 'name' )
+		name_node = utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		desc_node = _find_first_node( node, 'desc' )
+		desc_node = utils.find_first_node( node, 'desc' )
 		desc = self.get_node_data( desc_node )
 
-		sym_node = _find_first_node( node, 'sym' )
+		sym_node = utils.find_first_node( node, 'sym' )
 		sym = self.get_node_data( sym_node )
 
-		type_node = _find_first_node( node, 'type' )
+		type_node = utils.find_first_node( node, 'type' )
 		type = self.get_node_data( type_node )
 
-		comment_node = _find_first_node( node, 'cmt' )
+		comment_node = utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
 		return GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment )
 
 	def __parse_track( self, node ):
-		name_node = _find_first_node( node, 'name' )
+		name_node = utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		description_node = _find_first_node( node, 'desc' )
+		description_node = utils.find_first_node( node, 'desc' )
 		description = self.get_node_data( description_node )
 
-		number_node = _find_first_node( node, 'number' )
-		number = _to_number( self.get_node_data( number_node ) )
+		number_node = utils.find_first_node( node, 'number' )
+		number = utils.to_number( self.get_node_data( number_node ) )
 
 		track = GPXTrack( name, description, number )
 
@@ -973,22 +937,22 @@ class GPXParser:
 	def __parse_track_point( self, node ):
 		latitude = None
 		if node.attributes.has_key( 'lat' ):
-			latitude = _to_number( node.attributes[ 'lat' ].nodeValue )
+			latitude = utils.to_number( node.attributes[ 'lat' ].nodeValue )
 
 		longitude = None
 		if node.attributes.has_key( 'lon' ):
-			longitude = _to_number( node.attributes[ 'lon' ].nodeValue )
+			longitude = utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		time_node = _find_first_node( node, 'time' )
+		time_node = utils.find_first_node( node, 'time' )
 		time = _parse_time( self.get_node_data( time_node ) )
 
-		elevation_node = _find_first_node( node, 'ele' )
-		elevation = _to_number( self.get_node_data( elevation_node ) )
+		elevation_node = utils.find_first_node( node, 'ele' )
+		elevation = utils.to_number( self.get_node_data( elevation_node ) )
 
-		symbol_node = _find_first_node( node, 'sym' )
+		symbol_node = utils.find_first_node( node, 'sym' )
 		symbol = self.get_node_data( symbol_node )
 
-		comment_node = _find_first_node( node, 'cmt' )
+		comment_node = utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
 		return GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
