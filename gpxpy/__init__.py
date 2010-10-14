@@ -264,6 +264,14 @@ class GPXTrack:
 				length += d
 		return length
 
+	def get_points( self ):
+		result = []
+
+		for track_segment in self.track_segments:
+			result += track_segment.get_points()
+
+		return result
+
 	def length_3d( self ):
 		length = 0
 		for track_segment in self.track_segments:
@@ -400,6 +408,18 @@ class GPXTrackSegment:
 
 	def length_3d( self ):
 		return length_3d( self.track_points )
+
+	def get_points( self ):
+		return self.track_points
+
+	def get_duration_times( self, ignore_slower_than = None ):
+		""" 
+		Returns a pair of ( track_time, stopped_time ) where stopped time is
+		counted for track points where the speed between them is slower than
+		ignore_slower_than.
+		"""
+		# TODO
+		pass
 
 	def get_duration( self ):
 		""" Duration in seconds """
@@ -629,6 +649,14 @@ class GPX:
 			length = track.length_3d()
 			if length or length == 0:
 				result += length
+		return result
+
+	def get_points( self ):
+		result = []
+
+		for track in self.tracks:
+			result += track.get_points()
+
 		return result
 
 	def get_duration( self ):

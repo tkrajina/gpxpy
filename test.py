@@ -1,7 +1,6 @@
 import unittest
 
 import gpxpy
-from gpxpy import utils
 
 class TestWaypoint( unittest.TestCase ):
 
