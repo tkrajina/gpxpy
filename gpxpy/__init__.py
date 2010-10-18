@@ -387,6 +387,27 @@ class GPXTrack:
 
 		return result
 
+	def get_nearest_location( self, location ):
+		""" Returns ( location, track_segment_no, track_point_no ) for nearest location on track """
+		if not self.track_segments:
+			return None
+
+		result = None
+		distance = None
+		track_segment_no = None
+		for i in range( len( self.track_segments ) ):
+			track_segment = self.track_segments[ i ]
+			nearest_location, track_point_no = track_segment.get_nearest_location( location )
+			nearest_location_distance = None
+			if nearest_location:
+				nearest_location_distance = nearest_location.distance_2d( location )
+			if not distance or nearest_location_distance < distance:
+				result = nearest_location
+				distance = nearest_location_distance
+				track_segment_no = i
+
+		return ( result, track_segment_no, track_point_no )
+
 	def __eq__( self, track ):
 		return utils.attributes_and_classes_equals( self, track )
 
@@ -524,21 +545,26 @@ class GPXTrackSegment:
 		return len( self.track_points )
 
 	def get_nearest_location( self, location ):
-		""" Return the nearest location on this track segment """
+		""" Return the ( location, track_point_no ) on this track segment """
 		if not self.track_points:
-			return None
+			return ( None, None )
 
 		result = None
 		current_distance = None
-		for track_point in self.track_points:
+		track_point_no = None
+		for i in range( len( self.track_points ) ):
+			track_point = self.track_points[ i ]
 			if not result:
 				result = track_point
-			distance = track_point.distance_2d( result )
-			if distance < current_distance:
-				current_distance = distance
-				result = track_point
+			else:
+				distance = track_point.distance_2d( location )
+				# print current_distance, distance
+				if not current_distance or distance < current_distance:
+					current_distance = distance
+					result = track_point
+					track_point_no = i
 
-		return result
+		return ( result, track_point_no )
 
 	def smooth( self ):
 		""" "Smooths" the elevation graph. Can be called multiple times. """
@@ -713,6 +739,27 @@ class GPX:
 			elevations.append( _max )
 
 		return ( min( elevations ), max( elevations ) )
+
+	def get_nearest_location( self, location ):
+		""" Returns ( location, track_no, track_segment_no ) for nearest location on map """
+		if not self.tracks:
+			return None
+
+		result = None
+		distance = None
+		track_no = None
+		for i in range( len( self.tracks ) ):
+			track = self.tracks[ i ]
+			nearest_location, track_segment_no, track_point_no = track.get_nearest_location( location )
+			nearest_location_distance = None
+			if nearest_location:
+				nearest_location_distance = nearest_location.distance_2d( location )
+			if not distance or nearest_location_distance < distance:
+				result = nearest_location
+				distance = nearest_location_distance
+				track_no = i
+
+		return ( result, track_no, track_segment_no, track_point_no )
 
 	def to_xml( self ):
 		content = utils.to_xml( 'time', content = self.time )

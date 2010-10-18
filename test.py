@@ -44,12 +44,20 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( len( gpx.tracks ) == 4 )
 		# Empty -- True
 		self.assertTrue( gpx.tracks[ 0 ].has_times() )
-		# Not itmes ...
+		# Not times ...
 		self.assertTrue( not gpx.tracks[ 1 ].has_times() )
 
 		# Times OK
 		self.assertTrue( gpx.tracks[ 2 ].has_times() )
 		self.assertTrue( gpx.tracks[ 3 ].has_times() )
+
+	def test_nearest_location_1( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
+		location = gpxpy.Location( 45.451058791, 14.027903696 )
+		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
+		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		self.assertTrue( point.distance_2d( location ) < 0.001 )
 
 if __name__ == '__main__':
 	unittest.main()
