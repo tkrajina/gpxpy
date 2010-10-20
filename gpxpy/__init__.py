@@ -394,7 +394,8 @@ class GPXTrack:
 
 		result = None
 		distance = None
-		track_segment_no = None
+		result_track_segment_no = None
+		result_track_point_no = None
 		for i in range( len( self.track_segments ) ):
 			track_segment = self.track_segments[ i ]
 			nearest_location, track_point_no = track_segment.get_nearest_location( location )
@@ -404,9 +405,10 @@ class GPXTrack:
 			if not distance or nearest_location_distance < distance:
 				result = nearest_location
 				distance = nearest_location_distance
-				track_segment_no = i
+				result_track_segment_no = i
+				result_track_point_no = track_point_no
 
-		return ( result, track_segment_no, track_point_no )
+		return ( result, result_track_segment_no, result_track_point_no )
 
 	def __eq__( self, track ):
 		return utils.attributes_and_classes_equals( self, track )
@@ -551,7 +553,7 @@ class GPXTrackSegment:
 
 		result = None
 		current_distance = None
-		track_point_no = None
+		result_track_point_no = None
 		for i in range( len( self.track_points ) ):
 			track_point = self.track_points[ i ]
 			if not result:
@@ -562,9 +564,9 @@ class GPXTrackSegment:
 				if not current_distance or distance < current_distance:
 					current_distance = distance
 					result = track_point
-					track_point_no = i
+					result_track_point_no = i
 
-		return ( result, track_point_no )
+		return ( result, result_track_point_no )
 
 	def smooth( self ):
 		""" "Smooths" the elevation graph. Can be called multiple times. """
@@ -747,7 +749,9 @@ class GPX:
 
 		result = None
 		distance = None
-		track_no = None
+		result_track_no = None
+		result_segment_no = None
+		result_point_no = None
 		for i in range( len( self.tracks ) ):
 			track = self.tracks[ i ]
 			nearest_location, track_segment_no, track_point_no = track.get_nearest_location( location )
@@ -757,9 +761,11 @@ class GPX:
 			if not distance or nearest_location_distance < distance:
 				result = nearest_location
 				distance = nearest_location_distance
-				track_no = i
+				result_track_no = i
+				result_segment_no = track_segment_no
+				result_point_no = track_point_no
 
-		return ( result, track_no, track_segment_no, track_point_no )
+		return ( result, result_track_no, result_segment_no, result_point_no )
 
 	def to_xml( self ):
 		content = utils.to_xml( 'time', content = self.time )

@@ -58,6 +58,17 @@ class TestWaypoint( unittest.TestCase ):
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( location ) < 0.001 )
+		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
+
+		location = gpxpy.Location( 1, 1 )
+		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
+		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
+
+		location = gpxpy.Location( 50, 50 )
+		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
+		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
 if __name__ == '__main__':
 	unittest.main()
