@@ -821,7 +821,10 @@ class GPXParser:
 		if hasattr( xml_or_file, 'read' ):
 			self.xml = xml_or_file.read()
 		else:
-			self.xml = str( xml_or_file )
+			if isinstance( xml_or_file, unicode ):
+				self.xml = xml_or_file.encode( 'utf-8' )
+			else:
+				self.xml = str( xml_or_file )
 
 		self.valid = False
 		self.error = None

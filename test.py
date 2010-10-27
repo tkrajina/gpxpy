@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 
 import gpxpy
@@ -50,6 +52,13 @@ class TestWaypoint( unittest.TestCase ):
 		# Times OK
 		self.assertTrue( gpx.tracks[ 2 ].has_times() )
 		self.assertTrue( gpx.tracks[ 3 ].has_times() )
+
+	def test_unicode( self ):
+		gpx = self.__parse( 'unicode.gpx' )
+
+		name = gpx.waypoints[ 0 ].name
+
+		self.assertTrue( name.encode( 'utf-8' ) == 'šđčćž' )
 
 	def test_nearest_location_1( self ):
 		gpx = self.__parse( 'korita-zbevnica.gpx' )
