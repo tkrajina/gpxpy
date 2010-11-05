@@ -2,13 +2,14 @@
 
 import unittest
 
-import gpxpy
+import gpxpy.gpx as _gpx
+import gpxpy.parser as _parser
 
 class TestWaypoint( unittest.TestCase ):
 
 	def __parse( self, file ):
 		f = open( 'test_files/%s' % file )
-		parser = gpxpy.GPXParser( f )
+		parser = _parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -20,7 +21,7 @@ class TestWaypoint( unittest.TestCase ):
 	def __reparse( self, gpx ):
 		xml = gpx.to_xml()
 
-		parser = gpxpy.GPXParser( xml )
+		parser = _parser.GPXParser( xml )
 		gpx = parser.parse()
 
 		if not gpx:
@@ -63,18 +64,18 @@ class TestWaypoint( unittest.TestCase ):
 	def test_nearest_location_1( self ):
 		gpx = self.__parse( 'korita-zbevnica.gpx' )
 
-		location = gpxpy.Location( 45.451058791, 14.027903696 )
+		location = _gpx.Location( 45.451058791, 14.027903696 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( location ) < 0.001 )
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = gpxpy.Location( 1, 1 )
+		location = _gpx.Location( 1, 1 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = gpxpy.Location( 50, 50 )
+		location = _gpx.Location( 50, 50 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
