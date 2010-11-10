@@ -76,6 +76,10 @@ class Location:
 
 		return math.sqrt( distance * distance + h * h )
 
+	def move( self, latitude_diff, longitude_diff ):
+		self.latitude += latitude_diff
+		self.longitude += longitude_diff
+		
 	def __str__( self ):
 		return '[loc:%s,%s@%s]' % ( self.latitude, self.longitude, self.elevation )
 
@@ -139,6 +143,10 @@ class GPXRoute:
 
 	def length( self ):
 		return length_2d( route_points )
+
+	def move( self, latitude_diff, longitude_diff ):
+		for route_point in self.route_points:
+			route_point.move( latitude_diff, longitude_diff )
 
 	def to_xml( self ):
 		content = utils.to_xml( 'name', content = self.name, cdata = True )
@@ -272,6 +280,10 @@ class GPXTrack:
 			if d:
 				length += d
 		return length
+
+	def move( self, latitude_diff, longitude_diff ):
+		for track_segment in self.track_segments:
+			track_segment.move( latitude_diff, longitude_diff )
 
 	def get_duration( self ):
 		""" Note returns None if one of track segments hasn't time data """
@@ -425,6 +437,10 @@ class GPXTrackSegment:
 	def length_3d( self ):
 		return length_3d( self.track_points )
 
+	def move( self, latitude_diff, longitude_diff ):
+		for track_point in self.track_points:
+			track_point.move( latitude_diff, longitude_diff )
+		
 	def get_points( self ):
 		return self.track_points
 
@@ -759,6 +775,16 @@ class GPX:
 				result_point_no = track_point_no
 
 		return ( result, result_track_no, result_segment_no, result_point_no )
+
+	def move( self, latitude_diff, longitude_diff ):
+		for routes in self.routes:
+			waypoint.move( latitude_diff, longitude_diff )
+
+		for waypoint in self.waypoints:
+			waypoint.move( latitude_diff, longitude_diff )
+
+		for track in self.tracks:
+			track.move( latitude_diff, longitude_diff )
 
 	def to_xml( self ):
 		content = utils.to_xml( 'time', content = self.time )
