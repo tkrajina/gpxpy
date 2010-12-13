@@ -495,9 +495,9 @@ class GPXTrackSegment:
 
 			if track_point.elevation and current_elevation:
 				if current_elevation > track_point.elevation:
-					uphill += current_elevation - track_point.elevation
+					downhill += current_elevation - track_point.elevation
 				else:
-					downhill += track_point.elevation - current_elevation
+					uphill += track_point.elevation - current_elevation
 
 			current_elevation = track_point.elevation
 
