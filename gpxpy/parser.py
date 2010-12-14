@@ -7,11 +7,17 @@ from xml.dom import minidom
 
 import gpx as _gpx
 import utils
+import re
 
-def parse_time( str ):
-	if not str:
+def parse_time( string ):
+	if not string:
 		return None
-	return datetime.datetime.strptime( str, _gpx.DATE_FORMAT )
+	try:
+		return datetime.datetime.strptime( string, _gpx.DATE_FORMAT )
+	except Exception, e:
+		if re.match( '^.*\.\d+Z$', string ):
+			string = re.sub( '\.\d+Z', 'Z', string )
+		return datetime.datetime.strptime( string, _gpx.DATE_FORMAT )
 
 class GPXParser:
 

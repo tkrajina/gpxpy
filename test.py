@@ -80,5 +80,10 @@ class TestWaypoint( unittest.TestCase ):
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
+	def test_long_timestamps( self ):
+		# Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
+		gpx = self.__parse( 'Mojstrovka.gpx' )
+
+		# %Y-%m-%dT%H:%M:%SZ'
 if __name__ == '__main__':
 	unittest.main()
