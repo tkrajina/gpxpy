@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import math
-import datetime
+import math as _math
 
 import utils
 
@@ -57,11 +56,11 @@ class Location:
 		if not location:
 			return None
 
-		coef = math.cos( self.latitude / 180. * math.pi )
+		coef = _math.cos( self.latitude / 180. * _math.pi )
 		x = self.latitude - location.latitude
 		y = ( self.longitude - location.longitude ) * coef
 
-		return math.sqrt( x * x + y * y ) * self.ONE_DEGREE
+		return _math.sqrt( x * x + y * y ) * self.ONE_DEGREE
 
 	def distance_3d( self, location ):
 		distance = self.distance_2d( location )
@@ -74,7 +73,7 @@ class Location:
 
 		h = location.elevation - self.elevation
 
-		return math.sqrt( distance * distance + h * h )
+		return _math.sqrt( distance * distance + h * h )
 
 	def move( self, latitude_diff, longitude_diff ):
 		self.latitude += latitude_diff
@@ -671,6 +670,41 @@ class GPX:
 		self.max_latitude = None
 		self.min_longitude = None
 		self.max_longitude = None
+
+	def reduce_points( self, max_points_no, min_distance = None ):
+		"""
+		Reduce this track to the desired number of points
+		max_points = The maximum number of points after the reduction
+		min_distance = The minimum distance between two points
+		"""
+
+		length = self.length_3d()
+
+		if not min_distance:
+			min_distance = _math.ceil( length / float( max_points_no ) )
+			if not min_distance or min_distance < 0:
+				min_distance = 100
+
+		for track in self.tracks:
+			for track_segment in track.track_segments:
+				reduced_points = []
+				previous_point = None
+				length = len( track_segment.track_points )
+				for i in range( length ):
+					point = track_segment.track_points[ i ]
+					if i == 0 or i == length - 1:
+						# Leave first and last point
+						reduced_points.append( point )
+						previous_point = point
+					elif previous_point:
+						distance = previous_point.distance_3d( point )
+						if distance >= min_distance:
+							reduced_points.append( point )
+							previous_point = point
+
+				track_segment.track_points = reduced_points
+
+		logging.debug( 'Track reduced to %s points' % len( self.get_points() ) )
 
 	def length_2d( self ):
 		result = 0
