@@ -678,6 +678,10 @@ class GPX:
 		min_distance = The minimum distance between two points
 		"""
 
+		points_no = self.get_points()
+		if not max_points_no or points_no <= max_points_no:
+			return
+
 		length = self.length_3d()
 
 		if not min_distance:
