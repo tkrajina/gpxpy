@@ -375,10 +375,10 @@ class GPXTrack:
 
 		return result
 
-	def smooth( self ):
+	def smooth( self, vertical = True, horizontal = False ):
 		""" See: GPXTrackSegment.smooth() """
 		for track_segment in self.track_segments:
-			track_segment.smooth()
+			track_segment.smooth( horizontal, vertical )
 
 	def has_times( self ):
 		""" See GPXTrackSegment.has_times() """
@@ -576,7 +576,7 @@ class GPXTrackSegment:
 
 		return ( result, result_track_point_no )
 
-	def smooth( self ):
+	def smooth( self, vertical = True, horizontal = False ):
 		""" "Smooths" the elevation graph. Can be called multiple times. """
 		if len( self.track_points ) <= 3:
 			return
@@ -592,10 +592,20 @@ class GPXTrackSegment:
 		last.elevation = ( 0.3 * penultimate.elevation + 0.4 * last.elevation ) / 0.7
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
-			self.track_points[ i ].elevation = \
-					0.3 * self.track_points[ i - 1 ].elevation + \
-					0.4 * self.track_points[ i ].elevation + \
-					0.3 * self.track_points[ i + 1 ].elevation
+			if vertical:
+				self.track_points[ i ].elevation = \
+						0.3 * self.track_points[ i - 1 ].elevation + \
+						0.4 * self.track_points[ i ].elevation + \
+						0.3 * self.track_points[ i + 1 ].elevation
+			if horizontal:
+				self.track_points[ i ].latitude = \
+						0.3 * self.track_points[ i - 1 ].latitude + \
+						0.4 * self.track_points[ i ].latitude + \
+						0.3 * self.track_points[ i + 1 ].latitude
+				self.track_points[ i ].longitude = \
+						0.3 * self.track_points[ i - 1 ].longitude + \
+						0.4 * self.track_points[ i ].longitude + \
+						0.3 * self.track_points[ i + 1 ].longitude
 
 	def has_times( self ):
 		""" 
