@@ -122,5 +122,33 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( points_reduced < points_original )
 		self.assertTrue( points_reduced < max_reduced_points_no )
 
+	def test_moving_stopped_times( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		print len( gpx.get_points() )
+
+		#gpx.reduce_points( 1000, min_distance = 5 )
+
+		print len( gpx.get_points() )
+
+		length = gpx.length_3d()
+		print 'Distance: %s' % length
+
+		moving_time, stopped_time, moving_distance, stopped_distance = gpx.get_moving_data()
+		print '-----'
+		print 'Moving time: %s (%smin)' % ( moving_time, moving_time / 60. )
+		print 'Stopped time: %s (%smin)' % ( stopped_time, stopped_time / 60. )
+		print 'Moving distance: %s' % moving_distance
+		print 'Stopped distance: %s' % stopped_distance
+		print '-----'
+
+		# TODO: More tests and checks
+		self.assertTrue( moving_distance < length )
+		self.assertTrue( moving_distance > 0.99 * length )
+		self.assertTrue( stopped_distance < 0.1 * length )
+
 if __name__ == '__main__':
 	unittest.main()

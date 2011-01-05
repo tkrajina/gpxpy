@@ -7,6 +7,10 @@ import utils
 
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+# When computing stopped time -- this is the miminum speed between two points, if speed is less
+# than this value -- we'll assume it is 0
+DEFAULT_STOPPED_SPEED_TRESHOLD = .2
+
 def length( locations = [], _3d = None ):
 	if not locations:
 		return 0
@@ -29,9 +33,11 @@ def length( locations = [], _3d = None ):
 	return length
 
 def length_3d( locations = [] ):
+	""" 3-dimensional length of locations (is uses latitude, longitude and elevation). """
 	return length( locations, True )
 
 def length_2d( locations = [] ):
+	""" 2-dimensional length of locations (only latitude and longitude, no elevation """
 	return length( locations, None )
 
 class Location:
@@ -49,7 +55,6 @@ class Location:
 		self.elevation = elevation
 
 	def has_elevation( self ):
-		# TODO ?
 		return self.elevation or self.elevation == 0
 
 	def distance_2d( self, location ):
@@ -280,6 +285,22 @@ class GPXTrack:
 				length += d
 		return length
 
+	def get_moving_data( self, stopped_speed_treshold = None ):
+		moving_time = 0.
+		stopped_time = 0.
+
+		moving_distance = 0.
+		stopped_distance = 0.
+
+		for segment in self.track_segments:
+			track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance = segment.get_moving_data( stopped_speed_treshold )
+			moving_time += track_moving_time
+			stopped_time += track_stopped_time
+			moving_distance += track_moving_distance
+			stopped_distance += track_stopped_distance
+
+		return ( moving_time, stopped_time, moving_distance, stopped_distance )
+
 	def move( self, latitude_diff, longitude_diff ):
 		for track_segment in self.track_segments:
 			track_segment.move( latitude_diff, longitude_diff )
@@ -443,14 +464,44 @@ class GPXTrackSegment:
 	def get_points( self ):
 		return self.track_points
 
-	def get_duration_times( self, ignore_slower_than = None ):
-		""" 
-		Returns a pair of ( track_time, stopped_time ) where stopped time is
-		counted for track points where the speed between them is slower than
-		ignore_slower_than.
-		"""
-		# TODO
-		pass
+	def get_moving_data( self, stopped_speed_treshold = None ):
+
+		if not stopped_speed_treshold:
+			stopped_speed_treshold = DEFAULT_STOPPED_SPEED_TRESHOLD
+
+		moving_time = 0.
+		stopped_time = 0.
+
+		moving_distance = 0.
+		stopped_distance = 0.
+
+		previous = None
+		for point in self.track_points:
+			if previous:
+				if point.time and previous.time:
+					timedelta = point.time - previous.time
+
+					if point.elevation and previous.elevation:
+						distance = point.distance_3d( previous )
+					else:
+						distance = point.distance_2d( previous )
+
+					seconds = timedelta.seconds
+					speed = 0
+					if seconds > 0:
+						speed = ( distance / 1000. ) / ( timedelta.seconds / 60. ** 2 )
+
+					#print speed, stopped_speed_treshold
+					if speed <= stopped_speed_treshold:
+						stopped_time += timedelta.seconds
+						stopped_distance += distance
+					else:
+						moving_time += timedelta.seconds
+						moving_distance += distance
+			#print ( moving_time, stopped_time, moving_distance, stopped_distance )
+			previous = point
+
+		return ( moving_time, stopped_time, moving_distance, stopped_distance )
 
 	def get_duration( self ):
 		""" Duration in seconds """
@@ -680,6 +731,23 @@ class GPX:
 		self.max_latitude = None
 		self.min_longitude = None
 		self.max_longitude = None
+
+	def get_moving_data( self, stopped_speed_treshold = None ):
+		# TODO: doc
+		moving_time = 0.
+		stopped_time = 0.
+
+		moving_distance = 0.
+		stopped_distance = 0.
+
+		for track in self.tracks:
+			track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance = track.get_moving_data( stopped_speed_treshold )
+			moving_time += track_moving_time
+			stopped_time += track_stopped_time
+			moving_distance += track_moving_distance
+			stopped_distance += track_stopped_distance
+
+		return ( moving_time, stopped_time, moving_distance, stopped_distance )
 
 	def reduce_points( self, max_points_no, min_distance = None ):
 		"""
