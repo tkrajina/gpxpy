@@ -122,6 +122,33 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( points_reduced < points_original )
 		self.assertTrue( points_reduced < max_reduced_points_no )
 
+	def test_clone_and_smooth( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		original_2d = gpx.length_2d()
+		original_3d = gpx.length_3d()
+
+		cloned_gpx = gpx.clone()
+
+		cloned_gpx.reduce_points( 2000, min_distance = 10 )
+		cloned_gpx.smooth( vertical = True, horizontal = True )
+		cloned_gpx.smooth( vertical = True, horizontal = False )
+
+		print '2d:', gpx.length_2d()
+		print '2d cloned and smoothed:', cloned_gpx.length_2d()
+
+		print '3d:', gpx.length_3d()
+		print '3d cloned and smoothed:', cloned_gpx.length_3d()
+
+		self.assertTrue( gpx.length_3d() == original_3d )
+		self.assertTrue( gpx.length_2d() == original_2d )
+
+		self.assertTrue( gpx.length_3d() > cloned_gpx.length_3d() )
+		self.assertTrue( gpx.length_2d() > cloned_gpx.length_2d() )
+		
 	def test_moving_stopped_times( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
 		parser = _parser.GPXParser( f )
@@ -137,17 +164,23 @@ class TestWaypoint( unittest.TestCase ):
 		length = gpx.length_3d()
 		print 'Distance: %s' % length
 
-		moving_time, stopped_time, moving_distance, stopped_distance = gpx.get_moving_data()
+		gpx.reduce_points( 2000, min_distance = 10 )
+		gpx.smooth( vertical = True, horizontal = True )
+		gpx.smooth( vertical = True, horizontal = False )
+
+		moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
 		print '-----'
+		print 'Length: %s' % length
 		print 'Moving time: %s (%smin)' % ( moving_time, moving_time / 60. )
 		print 'Stopped time: %s (%smin)' % ( stopped_time, stopped_time / 60. )
 		print 'Moving distance: %s' % moving_distance
 		print 'Stopped distance: %s' % stopped_distance
+		print 'Max speed: %sm/s' % max_speed
 		print '-----'
 
 		# TODO: More tests and checks
 		self.assertTrue( moving_distance < length )
-		self.assertTrue( moving_distance > 0.99 * length )
+		self.assertTrue( moving_distance > 0.9 * length )
 		self.assertTrue( stopped_distance < 0.1 * length )
 
 if __name__ == '__main__':
