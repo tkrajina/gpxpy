@@ -511,7 +511,7 @@ class GPXTrackSegment:
 						moving_distance += distance
 
 						if distance and moving_time:
-							speed = distance / moving_time
+							speed = distance / timedelta.seconds
 							if speed > max_speed:
 								max_speed = speed
 			#print ( moving_time, stopped_time, moving_distance, stopped_distance )
