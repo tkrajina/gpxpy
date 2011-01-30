@@ -578,7 +578,7 @@ class GPXTrackSegment:
 		""" return ( min_elevation, max_elevation ) """
 
 		if not self.track_points:
-			return ( 0, 0 )
+			return ( 0.0, 0.0 )
 
 		elevations = [ location.elevation for location in self.track_points ]
 
