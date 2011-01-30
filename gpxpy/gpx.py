@@ -487,36 +487,41 @@ class GPXTrackSegment:
 		max_speed = 0.
 
 		previous = None
-		for point in self.track_points:
-			if previous:
-				if point.time and previous.time:
-					timedelta = point.time - previous.time
+		for i in range( 1, len( self.track_points ) ):
 
-					if point.elevation and previous.elevation:
-						distance = point.distance_3d( previous )
-					else:
-						distance = point.distance_2d( previous )
+			previous = self.track_points[ i - 1 ]
+			point = self.track_points[ i ]
 
-					seconds = timedelta.seconds
-					speed = 0
-					if seconds > 0:
-						speed = ( distance / 1000. ) / ( timedelta.seconds / 60. ** 2 )
+			# Won't compute max_speed for first and last because of common GPS
+			# recording errors, and because smoothing don't work well for those
+			# points:
+			first_or_last = i in [ 0, 1, len( self.track_points ) - 1 ]
+			if point.time and previous.time:
+				timedelta = point.time - previous.time
 
-					#print speed, stopped_speed_treshold
-					if speed <= stopped_speed_treshold:
-						stopped_time += timedelta.seconds
-						stopped_distance += distance
-					else:
-						moving_time += timedelta.seconds
-						moving_distance += distance
+				if point.elevation and previous.elevation:
+					distance = point.distance_3d( previous )
+				else:
+					distance = point.distance_2d( previous )
 
-						if distance and moving_time:
-							speed = distance / timedelta.seconds
-							if speed > max_speed:
-								max_speed = speed
-			#print ( moving_time, stopped_time, moving_distance, stopped_distance )
-			previous = point
+				seconds = timedelta.seconds
+				speed = 0
+				if seconds > 0:
+					speed = ( distance / 1000. ) / ( timedelta.seconds / 60. ** 2 )
 
+				#print speed, stopped_speed_treshold
+				if speed <= stopped_speed_treshold:
+					stopped_time += timedelta.seconds
+					stopped_distance += distance
+				else:
+					moving_time += timedelta.seconds
+					moving_distance += distance
+
+					if distance and moving_time:
+						speed = distance / timedelta.seconds
+						if speed > max_speed and not first_or_last:
+							max_speed = speed
+							logging.debug( 'Novi:%s' % max_speed )
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
 	def get_duration( self ):
