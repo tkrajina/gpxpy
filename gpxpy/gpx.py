@@ -521,7 +521,6 @@ class GPXTrackSegment:
 						speed = distance / timedelta.seconds
 						if speed > max_speed and not first_or_last:
 							max_speed = speed
-							logging.debug( 'Novi:%s' % max_speed )
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
 	def get_duration( self ):
