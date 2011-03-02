@@ -183,5 +183,67 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( moving_distance > 0.9 * length )
 		self.assertTrue( stopped_distance < 0.1 * length )
 
+	def test_split_on_impossible_index( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		track = gpx.tracks[ 0 ]
+
+		before = len( track.track_segments )
+		track.split( 1000, 10 )
+		after = len( track.track_segments )
+
+		self.assertTrue( before == after )
+
+	def test_split( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		track = gpx.tracks[ 1 ]
+
+		track_points_no = track.get_points_no()
+
+		before = len( track.track_segments )
+		track.split( 0, 10 )
+		after = len( track.track_segments )
+
+		self.assertTrue( before + 1 == after )
+		print 'Points in first (splitted) part:', len( track.track_segments[ 0 ].track_points )
+
+		# From 0 to 10th point == 11 points:
+		self.assertTrue( len( track.track_segments[ 0 ].track_points ) == 11 )
+		self.assertTrue( len( track.track_segments[ 0 ].track_points ) + len( track.track_segments[ 1 ].track_points ) == track_points_no )
+
+		# Now split the second track
+		track.split( 1, 20 )
+		self.assertTrue( len( track.track_segments[ 1 ].track_points ) == 21 )
+		self.assertTrue( len( track.track_segments[ 0 ].track_points ) + len( track.track_segments[ 1 ].track_points ) + len( track.track_segments[ 2 ].track_points ) == track_points_no )
+
+	def test_split_and_join( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		track = gpx.tracks[ 1 ]
+
+		original_track = track.clone()
+
+		track.split( 0, 10 )
+		track.split( 1, 20 )
+
+		self.assertTrue( len( track.track_segments ) == 3 )
+		track.join( 1 )
+		self.assertTrue( len( track.track_segments ) == 2 )
+		track.join( 0 )
+		self.assertTrue( len( track.track_segments ) == 1 )
+
+		# Check that this splitted and joined track is the same as the original one:
+		self.assertTrue( track == original_track )
+
 if __name__ == '__main__':
 	unittest.main()

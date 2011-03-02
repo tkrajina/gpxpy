@@ -286,6 +286,47 @@ class GPXTrack:
 				length += d
 		return length
 
+	def split( self, track_segment_no, track_point_no ):
+		""" Splits One of the segments in two parts. If one of the splitted segments is empty 
+		it will not be added in the result """
+		new_segments = []
+		for i in range( len( self.track_segments ) ):
+			segment = self.track_segments[ i ]
+			if i == track_segment_no:
+				segment_1, segment_2 = segment.split( track_point_no )
+				if segment_1:
+					new_segments.append( segment_1 )
+				if segment_2:
+					new_segments.append( segment_2 )
+			else:
+				new_segments.append( segment )
+		self.track_segments = new_segments
+
+	def join( self, track_segment_no, track_segment_no_2 = None ):
+		""" Joins two segments of this track. If track_segment_no_2 the join will be with the
+		next segment """
+
+		if not track_segment_no_2:
+			track_segment_no_2 = track_segment_no + 1
+
+		if track_segment_no_2 >= len( self.track_segments ):
+			return
+
+		new_segments = []
+		for i in range( len( self.track_segments ) ):
+			segment = self.track_segments[ i ]
+			if i == track_segment_no:
+				second_segment = self.track_segments[ track_segment_no_2 ]
+				segment.join( second_segment )
+
+				new_segments.append( segment )
+			elif i == track_segment_no_2:
+				# Nothing, it is already joined
+				pass
+			else:
+				new_segments.append( segment )
+		self.track_segments = new_segments
+
 	def get_moving_data( self, stopped_speed_treshold = None ):
 		moving_time = 0.
 		stopped_time = 0.
@@ -457,8 +498,8 @@ class GPXTrackSegment:
 
 	track_points = None
 
-	def __init__( self ):
-		self.track_points = []
+	def __init__( self, track_points = None ):
+		self.track_points = track_points if track_points else []
 
 	def length_2d( self ):
 		return length_2d( self.track_points )
@@ -472,6 +513,17 @@ class GPXTrackSegment:
 		
 	def get_points( self ):
 		return self.track_points
+
+	def split( self, point_no ):
+		""" Splits this segment in two parts. Point #point_no remains in the first part. 
+		Returns a list with two GPXTrackSegments """
+		part_1 = self.track_points[ : point_no + 1 ]
+		part_2 = self.track_points[ point_no + 1 : ]
+		return ( GPXTrackSegment( part_1 ), GPXTrackSegment( part_2 ) )
+
+	def join( self, track_segment ):
+		""" Joins with another segment """
+		self.track_points += track_segment.track_points
 
 	def get_moving_data( self, stopped_speed_treshold = None ):
 
