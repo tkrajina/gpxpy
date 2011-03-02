@@ -525,6 +525,15 @@ class GPXTrackSegment:
 		""" Joins with another segment """
 		self.track_points += track_segment.track_points
 
+	def remove_point( self, point_no ):
+		if point_no < 0 or point_no >= len( self.track_points ):
+			return
+
+		part_1 = self.track_points[ : point_no ]
+		part_2 = self.track_points[ point_no + 1 : ]
+
+		self.track_points = part_1 + part_2
+
 	def get_moving_data( self, stopped_speed_treshold = None ):
 
 		if not stopped_speed_treshold:
@@ -753,6 +762,9 @@ class GPXTrackSegment:
 		found = float( found ) / float( len( self.track_points ) )
 
 		return has_first and found > .75 and has_last
+
+	def clone( self ):
+		return _copy.deepcopy( self )
 
 	def __eq__( self, segment ):
 		return _utils.attributes_and_classes_equals( self, segment )

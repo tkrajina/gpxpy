@@ -245,5 +245,24 @@ class TestWaypoint( unittest.TestCase ):
 		# Check that this splitted and joined track is the same as the original one:
 		self.assertTrue( track == original_track )
 
+	def test_remove_point_from_segment( self ):
+		f = open( 'test_files/cerknicko-jezero.gpx' )
+		parser = _parser.GPXParser( f )
+		gpx = parser.parse()
+		f.close()
+
+		track = gpx.tracks[ 1 ]
+		segment = track.track_segments[ 0 ]
+		original_segment = segment.clone()
+
+		segment.remove_point( 3 )
+		self.assertTrue( segment.track_points[ 0 ] == original_segment.track_points[ 0 ] )
+		self.assertTrue( segment.track_points[ 1 ] == original_segment.track_points[ 1 ] )
+		self.assertTrue( segment.track_points[ 2 ] == original_segment.track_points[ 2 ] )
+		# ...but:
+		self.assertTrue( segment.track_points[ 3 ] == original_segment.track_points[ 4 ] )
+
+		self.assertTrue( len( segment.track_points ) + 1 == len( original_segment.track_points ) )
+
 if __name__ == '__main__':
 	unittest.main()
