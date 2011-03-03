@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import math as _math
+import math as mod_math
 
-import utils as _utils
-import copy as _copy
+import utils as mod_utils
+import copy as mod_copy
 
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
@@ -62,11 +62,11 @@ class Location:
 		if not location:
 			return None
 
-		coef = _math.cos( self.latitude / 180. * _math.pi )
+		coef = mod_math.cos( self.latitude / 180. * mod_math.pi )
 		x = self.latitude - location.latitude
 		y = ( self.longitude - location.longitude ) * coef
 
-		return _math.sqrt( x * x + y * y ) * self.ONE_DEGREE
+		return mod_math.sqrt( x * x + y * y ) * self.ONE_DEGREE
 
 	def distance_3d( self, location ):
 		distance = self.distance_2d( location )
@@ -79,7 +79,7 @@ class Location:
 
 		h = location.elevation - self.elevation
 
-		return _math.sqrt( distance * distance + h * h )
+		return mod_math.sqrt( distance * distance + h * h )
 
 	def move( self, latitude_diff, longitude_diff ):
 		self.latitude += latitude_diff
@@ -111,19 +111,19 @@ class GPXWaypoint( Location ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'ele', content = self.elevation )
+		content = mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content += _utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _utils.to_xml( 'name', content = self.name, cdata = True )
-		content += _utils.to_xml( 'desc', content = self.description, cdata = True )
-		content += _utils.to_xml( 'sym', content = self.symbol, cdata = True )
-		content += _utils.to_xml( 'type', content = self.type, cdata = True )
-		content += _utils.to_xml( 'cmt', content = self.comment, cdata = True )
+			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		content += mod_utils.to_xml( 'type', content = self.type, cdata = True )
+		content += mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
 
-		return _utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __eq__( self, waypoint ):
-		return _utils.attributes_and_classes_equals( self, waypoint )
+		return mod_utils.attributes_and_classes_equals( self, waypoint )
 
 	def __ne__( self, waypoint ):
 		return not self.__eq__( waypoint )
@@ -154,16 +154,16 @@ class GPXRoute:
 			route_point.move( latitude_diff, longitude_diff )
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'name', content = self.name, cdata = True )
-		content += _utils.to_xml( 'desc', content = self.description, cdata = True )
-		content += _utils.to_xml( 'number', content = self.number )
+		content = mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += mod_utils.to_xml( 'number', content = self.number )
 		for route_point in self.route_points:
 			content += route_point.to_xml()
 
-		return _utils.to_xml( 'rte', content = content )
+		return mod_utils.to_xml( 'rte', content = content )
 
 	def __eq__( self, route ):
-		return _utils.attributes_and_classes_equals( self, route )
+		return mod_utils.attributes_and_classes_equals( self, route )
 
 	def __ne__( self, route ):
 		return not self.__eq__( route )
@@ -194,19 +194,19 @@ class GPXRoutePoint( Location ):
 		return '[rtept{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'ele', content = self.elevation )
+		content = mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content = _utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content = _utils.to_xml( 'name', content = self.name, cdata = True )
-		content = _utils.to_xml( 'cmt', content = self.comment, cdata = True )
-		content = _utils.to_xml( 'desc', content = self.description, cdata = True )
-		content = _utils.to_xml( 'sym', content = self.symbol, cdata = True )
-		content = _utils.to_xml( 'type', content = self.type, cdata = True )
+			content = mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content = mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content = mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
+		content = mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content = mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		content = mod_utils.to_xml( 'type', content = self.type, cdata = True )
 
-		return _utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __eq__( self, location ):
-		return _utils.attributes_and_classes_equals( self, location )
+		return mod_utils.attributes_and_classes_equals( self, location )
 
 	def __ne__( self, location ):
 		return not self.__eq__( location )
@@ -228,18 +228,18 @@ class GPXTrackPoint( Location ):
 		self.comment = comment
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'ele', content = self.elevation )
+		content = mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content += _utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _utils.to_xml( 'cmt', content = self.comment, cdata = True )
-		content += _utils.to_xml( 'sym', content = self.symbol, cdata = True )
-		return _utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
+		content += mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		return mod_utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __str__( self ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
 
 	def __eq__( self, point ):
-		return _utils.attributes_and_classes_equals( self, point )
+		return mod_utils.attributes_and_classes_equals( self, point )
 
 	def __ne__( self, point ):
 		return not self.__eq__( point )
@@ -261,6 +261,16 @@ class GPXTrack:
 		self.number = number
 
 		self.track_segments = []
+
+	def remove_empty( self ):
+		""" Removes empty segments and/or routes """
+		result = []
+
+		for segment in self.track_segments:
+			if len( segment.track_points ) > 0:
+				result.append( segment )
+
+		self.track_segments = result
 	
 	def length_2d( self ):
 		length = 0
@@ -409,13 +419,13 @@ class GPXTrack:
 		return ( min( elevations ), max( elevations ) )
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'name', content = self.name, cdata = True )
-		content += _utils.to_xml( 'desc', content = self.description, cdata = True )
-		content += _utils.to_xml( 'number', content = self.number )
+		content = mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += mod_utils.to_xml( 'number', content = self.number )
 		for track_segment in self.track_segments:
 			content += track_segment.to_xml()
 
-		return _utils.to_xml( 'trk', content = content )
+		return mod_utils.to_xml( 'trk', content = content )
 
 	def get_center( self ):
 		""" "Average" location for this track """
@@ -468,25 +478,28 @@ class GPXTrack:
 		distance = None
 		result_track_segment_no = None
 		result_track_point_no = None
+
 		for i in range( len( self.track_segments ) ):
 			track_segment = self.track_segments[ i ]
 			nearest_location, track_point_no = track_segment.get_nearest_location( location )
 			nearest_location_distance = None
 			if nearest_location:
 				nearest_location_distance = nearest_location.distance_2d( location )
+
 			if not distance or nearest_location_distance < distance:
-				result = nearest_location
-				distance = nearest_location_distance
-				result_track_segment_no = i
-				result_track_point_no = track_point_no
+				if nearest_location:
+					distance = nearest_location_distance
+					result = nearest_location
+					result_track_segment_no = i
+					result_track_point_no = track_point_no
 
 		return ( result, result_track_segment_no, result_track_point_no )
 
 	def clone( self ):
-		return _copy.deepcopy( self )
+		return mod_copy.deepcopy( self )
 
 	def __eq__( self, track ):
-		return _utils.attributes_and_classes_equals( self, track )
+		return mod_utils.attributes_and_classes_equals( self, track )
 
 	def __ne__( self, track ):
 		return not self.__eq__( track )
@@ -678,7 +691,7 @@ class GPXTrackSegment:
 		content = ''
 		for track_point in self.track_points:
 			content += track_point.to_xml()
-		return _utils.to_xml( 'trkseg', content = content )
+		return mod_utils.to_xml( 'trkseg', content = content )
 
 	def get_points_no( self ):
 		""" Number of points """
@@ -764,10 +777,10 @@ class GPXTrackSegment:
 		return has_first and found > .75 and has_last
 
 	def clone( self ):
-		return _copy.deepcopy( self )
+		return mod_copy.deepcopy( self )
 
 	def __eq__( self, segment ):
-		return _utils.attributes_and_classes_equals( self, segment )
+		return mod_utils.attributes_and_classes_equals( self, segment )
 
 class GPX:
 
@@ -815,6 +828,20 @@ class GPX:
 		self.max_latitude = None
 		self.min_longitude = None
 		self.max_longitude = None
+
+	def remove_empty( self ):
+		""" Removes segments, routes """
+
+		routes = []
+
+		for route in self.routes:
+			if len( route.route_points ) > 0:
+				routes.append( route )
+
+		self.routes = routes
+
+		for track in self.tracks:
+			track.remove_empty()
 
 	def get_moving_data( self, stopped_speed_treshold = None ):
 		"""
@@ -870,7 +897,7 @@ class GPX:
 		length = self.length_3d()
 
 		if not min_distance:
-			min_distance = _math.ceil( length / float( max_points_no ) )
+			min_distance = mod_math.ceil( length / float( max_points_no ) )
 			if not min_distance or min_distance < 0:
 				min_distance = 100
 
@@ -975,7 +1002,8 @@ class GPX:
 		return ( min( elevations ), max( elevations ) )
 
 	def get_nearest_location( self, location ):
-		""" Returns ( location, track_no, track_segment_no ) for nearest location on map """
+		""" Returns ( location, track_no, track_segment_no, track_point_no ) for the
+		nearest location on map """
 		if not self.tracks:
 			return None
 
@@ -1010,16 +1038,16 @@ class GPX:
 			track.move( latitude_diff, longitude_diff )
 
 	def to_xml( self ):
-		content = _utils.to_xml( 'time', content = self.time )
-		content += _utils.to_xml( 'name', content = self.name, cdata = True )
-		content += _utils.to_xml( 'desc', content = self.description, cdata = True )
-		content += _utils.to_xml( 'author', content = self.author, cdata = True )
-		content += _utils.to_xml( 'email', content = self.email, cdata = True )
-		content += _utils.to_xml( 'url', content = self.url, cdata = True )
-		content += _utils.to_xml( 'urlname', content = self.urlname, cdata = True )
+		content = mod_utils.to_xml( 'time', content = self.time )
+		content += mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += mod_utils.to_xml( 'author', content = self.author, cdata = True )
+		content += mod_utils.to_xml( 'email', content = self.email, cdata = True )
+		content += mod_utils.to_xml( 'url', content = self.url, cdata = True )
+		content += mod_utils.to_xml( 'urlname', content = self.urlname, cdata = True )
 		if self.time:
-			content = _utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += _utils.to_xml( 'keywords', content = self.keywords, cdata = True )
+			content = mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += mod_utils.to_xml( 'keywords', content = self.keywords, cdata = True )
 
 		for waypoint in self.waypoints:
 			content += waypoint.to_xml()
@@ -1030,7 +1058,7 @@ class GPX:
 		for route in self.routes:
 			content += route.to_xml()
 
-		return _utils.to_xml( 'gpx', attributes = {}, content = content )
+		return mod_utils.to_xml( 'gpx', attributes = {}, content = content )
 
 	def smooth( self, vertical = True, horizontal = False ):
 		for track in self.tracks:
@@ -1048,8 +1076,8 @@ class GPX:
 		return result
 
 	def clone( self ):
-		return _copy.deepcopy( self )
+		return mod_copy.deepcopy( self )
 
 	def __eq__( self, route ):
-		return _utils.attributes_and_classes_equals( self, route, ignore = ( 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) )
+		return mod_utils.attributes_and_classes_equals( self, route, ignore = ( 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) )
 
