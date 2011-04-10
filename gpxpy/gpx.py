@@ -2,6 +2,7 @@
 
 import logging
 import math as mod_math
+import datetime as mod_datetime
 
 import utils as mod_utils
 import copy as mod_copy
@@ -234,6 +235,24 @@ class GPXTrackPoint( Location ):
 		content += mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
 		content += mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
 		return mod_utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
+
+	def time_difference( self, track_point ):
+		""" Time distance in seconds beween times fo those two points """
+		if not self.time or not track_point or not track_point.time:
+			return None
+		
+		time_1 = self.time
+		time_2 = track_point.time
+
+		if time_1 == time_2:
+			return 0
+
+		if time_1 > time_2:
+			delta = time_1 - time_2
+		else:
+			delta = time_2 - time_1
+
+		return delta.seconds
 
 	def __str__( self ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
