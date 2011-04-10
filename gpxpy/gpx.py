@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import logging
+import logging as mod_logging
 import math as mod_math
 import datetime as mod_datetime
 
@@ -123,12 +123,6 @@ class GPXWaypoint( Location ):
 
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
-	def __eq__( self, waypoint ):
-		return mod_utils.attributes_and_classes_equals( self, waypoint )
-
-	def __ne__( self, waypoint ):
-		return not self.__eq__( waypoint )
-
 	def __hash__( self ):
 		return id( self )
 
@@ -162,12 +156,6 @@ class GPXRoute:
 			content += route_point.to_xml()
 
 		return mod_utils.to_xml( 'rte', content = content )
-
-	def __eq__( self, route ):
-		return mod_utils.attributes_and_classes_equals( self, route )
-
-	def __ne__( self, route ):
-		return not self.__eq__( route )
 
 	def __hash__( self ):
 		return id( self )
@@ -205,12 +193,6 @@ class GPXRoutePoint( Location ):
 		content = mod_utils.to_xml( 'type', content = self.type, cdata = True )
 
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
-
-	def __eq__( self, location ):
-		return mod_utils.attributes_and_classes_equals( self, location )
-
-	def __ne__( self, location ):
-		return not self.__eq__( location )
 
 	def __hash__( self ):
 		return id( self )
@@ -254,14 +236,22 @@ class GPXTrackPoint( Location ):
 
 		return delta.seconds
 
+	def speed( self, track_point ):
+		if not track_point:
+			return None
+
+		seconds = self.time_difference( track_point )
+		length = self.distance_3d( track_point )
+		if not length:
+			length = self.distance_2d( track_point )
+
+		if not seconds or not length:
+			return None
+
+		return length / float( seconds )
+
 	def __str__( self ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
-
-	def __eq__( self, point ):
-		return mod_utils.attributes_and_classes_equals( self, point )
-
-	def __ne__( self, point ):
-		return not self.__eq__( point )
 
 	def __hash__( self ):
 		return id( self )
@@ -517,12 +507,6 @@ class GPXTrack:
 	def clone( self ):
 		return mod_copy.deepcopy( self )
 
-	def __eq__( self, track ):
-		return mod_utils.attributes_and_classes_equals( self, track )
-
-	def __ne__( self, track ):
-		return not self.__eq__( track )
-
 	def __hash__( self ):
 		return id( self )
 
@@ -616,6 +600,38 @@ class GPXTrackSegment:
 							max_speed = speed
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
+	def get_speed( self, point_no ):
+		""" Get speed at that point. Point may be a GPXTrackPoint instance or integer (point index) """
+
+		point = self.track_points[ point_no ]
+
+		previous_point = None
+		next_point = None
+
+		if 0 < point_no and point_no < len( self.track_points ):
+			previous_point = self.track_points[ point_no - 1 ]
+		if 0 < point_no and point_no < len( self.track_points ) - 1:
+			next_point = self.track_points[ point_no + 1 ]
+
+		#mod_logging.debug( 'previous: %s' % previous_point )
+		#mod_logging.debug( 'next: %s' % next_point )
+
+		speed_1 = point.speed( previous_point )
+		speed_2 = point.speed( next_point )
+
+		if speed_1:
+			speed_1 = abs( speed_1 )
+		if speed_2:
+			speed_2 = abs( speed_2 )
+
+		if speed_1 and speed_2:
+			return ( speed_1 + speed_2 ) / 2.
+
+		if speed_1:
+			return speed_1
+
+		return speed_2
+
 	def get_duration( self ):
 		""" Duration in seconds """
 		if not self.track_points:
@@ -631,11 +647,11 @@ class GPXTrackSegment:
 			last = self.track_points[ -2 ]
 
 		if not last.time or not first.time:
-			logging.debug( 'Can\'t find time' )
+			mod_logging.debug( 'Can\'t find time' )
 			return None
 
 		if last.time < first.time:
-			logging.debug( 'Not enough time data' )
+			mod_logging.debug( 'Not enough time data' )
 			return None
 
 		return ( last.time - first.time ).seconds
@@ -692,11 +708,11 @@ class GPXTrackSegment:
 		last_time = self.track_points[ -1 ].time
 
 		if not first_time and not last_time:
-			logging.debug( 'No times for track segment' )
+			mod_logging.debug( 'No times for track segment' )
 			return None
 
 		if time < first_time or time > last_time:
-			logging.debug( 'Not in track (search for:%s, start:%s, end:%s)' % ( time, first_time, last_time ) )
+			mod_logging.debug( 'Not in track (search for:%s, start:%s, end:%s)' % ( time, first_time, last_time ) )
 			return None
 
 		for i in range( len( self.track_points ) ):
@@ -797,9 +813,6 @@ class GPXTrackSegment:
 
 	def clone( self ):
 		return mod_copy.deepcopy( self )
-
-	def __eq__( self, segment ):
-		return mod_utils.attributes_and_classes_equals( self, segment )
 
 class GPX:
 
@@ -939,7 +952,7 @@ class GPX:
 
 				track_segment.track_points = reduced_points
 
-		logging.debug( 'Track reduced to %s points' % len( self.get_points() ) )
+		mod_logging.debug( 'Track reduced to %s points' % len( self.get_points() ) )
 
 	def length_2d( self ):
 		result = 0
@@ -1096,7 +1109,3 @@ class GPX:
 
 	def clone( self ):
 		return mod_copy.deepcopy( self )
-
-	def __eq__( self, route ):
-		return mod_utils.attributes_and_classes_equals( self, route, ignore = ( 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) )
-

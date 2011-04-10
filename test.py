@@ -6,6 +6,48 @@ import gpxpy.gpx as _gpx
 import gpxpy.parser as _parser
 import time as _time
 
+def equals( object1, object2, ignore = None ):
+	""" Testing purposes only """
+
+	if not object1 and not object2:
+		return True
+
+	if not object1 or not object2:
+		print 'Not obj2'
+		return False
+
+	if not object1.__class__ == object2.__class__:
+		print 'Not obj1'
+		return False
+
+	attributes = []
+	for attr in dir( object1 ):
+		if not ignore or not attr in ignore:
+			if not callable( getattr( object1, attr ) ) and not attr.startswith( '_' ):
+				if not attr in attributes:
+					attributes.append( attr )
+
+	for attr in attributes:
+		attr1 = getattr( object1, attr )
+		attr2 = getattr( object2, attr )
+
+		if attr1 == attr2:
+			return True
+
+		if not attr1 and not attr2:
+			return True
+		if not attr1 or not attr2:
+			print 'Object differs in attribute %s (%s - %s)' % ( attr, attr1, attr2 )
+			return False
+
+		if not equals( attr1, attr2 ):
+			print 'Object differs in attribute %s (%s - %s)' % ( attr, attr1, attr2 )
+			return None
+
+	return True
+
+# TODO: Track segment speed in point test
+
 class TestWaypoint( unittest.TestCase ):
 
 	def _parse( self, file ):
@@ -34,10 +76,10 @@ class TestWaypoint( unittest.TestCase ):
 		gpx = self._parse( 'cerknicko-jezero.gpx' )
 		gpx2 = self._reparse( gpx )
 
-		self.assertTrue( gpx.waypoints == gpx2.waypoints )
-		self.assertTrue( gpx.routes == gpx2.routes )
-		self.assertTrue( gpx.tracks == gpx2.tracks )
-		self.assertTrue( gpx == gpx2 )
+		self.assertTrue( equals( gpx.waypoints, gpx2.waypoints ) )
+		self.assertTrue( equals( gpx.routes, gpx2.routes ) )
+		self.assertTrue( equals( gpx.tracks, gpx2.tracks ) )
+		self.assertTrue( equals( gpx, gpx2 ) )
 
 	def test_has_times_false( self ):
 		gpx = self._parse( 'cerknicko-without-times.gpx' )
@@ -243,7 +285,7 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( len( track.track_segments ) == 1 )
 
 		# Check that this splitted and joined track is the same as the original one:
-		self.assertTrue( track == original_track )
+		self.assertTrue( equals( track, original_track ) )
 
 	def test_remove_point_from_segment( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
@@ -256,11 +298,13 @@ class TestWaypoint( unittest.TestCase ):
 		original_segment = segment.clone()
 
 		segment.remove_point( 3 )
-		self.assertTrue( segment.track_points[ 0 ] == original_segment.track_points[ 0 ] )
-		self.assertTrue( segment.track_points[ 1 ] == original_segment.track_points[ 1 ] )
-		self.assertTrue( segment.track_points[ 2 ] == original_segment.track_points[ 2 ] )
+		print segment.track_points[ 0 ]
+		print original_segment.track_points[ 0 ]
+		self.assertTrue( equals( segment.track_points[ 0 ], original_segment.track_points[ 0 ] ) )
+		self.assertTrue( equals( segment.track_points[ 1 ], original_segment.track_points[ 1 ] ) )
+		self.assertTrue( equals( segment.track_points[ 2 ], original_segment.track_points[ 2 ] ) )
 		# ...but:
-		self.assertTrue( segment.track_points[ 3 ] == original_segment.track_points[ 4 ] )
+		self.assertTrue( equals( segment.track_points[ 3 ], original_segment.track_points[ 4 ] ) )
 
 		self.assertTrue( len( segment.track_points ) + 1 == len( original_segment.track_points ) )
 
