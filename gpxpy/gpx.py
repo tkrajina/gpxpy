@@ -11,7 +11,7 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # When computing stopped time -- this is the miminum speed between two points, if speed is less
 # than this value -- we'll assume it is 0
-DEFAULT_STOPPED_SPEED_TRESHOLD = .2
+DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
 def length( locations = [], _3d = None ):
 	if not locations:
