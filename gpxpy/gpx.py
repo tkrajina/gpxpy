@@ -257,7 +257,6 @@ class GPXTrackPoint( Location ):
 		return id( self )
 
 class GPXTrack:
-
 	name = None
 	description = None
 	number = None
@@ -511,7 +510,6 @@ class GPXTrack:
 		return id( self )
 
 class GPXTrackSegment:
-
 	track_points = None
 
 	def __init__( self, track_points = None ):
@@ -953,6 +951,11 @@ class GPX:
 				track_segment.track_points = reduced_points
 
 		mod_logging.debug( 'Track reduced to %s points' % len( self.get_points() ) )
+
+	def split( self, track_no, track_segment_no, track_point_no ):
+		track = self.tracks[ track_no ]
+
+		track.split( track_segment_no = track_segment_no, track_point_no = track_point_no )
 
 	def length_2d( self ):
 		result = 0
