@@ -9,6 +9,9 @@ import copy as mod_copy
 
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+# Used in smoothing, sum must be 1:
+SMOOTHING_RATIO = ( 0.4, 0.3, 0.4 )
+
 # When computing stopped time -- this is the miminum speed between two points, if speed is less
 # than this value -- we'll assume it is 0
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
@@ -464,7 +467,7 @@ class GPXTrack:
 	def smooth( self, vertical = True, horizontal = False ):
 		""" See: GPXTrackSegment.smooth() """
 		for track_segment in self.track_segments:
-			track_segment.smooth( horizontal, vertical )
+			track_segment.smooth( vertical, horizontal )
 
 	def has_times( self ):
 		""" See GPXTrackSegment.has_times() """
@@ -759,31 +762,31 @@ class GPXTrackSegment:
 		if len( self.track_points ) <= 3:
 			return
 
-		# First point
-		first = self.track_points[ 0 ]
-		second = self.track_points[ 1 ]
-		first.elevation = ( 0.3 * second.elevation + 0.4 * first.elevation ) / 0.7
+		elevations = []
+		latitudes = []
+		longitudes = []
 
-		# Last point
-		last = self.track_points[ -1 ]
-		penultimate = self.track_points[ -2 ]
-		last.elevation = ( 0.3 * penultimate.elevation + 0.4 * last.elevation ) / 0.7
+		for point in self.track_points:
+			elevations.append( point.elevation )
+			latitudes.append( point.latitude )
+			longitudes.append( point.longitude )
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
-			if vertical:
+			if vertical and elevations[ i - 1 ] and elevations[ i ] and elevations[ i + 1 ]:
 				self.track_points[ i ].elevation = \
-						0.3 * self.track_points[ i - 1 ].elevation + \
-						0.4 * self.track_points[ i ].elevation + \
-						0.3 * self.track_points[ i + 1 ].elevation
+						SMOOTHING_RATIO[ 0 ] * elevations[ i - 1 ] + \
+						SMOOTHING_RATIO[ 1 ] * elevations[ i ] + \
+						SMOOTHING_RATIO[ 2 ] * elevations[ i + 1 ]
 			if horizontal:
+				# TODO:
 				self.track_points[ i ].latitude = \
-						0.3 * self.track_points[ i - 1 ].latitude + \
-						0.4 * self.track_points[ i ].latitude + \
-						0.3 * self.track_points[ i + 1 ].latitude
+						SMOOTHING_RATIO[ 0 ] * latitudes[ i - 1 ] + \
+						SMOOTHING_RATIO[ 1 ] * latitudes[ i ] + \
+						SMOOTHING_RATIO[ 2 ] * latitudes[ i + 1 ]
 				self.track_points[ i ].longitude = \
-						0.3 * self.track_points[ i - 1 ].longitude + \
-						0.4 * self.track_points[ i ].longitude + \
-						0.3 * self.track_points[ i + 1 ].longitude
+						SMOOTHING_RATIO[ 0 ] * longitudes[ i - 1 ] + \
+						SMOOTHING_RATIO[ 1 ] * longitudes[ i ] + \
+						SMOOTHING_RATIO[ 2 ] * longitudes[ i + 1 ]
 
 	def has_times( self ):
 		""" 
