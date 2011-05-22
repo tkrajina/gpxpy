@@ -10,7 +10,7 @@ import copy as mod_copy
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # Used in smoothing, sum must be 1:
-SMOOTHING_RATIO = ( 0.4, 0.3, 0.4 )
+SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 
 # When computing stopped time -- this is the miminum speed between two points, if speed is less
 # than this value -- we'll assume it is 0
