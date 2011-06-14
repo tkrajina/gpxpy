@@ -2,9 +2,9 @@
 
 import unittest
 
-import gpxpy.gpx as _gpx
-import gpxpy.parser as _parser
-import time as _time
+import gpxpy.gpx as mod_gpx
+import gpxpy.parser as mod_parser
+import time as mod_time
 
 def equals( object1, object2, ignore = None ):
 	""" Testing purposes only """
@@ -52,7 +52,7 @@ class TestWaypoint( unittest.TestCase ):
 
 	def _parse( self, file ):
 		f = open( 'test_files/%s' % file )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -64,7 +64,7 @@ class TestWaypoint( unittest.TestCase ):
 	def _reparse( self, gpx ):
 		xml = gpx.to_xml()
 
-		parser = _parser.GPXParser( xml )
+		parser = mod_parser.GPXParser( xml )
 		gpx = parser.parse()
 
 		if not gpx:
@@ -107,18 +107,18 @@ class TestWaypoint( unittest.TestCase ):
 	def test_nearest_location_1( self ):
 		gpx = self._parse( 'korita-zbevnica.gpx' )
 
-		location = _gpx.Location( 45.451058791, 14.027903696 )
+		location = mod_gpx.Location( 45.451058791, 14.027903696 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( location ) < 0.001 )
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = _gpx.Location( 1, 1 )
+		location = mod_gpx.Location( 1, 1 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = _gpx.Location( 50, 50 )
+		location = mod_gpx.Location( 50, 50 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
@@ -131,16 +131,16 @@ class TestWaypoint( unittest.TestCase ):
 
 	def test_reduce_gpx_file( self ):
 		f = open( 'test_files/Mojstrovka.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
 		max_reduced_points_no = 200
 
-		started = _time.time()
+		started = mod_time.time()
 		gpx = parser.parse()
 		points_original = len( gpx.get_points() )
-		time_original = _time.time() - started
+		time_original = mod_time.time() - started
 
 		gpx.reduce_points( max_reduced_points_no )
 
@@ -149,10 +149,10 @@ class TestWaypoint( unittest.TestCase ):
 		result = gpx.to_xml()
 		result = result.encode( 'utf-8' )
 
-		started = _time.time()
-		parser = _parser.GPXParser( result )
+		started = mod_time.time()
+		parser = mod_parser.GPXParser( result )
 		parser.parse()
-		time_reduced = _time.time() - started
+		time_reduced = mod_time.time() - started
 
 		print time_original
 		print points_original
@@ -166,7 +166,7 @@ class TestWaypoint( unittest.TestCase ):
 
 	def test_clone_and_smooth( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -193,7 +193,7 @@ class TestWaypoint( unittest.TestCase ):
 		
 	def test_moving_stopped_times( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -210,7 +210,7 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.smooth( vertical = True, horizontal = True )
 		gpx.smooth( vertical = True, horizontal = False )
 
-		moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
+		moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data( stopped_speed_treshold = 0.1 )
 		print '-----'
 		print 'Length: %s' % length
 		print 'Moving time: %s (%smin)' % ( moving_time, moving_time / 60. )
@@ -222,12 +222,13 @@ class TestWaypoint( unittest.TestCase ):
 
 		# TODO: More tests and checks
 		self.assertTrue( moving_distance < length )
-		self.assertTrue( moving_distance > 0.9 * length )
+		print 'Dakle:', moving_distance, length
+		self.assertTrue( moving_distance > 0.75 * length )
 		self.assertTrue( stopped_distance < 0.1 * length )
 
 	def test_split_on_impossible_index( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -241,7 +242,7 @@ class TestWaypoint( unittest.TestCase ):
 
 	def test_split( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -267,7 +268,7 @@ class TestWaypoint( unittest.TestCase ):
 
 	def test_split_and_join( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
@@ -289,7 +290,7 @@ class TestWaypoint( unittest.TestCase ):
 
 	def test_remove_point_from_segment( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
-		parser = _parser.GPXParser( f )
+		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
 		f.close()
 
