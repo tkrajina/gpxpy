@@ -41,6 +41,20 @@ def length_3d( locations = [] ):
 	""" 3-dimensional length of locations (is uses latitude, longitude and elevation). """
 	return length( locations, True )
 
+def distance( latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2 ):
+	""" Distance between two points. If elevation == None compute a 2d distance """
+
+	coef = mod_math.cos( self.latitude / 180. * mod_math.pi )
+	x = self.latitude - location.latitude
+	y = ( self.longitude - location.longitude ) * coef
+
+	distance_2d = mod_math.sqrt( x * x + y * y ) * self.ONE_DEGREE
+
+	if elevation_1 == None or elevation_2 == None or elevation_1 = elevation_2:
+		return distance_2d
+
+	return mod_math.sqrt( distance_2d ** 2 + ( elevation_1 - elevation_2 ) ** 2 )
+
 def length_2d( locations = [] ):
 	""" 2-dimensional length of locations (only latitude and longitude, no elevation """
 	return length( locations, None )
@@ -66,24 +80,13 @@ class Location:
 		if not location:
 			return None
 
-		coef = mod_math.cos( self.latitude / 180. * mod_math.pi )
-		x = self.latitude - location.latitude
-		y = ( self.longitude - location.longitude ) * coef
-
-		return mod_math.sqrt( x * x + y * y ) * self.ONE_DEGREE
+		return distance( self.latitude, self.longitude, None, location.latitude, location.longitude, None )
 
 	def distance_3d( self, location ):
-		distance = self.distance_2d( location )
-
-		if distance == 0:
-			return 0
-
-		if not distance or not location.has_elevation() or not self.has_elevation():
+		if not location:
 			return None
 
-		h = location.elevation - self.elevation
-
-		return mod_math.sqrt( distance * distance + h * h )
+		return distance( self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation )
 
 	def move( self, latitude_diff, longitude_diff ):
 		self.latitude += latitude_diff
@@ -464,7 +467,7 @@ class GPXTrack:
 
 		return result
 
-	def smooth( self, vertical = True, horizontal = False ):
+	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See: GPXTrackSegment.smooth() """
 		for track_segment in self.track_segments:
 			track_segment.smooth( vertical, horizontal )
@@ -552,7 +555,6 @@ class GPXTrackSegment:
 		self.track_points = part_1 + part_2
 
 	def get_moving_data( self, stopped_speed_treshold = None ):
-
 		if not stopped_speed_treshold:
 			stopped_speed_treshold = DEFAULT_STOPPED_SPEED_TRESHOLD
 
@@ -757,7 +759,7 @@ class GPXTrackSegment:
 
 		return ( result, result_track_point_no )
 
-	def smooth( self, vertical = True, horizontal = False ):
+	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" "Smooths" the elevation graph. Can be called multiple times. """
 		if len( self.track_points ) <= 3:
 			return
@@ -770,6 +772,15 @@ class GPXTrackSegment:
 			elevations.append( point.elevation )
 			latitudes.append( point.latitude )
 			longitudes.append( point.longitude )
+
+		avg_distance = 0
+		if remove_extreemes:
+			# compute the average distance between two points:
+			distances = []
+			for i in range( len( self.track_points ) )[ 1 : ]:
+				distances.append( self.track_points[ i ].distance_2d( self.track_points[ i - 1 ] ) )
+			if distances:
+				avg_distance = 1.0 * sum( distances ) / len( distances )
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
 			if vertical and elevations[ i - 1 ] and elevations[ i ] and elevations[ i + 1 ]:
@@ -861,6 +872,11 @@ class GPX:
 		self.max_latitude = None
 		self.min_longitude = None
 		self.max_longitude = None
+
+	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
+		""" See GPXTrackSegment.smooth( ... ) """
+		for track in self.tracks:
+			track.smooth( vertical = vertical, horizontal = horizontal, remove_extreemes = remove_extreemes )
 
 	def remove_empty( self ):
 		""" Removes segments, routes """
