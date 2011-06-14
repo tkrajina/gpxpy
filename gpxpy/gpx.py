@@ -7,6 +7,10 @@ import datetime as mod_datetime
 import utils as mod_utils
 import copy as mod_copy
 
+# One degree in meters:
+ONE_DEGREE = 1000. * 10000.8 / 90.
+
+# GPX date format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # Used in smoothing, sum must be 1:
@@ -44,13 +48,13 @@ def length_3d( locations = [] ):
 def distance( latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2 ):
 	""" Distance between two points. If elevation == None compute a 2d distance """
 
-	coef = mod_math.cos( self.latitude / 180. * mod_math.pi )
-	x = self.latitude - location.latitude
-	y = ( self.longitude - location.longitude ) * coef
+	coef = mod_math.cos( latitude_1 / 180. * mod_math.pi )
+	x = latitude_1 - latitude_1
+	y = ( longitude_1 - longitude_2 ) * coef
 
-	distance_2d = mod_math.sqrt( x * x + y * y ) * self.ONE_DEGREE
+	distance_2d = mod_math.sqrt( x * x + y * y ) * ONE_DEGREE
 
-	if elevation_1 == None or elevation_2 == None or elevation_1 = elevation_2:
+	if elevation_1 == None or elevation_2 == None or elevation_1 == elevation_2:
 		return distance_2d
 
 	return mod_math.sqrt( distance_2d ** 2 + ( elevation_1 - elevation_2 ) ** 2 )
@@ -60,9 +64,6 @@ def length_2d( locations = [] ):
 	return length( locations, None )
 
 class Location:
-
-	# One degree in meters:
-	ONE_DEGREE = 1000. * 10000.8 / 90.
 
 	latitude = None
 	longitude = None
@@ -773,6 +774,10 @@ class GPXTrackSegment:
 			latitudes.append( point.latitude )
 			longitudes.append( point.longitude )
 
+		# If The point moved more than this number * the average distance between two
+		# points -- then is a candidate for deletion:
+		remove_extreemes_treshold = 2.
+
 		avg_distance = 0
 		if remove_extreemes:
 			# compute the average distance between two points:
@@ -784,20 +789,32 @@ class GPXTrackSegment:
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
 			if vertical and elevations[ i - 1 ] and elevations[ i ] and elevations[ i + 1 ]:
-				self.track_points[ i ].elevation = \
-						SMOOTHING_RATIO[ 0 ] * elevations[ i - 1 ] + \
+				old_elevation = self.track_points[ i ].elevation
+				new_elevation = SMOOTHING_RATIO[ 0 ] * elevations[ i - 1 ] + \
 						SMOOTHING_RATIO[ 1 ] * elevations[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * elevations[ i + 1 ]
+
+				if remove_extreemes:
+					# TODO
+					pass
+
+				self.track_points[ i ].elevation = new_elevation
 			if horizontal:
-				# TODO:
-				self.track_points[ i ].latitude = \
-						SMOOTHING_RATIO[ 0 ] * latitudes[ i - 1 ] + \
+				old_latitude = self.track_points[ i ].latitude
+				new_latitude = SMOOTHING_RATIO[ 0 ] * latitudes[ i - 1 ] + \
 						SMOOTHING_RATIO[ 1 ] * latitudes[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * latitudes[ i + 1 ]
-				self.track_points[ i ].longitude = \
-						SMOOTHING_RATIO[ 0 ] * longitudes[ i - 1 ] + \
+				old_longitue = self.track_points[ i ].longitude
+				new_longitude = SMOOTHING_RATIO[ 0 ] * longitudes[ i - 1 ] + \
 						SMOOTHING_RATIO[ 1 ] * longitudes[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * longitudes[ i + 1 ]
+				
+				if remove_extreemes:
+					# TODO
+					pass
+
+				self.track_points[ i ].latitude = new_latitude
+				self.track_points[ i ].longitude = new_longitude
 
 	def has_times( self ):
 		""" 
