@@ -49,7 +49,7 @@ def distance( latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, ele
 	""" Distance between two points. If elevation == None compute a 2d distance """
 
 	coef = mod_math.cos( latitude_1 / 180. * mod_math.pi )
-	x = latitude_1 - latitude_1
+	x = latitude_1 - latitude_2
 	y = ( longitude_1 - longitude_2 ) * coef
 
 	distance_2d = mod_math.sqrt( x * x + y * y ) * ONE_DEGREE

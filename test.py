@@ -309,5 +309,10 @@ class TestWaypoint( unittest.TestCase ):
 
 		self.assertTrue( len( segment.track_points ) + 1 == len( original_segment.track_points ) )
 
+	def test_distance( self ):
+		distance = mod_gpx.distance( 48.56806,21.43467, None, 48.599214,21.430878, None )
+		print distance
+		self.assertTrue( distance > 3450 and distance < 3500 )
+
 if __name__ == '__main__':
 	unittest.main()
