@@ -471,7 +471,7 @@ class GPXTrack:
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See: GPXTrackSegment.smooth() """
 		for track_segment in self.track_segments:
-			track_segment.smooth( vertical, horizontal )
+			track_segment.smooth( vertical, horizontal, remove_extreemes )
 
 	def has_times( self ):
 		""" See GPXTrackSegment.has_times() """
@@ -1144,9 +1144,9 @@ class GPX:
 
 		return mod_utils.to_xml( 'gpx', attributes = {}, content = content )
 
-	def smooth( self, vertical = True, horizontal = False ):
+	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		for track in self.tracks:
-			track.smooth( vertical, horizontal )
+			track.smooth( vertical, horizontal, remove_extreemes )
 
 	def has_times( self ):
 		""" See GPXTrackSegment.has_times() """
