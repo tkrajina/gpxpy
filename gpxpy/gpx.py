@@ -812,7 +812,7 @@ class GPXTrackSegment:
 				new_latitude = SMOOTHING_RATIO[ 0 ] * latitudes[ i - 1 ] + \
 						SMOOTHING_RATIO[ 1 ] * latitudes[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * latitudes[ i + 1 ]
-				old_longitue = self.track_points[ i ].longitude
+				old_longitude = self.track_points[ i ].longitude
 				new_longitude = SMOOTHING_RATIO[ 0 ] * longitudes[ i - 1 ] + \
 						SMOOTHING_RATIO[ 1 ] * longitudes[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * longitudes[ i + 1 ]
@@ -820,8 +820,11 @@ class GPXTrackSegment:
 				self.track_points[ i ].latitude = new_latitude
 				self.track_points[ i ].longitude = new_longitude
 
+				# TODO: This is not ideal.. Because if there are points A, B and C on the same
+				# line but B is very close to C... This would remove B (and possibly) A even though
+				# it is not an extreeme:
 				if remove_extreemes:
-					d = distance( old_latitude, new_latitude, None, old_longitude, new_longitude, None )
+					d = distance( old_latitude, old_longitude, None, new_latitude, new_longitude, None )
 					if d < remove_extreemes_treshold:
 						new_track_points.append( self.track_points[ i ] )
 				else:
