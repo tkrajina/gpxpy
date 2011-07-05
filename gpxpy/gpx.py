@@ -810,7 +810,8 @@ class GPXTrackSegment:
 						SMOOTHING_RATIO[ 1 ] * elevations[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * elevations[ i + 1 ]
 
-				self.track_points[ i ].elevation = new_elevation
+				if not remove_extreemes:
+					self.track_points[ i ].elevation = new_elevation
 
 				"""
 				print 'i=', i, 'Elevation=', new_elevation, 'Old=', old_elevation,
@@ -846,8 +847,9 @@ class GPXTrackSegment:
 						SMOOTHING_RATIO[ 1 ] * longitudes[ i ] + \
 						SMOOTHING_RATIO[ 2 ] * longitudes[ i + 1 ]
 				
-				self.track_points[ i ].latitude = new_latitude
-				self.track_points[ i ].longitude = new_longitude
+				if not remove_extreemes:
+					self.track_points[ i ].latitude = new_latitude
+					self.track_points[ i ].longitude = new_longitude
 
 				# TODO: This is not ideal.. Because if there are points A, B and C on the same
 				# line but B is very close to C... This would remove B (and possibly) A even though
