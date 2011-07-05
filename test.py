@@ -325,8 +325,8 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.smooth( vertical = False, horizontal = True, remove_extreemes = True )
 		points_after = len( gpx.get_points() )
 
-		print len( points_before )
-		print len( points_after )
+		print points_before
+		print points_after
 
 		self.assertTrue( points_before - 2 == points_after )
 
@@ -341,8 +341,9 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.smooth( vertical = True, horizontal = False, remove_extreemes = True )
 		points_after = len( gpx.get_points() )
 
-		print len( points_before )
-		print len( points_after )
+		print points_before
+		print points_after
+
 
 		self.assertTrue( points_before - 1 == points_after )
 
@@ -357,8 +358,8 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.smooth( vertical = True, horizontal = True, remove_extreemes = True )
 		points_after = len( gpx.get_points() )
 
-		print len( points_before )
-		print len( points_after )
+		print points_before
+		print points_after
 
 		self.assertTrue( points_before - 3 == points_after )
 
