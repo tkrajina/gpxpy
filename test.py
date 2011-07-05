@@ -314,5 +314,21 @@ class TestWaypoint( unittest.TestCase ):
 		print distance
 		self.assertTrue( distance > 3450 and distance < 3500 )
 
+	def test_horizontal_smooth_remove_extreemes( self ):
+		f = open( 'test_files/track-with-extreemes.gpx', 'r' )
+
+		parser = mod_parser.GPXParser( f )
+
+		gpx = parser.parse()
+
+		points_before = len( gpx.get_points() )
+		gpx.smooth( vertical = False, horizontal = True, remove_extreemes = True )
+		points_after = len( gpx.get_points() )
+
+		print points_before
+		print points_after
+
+		self.assertTrue( points_before - 2 == points_after )
+
 if __name__ == '__main__':
 	unittest.main()

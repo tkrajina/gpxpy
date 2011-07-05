@@ -793,6 +793,7 @@ class GPXTrackSegment:
 		new_track_points = []
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
+			new_point = None
 			if vertical and elevations[ i - 1 ] and elevations[ i ] and elevations[ i + 1 ]:
 				old_elevation = self.track_points[ i ].elevation
 				new_elevation = SMOOTHING_RATIO[ 0 ] * elevations[ i - 1 ] + \
@@ -801,11 +802,19 @@ class GPXTrackSegment:
 
 				self.track_points[ i ].elevation = new_elevation
 
+				print 'i=', i, 'Elevation=', new_elevation, 'Old=', old_elevation
+				print abs( old_elevation - new_elevation )
+				"""
+				# print d1, d2, d
+				print ( d1 + d2 ) / float( d )
+				print ( d1 + d2 ) > float( d * 1.5 )
+				"""
+
 				if remove_extreemes:
 					if abs( old_elevation - new_elevation ) < remove_extreemes_treshold:
-						new_track_points.append( self.track_points[ i ] )
+						new_point = self.track_points[ i ]
 				else:
-					new_track_points.append( self.track_points[ i ] )
+					new_point = self.track_points[ i ]
 
 			if horizontal:
 				old_latitude = self.track_points[ i ].latitude
@@ -822,13 +831,19 @@ class GPXTrackSegment:
 
 				# TODO: This is not ideal.. Because if there are points A, B and C on the same
 				# line but B is very close to C... This would remove B (and possibly) A even though
-				# it is not an extreeme:
-				if remove_extreemes:
+				# it is not an extreeme. This is the reason for this algorithm:
+				d1 = distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i ], longitudes[ i ], None )
+				d2 = distance( latitudes[ i + 1 ], longitudes[ i + 1 ], None, latitudes[ i ], longitudes[ i ], None )
+				d = distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i + 1 ], longitudes[ i + 1 ], None )
+
+				if d1 + d2 > d * 1.5 and remove_extreemes:
 					d = distance( old_latitude, old_longitude, None, new_latitude, new_longitude, None )
 					if d < remove_extreemes_treshold:
-						new_track_points.append( self.track_points[ i ] )
+						new_point = self.track_points[ i ]
 				else:
-					new_track_points.append( self.track_points[ i ] )
+					new_point = self.track_points[ i ]
+			if new_point:
+				new_track_points.append( new_point )
 
 		self.track_points = new_track_points
 
