@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import datetime
+import logging as mod_logging
+import datetime as mod_datetime
 
-from xml.dom import minidom
+import xml.dom.minidom as mod_minidom
 
-import gpx as _gpx
-import utils
-import re
+import gpx as mod_gpx
+import utils as mod_utils
+import re as mod_re
 
 def parse_time( string ):
 	if not string:
 		return None
 	try:
-		return datetime.datetime.strptime( string, _gpx.DATE_FORMAT )
+		return mod_datetime.datetime.strptime( string, mod_gpx.DATE_FORMAT )
 	except Exception, e:
-		if re.match( '^.*\.\d+Z$', string ):
-			string = re.sub( '\.\d+Z', 'Z', string )
-		return datetime.datetime.strptime( string, _gpx.DATE_FORMAT )
+		if mod_re.match( '^.*\.\d+Z$', string ):
+			string = mod_re.sub( '\.\d+Z', 'Z', string )
+		return mod_datetime.datetime.strptime( string, mod_gpx.DATE_FORMAT )
 
 class GPXParser:
 
@@ -40,17 +40,17 @@ class GPXParser:
 		self.valid = False
 		self.error = None
 
-		self.gpx = _gpx.GPX()
+		self.gpx = mod_gpx.GPX()
 
 	def parse( self ):
 		try:
-			dom = minidom.parseString( self.xml )
+			dom = mod_minidom.parseString( self.xml )
 			self._parse_dom( dom )
 
 			return self.gpx
 		except Exception, e:
-			logging.debug( 'Error in:\n%s\n-----------\n' % self.xml )
-			logging.exception( e )
+			mod_logging.debug( 'Error in:\n%s\n-----------\n' % self.xml )
+			mod_logging.exception( e )
 			self.error = str( e )
 
 			return None
@@ -101,13 +101,13 @@ class GPXParser:
 
 	def _parse_bounds( self, node ):
 		if node.attributes.has_key( 'minlat' ):
-			self.gpx.min_latitude = utils.to_number( node.attributes[ 'minlat' ].nodeValue )
+			self.gpx.min_latitude = mod_utils.to_number( node.attributes[ 'minlat' ].nodeValue )
 		if node.attributes.has_key( 'maxlat' ):
-			self.gpx.min_latitude = utils.to_number( node.attributes[ 'maxlat' ].nodeValue )
+			self.gpx.min_latitude = mod_utils.to_number( node.attributes[ 'maxlat' ].nodeValue )
 		if node.attributes.has_key( 'minlon' ):
-			self.gpx.min_longitude = utils.to_number( node.attributes[ 'minlon' ].nodeValue )
+			self.gpx.min_longitude = mod_utils.to_number( node.attributes[ 'minlon' ].nodeValue )
 		if node.attributes.has_key( 'maxlon' ):
-			self.gpx.min_longitude = utils.to_number( node.attributes[ 'maxlon' ].nodeValue )
+			self.gpx.min_longitude = mod_utils.to_number( node.attributes[ 'maxlon' ].nodeValue )
 
 	def _parse_waypoint( self, node ):
 		if not node.attributes.has_key( 'lat' ):
@@ -115,44 +115,44 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = utils.to_number( node.attributes[ 'lat' ].nodeValue )
-		lon = utils.to_number( node.attributes[ 'lon' ].nodeValue )
+		lat = mod_utils.to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = mod_utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		elevation_node = utils.find_first_node( node, 'ele' )
-		elevation = utils.to_number( self.get_node_data( elevation_node ), 0 )
+		elevation_node = mod_utils.find_first_node( node, 'ele' )
+		elevation = mod_utils.to_number( self.get_node_data( elevation_node ), 0 )
 
-		time_node = utils.find_first_node( node, 'time' )
+		time_node = mod_utils.find_first_node( node, 'time' )
 		time_str = self.get_node_data( time_node )
 		time = parse_time( time_str )
 
-		name_node = utils.find_first_node( node, 'name' )
+		name_node = mod_utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		desc_node = utils.find_first_node( node, 'desc' )
+		desc_node = mod_utils.find_first_node( node, 'desc' )
 		desc = self.get_node_data( desc_node )
 
-		sym_node = utils.find_first_node( node, 'sym' )
+		sym_node = mod_utils.find_first_node( node, 'sym' )
 		sym = self.get_node_data( sym_node )
 
-		type_node = utils.find_first_node( node, 'type' )
+		type_node = mod_utils.find_first_node( node, 'type' )
 		type = self.get_node_data( type_node )
 
-		comment_node = utils.find_first_node( node, 'cmt' )
+		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return _gpx.GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, time = time, name = name, description = desc, symbol = sym, type = type, comment = comment )
+		return mod_gpx.GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, time = time, name = name, description = desc, symbol = sym, type = type, comment = comment )
 
 	def _parse_route( self, node ):
-		name_node = utils.find_first_node( node, 'name' )
+		name_node = mod_utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		description_node = utils.find_first_node( node, 'desc' )
+		description_node = mod_utils.find_first_node( node, 'desc' )
 		description = self.get_node_data( description_node )
 
-		number_node = utils.find_first_node( node, 'number' )
-		number = utils.to_number( self.get_node_data( number_node ) )
+		number_node = mod_utils.find_first_node( node, 'number' )
+		number = mod_utils.to_number( self.get_node_data( number_node ) )
 
-		route = _gpx.GPXRoute( name, description, number )
+		route = mod_gpx.GPXRoute( name, description, number )
 
 		child_nodes = node.childNodes
 		for child_node in child_nodes:
@@ -169,44 +169,44 @@ class GPXParser:
 		if not node.attributes.has_key( 'lon' ):
 			raise Exception( 'Waypoint without longitude' )
 
-		lat = utils.to_number( node.attributes[ 'lat' ].nodeValue )
-		lon = utils.to_number( node.attributes[ 'lon' ].nodeValue )
+		lat = mod_utils.to_number( node.attributes[ 'lat' ].nodeValue )
+		lon = mod_utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		elevation_node = utils.find_first_node( node, 'ele' )
-		elevation = utils.to_number( self.get_node_data( elevation_node ), 0 )
+		elevation_node = mod_utils.find_first_node( node, 'ele' )
+		elevation = mod_utils.to_number( self.get_node_data( elevation_node ), 0 )
 
-		time_node = utils.find_first_node( node, 'time' )
+		time_node = mod_utils.find_first_node( node, 'time' )
 		time_str = self.get_node_data( time_node )
 		time = parse_time( time_str )
 
-		name_node = utils.find_first_node( node, 'name' )
+		name_node = mod_utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		desc_node = utils.find_first_node( node, 'desc' )
+		desc_node = mod_utils.find_first_node( node, 'desc' )
 		desc = self.get_node_data( desc_node )
 
-		sym_node = utils.find_first_node( node, 'sym' )
+		sym_node = mod_utils.find_first_node( node, 'sym' )
 		sym = self.get_node_data( sym_node )
 
-		type_node = utils.find_first_node( node, 'type' )
+		type_node = mod_utils.find_first_node( node, 'type' )
 		type = self.get_node_data( type_node )
 
-		comment_node = utils.find_first_node( node, 'cmt' )
+		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return _gpx.GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment )
+		return mod_gpx.GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment )
 
 	def __parse_track( self, node ):
-		name_node = utils.find_first_node( node, 'name' )
+		name_node = mod_utils.find_first_node( node, 'name' )
 		name = self.get_node_data( name_node )
 
-		description_node = utils.find_first_node( node, 'desc' )
+		description_node = mod_utils.find_first_node( node, 'desc' )
 		description = self.get_node_data( description_node )
 
-		number_node = utils.find_first_node( node, 'number' )
-		number = utils.to_number( self.get_node_data( number_node ) )
+		number_node = mod_utils.find_first_node( node, 'number' )
+		number = mod_utils.to_number( self.get_node_data( number_node ) )
 
-		track = _gpx.GPXTrack( name, description, number )
+		track = mod_gpx.GPXTrack( name, description, number )
 
 		child_nodes = node.childNodes
 		for child_node in child_nodes:
@@ -218,7 +218,7 @@ class GPXParser:
 		return track
 
 	def __parse_track_segment( self, node ):
-		track_segment = _gpx.GPXTrackSegment()
+		track_segment = mod_gpx.GPXTrackSegment()
 		child_nodes = node.childNodes
 		n = 0
 		for child_node in child_nodes:
@@ -232,25 +232,25 @@ class GPXParser:
 	def __parse_track_point( self, node ):
 		latitude = None
 		if node.attributes.has_key( 'lat' ):
-			latitude = utils.to_number( node.attributes[ 'lat' ].nodeValue )
+			latitude = mod_utils.to_number( node.attributes[ 'lat' ].nodeValue )
 
 		longitude = None
 		if node.attributes.has_key( 'lon' ):
-			longitude = utils.to_number( node.attributes[ 'lon' ].nodeValue )
+			longitude = mod_utils.to_number( node.attributes[ 'lon' ].nodeValue )
 
-		time_node = utils.find_first_node( node, 'time' )
+		time_node = mod_utils.find_first_node( node, 'time' )
 		time = parse_time( self.get_node_data( time_node ) )
 
-		elevation_node = utils.find_first_node( node, 'ele' )
-		elevation = utils.to_number( self.get_node_data( elevation_node ) )
+		elevation_node = mod_utils.find_first_node( node, 'ele' )
+		elevation = mod_utils.to_number( self.get_node_data( elevation_node ) )
 
-		symbol_node = utils.find_first_node( node, 'sym' )
+		symbol_node = mod_utils.find_first_node( node, 'sym' )
 		symbol = self.get_node_data( symbol_node )
 
-		comment_node = utils.find_first_node( node, 'cmt' )
+		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return _gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
+		return mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
 
 	def is_valid( self ):
 		return self.valid
@@ -278,7 +278,7 @@ if __name__ == '__main__':
 	gpx_xml = file.read()
 	file.close()
 
-	parser = _gpx.GPXParser( gpx_xml )
+	parser = mod_gpx.GPXParser( gpx_xml )
 	gpx = parser.parse()
 
 	print gpx.to_xml()
