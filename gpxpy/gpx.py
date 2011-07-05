@@ -790,7 +790,7 @@ class GPXTrackSegment:
 
 		remove_extreemes_treshold = remove_extreemes_treshold * avg_distance
 
-		new_track_points = []
+		new_track_points = [ self.track_points[ 0 ] ]
 
 		for i in range( len( self.track_points ) )[ 1 : -1 ]:
 			new_point = None
@@ -802,16 +802,23 @@ class GPXTrackSegment:
 
 				self.track_points[ i ].elevation = new_elevation
 
-				print 'i=', i, 'Elevation=', new_elevation, 'Old=', old_elevation
-				print abs( old_elevation - new_elevation )
 				"""
+				print 'i=', i, 'Elevation=', new_elevation, 'Old=', old_elevation,
+				print abs( old_elevation - new_elevation )
 				# print d1, d2, d
 				print ( d1 + d2 ) / float( d )
 				print ( d1 + d2 ) > float( d * 1.5 )
 				"""
 
 				if remove_extreemes:
-					if abs( old_elevation - new_elevation ) < remove_extreemes_treshold:
+					# The point must be enough distant to *both* neighbours:
+					d1 = abs( old_elevation - elevations[ i - 1 ] )
+					d2 = abs( old_elevation - elevations[ i + 1 ] )
+					# print d1, d2, remove_extreemes_treshold
+
+					# TODO: Remove extreemes treshold is meant only for 2D, elevation must be
+					# computed in different way!
+					if min( d1, d2 ) < remove_extreemes_treshold and abs( old_elevation - new_elevation ) < remove_extreemes_treshold:
 						new_point = self.track_points[ i ]
 				else:
 					new_point = self.track_points[ i ]
@@ -844,6 +851,8 @@ class GPXTrackSegment:
 					new_point = self.track_points[ i ]
 			if new_point:
 				new_track_points.append( new_point )
+
+		new_track_points = [ self.track_points[ - 1 ] ]
 
 		self.track_points = new_track_points
 

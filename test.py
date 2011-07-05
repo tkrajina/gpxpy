@@ -325,10 +325,42 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.smooth( vertical = False, horizontal = True, remove_extreemes = True )
 		points_after = len( gpx.get_points() )
 
-		print points_before
-		print points_after
+		print len( points_before )
+		print len( points_after )
 
 		self.assertTrue( points_before - 2 == points_after )
+
+	def test_vertical_smooth_remove_extreemes( self ):
+		f = open( 'test_files/track-with-extreemes.gpx', 'r' )
+
+		parser = mod_parser.GPXParser( f )
+
+		gpx = parser.parse()
+
+		points_before = len( gpx.get_points() )
+		gpx.smooth( vertical = True, horizontal = False, remove_extreemes = True )
+		points_after = len( gpx.get_points() )
+
+		print len( points_before )
+		print len( points_after )
+
+		self.assertTrue( points_before - 1 == points_after )
+
+	def test_horizontal_and_vertical_smooth_remove_extreemes( self ):
+		f = open( 'test_files/track-with-extreemes.gpx', 'r' )
+
+		parser = mod_parser.GPXParser( f )
+
+		gpx = parser.parse()
+
+		points_before = len( gpx.get_points() )
+		gpx.smooth( vertical = True, horizontal = True, remove_extreemes = True )
+		points_after = len( gpx.get_points() )
+
+		print len( points_before )
+		print len( points_after )
+
+		self.assertTrue( points_before - 3 == points_after )
 
 if __name__ == '__main__':
 	unittest.main()
