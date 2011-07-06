@@ -850,11 +850,11 @@ class GPXTrackSegment:
 				d2 = distance( latitudes[ i + 1 ], longitudes[ i + 1 ], None, latitudes[ i ], longitudes[ i ], None )
 				d = distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i + 1 ], longitudes[ i + 1 ], None )
 
-				print d1, d2, d, remove_extreemes
+				#print d1, d2, d, remove_extreemes
 
 				if d1 + d2 > d * 1.5 and remove_extreemes:
 					d = distance( old_latitude, old_longitude, None, new_latitude, new_longitude, None )
-					print "d, treshold = ", d, remove_2d_extreemes_treshold
+					#print "d, treshold = ", d, remove_2d_extreemes_treshold
 					if d < remove_2d_extreemes_treshold:
 						new_point = self.track_points[ i ]
 					else:
