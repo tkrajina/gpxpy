@@ -858,7 +858,7 @@ class GPXTrackSegment:
 					if d < remove_2d_extreemes_treshold:
 						new_point = self.track_points[ i ]
 					else:
-						print 'removed 2d'
+						#print 'removed 2d'
 						point_removed = True
 				else:
 					new_point = self.track_points[ i ]
