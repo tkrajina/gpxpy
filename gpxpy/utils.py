@@ -21,6 +21,9 @@ def to_xml( tag, attributes = {}, content = None, cdata = None ):
 		result += ' />'
 
 	result += ''
+
+	if isinstance( result, unicode ):
+		result = result.encode( 'utf-8' )
 	
 	return result
 
