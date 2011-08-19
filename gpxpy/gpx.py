@@ -1155,8 +1155,8 @@ class GPX:
 		return ( result, result_track_no, result_segment_no, result_point_no )
 
 	def move( self, latitude_diff, longitude_diff ):
-		for routes in self.routes:
-			waypoint.move( latitude_diff, longitude_diff )
+		for route in self.routes:
+			route.move( latitude_diff, longitude_diff )
 
 		for waypoint in self.waypoints:
 			waypoint.move( latitude_diff, longitude_diff )
