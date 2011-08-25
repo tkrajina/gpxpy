@@ -373,6 +373,10 @@ class GPXTrack:
 
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
+	def add_elevation( self, delta ):
+		for track_segment in self.track_segments:
+			track_segment.add_elevation( delta )
+
 	def move( self, latitude_diff, longitude_diff ):
 		for track_segment in self.track_segments:
 			track_segment.move( latitude_diff, longitude_diff )
@@ -635,6 +639,16 @@ class GPXTrackSegment:
 			return speed_1
 
 		return speed_2
+
+	def add_elevation( self, delta ):
+
+		mod_logging.debug( 'delta = %s' % delta )
+
+		if not delta:
+			return
+
+		for track_point in self.track_points:
+			track_point.elevation += delta
 
 	def get_duration( self ):
 		""" Duration in seconds """
@@ -1153,6 +1167,10 @@ class GPX:
 				result_point_no = track_point_no
 
 		return ( result, result_track_no, result_segment_no, result_point_no )
+
+	def add_elevation( self, delta ):
+		for track in self.tracks:
+			track.add_elevation( delta )
 
 	def move( self, latitude_diff, longitude_diff ):
 		for route in self.routes:
