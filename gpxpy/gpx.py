@@ -1142,6 +1142,75 @@ class GPX:
 
 		return ( min( elevations ), max( elevations ) )
 
+	def __get_points_and_distances_from_start( self ):
+		distance_from_start = 0
+		previous_point = None
+
+		# ( point, distance_from_start ) pairs:
+		points = []
+
+		for track_no in range( len( self.tracks ) ):
+			track = self.tracks[ track_no ]
+			for segment_no in range( len( track.track_segments ) ):
+				segment = track.track_segments[ segment_no ]
+				for point_no in range( len( segment.track_points ) ):
+					point = segment.track_points[ point_no ]
+					if previous_point and point_no > 0:
+						distance_from_start += point.distance_3d( previous_point )
+
+					points.append( ( point, distance_from_start, track_no, segment_no, point_no  )
+
+					previous_point = point
+
+		return points
+
+	def get_nearest_locations( self, location, treshold_distance = 0.01 ):
+		"""
+		Returns a tuple of elements like
+		( length_from_start, track_no, track_segment_no, track_point_no )
+		consisting of points where the location may be on the track
+
+		treshold_distance is the the minimum distance from the track
+		so that the point *may* be counted as to be "on the track".
+		For example 0.01 means 1% of the track distance.
+		"""
+
+		assert location
+		assert treshold_distance
+
+		result = []
+		
+		points = self.__get_points_and_distances_from_start()
+
+		treshold = distance_from_start * treshold_distance
+
+		min_distance_candidate = None
+		distance_from_start_candidate = None
+		track_no_candidate = None
+		segment_no_candidate = None
+		point_no_candidate = None
+
+		for point, distance_from_start, track_no, segment_no, point_no in points:
+			distance = location.distance_3d( point )
+			if distance < treshold:
+				if min_distance_candidate == None or distance < min_distance_candidate:
+					min_distance_candidate = distance
+					distance_from_start_candidate = distance_from_start
+					track_no_candidate = track_no
+					segment_no_candidate = segment_no
+					point_no_candidate = point_no
+			else:
+				result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
+				distance_from_start_candidate = None
+				track_no_candidate = None
+				segment_no_candidate = None
+				point_no_candidate = None
+
+		if min_distance_candidate != None:
+			result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
+
+		return result
+
 	def get_nearest_location( self, location ):
 		""" Returns ( location, track_no, track_segment_no, track_point_no ) for the
 		nearest location on map """
