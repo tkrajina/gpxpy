@@ -810,7 +810,7 @@ class GPXTrackSegment:
 		# If The point moved more than this number * the average distance between two
 		# points -- then is a candidate for deletion:
 		# TODO: Make this a method parameter
-		remove_2d_extreemes_treshold = 3. * avg_distance
+		remove_2d_extreemes_treshold = 1.75 * avg_distance
 		remove_elevation_extreemes_treshold = avg_elevation_delta * 5 # TODO: Param
 
 		new_track_points = [ self.track_points[ 0 ] ]
