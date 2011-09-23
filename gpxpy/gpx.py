@@ -1158,7 +1158,7 @@ class GPX:
 					if previous_point and point_no > 0:
 						distance_from_start += point.distance_3d( previous_point )
 
-					points.append( ( point, distance_from_start, track_no, segment_no, point_no  )
+					points.append( ( point, distance_from_start, track_no, segment_no, point_no  ) )
 
 					previous_point = point
 
@@ -1182,7 +1182,12 @@ class GPX:
 		
 		points = self.__get_points_and_distances_from_start()
 
-		treshold = distance_from_start * treshold_distance
+		if not points:
+			return ()
+
+		distance = points[ - 1 ][ 1 ]
+
+		treshold = distance * treshold_distance
 
 		min_distance_candidate = None
 		distance_from_start_candidate = None
