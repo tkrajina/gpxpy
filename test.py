@@ -363,5 +363,29 @@ class TestWaypoint( unittest.TestCase ):
 
 		self.assertTrue( points_before - 3 == points_after )
 
+	def test_positions_on_track( self ):
+		gpx = mod_gpx.GPX()
+		track = mod_gpx.GPXTrack()
+		gpx.tracks.append( track )
+		segment = mod_gpx.GPXTrackSegment()
+		track.track_segments.append( segment )
+
+		location_to_find_on_track = None
+
+		for i in range( 1000 ):
+			latitude = 45 + i * 0.001
+			longitude = 45 + i * 0.001
+			elevation = 100 + i * 2
+			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
+			segment.track_points.append( point )
+
+			if i == 500:
+				location_to_find_on_track = mod_gpx.GPXWaypoint( latitude = latitude, longitude = longitude )
+
+		result = gpx.get_nearest_locations( location_to_find_on_track )
+
+		self.assertTrue( len( result ) == 1 )
+
+
 if __name__ == '__main__':
 	unittest.main()
