@@ -1205,13 +1205,15 @@ class GPX:
 					segment_no_candidate = segment_no
 					point_no_candidate = point_no
 			else:
-				result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
+				if distance_from_start_candidate != None:
+					result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
+				min_distance_candidate = None
 				distance_from_start_candidate = None
 				track_no_candidate = None
 				segment_no_candidate = None
 				point_no_candidate = None
 
-		if min_distance_candidate != None:
+		if distance_from_start_candidate != None:
 			result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
 
 		return result

@@ -2,3 +2,4 @@
 *.swp
 tmp/
 tmp_*.py
+q.py
