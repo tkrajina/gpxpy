@@ -5,6 +5,7 @@ import unittest
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
 import time as mod_time
+import copy as mod_copy
 
 def equals( object1, object2, ignore = None ):
 	""" Testing purposes only """
@@ -174,6 +175,8 @@ class TestWaypoint( unittest.TestCase ):
 		original_3d = gpx.length_3d()
 
 		cloned_gpx = gpx.clone()
+
+		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
 
 		cloned_gpx.reduce_points( 2000, min_distance = 10 )
 		cloned_gpx.smooth( vertical = True, horizontal = True )
@@ -422,6 +425,79 @@ class TestWaypoint( unittest.TestCase ):
 
 		self.assertTrue( len( result ) == 2 )
 
+	def test_hash_location( self ):
+		location_1 = mod_gpx.Location( latitude = 12, longitude = 13, elevation = 19 )
+		location_2 = mod_gpx.Location( latitude = 12, longitude = 13, elevation = 19 )
+
+		self.assertTrue( hash( location_1 ) == hash( location_2 ) )
+
+		location_2.elevation *= 2
+		location_2.latitude *= 2
+		location_2.longitude *= 2
+
+		self.assertTrue( hash( location_1 ) != hash( location_2 ) )
+
+		location_2.elevation /= 2
+		location_2.latitude /= 2
+		location_2.longitude /= 2
+
+		self.assertTrue( hash( location_1 ) == hash( location_2 ) )
+
+	def test_hash_gpx_track_point( self ):
+		point_1 = mod_gpx.GPXTrackPoint( latitude = 12, longitude = 13, elevation = 19 )
+		point_2 = mod_gpx.GPXTrackPoint( latitude = 12, longitude = 13, elevation = 19 )
+
+		self.assertTrue( hash( point_1 ) == hash( point_2 ) )
+
+		point_2.elevation *= 2
+		point_2.latitude *= 2
+		point_2.longitude *= 2
+
+		self.assertTrue( hash( point_1 ) != hash( point_2 ) )
+
+		point_2.elevation /= 2
+		point_2.latitude /= 2
+		point_2.longitude /= 2
+
+		self.assertTrue( hash( point_1 ) == hash( point_2 ) )
+
+	def test_hash_track( self ):
+		gpx = mod_gpx.GPX()
+		track = mod_gpx.GPXTrack()
+		gpx.tracks.append( track )
+
+		segment = mod_gpx.GPXTrackSegment()
+		track.track_segments.append( segment )
+		for i in range( 1000 ):
+			latitude = 45 + i * 0.001
+			longitude = 45 + i * 0.001
+			elevation = 100 + i * 2.
+			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
+			segment.track_points.append( point )
+
+		self.assertTrue( hash( gpx ) )
+		self.assertTrue( len( gpx.tracks ) == 1 )
+		self.assertTrue( len( gpx.tracks[ 0 ].track_segments ) == 1 )
+		self.assertTrue( len( gpx.tracks[ 0 ].track_segments[ 0 ].track_points ) == 1000 )
+
+		cloned_gpx = mod_copy.deepcopy( gpx )
+
+		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
+
+		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].elevation *= 2.
+		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
+
+		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].elevation /= 2.
+		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
+
+		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].latitude /= 2.
+		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
+
+		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].latitude *= 2.
+		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
+
+		del gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ]
+		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
 
 if __name__ == '__main__':
 	unittest.main()

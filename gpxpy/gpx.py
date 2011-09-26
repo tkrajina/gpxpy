@@ -96,6 +96,9 @@ class Location:
 	def __str__( self ):
 		return '[loc:%s,%s@%s]' % ( self.latitude, self.longitude, self.elevation )
 
+	def __hash__( self ):
+                return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation' ) 
+
 class GPXWaypoint( Location ):
 
 	time = None
@@ -131,7 +134,7 @@ class GPXWaypoint( Location ):
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __hash__( self ):
-		return id( self )
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' )
 
 class GPXRoute:
 
@@ -165,7 +168,7 @@ class GPXRoute:
 		return mod_utils.to_xml( 'rte', content = content )
 
 	def __hash__( self ):
-		return id( self )
+                 return mod_utils.hash_object( self, 'name', 'description', 'number', 'route_points' )
 
 class GPXRoutePoint( Location ):
 
@@ -202,7 +205,7 @@ class GPXRoutePoint( Location ):
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __hash__( self ):
-		return id( self )
+                return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' ) 
 
 class GPXTrackPoint( Location ):
 
@@ -261,7 +264,7 @@ class GPXTrackPoint( Location ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
 
 	def __hash__( self ):
-		return id( self )
+                return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment' )
 
 class GPXTrack:
 	name = None
@@ -518,7 +521,7 @@ class GPXTrack:
 		return mod_copy.deepcopy( self )
 
 	def __hash__( self ):
-		return id( self )
+                return mod_utils.hash_object( self, 'name', 'description', 'number', 'track_segments' )
 
 class GPXTrackSegment:
 	track_points = None
@@ -910,6 +913,9 @@ class GPXTrackSegment:
 
 		return has_first and found > .75 and has_last
 
+	def __hash__( self ):
+                return mod_utils.hash_object( self, 'track_points' )
+
 	def clone( self ):
 		return mod_copy.deepcopy( self )
 
@@ -922,7 +928,6 @@ class GPX:
 	email = None
 	url = None
 	urlname = None
-	time = None
 	keywords = None
 
 	waypoints = []
@@ -1295,6 +1300,9 @@ class GPX:
 			result = result and track.has_times()
 
 		return result
+
+	def __hash__( self ):
+                return mod_utils.hash_object( self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) 
 
 	def clone( self ):
 		return mod_copy.deepcopy( self )

@@ -41,3 +41,33 @@ def find_first_node( node, child_node_name ):
 			return child_node
 	return None
 
+# Hash utilities:
+
+def __hash( obj ):
+	result = 0
+
+	if obj == None:
+		return result
+	elif isinstance( obj, dict ):
+		raise Error( '__hash_single_object for dict not yet implemented' )
+	elif isinstance( obj, list ) or isinstance( obj, tuple ):
+		return hash_list_or_tuple( obj )
+
+	return hash( obj )
+
+def hash_list_or_tuple( iteration ):
+	result = 17
+
+	for obj in iteration:
+		result = result * 31 + __hash( obj )
+
+	return result
+
+def hash_object( obj, *attributes ):
+	result = 19
+
+	for attribute in attributes:
+		result = result * 31 + __hash( getattr( obj, attribute ) )
+	
+	return result
+
