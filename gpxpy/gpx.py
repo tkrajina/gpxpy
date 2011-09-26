@@ -213,6 +213,12 @@ class GPXTrackPoint( Location ):
 	symbol = None
 	comment = None
 
+	# reloaded with reload_points_metadata():
+	__distance_from_track_start = None
+	__track_no = None
+	__segment_no = None
+	__point_no = None
+
 	def __init__( self, latitude, longitude, elevation = None, time = None, symbol = None, comment = None ):
 		Location.__init__( self, latitude, longitude, elevation )
 
@@ -538,7 +544,7 @@ class GPXTrackSegment:
 	def move( self, latitude_diff, longitude_diff ):
 		for track_point in self.track_points:
 			track_point.move( latitude_diff, longitude_diff )
-		
+
 	def get_points( self ):
 		return self.track_points
 
@@ -939,6 +945,8 @@ class GPX:
 	min_longitude = None
 	max_longitude = None
 
+	__last_hash_value = None
+
 	def __init__( self, waypoints = None, routes = None, tracks = None ):
 		self.time = None
 
@@ -964,6 +972,39 @@ class GPX:
 		self.max_latitude = None
 		self.min_longitude = None
 		self.max_longitude = None
+
+	def reload_points_metadata( self ):
+		"""
+		Will reload GPXTrackPoint.__distance_from_track_start, __track_no, __segment_no,
+		__point_no.
+
+		Note that the reloa will be executed only if the hash (see __hash__()) of the track
+		is changed). Otherwise, once reloaded values are cached.
+		"""
+
+		if self.__last_hash_value == hash( self ):
+			return
+
+		mod_logging.debug( 'Reload' )
+
+		previous_point = None
+		distance = 0
+		for track_no in range( len( self.tracks ) ):
+			track = self.tracks[ track_no ]
+			for segment_no in range( len( track.track_segments ) ):
+				segment = track.track_segments[ segment_no ]
+				for point_no in range( len( segment.track_points ) ):
+					point = segment.track_points[ point_no ]
+					if previous_point:
+						distance += point.distance_3d( previous_point )
+					previous_point = point
+
+					point.__distance_from_track_start = distance
+					point.__track_no = track_no
+					point.__segment_no = segment_no
+					point.__point_no = point_no
+
+		self.__last_hash_value = hash( self )
 
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See GPXTrackSegment.smooth( ... ) """
