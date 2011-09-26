@@ -213,7 +213,7 @@ class GPXParser:
 			if child_node.nodeName == 'trkseg':
 				track_segment = self.__parse_track_segment( child_node )
 
-				track.track_segments.append( track_segment )
+				track.segments.append( track_segment )
 
 		return track
 
@@ -224,7 +224,7 @@ class GPXParser:
 		for child_node in child_nodes:
 			if child_node.nodeName == 'trkpt':
 				track_point = self.__parse_track_point( child_node )
-				track_segment.track_points.append( track_point )
+				track_segment.points.append( track_point )
 				n += 1
 
 		return track_segment
@@ -288,7 +288,7 @@ if __name__ == '__main__':
 		for track in gpx.tracks:
 			print 'name%s, 2d:%s, 3d:%s' % ( track.name, track.length_2d(), track.length_3d() )
 			print '\tTRACK SEGMENTS:'
-			for track_segment in track.track_segments:
+			for track_segment in track.segments:
 				print '\t2d:%s, 3d:%s' % ( track_segment.length_2d(), track_segment.length_3d() )
 
 		print 'ROUTES:'

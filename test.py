@@ -110,18 +110,18 @@ class TestWaypoint( unittest.TestCase ):
 
 		location = mod_gpx.Location( 45.451058791, 14.027903696 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
-		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( location ) < 0.001 )
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
 		location = mod_gpx.Location( 1, 1 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
-		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
 		location = mod_gpx.Location( 50, 50 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
-		point = gpx.tracks[ track_no ].track_segments[ track_segment_no ].track_points[ track_point_no ]
+		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
 	def test_long_timestamps( self ):
@@ -237,9 +237,9 @@ class TestWaypoint( unittest.TestCase ):
 
 		track = gpx.tracks[ 0 ]
 
-		before = len( track.track_segments )
+		before = len( track.segments )
 		track.split( 1000, 10 )
-		after = len( track.track_segments )
+		after = len( track.segments )
 
 		self.assertTrue( before == after )
 
@@ -253,21 +253,21 @@ class TestWaypoint( unittest.TestCase ):
 
 		track_points_no = track.get_points_no()
 
-		before = len( track.track_segments )
+		before = len( track.segments )
 		track.split( 0, 10 )
-		after = len( track.track_segments )
+		after = len( track.segments )
 
 		self.assertTrue( before + 1 == after )
-		print 'Points in first (splitted) part:', len( track.track_segments[ 0 ].track_points )
+		print 'Points in first (splitted) part:', len( track.segments[ 0 ].points )
 
 		# From 0 to 10th point == 11 points:
-		self.assertTrue( len( track.track_segments[ 0 ].track_points ) == 11 )
-		self.assertTrue( len( track.track_segments[ 0 ].track_points ) + len( track.track_segments[ 1 ].track_points ) == track_points_no )
+		self.assertTrue( len( track.segments[ 0 ].points ) == 11 )
+		self.assertTrue( len( track.segments[ 0 ].points ) + len( track.segments[ 1 ].points ) == track_points_no )
 
 		# Now split the second track
 		track.split( 1, 20 )
-		self.assertTrue( len( track.track_segments[ 1 ].track_points ) == 21 )
-		self.assertTrue( len( track.track_segments[ 0 ].track_points ) + len( track.track_segments[ 1 ].track_points ) + len( track.track_segments[ 2 ].track_points ) == track_points_no )
+		self.assertTrue( len( track.segments[ 1 ].points ) == 21 )
+		self.assertTrue( len( track.segments[ 0 ].points ) + len( track.segments[ 1 ].points ) + len( track.segments[ 2 ].points ) == track_points_no )
 
 	def test_split_and_join( self ):
 		f = open( 'test_files/cerknicko-jezero.gpx' )
@@ -282,11 +282,11 @@ class TestWaypoint( unittest.TestCase ):
 		track.split( 0, 10 )
 		track.split( 1, 20 )
 
-		self.assertTrue( len( track.track_segments ) == 3 )
+		self.assertTrue( len( track.segments ) == 3 )
 		track.join( 1 )
-		self.assertTrue( len( track.track_segments ) == 2 )
+		self.assertTrue( len( track.segments ) == 2 )
 		track.join( 0 )
-		self.assertTrue( len( track.track_segments ) == 1 )
+		self.assertTrue( len( track.segments ) == 1 )
 
 		# Check that this splitted and joined track is the same as the original one:
 		self.assertTrue( equals( track, original_track ) )
@@ -298,19 +298,19 @@ class TestWaypoint( unittest.TestCase ):
 		f.close()
 
 		track = gpx.tracks[ 1 ]
-		segment = track.track_segments[ 0 ]
+		segment = track.segments[ 0 ]
 		original_segment = segment.clone()
 
 		segment.remove_point( 3 )
-		print segment.track_points[ 0 ]
-		print original_segment.track_points[ 0 ]
-		self.assertTrue( equals( segment.track_points[ 0 ], original_segment.track_points[ 0 ] ) )
-		self.assertTrue( equals( segment.track_points[ 1 ], original_segment.track_points[ 1 ] ) )
-		self.assertTrue( equals( segment.track_points[ 2 ], original_segment.track_points[ 2 ] ) )
+		print segment.points[ 0 ]
+		print original_segment.points[ 0 ]
+		self.assertTrue( equals( segment.points[ 0 ], original_segment.points[ 0 ] ) )
+		self.assertTrue( equals( segment.points[ 1 ], original_segment.points[ 1 ] ) )
+		self.assertTrue( equals( segment.points[ 2 ], original_segment.points[ 2 ] ) )
 		# ...but:
-		self.assertTrue( equals( segment.track_points[ 3 ], original_segment.track_points[ 4 ] ) )
+		self.assertTrue( equals( segment.points[ 3 ], original_segment.points[ 4 ] ) )
 
-		self.assertTrue( len( segment.track_points ) + 1 == len( original_segment.track_points ) )
+		self.assertTrue( len( segment.points ) + 1 == len( original_segment.points ) )
 
 	def test_distance( self ):
 		distance = mod_gpx.distance( 48.56806,21.43467, None, 48.599214,21.430878, None )
@@ -371,7 +371,7 @@ class TestWaypoint( unittest.TestCase ):
 		track = mod_gpx.GPXTrack()
 		gpx.tracks.append( track )
 		segment = mod_gpx.GPXTrackSegment()
-		track.track_segments.append( segment )
+		track.segments.append( segment )
 
 		location_to_find_on_track = None
 
@@ -380,7 +380,7 @@ class TestWaypoint( unittest.TestCase ):
 			longitude = 45 + i * 0.001
 			elevation = 100 + i * 2
 			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
-			segment.track_points.append( point )
+			segment.points.append( point )
 
 			if i == 500:
 				location_to_find_on_track = mod_gpx.GPXWaypoint( latitude = latitude, longitude = longitude )
@@ -398,26 +398,26 @@ class TestWaypoint( unittest.TestCase ):
 
 		# first segment:
 		segment = mod_gpx.GPXTrackSegment()
-		track.track_segments.append( segment )
+		track.segments.append( segment )
 		for i in range( 1000 ):
 			latitude = 45 + i * 0.001
 			longitude = 45 + i * 0.001
 			elevation = 100 + i * 2
 			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
-			segment.track_points.append( point )
+			segment.points.append( point )
 
 			if i == 500:
 				location_to_find_on_track = mod_gpx.GPXWaypoint( latitude = latitude, longitude = longitude )
 
 		# second segment
 		segment = mod_gpx.GPXTrackSegment()
-		track.track_segments.append( segment )
+		track.segments.append( segment )
 		for i in range( 1000 ):
 			latitude = 45.0000001 + i * 0.001
 			longitude = 45.0000001 + i * 0.001
 			elevation = 100 + i * 2
 			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
-			segment.track_points.append( point )
+			segment.points.append( point )
 
 		result = gpx.get_nearest_locations( location_to_find_on_track )
 
@@ -467,36 +467,36 @@ class TestWaypoint( unittest.TestCase ):
 		gpx.tracks.append( track )
 
 		segment = mod_gpx.GPXTrackSegment()
-		track.track_segments.append( segment )
+		track.segments.append( segment )
 		for i in range( 1000 ):
 			latitude = 45 + i * 0.001
 			longitude = 45 + i * 0.001
 			elevation = 100 + i * 2.
 			point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation )
-			segment.track_points.append( point )
+			segment.points.append( point )
 
 		self.assertTrue( hash( gpx ) )
 		self.assertTrue( len( gpx.tracks ) == 1 )
-		self.assertTrue( len( gpx.tracks[ 0 ].track_segments ) == 1 )
-		self.assertTrue( len( gpx.tracks[ 0 ].track_segments[ 0 ].track_points ) == 1000 )
+		self.assertTrue( len( gpx.tracks[ 0 ].segments ) == 1 )
+		self.assertTrue( len( gpx.tracks[ 0 ].segments[ 0 ].points ) == 1000 )
 
 		cloned_gpx = mod_copy.deepcopy( gpx )
 
 		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
 
-		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].elevation *= 2.
+		gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ].elevation *= 2.
 		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
 
-		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].elevation /= 2.
+		gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ].elevation /= 2.
 		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
 
-		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].latitude /= 2.
+		gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ].latitude /= 2.
 		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
 
-		gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ].latitude *= 2.
+		gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ].latitude *= 2.
 		self.assertTrue( hash( gpx ) == hash( cloned_gpx ) )
 
-		del gpx.tracks[ 0 ].track_segments[ 0 ].track_points[ 17 ]
+		del gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ]
 		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
 
 if __name__ == '__main__':
