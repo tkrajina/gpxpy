@@ -1,5 +1,6 @@
 *.pyc
 *.swp
+*.swo
 tmp/
 tmp_*.py
 q.py
