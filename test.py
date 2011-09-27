@@ -4,6 +4,7 @@ import unittest
 
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
+import gpxpy.geo as mod_geo
 import time as mod_time
 import copy as mod_copy
 
@@ -108,18 +109,18 @@ class TestWaypoint( unittest.TestCase ):
 	def test_nearest_location_1( self ):
 		gpx = self._parse( 'korita-zbevnica.gpx' )
 
-		location = mod_gpx.Location( 45.451058791, 14.027903696 )
+		location = mod_geo.Location( 45.451058791, 14.027903696 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( location ) < 0.001 )
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = mod_gpx.Location( 1, 1 )
+		location = mod_geo.Location( 1, 1 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
 
-		location = mod_gpx.Location( 50, 50 )
+		location = mod_geo.Location( 50, 50 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
 		point = gpx.tracks[ track_no ].segments[ track_segment_no ].points[ track_point_no ]
 		self.assertTrue( point.distance_2d( nearest_location ) < 0.001 )
@@ -313,7 +314,7 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( len( segment.points ) + 1 == len( original_segment.points ) )
 
 	def test_distance( self ):
-		distance = mod_gpx.distance( 48.56806,21.43467, None, 48.599214,21.430878, None )
+		distance = mod_geo.distance( 48.56806,21.43467, None, 48.599214,21.430878, None )
 		print distance
 		self.assertTrue( distance > 3450 and distance < 3500 )
 
@@ -426,8 +427,8 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertTrue( len( result ) == 2 )
 
 	def test_hash_location( self ):
-		location_1 = mod_gpx.Location( latitude = 12, longitude = 13, elevation = 19 )
-		location_2 = mod_gpx.Location( latitude = 12, longitude = 13, elevation = 19 )
+		location_1 = mod_geo.Location( latitude = 12, longitude = 13, elevation = 19 )
+		location_2 = mod_geo.Location( latitude = 12, longitude = 13, elevation = 19 )
 
 		self.assertTrue( hash( location_1 ) == hash( location_2 ) )
 

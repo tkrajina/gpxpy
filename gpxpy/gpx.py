@@ -6,9 +6,11 @@ import datetime as mod_datetime
 
 import utils as mod_utils
 import copy as mod_copy
+import geo as mod_geo
 
-# One degree in meters:
-ONE_DEGREE = 1000. * 10000.8 / 90.
+"""
+GPX related stuff
+"""
 
 # GPX date format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -20,86 +22,7 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 # than this value -- we'll assume it is 0
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
-def length( locations = [], _3d = None ):
-	if not locations:
-		return 0
-	length = 0
-	for i in range( len( locations ) ):
-		if i > 0:
-			previous_location = locations[ i - 1 ]
-			location = locations[ i ]
-
-			if _3d:
-				d = location.distance_3d( previous_location )
-			else:
-				d = location.distance_2d( previous_location )
-			if d != 0 and not d:
-				#print( 'došli do null %s <-> %s _3d:%s' % ( location, previous_location, _3d ) )
-				pass
-			else:
-				length += d
-				#print '#%s length (%s) -> %s' % ( i, _3d, length )
-	return length
-
-def length_3d( locations = [] ):
-	""" 3-dimensional length of locations (is uses latitude, longitude and elevation). """
-	return length( locations, True )
-
-def distance( latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2 ):
-	""" Distance between two points. If elevation == None compute a 2d distance """
-
-	coef = mod_math.cos( latitude_1 / 180. * mod_math.pi )
-	x = latitude_1 - latitude_2
-	y = ( longitude_1 - longitude_2 ) * coef
-
-	distance_2d = mod_math.sqrt( x * x + y * y ) * ONE_DEGREE
-
-	if elevation_1 == None or elevation_2 == None or elevation_1 == elevation_2:
-		return distance_2d
-
-	return mod_math.sqrt( distance_2d ** 2 + ( elevation_1 - elevation_2 ) ** 2 )
-
-def length_2d( locations = [] ):
-	""" 2-dimensional length of locations (only latitude and longitude, no elevation """
-	return length( locations, None )
-
-class Location:
-
-	latitude = None
-	longitude = None
-	elevation = None
-
-	def __init__( self, latitude, longitude, elevation = None ):
-		self.latitude = latitude
-		self.longitude = longitude
-		self.elevation = elevation
-
-	def has_elevation( self ):
-		return self.elevation or self.elevation == 0
-
-	def distance_2d( self, location ):
-		if not location:
-			return None
-
-		return distance( self.latitude, self.longitude, None, location.latitude, location.longitude, None )
-
-	def distance_3d( self, location ):
-		if not location:
-			return None
-
-		return distance( self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation )
-
-	def move( self, latitude_diff, longitude_diff ):
-		self.latitude += latitude_diff
-		self.longitude += longitude_diff
-		
-	def __str__( self ):
-		return '[loc:%s,%s@%s]' % ( self.latitude, self.longitude, self.elevation )
-
-	def __hash__( self ):
-                return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation' ) 
-
-class GPXWaypoint( Location ):
+class GPXWaypoint( mod_geo.Location ):
 
 	time = None
 	name = None
@@ -109,7 +32,7 @@ class GPXWaypoint( Location ):
 	comment = None
 
 	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
-		Location.__init__( self, latitude, longitude, elevation )
+		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
 		self.name = name
@@ -152,7 +75,7 @@ class GPXRoute:
 		self.route_points = []
 
 	def length( self ):
-		return length_2d( route_points )
+		return mod_geo.length_2d( route_points )
 
 	def move( self, latitude_diff, longitude_diff ):
 		for route_point in self.route_points:
@@ -168,9 +91,9 @@ class GPXRoute:
 		return mod_utils.to_xml( 'rte', content = content )
 
 	def __hash__( self ):
-                 return mod_utils.hash_object( self, 'name', 'description', 'number', 'route_points' )
+		return mod_utils.hash_object( self, 'name', 'description', 'number', 'route_points' )
 
-class GPXRoutePoint( Location ):
+class GPXRoutePoint( mod_geo.Location ):
 
 	time = None
 	name = None
@@ -180,7 +103,7 @@ class GPXRoutePoint( Location ):
 	comment = None
 
 	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
-		Location.__init__( self, latitude, longitude, elevation )
+		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
 		self.name = name
@@ -205,9 +128,9 @@ class GPXRoutePoint( Location ):
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __hash__( self ):
-                return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' ) 
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' ) 
 
-class GPXTrackPoint( Location ):
+class GPXTrackPoint( mod_geo.Location ):
 
 	time = None
 	symbol = None
@@ -220,7 +143,7 @@ class GPXTrackPoint( Location ):
 	__point_no = None
 
 	def __init__( self, latitude, longitude, elevation = None, time = None, symbol = None, comment = None ):
-		Location.__init__( self, latitude, longitude, elevation )
+		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
 		self.symbol = symbol
@@ -270,7 +193,7 @@ class GPXTrackPoint( Location ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
 
 	def __hash__( self ):
-                return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment' )
+		return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment' )
 
 class GPXTrack:
 	name = None
@@ -469,9 +392,9 @@ class GPXTrack:
 				sum_lon += point.longitude
 
 		if not n:
-			return Location( float( 0 ), float( 0 ) )
+			return mod_geo.Location( float( 0 ), float( 0 ) )
 
-		return Location( latitude = sum_lat / n, longitude = sum_lon / n )
+		return mod_geo.Location( latitude = sum_lat / n, longitude = sum_lon / n )
 
 	def get_points_no( self ):
 		result = 0
@@ -527,7 +450,7 @@ class GPXTrack:
 		return mod_copy.deepcopy( self )
 
 	def __hash__( self ):
-                return mod_utils.hash_object( self, 'name', 'description', 'number', 'segments' )
+		return mod_utils.hash_object( self, 'name', 'description', 'number', 'segments' )
 
 class GPXTrackSegment:
 	points = None
@@ -536,10 +459,10 @@ class GPXTrackSegment:
 		self.points = points if points else []
 
 	def length_2d( self ):
-		return length_2d( self.points )
+		return mod_geo.length_2d( self.points )
 
 	def length_3d( self ):
-		return length_3d( self.points )
+		return mod_geo.length_3d( self.points )
 
 	def move( self, latitude_diff, longitude_diff ):
 		for track_point in self.points:
@@ -722,7 +645,7 @@ class GPXTrackSegment:
 	def get_location_at( self, time ):
 		""" 
 		Gets approx. location at given time. Note that, at the moment this method returns
-		an instance of GPXTrackPoints in the future -- this may be a Location instance
+		an instance of GPXTrackPoints in the future -- this may be a mod_geo.Location instance
 		with approximated latitude, longitude and elevation!
 		"""
 		if not self.points:
@@ -746,7 +669,7 @@ class GPXTrackSegment:
 			point = self.points[ i ]
 			if point.time and time < point.time:
 				# TODO: If between two points -- approx position!
-				# return Location( point.latitude, point.longitude )
+				# return mod_geo.Location( point.latitude, point.longitude )
 				return point
 
 	def to_xml( self ):
@@ -869,14 +792,14 @@ class GPXTrackSegment:
 				# TODO: This is not ideal.. Because if there are points A, B and C on the same
 				# line but B is very close to C... This would remove B (and possibly) A even though
 				# it is not an extreeme. This is the reason for this algorithm:
-				d1 = distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i ], longitudes[ i ], None )
-				d2 = distance( latitudes[ i + 1 ], longitudes[ i + 1 ], None, latitudes[ i ], longitudes[ i ], None )
-				d = distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i + 1 ], longitudes[ i + 1 ], None )
+				d1 = mod_geo.distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i ], longitudes[ i ], None )
+				d2 = mod_geo.distance( latitudes[ i + 1 ], longitudes[ i + 1 ], None, latitudes[ i ], longitudes[ i ], None )
+				d = mod_geo.distance( latitudes[ i - 1 ], longitudes[ i - 1 ], None, latitudes[ i + 1 ], longitudes[ i + 1 ], None )
 
 				#print d1, d2, d, remove_extreemes
 
 				if d1 + d2 > d * 1.5 and remove_extreemes:
-					d = distance( old_latitude, old_longitude, None, new_latitude, new_longitude, None )
+					d = mod_geo.distance( old_latitude, old_longitude, None, new_latitude, new_longitude, None )
 					#print "d, treshold = ", d, remove_2d_extreemes_treshold
 					if d < remove_2d_extreemes_treshold:
 						new_point = self.points[ i ]
@@ -920,7 +843,7 @@ class GPXTrackSegment:
 		return has_first and found > .75 and has_last
 
 	def __hash__( self ):
-                return mod_utils.hash_object( self, 'points' )
+		return mod_utils.hash_object( self, 'points' )
 
 	def clone( self ):
 		return mod_copy.deepcopy( self )
@@ -1342,7 +1265,7 @@ class GPX:
 		return result
 
 	def __hash__( self ):
-                return mod_utils.hash_object( self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) 
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) 
 
 	def clone( self ):
 		return mod_copy.deepcopy( self )
