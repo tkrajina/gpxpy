@@ -19,16 +19,15 @@ def parse_time( string ):
 			string = mod_re.sub( '\.\d+Z', 'Z', string )
 		return mod_datetime.datetime.strptime( string, mod_gpx.DATE_FORMAT )
 
-class GPXParser:
+class AbstractXMLParser:
+	""" Common methods used in GPXParser and KMLParser """
 
 	xml = None
 
 	valid = None
 	error = None
 
-	gpx = None
-
-	def __init__( self, xml_or_file = None ):
+	def init( self, xml_or_file ):
 		if hasattr( xml_or_file, 'read' ):
 			self.xml = xml_or_file.read()
 		else:
@@ -40,12 +39,19 @@ class GPXParser:
 		self.valid = False
 		self.error = None
 
+class GPXParser( AbstractXMLParser ):
+
+	gpx = None
+
+	def __init__( self, xml_or_file = None ):
+		self.init( xml_or_file )
+
 		self.gpx = mod_gpx.GPX()
 
 	def parse( self ):
 		try:
 			dom = mod_minidom.parseString( self.xml )
-			self._parse_dom( dom )
+			self.__parse_dom( dom )
 
 			return self.gpx
 		except Exception, e:
@@ -55,7 +61,7 @@ class GPXParser:
 
 			return None
 
-	def _parse_dom( self, dom ):
+	def __parse_dom( self, dom ):
 		root_nodes = dom.childNodes
 
 		root_node = None
@@ -296,3 +302,37 @@ if __name__ == '__main__':
 			print route.name
 	else:
 		print 'error: %s' % parser.get_error()
+
+class KMLParser( AbstractXMLParser ):
+	"""
+	Generic KML parser. Note that KML is a very generic format with much more than simple GPS tracks.
+
+	Since this library is meant for GPS tracks, this parser will try to parse only tracks and waypoints
+	from the KML file. Note, also, that KML doesn't know about routes. The result is a GPX object.
+
+	See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
+	"""
+
+	gpx = None
+	
+	def __init__( self, xml_or_file = None ):
+		self.init( xml_or_file )
+
+		self.gpx = mod_gpx.GPX()
+
+	def parse( self ):
+		try:
+			dom = mod_minidom.parseString( self.xml )
+			self.__parse_dom( dom )
+
+			return self.gpx
+		except Exception, e:
+			mod_logging.debug( 'Error in:\n%s\n-----------\n' % self.xml )
+			mod_logging.exception( e )
+			self.error = str( e )
+
+			return None
+	
+	def __parse_dom( self, xml ):
+		# TODO
+		pass
