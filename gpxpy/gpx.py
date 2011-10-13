@@ -65,33 +65,33 @@ class GPXRoute:
 	description = None
 	number = None
 
-	route_points = []
+	points = []
 
 	def __init__( self, name = None, description = None, number = None ):
 		self.name = name
 		self.description = description
 		self.number = number
 
-		self.route_points = []
+		self.points = []
 
 	def length( self ):
-		return mod_geo.length_2d( route_points )
+		return mod_geo.length_2d( self.points )
 
 	def move( self, latitude_diff, longitude_diff ):
-		for route_point in self.route_points:
+		for route_point in self.points:
 			route_point.move( latitude_diff, longitude_diff )
 
 	def to_xml( self ):
 		content = mod_utils.to_xml( 'name', content = self.name, cdata = True )
 		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
 		content += mod_utils.to_xml( 'number', content = self.number )
-		for route_point in self.route_points:
+		for route_point in self.points:
 			content += route_point.to_xml()
 
 		return mod_utils.to_xml( 'rte', content = content )
 
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'name', 'description', 'number', 'route_points' )
+		return mod_utils.hash_object( self, 'name', 'description', 'number', 'points' )
 
 class GPXRoutePoint( mod_geo.Location ):
 
@@ -940,7 +940,7 @@ class GPX:
 		routes = []
 
 		for route in self.routes:
-			if len( route.route_points ) > 0:
+			if len( route.points ) > 0:
 				routes.append( route )
 
 		self.routes = routes
