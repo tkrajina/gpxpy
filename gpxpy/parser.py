@@ -22,6 +22,7 @@ def parse_time( string ):
 class AbstractXMLParser:
 	""" Common methods used in GPXParser and KMLParser """
 
+	gpx = None
 	xml = None
 
 	valid = None
@@ -39,9 +40,26 @@ class AbstractXMLParser:
 		self.valid = False
 		self.error = None
 
-class GPXParser( AbstractXMLParser ):
+		self.gpx = mod_gpx.GPX()
 
-	gpx = None
+	def is_valid( self ):
+		return self.valid
+
+	def get_error( self ):
+		return self.error
+
+	def get_gpx( self ):
+		return self.gpx
+
+	def get_node_data( self, node ):
+		if not node:
+			return None
+		child_nodes = node.childNodes
+		if not child_nodes or len( child_nodes ) == 0:
+			return None
+		return child_nodes[ 0 ].data
+
+class GPXParser( AbstractXMLParser ):
 
 	def __init__( self, xml_or_file = None ):
 		self.init( xml_or_file )
@@ -165,7 +183,7 @@ class GPXParser( AbstractXMLParser ):
 			node_name = child_node.nodeName
 			if node_name == 'rtept':
 				route_point = self._parse_route_point( child_node )
-				route.route_points.append( route_point )
+				route.points.append( route_point )
 
 		return route
 
@@ -258,22 +276,41 @@ class GPXParser( AbstractXMLParser ):
 
 		return mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
 
-	def is_valid( self ):
-		return self.valid
+class KMLParser( AbstractXMLParser ):
+	"""
+	Generic KML parser. Note that KML is a very generic format with much more than simple GPS tracks.
 
-	def get_error( self ):
-		return self.error
+	Since this library is meant for GPS tracks, this parser will try to parse only tracks and waypoints
+	from the KML file. Note, also, that KML doesn't know about routes.
 
-	def get_gpx( self ):
-		return self.gpx
+	The result is a GPX object.
 
-	def get_node_data( self, node ):
-		if not node:
+	NOTE THAT THIS IS AN EXPERIMENTAL FEATURE.
+
+	See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
+	"""
+
+	gpx = None
+	
+	def __init__( self, xml_or_file = None ):
+		self.init( xml_or_file )
+
+	def parse( self ):
+		try:
+			dom = mod_minidom.parseString( self.xml )
+			self.__parse_dom( dom )
+
+			return self.gpx
+		except Exception, e:
+			mod_logging.debug( 'Error in:\n%s\n-----------\n' % self.xml )
+			mod_logging.exception( e )
+			self.error = str( e )
+
 			return None
-		child_nodes = node.childNodes
-		if not child_nodes or len( child_nodes ) == 0:
-			return None
-		return child_nodes[ 0 ].data
+	
+	def __parse_dom( self, xml ):
+		# TODO
+		pass
 
 if __name__ == '__main__':
 
@@ -303,36 +340,3 @@ if __name__ == '__main__':
 	else:
 		print 'error: %s' % parser.get_error()
 
-class KMLParser( AbstractXMLParser ):
-	"""
-	Generic KML parser. Note that KML is a very generic format with much more than simple GPS tracks.
-
-	Since this library is meant for GPS tracks, this parser will try to parse only tracks and waypoints
-	from the KML file. Note, also, that KML doesn't know about routes. The result is a GPX object.
-
-	See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
-	"""
-
-	gpx = None
-	
-	def __init__( self, xml_or_file = None ):
-		self.init( xml_or_file )
-
-		self.gpx = mod_gpx.GPX()
-
-	def parse( self ):
-		try:
-			dom = mod_minidom.parseString( self.xml )
-			self.__parse_dom( dom )
-
-			return self.gpx
-		except Exception, e:
-			mod_logging.debug( 'Error in:\n%s\n-----------\n' % self.xml )
-			mod_logging.exception( e )
-			self.error = str( e )
-
-			return None
-	
-	def __parse_dom( self, xml ):
-		# TODO
-		pass
