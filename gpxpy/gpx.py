@@ -118,12 +118,12 @@ class GPXRoutePoint( mod_geo.Location ):
 	def to_xml( self ):
 		content = mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
-			content = mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content = mod_utils.to_xml( 'name', content = self.name, cdata = True )
-		content = mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
-		content = mod_utils.to_xml( 'desc', content = self.description, cdata = True )
-		content = mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
-		content = mod_utils.to_xml( 'type', content = self.type, cdata = True )
+			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+		content += mod_utils.to_xml( 'name', content = self.name, cdata = True )
+		content += mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, cdata = True )
+		content += mod_utils.to_xml( 'sym', content = self.symbol, cdata = True )
+		content += mod_utils.to_xml( 'type', content = self.type, cdata = True )
 
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
@@ -1235,7 +1235,7 @@ class GPX:
 		content += mod_utils.to_xml( 'url', content = self.url, cdata = True )
 		content += mod_utils.to_xml( 'urlname', content = self.urlname, cdata = True )
 		if self.time:
-			content = mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
 		content += mod_utils.to_xml( 'keywords', content = self.keywords, cdata = True )
 
 		for waypoint in self.waypoints:
