@@ -17,7 +17,11 @@ def parse_time( string ):
 	except Exception, e:
 		if mod_re.match( '^.*\.\d+Z$', string ):
 			string = mod_re.sub( '\.\d+Z', 'Z', string )
-		return mod_datetime.datetime.strptime( string, mod_gpx.DATE_FORMAT )
+		try:
+			return mod_datetime.datetime.strptime( string, mod_gpx.DATE_FORMAT )
+		except Exception, e:
+			mod_logging.error( 'Invalid timestemp %s' % string )
+			return None
 
 class AbstractXMLParser:
 	""" Common methods used in GPXParser and KMLParser """
