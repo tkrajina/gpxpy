@@ -77,6 +77,30 @@ class GPXRoute:
 	def length( self ):
 		return mod_geo.length_2d( self.points )
 
+	def get_center( self ):
+		if not self.points:
+			return None
+
+		if not self.points:
+			return None
+
+		sum_lat = 0.
+		sum_lon = 0.
+		n = 0.
+
+		for point in self.points:
+			n += 1.
+			sum_lat += point.latitude
+			sum_lon += point.longitude
+
+		if not n:
+			return mod_geo.Location( float( 0 ), float( 0 ) )
+
+		return mod_geo.Location( latitude = sum_lat / n, longitude = sum_lon / n )
+
+	def get_points( self ):
+		return self.points
+
 	def move( self, latitude_diff, longitude_diff ):
 		for route_point in self.points:
 			route_point.move( latitude_diff, longitude_diff )
