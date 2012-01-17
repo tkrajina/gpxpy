@@ -1,0 +1,8 @@
+GPX.py
+Copyright 2001-2010 Tomo Krajina
+
+This product includes software developed by
+Tomo Krajina (http://www.puzz.info).
+
+===============================================================================
+
