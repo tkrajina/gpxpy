@@ -290,6 +290,39 @@ class GPXTrack:
 				length += d
 		return length
 
+	def get_start_time(self):
+		time = None
+		for track_segment in self.segments:
+			track_segment_start_time = track_segment.get_start_time()
+			if track_segment_start_time:
+				time = track_segment_start_time
+				break
+
+		return time
+	
+	def get_min_max_lat_lon(self):
+		min_lat = None
+		max_lat = None
+		min_lon = None
+		max_lon = None
+		i = 0
+		for track_segment in self.segments:
+			mmll = track_segment.get_min_max_lat_lon()
+			if mmll['min_lat'] and mmll['max_lat'] and mmll['min_lon'] and mmll['max_lon']:
+				if i == 0:
+					min_lat = mmll['min_lat']
+					max_lat = mmll['max_lat']
+					min_lon = mmll['min_lon']
+					max_lon = mmll['max_lon']
+					i = 1
+				else:
+					if mmll['min_lat'] < min_lat: min_lat = mmll['min_lat']
+					if mmll['max_lat'] > max_lat: max_lat = mmll['max_lat']
+					if mmll['min_lon'] < min_lon: min_lon = mmll['min_lon']
+					if mmll['max_lon'] > max_lon: max_lon = mmll['max_lon'] 
+
+		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
+
 	def get_points( self ):
 		result = []
 
@@ -603,6 +636,39 @@ class GPXTrackSegment:
 						if speed > max_speed and not first_or_last:
 							max_speed = speed
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
+	
+	def get_start_time(self):
+		time = None
+		for point in self.points:
+			if point.time:
+				time = point.time
+				break
+		return time
+
+	def get_min_max_lat_lon(self):
+		min_lat = None
+		max_lat = None
+		min_lon = None
+		max_lon = None
+		i = 0
+		for point in self.points:
+			if point.latitude and point.longitude:
+				if i == 0:
+					min_lat = point.latitude
+					max_lat = point.latitude
+					min_lon = point.longitude
+					max_lon = point.longitude
+					i = 1
+				else:
+					if point.latitude < min_lat:
+						min_lat = point.latitude
+					elif point.latitude > max_lat:
+						max_lat = point.latitude
+					if point.longitude < min_lon:
+						min_lon = point.longitude
+					elif point.longitude > max_lon:
+						max_lon = point.longitude
+		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
 
 	def get_speed( self, point_no ):
 		""" Get speed at that point. Point may be a GPXTrackPoint instance or integer (point index) """
@@ -992,6 +1058,38 @@ class GPX:
 					point.__point_no = point_no
 
 		self.__last_hash_value = hash( self )
+
+	def get_start_time(self):
+		time = None
+		for track in self.tracks:
+			track_start_time = track.get_start_time()
+			if track_start_time:
+				time = track_start_time
+				break
+		return time
+
+	def get_min_max_lat_lon(self):
+		min_lat = None
+		max_lat = None
+		min_lon = None
+		max_lon = None
+		i = 0
+		for track in self.tracks:
+			mmll = track.get_min_max_lat_lon()
+			if mmll['min_lat'] and mmll['max_lat'] and mmll['min_lon'] and mmll['max_lon']:
+				if i == 0:
+					min_lat = mmll['min_lat']
+					max_lat = mmll['max_lat']
+					min_lon = mmll['min_lon']
+					max_lon = mmll['max_lon']
+					i = 1
+				else:
+					if mmll['min_lat'] < min_lat: min_lat = mmll['min_lat']
+					if mmll['max_lat'] > max_lat: max_lat = mmll['max_lat']
+					if mmll['min_lon'] < min_lon: min_lon = mmll['min_lon']
+					if mmll['max_lon'] > max_lon: max_lon = mmll['max_lon']
+
+		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
 
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See GPXTrackSegment.smooth( ... ) """
