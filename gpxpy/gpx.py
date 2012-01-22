@@ -1285,7 +1285,7 @@ class GPX:
 		for route in self.routes:
 			content += route.to_xml()
 
-		return mod_utils.to_xml( 'gpx', attributes = {}, content = content )
+		return '<?xml version="1.0" encoding="UTF-8"?>\n' + mod_utils.to_xml( 'gpx', attributes = { 'creator': 'gpx.py -- https://github.com/tkrajina/gpxpy' }, content = content ).strip()
 
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		for track in self.tracks:
