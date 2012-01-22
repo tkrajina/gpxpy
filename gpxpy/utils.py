@@ -15,11 +15,7 @@
 # limitations under the License.
 
 import logging
-
-def to_cdata( str ):
-	if not str:
-		return '<![CDATA[]]>'
-	return '<![CDATA[%s]]>' % str.replace( ']]>', '???' )
+import xml.sax.saxutils as mod_saxutils
 
 def to_xml( tag, attributes = {}, content = None, cdata = None ):
 	result = '\n<%s' % tag
@@ -28,7 +24,7 @@ def to_xml( tag, attributes = {}, content = None, cdata = None ):
 			result += ' %s="%s"' % ( attribute, attributes[ attribute ] )
 	if content:
 		if cdata:
-			result += '>%s</%s>' % ( to_cdata( content ), tag )
+			result += '>%s</%s>' % ( mod_saxutils.escape( content ), tag )
 		else:
 			result += '>%s</%s>' % ( content, tag )
 	else:

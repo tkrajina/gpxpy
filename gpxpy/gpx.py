@@ -59,7 +59,9 @@ class GPXWaypoint( mod_geo.Location ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = mod_utils.to_xml( 'ele', content = self.elevation )
+		content = ''
+		if self.elevation != None:
+			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
 		content += mod_utils.to_xml( 'name', content = self.name, cdata = True )
@@ -154,7 +156,9 @@ class GPXRoutePoint( mod_geo.Location ):
 		return '[rtept{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
 	def to_xml( self ):
-		content = mod_utils.to_xml( 'ele', content = self.elevation )
+		content = ''
+		if self.elevation != None:
+			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
 		content += mod_utils.to_xml( 'name', content = self.name, cdata = True )
@@ -188,7 +192,9 @@ class GPXTrackPoint( mod_geo.Location ):
 		self.comment = comment
 
 	def to_xml( self ):
-		content = mod_utils.to_xml( 'ele', content = self.elevation )
+		content = ''
+		if self.elevation != None:
+			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
 		content += mod_utils.to_xml( 'cmt', content = self.comment, cdata = True )
