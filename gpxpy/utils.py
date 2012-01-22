@@ -32,7 +32,7 @@ def to_xml( tag, attributes = {}, content = None, cdata = None ):
 		else:
 			result += '>%s</%s>' % ( content, tag )
 	else:
-		result += ' />'
+		result += '></%s>' % tag
 
 	result += ''
 
