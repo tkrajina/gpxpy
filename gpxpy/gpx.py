@@ -37,15 +37,20 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
 class GPXWaypoint( mod_geo.Location ):
-
+	
 	time = None
 	name = None
 	description = None
 	symbol = None
 	type = None
 	comment = None
-
-	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
+	hdop = None
+	vdop = None
+	pdop = None
+	
+	def __init__( self, latitude, longitude, elevation = None, time = None, 
+		      name = None, description = None, symbol = None, type = None, 
+		      comment = None, hdop = None, vdop = None, pdop = None ):
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
@@ -54,7 +59,10 @@ class GPXWaypoint( mod_geo.Location ):
 		self.symbol = symbol
 		self.type = type
 		self.comment = comment
-
+		hdop = hdop
+		vdop = vdop
+		pdop = pdop
+		
 	def __str__( self ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
@@ -64,16 +72,32 @@ class GPXWaypoint( mod_geo.Location ):
 			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
+
 		content += mod_utils.to_xml( 'name', content = self.name )
 		content += mod_utils.to_xml( 'desc', content = self.description )
 		content += mod_utils.to_xml( 'sym', content = self.symbol )
 		content += mod_utils.to_xml( 'type', content = self.type )
 		content += mod_utils.to_xml( 'cmt', content = self.comment )
-
+		content += mod_utils.to_xml( 'hdop', content = self.hdop )
+		content += mod_utils.to_xml( 'vdop', content = self.vdop )
+		content += mod_utils.to_xml( 'pdop', content = self.pdop )
+		
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
-
+	
+	def get_max_dop(self):
+	    # only care about the max dop for filtering, no need to go into too much detail
+	    return _get_max(hdop,vdop,pdop)
+	
+	def _get_max(*dops):
+	    max_dop = None
+	    for dop in dops:
+		if dop is not None:
+		    if (max_dop is None) or ((max_dop is not None) and (dop > max_dop)):
+			max_dop = dop
+	    return max_dop
+	
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' )
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment','hdop', 'vdop','pdop' )
 
 class GPXRoute:
 
