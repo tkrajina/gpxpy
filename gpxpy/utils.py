@@ -43,6 +43,13 @@ def to_xml( tag, attributes = {}, content = None, default = None, escape = False
 	
 	return result
 
+def is_numeric( object ):
+	try:
+		float( object )
+		return True
+	except:
+		return False
+
 def to_number( str, default = 0 ):
 	if not str:
 		return None

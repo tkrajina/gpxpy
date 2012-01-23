@@ -17,6 +17,7 @@
 import logging as mod_logging
 import math as mod_math
 import datetime as mod_datetime
+import collections as mod_collections
 
 import utils as mod_utils
 import copy as mod_copy
@@ -35,6 +36,9 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 # When computing stopped time -- this is the miminum speed between two points, if speed is less
 # than this value -- we'll assume it is 0
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
+
+# named tuples used as method results:
+Bounds = mod_collections( 'GPXBounds', 'min_latitude max_latitude min_longitude max_longitude' )
 
 class GPXWaypoint( mod_geo.Location ):
 
@@ -290,38 +294,32 @@ class GPXTrack:
 				length += d
 		return length
 
-	def get_start_time(self):
+	def get_first_time(self):
 		time = None
 		for track_segment in self.segments:
-			track_segment_start_time = track_segment.get_start_time()
+			track_segment_start_time = track_segment.get_first_time()
 			if track_segment_start_time:
-				time = track_segment_start_time
-				break
-
+				return track_segment_start_time
 		return time
 	
-	def get_min_max_lat_lon(self):
+	def get_bounds( self ):
 		min_lat = None
 		max_lat = None
 		min_lon = None
 		max_lon = None
-		i = 0
 		for track_segment in self.segments:
-			mmll = track_segment.get_min_max_lat_lon()
-			if mmll['min_lat'] and mmll['max_lat'] and mmll['min_lon'] and mmll['max_lon']:
-				if i == 0:
-					min_lat = mmll['min_lat']
-					max_lat = mmll['max_lat']
-					min_lon = mmll['min_lon']
-					max_lon = mmll['max_lon']
-					i = 1
-				else:
-					if mmll['min_lat'] < min_lat: min_lat = mmll['min_lat']
-					if mmll['max_lat'] > max_lat: max_lat = mmll['max_lat']
-					if mmll['min_lon'] < min_lon: min_lon = mmll['min_lon']
-					if mmll['max_lon'] > max_lon: max_lon = mmll['max_lon'] 
+			bounds = track_segment.get_bounds()
 
-		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
+			if not mod_utils.is_numeric( min_lat ) or bounds.min_latitude < min_lat:
+				min_lat = bounds.min_latitude
+			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
+				max_lat = bounds.max_latitude
+			if not mod_utils.is_numeric( min_lon ) or bounds.min_longitude < min_lon:
+				min_lon = bounds.min_longitude
+			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
+				max_lat = bounds.max_latitude
+
+		return Bounds( min_lat, max_lat, min_lon, max_lon )
 
 	def get_points( self ):
 		result = []
@@ -637,38 +635,30 @@ class GPXTrackSegment:
 							max_speed = speed
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 	
-	def get_start_time(self):
+	def get_first_time(self):
 		time = None
 		for point in self.points:
 			if point.time:
-				time = point.time
-				break
+				return point.time
 		return time
 
-	def get_min_max_lat_lon(self):
+	def get_bounds(self):
 		min_lat = None
 		max_lat = None
 		min_lon = None
 		max_lon = None
-		i = 0
+
 		for point in self.points:
-			if point.latitude and point.longitude:
-				if i == 0:
-					min_lat = point.latitude
-					max_lat = point.latitude
-					min_lon = point.longitude
-					max_lon = point.longitude
-					i = 1
-				else:
-					if point.latitude < min_lat:
-						min_lat = point.latitude
-					elif point.latitude > max_lat:
-						max_lat = point.latitude
-					if point.longitude < min_lon:
-						min_lon = point.longitude
-					elif point.longitude > max_lon:
-						max_lon = point.longitude
-		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
+			if point.latitude < min_lat:
+				min_lat = point.latitude
+			if point.latitude > max_lat:
+				max_lat = point.latitude
+			if point.longitude < min_lon:
+				min_lon = point.longitude
+			if point.longitude > max_lon:
+				max_lon = point.longitude
+
+		return Bounds( min_lat, max_lat, min_lon, max_lon )
 
 	def get_speed( self, point_no ):
 		""" Get speed at that point. Point may be a GPXTrackPoint instance or integer (point index) """
@@ -979,7 +969,6 @@ class GPXTrackSegment:
 		return mod_copy.deepcopy( self )
 
 class GPX:
-
 	time = None
 	name = None
 	description = None
@@ -1059,37 +1048,39 @@ class GPX:
 
 		self.__last_hash_value = hash( self )
 
-	def get_start_time(self):
+	def get_first_time(self):
+		"""
+		Returns the first found time in the track. 
+		"""
 		time = None
 		for track in self.tracks:
-			track_start_time = track.get_start_time()
+			track_start_time = track.get_first_time()
 			if track_start_time:
-				time = track_start_time
-				break
+				return track_start_time
 		return time
 
-	def get_min_max_lat_lon(self):
+	def get_bounds(self):
+		"""
+		Get bounds of of this track. Note this method *computes* the bounds i.e. the result may be different
+		than the min_latitude and max_latitude properties of this object.
+		"""
 		min_lat = None
 		max_lat = None
 		min_lon = None
 		max_lon = None
-		i = 0
 		for track in self.tracks:
-			mmll = track.get_min_max_lat_lon()
-			if mmll['min_lat'] and mmll['max_lat'] and mmll['min_lon'] and mmll['max_lon']:
-				if i == 0:
-					min_lat = mmll['min_lat']
-					max_lat = mmll['max_lat']
-					min_lon = mmll['min_lon']
-					max_lon = mmll['max_lon']
-					i = 1
-				else:
-					if mmll['min_lat'] < min_lat: min_lat = mmll['min_lat']
-					if mmll['max_lat'] > max_lat: max_lat = mmll['max_lat']
-					if mmll['min_lon'] < min_lon: min_lon = mmll['min_lon']
-					if mmll['max_lon'] > max_lon: max_lon = mmll['max_lon']
+			bounds = track.get_bounds()
 
-		return {'min_lat': min_lat, 'max_lat': max_lat, 'min_lon': min_lon, 'max_lon': max_lon}
+			if not mod_utils.is_numeric( min_lat ) or bounds.min_latitude < min_lat:
+				min_lat = bounds.min_latitude
+			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
+				max_lat = bounds.max_latitude
+			if not mod_utils.is_numeric( min_lon ) or bounds.min_longitude < min_lon:
+				min_lon = bounds.min_longitude
+			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
+				max_lat = bounds.max_latitude
+
+		return Bounds( min_lat, max_lat, min_lon, max_lon )
 
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See GPXTrackSegment.smooth( ... ) """
