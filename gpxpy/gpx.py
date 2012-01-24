@@ -38,7 +38,7 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
 # named tuples used as method results:
-Bounds = mod_collections( 'GPXBounds', 'min_latitude max_latitude min_longitude max_longitude' )
+Bounds = mod_collections.namedtuple( 'GPXBounds', 'min_latitude max_latitude min_longitude max_longitude' )
 
 class GPXWaypoint( mod_geo.Location ):
 
@@ -316,8 +316,8 @@ class GPXTrack:
 				max_lat = bounds.max_latitude
 			if not mod_utils.is_numeric( min_lon ) or bounds.min_longitude < min_lon:
 				min_lon = bounds.min_longitude
-			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
-				max_lat = bounds.max_latitude
+			if not mod_utils.is_numeric( max_lon ) or bounds.max_longitude > max_lon:
+				max_lon = bounds.max_longitude
 
 		return Bounds( min_lat, max_lat, min_lon, max_lon )
 
@@ -649,13 +649,13 @@ class GPXTrackSegment:
 		max_lon = None
 
 		for point in self.points:
-			if point.latitude < min_lat:
+			if min_lat == None or point.latitude < min_lat:
 				min_lat = point.latitude
-			if point.latitude > max_lat:
+			if max_lat == None or point.latitude > max_lat:
 				max_lat = point.latitude
-			if point.longitude < min_lon:
+			if min_lon == None or point.longitude < min_lon:
 				min_lon = point.longitude
-			if point.longitude > max_lon:
+			if max_lon == None or point.longitude > max_lon:
 				max_lon = point.longitude
 
 		return Bounds( min_lat, max_lat, min_lon, max_lon )
@@ -1062,7 +1062,7 @@ class GPX:
 	def get_bounds(self):
 		"""
 		Get bounds of of this track. Note this method *computes* the bounds i.e. the result may be different
-		than the min_latitude and max_latitude properties of this object.
+		than the min_latitude, max_latitude, min_longitude and max_longitude properties of this object.
 		"""
 		min_lat = None
 		max_lat = None
@@ -1077,10 +1077,23 @@ class GPX:
 				max_lat = bounds.max_latitude
 			if not mod_utils.is_numeric( min_lon ) or bounds.min_longitude < min_lon:
 				min_lon = bounds.min_longitude
-			if not mod_utils.is_numeric( max_lat ) or bounds.max_latitude > max_lat:
-				max_lat = bounds.max_latitude
+			if not mod_utils.is_numeric( max_lon ) or bounds.max_longitude > max_lon:
+				max_lon = bounds.max_longitude
 
 		return Bounds( min_lat, max_lat, min_lon, max_lon )
+	
+	def refresh_bounds( self ):
+		"""
+		Compute bounds and reload min_latitude, max_latitude, min_longitude and max_longitude properties
+		of this object
+		"""
+
+		bounds = self.get_bounds()
+
+		self.min_latitude = bounds.min_latitude
+		self.max_latitude = bounds.max_latitude
+		self.min_longitude = bounds.min_longitude
+		self.max_longitude = bounds.max_longitude
 
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See GPXTrackSegment.smooth( ... ) """

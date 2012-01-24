@@ -514,5 +514,39 @@ class TestWaypoint( unittest.TestCase ):
 		del gpx.tracks[ 0 ].segments[ 0 ].points[ 17 ]
 		self.assertTrue( hash( gpx ) != hash( cloned_gpx ) )
 
+	def test_bounds( self ):
+		gpx = mod_gpx.GPX()
+
+		track = mod_gpx.GPXTrack()
+
+		segment_1 = mod_gpx.GPXTrackSegment()
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = -12, longitude = 13 ) )
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = -100, longitude = -5 ) )
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = 100, longitude = -13 ) )
+		track.segments.append( segment_1 )
+
+		segment_2 = mod_gpx.GPXTrackSegment()
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = -12, longitude = 100 ) )
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = -10, longitude = -5 ) )
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = 10, longitude = -100 ) )
+		track.segments.append( segment_2 )
+
+		gpx.tracks.append( track )
+
+		bounds = gpx.get_bounds()
+
+		self.assertEquals( bounds.min_latitude, -100 )
+		self.assertEquals( bounds.max_latitude, 100 )
+		self.assertEquals( bounds.min_longitude, -100 )
+		self.assertEquals( bounds.max_longitude, 100 )
+
+		# Test refresh bounds:
+
+		gpx.refresh_bounds()
+		self.assertEquals( gpx.min_latitude, -100 )
+		self.assertEquals( gpx.max_latitude, 100 )
+		self.assertEquals( gpx.min_longitude, -100 )
+		self.assertEquals( gpx.max_longitude, 100 )
+
 if __name__ == '__main__':
 	unittest.main()
