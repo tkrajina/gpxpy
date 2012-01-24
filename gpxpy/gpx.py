@@ -38,7 +38,8 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
 # named tuples used as method results:
-Bounds = mod_collections.namedtuple( 'GPXBounds', 'min_latitude max_latitude min_longitude max_longitude' )
+Bounds = mod_collections.namedtuple( 'Bounds', 'min_latitude max_latitude min_longitude max_longitude' )
+TimeBounds = mod_collections.namedtuple( 'TimeBounds', 'start_time end_time' )
 
 class GPXWaypoint( mod_geo.Location ):
 
@@ -294,13 +295,18 @@ class GPXTrack:
 				length += d
 		return length
 
-	def get_first_time(self):
-		time = None
+	def get_time_bounds(self):
+		start_time = None
+		end_time = None
+
 		for track_segment in self.segments:
-			track_segment_start_time = track_segment.get_first_time()
-			if track_segment_start_time:
-				return track_segment_start_time
-		return time
+			point_start_time, point_end_time = track_segment.get_time_bounds()
+			if not start_time and point_start_time:
+				start_time = point_start_time
+			if point_end_time:
+				end_time = point_end_time
+
+		return TimeBounds( start_time, end_time )
 	
 	def get_bounds( self ):
 		min_lat = None
@@ -635,12 +641,18 @@ class GPXTrackSegment:
 							max_speed = speed
 		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 	
-	def get_first_time(self):
-		time = None
+	def get_time_bounds(self):
+		start_time = None
+		end_time = None
+
 		for point in self.points:
 			if point.time:
-				return point.time
-		return time
+				if not start_time:
+					start_time = point.time
+				if point.time:
+					end_time = point.time
+
+		return TimeBounds( start_time, end_time )
 
 	def get_bounds(self):
 		min_lat = None
@@ -1048,16 +1060,21 @@ class GPX:
 
 		self.__last_hash_value = hash( self )
 
-	def get_first_time(self):
+	def get_time_bounds(self):
 		"""
-		Returns the first found time in the track. 
+		Returns the first and last found time in the track. 
 		"""
-		time = None
+		start_time = None
+		end_time = None
+
 		for track in self.tracks:
-			track_start_time = track.get_first_time()
-			if track_start_time:
-				return track_start_time
-		return time
+			track_start_time, track_end_time = track.get_time_bounds()
+			if not start_time:
+				start_time = track_start_time
+			if track_end_time:
+				end_time = track_end_time
+
+		return TimeBounds( start_time, end_time )
 
 	def get_bounds(self):
 		"""

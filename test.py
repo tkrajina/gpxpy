@@ -14,13 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
+import unittest as mod_unittest
+import time as mod_time
+import copy as mod_copy
+import datetime as mod_datetime
 
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
-import time as mod_time
-import copy as mod_copy
 
 def equals( object1, object2, ignore = None ):
 	""" Testing purposes only """
@@ -64,7 +65,7 @@ def equals( object1, object2, ignore = None ):
 
 # TODO: Track segment speed in point test
 
-class TestWaypoint( unittest.TestCase ):
+class TestWaypoint( mod_unittest.TestCase ):
 
 	def _parse( self, file ):
 		f = open( 'test_files/%s' % file )
@@ -548,5 +549,29 @@ class TestWaypoint( unittest.TestCase ):
 		self.assertEquals( gpx.min_longitude, -100 )
 		self.assertEquals( gpx.max_longitude, 100 )
 
+	def test_time_bounds( self ):
+		gpx = mod_gpx.GPX()
+
+		track = mod_gpx.GPXTrack()
+
+		segment_1 = mod_gpx.GPXTrackSegment()
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = -12, longitude = 13 ) )
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = -100, longitude = -5, time = mod_datetime.datetime( 2001, 1, 12 )  ) )
+		segment_1.points.append( mod_gpx.GPXTrackPoint( latitude = 100, longitude = -13 , time = mod_datetime.datetime( 2003, 1, 12 )) )
+		track.segments.append( segment_1 )
+
+		segment_2 = mod_gpx.GPXTrackSegment()
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = -12, longitude = 100, time = mod_datetime.datetime( 2010, 1, 12 ) ) )
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = -10, longitude = -5, time = mod_datetime.datetime( 2011, 1, 12 ) ) )
+		segment_2.points.append( mod_gpx.GPXTrackPoint( latitude = 10, longitude = -100 ) )
+		track.segments.append( segment_2 )
+
+		gpx.tracks.append( track )
+
+		bounds = gpx.get_time_bounds()
+
+		self.assertEquals( bounds.start_time, mod_datetime.datetime( 2001, 1, 12 ) )
+		self.assertEquals( bounds.end_time, mod_datetime.datetime( 2011, 1, 12 ) )
+
 if __name__ == '__main__':
-	unittest.main()
+	mod_unittest.main()
