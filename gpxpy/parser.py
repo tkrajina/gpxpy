@@ -193,8 +193,8 @@ class GPXParser( AbstractXMLParser ):
 		
 		return mod_gpx.GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, 
 					    time = time, name = name, description = desc, symbol = sym, 
-					    type = type, comment = comment, hdop = hdop, vdop = vdop,
-					    pdop = pdop)
+					    type = type, comment = comment, horizontal_dilution_of_precision = hdop,
+						vertical_dilution_of_precision = vdop, position_dilution_of_precision = pdop)
 
 	def _parse_route( self, node ):
 		name_node = mod_utils.find_first_node( node, 'name' )
