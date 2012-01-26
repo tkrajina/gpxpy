@@ -17,8 +17,12 @@
 import logging
 import xml.sax.saxutils as mod_saxutils
 
-def to_xml( tag, attributes = {}, content = None, cdata = None ):
+def to_xml( tag, attributes = {}, content = None, cdata = None, default = None ):
 	result = '\n<%s' % tag
+
+	if not content and default:
+		content = default
+
 	if attributes:
 		for attribute in attributes.keys():
 			result += ' %s="%s"' % ( attribute, attributes[ attribute ] )

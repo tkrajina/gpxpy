@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+  version="1.0"
+  creator="GPSBabel - http://www.gpsbabel.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.topografix.com/GPX/1/0"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<time>2011-10-23 03:45:17</time>
+<name></name>
+<desc></desc>
+<author></author>
+<!--
+<email></email>
+-->
+<url></url>
+<urlname></urlname>
+<time>2011-10-23T03:45:17Z</time>
+<keywords></keywords>
+<wpt lat="45.380612165" lon="14.144709371">
+<name>001</name>
+<desc>20-MAR-11 15:43:38</desc>
+<sym>Flag, Blue</sym>
+<type></type>
+<cmt>20-MAR-11 15:43:38</cmt></wpt>
+<wpt lat="45.254311133" lon="13.932984425">
+<name>002</name>
+<desc>28-AUG-11 19:11:57</desc>
+<sym>Flag, Blue</sym>
+<type></type>
+<cmt>28-AUG-11 19:11:57</cmt></wpt>
+<wpt lat="45.531354994" lon="13.948074114">
+<name>003</name>
+<desc>24-SEP-11 18:02:50</desc>
+<sym>Flag, Blue</sym>
+<type></type>
+<cmt>24-SEP-11 18:02:50</cmt></wpt>
+<wpt lat="45.314765023" lon="14.242533306">
+<name>Parking</name>
+<desc>22-OCT-11 14:24:41</desc>
+<sym>parking.png</sym>
+<type></type>
+<cmt>22-OCT-11 14:24:41</cmt></wpt>
+<wpt lat="45.392283294" lon="14.181166627">
+<name>CACHE</name>
+<desc>20-MAR-11 11:40:20</desc>
+<sym>Flag, Blue</sym>
+<type></type>
+<cmt>20-MAR-11 11:40:20</cmt></wpt>
+<wpt lat="45.050832974" lon="13.70723295">
+<ele>-0.11438</ele>
+<name>GC2CCQ8</name>
+<desc>A HREF"HTTP://WWW.GEOCACHING.C</desc>
+<sym>City (Small)</sym>
+<type></type>
+<cmt>A HREF"HTTP://WWW.GEOCACHING.C</cmt></wpt>
+<wpt lat="46.100999946" lon="14.520569919">
+<name>HOTEL LJ</name>
+<desc>29-JUL-11 10:31:58</desc>
+<sym>Flag, Blue</sym>
+<type></type>
+<cmt>29-JUL-11 10:31:58</cmt></wpt>
+<wpt lat="45.057400111" lon="13.703724118">
+<ele>58.285156</ele>
+<name>UNTTLD PLC</name>
+<desc>UNTITLED PLACEMARK</desc>
+<sym>City (Small)</sym>
+<type></type>
+<cmt>UNTITLED PLACEMARK</cmt></wpt>
+<wpt lat="45.3055415273" lon="14.2342423753">
+<name>Slap 2.</name>
+<desc></desc>
+<sym>waterfall.png</sym>
+<type></type>
+<cmt></cmt></wpt>
+<wpt lat="45.301794592" lon="14.2294850404">
+<name>Slap 3.</name>
+<desc></desc>
+<sym>waterfall.png</sym>
+<type></type>
+<cmt></cmt></wpt>
+<wpt lat="45.3119101" lon="14.2403667">
+<name>Skretanje</name>
+<desc></desc>
+<sym>hiking-tourism.png</sym>
+<type></type>
+<cmt></cmt></wpt>
+<wpt lat="45.3032181133" lon="14.2362775788">
+<name>White roat</name>
+<desc></desc>
+<sym>hiking-tourism.png</sym>
+<type></type>
+<cmt></cmt></wpt>
+<trk>
+<name>ACTIVE LOG</name>
+<desc></desc>
+<number></number>
+<trkseg>
+<trkpt lat="45.314662345" lon="14.24267848">
+<ele>513.000732</ele>
+<time>2011-10-22T10:07:21Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314765358" lon="14.242514363">
+<ele>506.756762466</ele>
+<time>2011-10-22T10:08:17Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314681288" lon="14.242442278">
+<ele>502.386978413</ele>
+<time>2011-10-22T10:08:27Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314574922" lon="14.242489468">
+<ele>500.203625787</ele>
+<time>2011-10-22T10:08:37Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314458078" lon="14.24273598">
+<ele>500.362041606</ele>
+<time>2011-10-22T10:08:58Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.31437627" lon="14.24278954">
+<ele>501.409501638</ele>
+<time>2011-10-22T10:09:09Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314282477" lon="14.242778979">
+<ele>502.783033451</ele>
+<time>2011-10-22T10:09:18Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.31420134" lon="14.242708655">
+<ele>504.031226506</ele>
+<time>2011-10-22T10:09:27Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314133866" lon="14.242632128">
+<ele>504.915638176</ele>
+<time>2011-10-22T10:09:36Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.314064212" lon="14.242560379">
+<ele>505.735457725</ele>
+<time>2011-10-22T10:09:45Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313987182" lon="14.242484355">
+<ele>506.314545338</ele>
+<time>2011-10-22T10:09:54Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313906046" lon="14.242442781">
+<ele>506.949015838</ele>
+<time>2011-10-22T10:10:02Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.31381879" lon="14.242386706">
+<ele>507.505037101</ele>
+<time>2011-10-22T10:10:10Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313754082" lon="14.242297271">
+<ele>508.297940066</ele>
+<time>2011-10-22T10:10:20Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313698594" lon="14.242172884">
+<ele>509.023156858</ele>
+<time>2011-10-22T10:10:31Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313628437" lon="14.242090154">
+<ele>510.150599086</ele>
+<time>2011-10-22T10:10:57Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313566746" lon="14.241970461">
+<ele>511.125752363</ele>
+<time>2011-10-22T10:11:06Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313503044" lon="14.241871806">
+<ele>512.482366267</ele>
+<time>2011-10-22T10:11:15Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313420733" lon="14.241786813">
+<ele>513.709762694</ele>
+<time>2011-10-22T10:11:25Z</time>
+<cmt></cmt>
+<sym></sym></trkpt>
+<trkpt lat="45.313352756" lon="14.241708359">
+<ele>515.200186771</ele>
+<time>2011-10-22T10:11:35Z</time>
+<cmt></cmt>
+<sym></sym></trkpt></trkseg></trk>
+<rte>
+<name>P 2</name>
+<desc></desc>
+<number></number>
+<rtept lat="44.815112231" lon="13.88067632">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.813984782" lon="13.882338451">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.814786091" lon="13.885925654">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.814566066" lon="13.886574414">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.812692627" lon="13.886271659">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.811872374" lon="13.882988049">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.810934858" lon="13.882117672">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.809289575" lon="13.880553022">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.808306629" lon="13.880584957">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.807328125" lon="13.879257012">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.80693711" lon="13.878357634">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806714151" lon="13.87782203">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806909533" lon="13.877132116">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806472501" lon="13.875967115">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.805555101" lon="13.874061154">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806636618" lon="13.876309935">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806834431" lon="13.877373934">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.806748433" lon="13.878087653">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.807313289" lon="13.877955135">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.809060497" lon="13.878840934">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.811404077" lon="13.879250055">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.810444936" lon="13.878208185">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.810955813" lon="13.878431143">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.81157599" lon="13.879060959">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.812332625" lon="13.877994111">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.812988508" lon="13.877772074">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.813566022" lon="13.878127048">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.814001042" lon="13.877812307">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept>
+<rtept lat="44.814996477" lon="13.880463839">
+<name></name>
+<cmt></cmt>
+<desc></desc>
+<sym></sym>
+<type></type></rtept></rte></gpx>
