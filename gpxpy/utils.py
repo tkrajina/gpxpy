@@ -17,7 +17,7 @@
 import logging
 import xml.sax.saxutils as mod_saxutils
 
-def to_xml( tag, attributes = {}, content = None, cdata = None, default = None ):
+def to_xml( tag, attributes = {}, content = None, default = None, escape = False ):
 	result = '\n<%s' % tag
 
 	if not content and default:
@@ -27,12 +27,14 @@ def to_xml( tag, attributes = {}, content = None, cdata = None, default = None )
 		for attribute in attributes.keys():
 			result += ' %s="%s"' % ( attribute, attributes[ attribute ] )
 	if content:
-		if cdata:
+		if escape:
 			result += '>%s</%s>' % ( mod_saxutils.escape( content ), tag )
 		else:
 			result += '>%s</%s>' % ( content, tag )
-	else:
+	elif content == '':
 		result += '></%s>' % tag
+	else:
+		result += '/>'
 
 	result += ''
 

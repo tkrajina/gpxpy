@@ -64,13 +64,17 @@ class GPXWaypoint( mod_geo.Location ):
 			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += mod_utils.to_xml( 'name', content = self.name )
-		content += mod_utils.to_xml( 'desc', content = self.description )
-		content += mod_utils.to_xml( 'sym', content = self.symbol )
-		content += mod_utils.to_xml( 'type', content = self.type )
+		if self.name:
+			content += mod_utils.to_xml( 'name', content = self.name, escape = True )
+		if self.description:
+			content += mod_utils.to_xml( 'desc', content = self.description, escape = True )
+		if self.symbol:
+			content += mod_utils.to_xml( 'sym', content = self.symbol, escape = True )
+		if self.type:
+			content += mod_utils.to_xml( 'type', content = self.type, escape = True )
 
-		if version != '1.0':
-			content += mod_utils.to_xml( 'cmt', content = self.comment )
+		if version == '1.1': # TODO
+			content += mod_utils.to_xml( 'cmt', content = self.comment, escape = True )
 
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
@@ -124,8 +128,11 @@ class GPXRoute:
 			route_point.move( latitude_diff, longitude_diff )
 
 	def to_xml( self, version = None ):
-		content = mod_utils.to_xml( 'name', content = self.name )
-		content += mod_utils.to_xml( 'desc', content = self.description )
+		content = ''
+		if self.name:
+			content += mod_utils.to_xml( 'name', content = self.name, escape = True )
+		if self.description:
+			content += mod_utils.to_xml( 'desc', content = self.description, escape = True )
 		if self.number:
 			content += mod_utils.to_xml( 'number', content = self.number )
 		for route_point in self.points:
@@ -164,11 +171,16 @@ class GPXRoutePoint( mod_geo.Location ):
 			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += mod_utils.to_xml( 'name', content = self.name )
-		content += mod_utils.to_xml( 'cmt', content = self.comment )
-		content += mod_utils.to_xml( 'desc', content = self.description )
-		content += mod_utils.to_xml( 'sym', content = self.symbol )
-		content += mod_utils.to_xml( 'type', content = self.type )
+		if self.name:
+			content += mod_utils.to_xml( 'name', content = self.name, escape = True )
+		if self.comment:
+			content += mod_utils.to_xml( 'cmt', content = self.comment, escape = True )
+		if self.description:
+			content += mod_utils.to_xml( 'desc', content = self.description, escape = True )
+		if self.symbol:
+			content += mod_utils.to_xml( 'sym', content = self.symbol, escape = True )
+		if self.type:
+			content += mod_utils.to_xml( 'type', content = self.type, escape = True )
 
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
@@ -196,12 +208,16 @@ class GPXTrackPoint( mod_geo.Location ):
 
 	def to_xml( self, version = None ):
 		content = ''
+
 		if self.elevation != None:
 			content += mod_utils.to_xml( 'ele', content = self.elevation )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += mod_utils.to_xml( 'cmt', content = self.comment )
-		content += mod_utils.to_xml( 'sym', content = self.symbol )
+		if self.comment:
+			content += mod_utils.to_xml( 'cmt', content = self.comment, escape = True )
+		if self.symbol:
+			content += mod_utils.to_xml( 'sym', content = self.symbol, escape = True )
+
 		return mod_utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def time_difference( self, track_point ):
@@ -417,8 +433,8 @@ class GPXTrack:
 		return ( min( elevations ), max( elevations ) )
 
 	def to_xml( self, version = None ):
-		content = mod_utils.to_xml( 'name', content = self.name )
-		content += mod_utils.to_xml( 'desc', content = self.description )
+		content = mod_utils.to_xml( 'name', content = self.name, escape = True )
+		content += mod_utils.to_xml( 'desc', content = self.description, escape = True )
 		if self.number:
 			content += mod_utils.to_xml( 'number', content = self.number )
 		for track_segment in self.segments:
@@ -1280,25 +1296,33 @@ class GPX:
 		version = '1.0'
 
 		content = ''
-		content += mod_utils.to_xml( 'name', content = self.name, default = ' ' )
-		content += mod_utils.to_xml( 'desc', content = self.description, default = ' ' )
-		content += mod_utils.to_xml( 'author', content = self.author, default = ' ' )
+		if self.name:
+			content += mod_utils.to_xml( 'name', content = self.name, default = ' ', escape = True )
+		if self.description:
+			content += mod_utils.to_xml( 'desc', content = self.description, default = ' ', escape = True )
+		if self.author:
+			content += mod_utils.to_xml( 'author', content = self.author, default = ' ', escape = True )
 		if self.email:
-			content += mod_utils.to_xml( 'email', content = self.email )
-		content += mod_utils.to_xml( 'url', content = self.url )
-		content += mod_utils.to_xml( 'urlname', content = self.urlname )
+			content += mod_utils.to_xml( 'email', content = self.email, escape = True )
+		if self.url:
+			content += mod_utils.to_xml( 'url', content = self.url, escape = True )
+		if self.urlname:
+			content += mod_utils.to_xml( 'urlname', content = self.urlname, escape = True )
 		if self.time:
 			content += mod_utils.to_xml( 'time', content = self.time.strftime( DATE_FORMAT ) )
-		content += mod_utils.to_xml( 'keywords', content = self.keywords, default = ' ' )
+		if self.keywords:
+			content += mod_utils.to_xml( 'keywords', content = self.keywords, default = ' ', escape = True )
+
+		# TODO: bounds
 
 		for waypoint in self.waypoints:
 			content += waypoint.to_xml( version )
 
-		for track in self.tracks:
-			content += track.to_xml( version )
-
 		for route in self.routes:
 			content += route.to_xml( version )
+
+		for track in self.tracks:
+			content += track.to_xml( version )
 
 		xml_attributes = {
 				'version': '1.0',
