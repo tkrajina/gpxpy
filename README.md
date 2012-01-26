@@ -39,7 +39,13 @@ Usage
     
     print 'GPX:', gpx.to_xml()
 
+GPX Version:
+------------
+
+gpx.py can parse and generate GPX 1.0 files. Note that even thought the generated file will always be a valid XML document it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
+
 License
 -------
 
 GPX.py is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
