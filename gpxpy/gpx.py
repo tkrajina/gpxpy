@@ -419,7 +419,8 @@ class GPXTrack:
 	def to_xml( self, version = None ):
 		content = mod_utils.to_xml( 'name', content = self.name )
 		content += mod_utils.to_xml( 'desc', content = self.description )
-		content += mod_utils.to_xml( 'number', content = self.number )
+		if self.number:
+			content += mod_utils.to_xml( 'number', content = self.number )
 		for track_segment in self.segments:
 			content += track_segment.to_xml( version )
 
