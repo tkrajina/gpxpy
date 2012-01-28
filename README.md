@@ -42,7 +42,7 @@ Usage
 GPX Version:
 ------------
 
-gpx.py can parse and generate GPX 1.0 files. Note that even thought the generated file will always be a valid XML document it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
+gpx.py can parse and generate GPX 1.0 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
 
 License
 -------
