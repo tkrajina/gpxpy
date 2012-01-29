@@ -106,17 +106,11 @@ class GPXWaypoint( mod_geo.Location ):
 		
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 	
-	def get_max_dop(self):
-	    # only care about the max dop for filtering, no need to go into too much detail
-	    return __get_max( self.horizontal_dilution, self.vertical_dilution, self.position_dilution )
-	
-	def __get_max(*dops):
-	    max_dop = None
-	    for dop in dops:
-		if dop is not None:
-		    if (max_dop is None) or ((max_dop is not None) and (dop > max_dop)):
-			max_dop = dop
-	    return max_dop
+	def get_max_dilution_of_precision(self):
+		"""
+		Only care about the max dop for filtering, no need to go into too much detail
+		"""
+		return max( self.horizontal_dilution, self.vertical_dilution, self.position_dilution )
 	
 	def __hash__( self ):
 		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type',

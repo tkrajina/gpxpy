@@ -67,7 +67,7 @@ def equals( object1, object2, ignore = None ):
 
 class TestWaypoint( mod_unittest.TestCase ):
 
-	def _parse( self, file ):
+	def __parse( self, file ):
 		f = open( 'test_files/%s' % file )
 		parser = mod_parser.GPXParser( f )
 		gpx = parser.parse()
@@ -78,7 +78,7 @@ class TestWaypoint( mod_unittest.TestCase ):
 
 		return gpx
 		
-	def _reparse( self, gpx ):
+	def __reparse( self, gpx ):
 		xml = gpx.to_xml()
 
 		parser = mod_parser.GPXParser( xml )
@@ -90,8 +90,8 @@ class TestWaypoint( mod_unittest.TestCase ):
 		return gpx
 
 	def test_waypoints_equality_after_reparse( self ):
-		gpx = self._parse( 'cerknicko-jezero.gpx' )
-		gpx2 = self._reparse( gpx )
+		gpx = self.__parse( 'cerknicko-jezero.gpx' )
+		gpx2 = self.__reparse( gpx )
 
 		self.assertTrue( equals( gpx.waypoints, gpx2.waypoints ) )
 		self.assertTrue( equals( gpx.routes, gpx2.routes ) )
@@ -99,11 +99,11 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertTrue( equals( gpx, gpx2 ) )
 
 	def test_has_times_false( self ):
-		gpx = self._parse( 'cerknicko-without-times.gpx' )
+		gpx = self.__parse( 'cerknicko-without-times.gpx' )
 		self.assertFalse( gpx.has_times() )
 
 	def test_has_times( self ):
-		gpx = self._parse( 'korita-zbevnica.gpx' )
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
 		self.assertTrue( len( gpx.tracks ) == 4 )
 		# Empty -- True
 		self.assertTrue( gpx.tracks[ 0 ].has_times() )
@@ -115,14 +115,14 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertTrue( gpx.tracks[ 3 ].has_times() )
 
 	def test_unicode( self ):
-		gpx = self._parse( 'unicode.gpx' )
+		gpx = self.__parse( 'unicode.gpx' )
 
 		name = gpx.waypoints[ 0 ].name
 
 		self.assertTrue( name.encode( 'utf-8' ) == 'šđčćž' )
 
 	def test_nearest_location_1( self ):
-		gpx = self._parse( 'korita-zbevnica.gpx' )
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
 
 		location = mod_geo.Location( 45.451058791, 14.027903696 )
 		nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location( location )
@@ -142,7 +142,7 @@ class TestWaypoint( mod_unittest.TestCase ):
 
 	def test_long_timestamps( self ):
 		# Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
-		gpx = self._parse( 'Mojstrovka.gpx' )
+		gpx = self.__parse( 'Mojstrovka.gpx' )
 
 		# %Y-%m-%dT%H:%M:%SZ'
 
@@ -572,6 +572,28 @@ class TestWaypoint( mod_unittest.TestCase ):
 
 		self.assertEquals( bounds.start_time, mod_datetime.datetime( 2001, 1, 12 ) )
 		self.assertEquals( bounds.end_time, mod_datetime.datetime( 2011, 1, 12 ) )
+
+	def test_dilutions( self ):
+		gpx = self.__parse( 'track_with_dilution_errors.gpx' )
+		gpx2 = self.__reparse( gpx )
+
+		self.assertTrue( equals( gpx.waypoints, gpx2.waypoints ) )
+		self.assertTrue( equals( gpx.routes, gpx2.routes ) )
+		self.assertTrue( equals( gpx.tracks, gpx2.tracks ) )
+		self.assertTrue( equals( gpx, gpx2 ) )
+
+		for test_gpx in ( gpx, gpx2 ):
+			self.assertTrue( test_gpx.waypoints[ 0 ].horizontal_dilution == 100.1 )
+			self.assertTrue( test_gpx.waypoints[ 0 ].vertical_dilution == 101.1 )
+			self.assertTrue( test_gpx.waypoints[ 0 ].position_dilution == 102.1 )
+
+			self.assertTrue( test_gpx.routes[ 0 ].points[ 0 ].horizontal_dilution == 200.1 )
+			self.assertTrue( test_gpx.routes[ 0 ].points[ 0 ].vertical_dilution == 201.1 )
+			self.assertTrue( test_gpx.routes[ 0 ].points[ 0 ].position_dilution == 202.1 )
+
+			self.assertTrue( test_gpx.tracks[ 0 ].segments[ 0 ].points[ 0 ].horizontal_dilution == 300.1 )
+			self.assertTrue( test_gpx.tracks[ 0 ].segments[ 0 ].points[ 0 ].vertical_dilution == 301.1 )
+			self.assertTrue( test_gpx.tracks[ 0 ].segments[ 0 ].points[ 0 ].position_dilution == 302.1 )
 
 if __name__ == '__main__':
 	mod_unittest.main()
