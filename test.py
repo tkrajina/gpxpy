@@ -18,6 +18,7 @@ import unittest as mod_unittest
 import time as mod_time
 import copy as mod_copy
 import datetime as mod_datetime
+import random as mod_random
 
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
@@ -572,6 +573,43 @@ class TestWaypoint( mod_unittest.TestCase ):
 
 		self.assertEquals( bounds.start_time, mod_datetime.datetime( 2001, 1, 12 ) )
 		self.assertEquals( bounds.end_time, mod_datetime.datetime( 2011, 1, 12 ) )
+
+	def test_get_bounds_and_refresh_bounds( self ):
+		gpx = mod_gpx.GPX()
+
+		latitudes = []
+		longitudes = []
+
+		for i in range( 2 ):
+			track = mod_gpx.GPXTrack()
+			for i in range( 2 ):
+				segment = mod_gpx.GPXTrackSegment()
+				for i in range( 10 ):
+					latitude = 50. * ( mod_random.random() - 0.5 )
+					longitude = 50. * ( mod_random.random() - 0.5 )
+					point = mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude )
+					segment.points.append( point )
+					latitudes.append( latitude )
+					longitudes.append( longitude )
+				track.segments.append( segment )
+			gpx.tracks.append( track )
+
+		bounds = gpx.get_bounds()
+
+		print latitudes
+		print longitudes
+
+		self.assertEquals( bounds.min_latitude, min( latitudes ) )
+		self.assertEquals( bounds.max_latitude, max( latitudes ) )
+		self.assertEquals( bounds.min_longitude, min( longitudes ) )
+		self.assertEquals( bounds.max_longitude, max( longitudes ) )
+
+		gpx.refresh_bounds()
+
+		self.assertEquals( gpx.min_latitude, min( latitudes ) )
+		self.assertEquals( gpx.max_latitude, max( latitudes ) )
+		self.assertEquals( gpx.min_longitude, min( longitudes ) )
+		self.assertEquals( gpx.max_longitude, max( longitudes ) )
 
 if __name__ == '__main__':
 	mod_unittest.main()
