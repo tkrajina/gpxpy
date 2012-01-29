@@ -114,8 +114,7 @@ class GPXWaypoint( mod_geo.Location ):
 	
 	def __hash__( self ):
 		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type',
-		'comment', 'horizontal_dilution', 'vertical_dilution',
-		'position_dilution' )
+				'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution' )
 
 class GPXRoute:
 
@@ -243,7 +242,8 @@ class GPXRoutePoint( mod_geo.Location ):
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' ) 
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
+				'horizontal_dilution', 'vertical_dilution', 'position_dilution' ) 
 
 class GPXTrackPoint( mod_geo.Location ):
 
@@ -333,7 +333,8 @@ class GPXTrackPoint( mod_geo.Location ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
 
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment' )
+		return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
+				'horizontal_dilution', 'vertical_dilution', 'position_dilution' )
 
 class GPXTrack:
 	name = None

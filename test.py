@@ -582,6 +582,8 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertTrue( equals( gpx.tracks, gpx2.tracks ) )
 		self.assertTrue( equals( gpx, gpx2 ) )
 
+		self.assertTrue( hash( gpx ) == hash( gpx2 ) )
+
 		for test_gpx in ( gpx, gpx2 ):
 			self.assertTrue( test_gpx.waypoints[ 0 ].horizontal_dilution == 100.1 )
 			self.assertTrue( test_gpx.waypoints[ 0 ].vertical_dilution == 101.1 )
