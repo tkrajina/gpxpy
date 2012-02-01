@@ -59,9 +59,7 @@ class GPXWaypoint( mod_geo.Location ):
 	
 	def __init__( self, latitude, longitude, elevation = None, time = None, 
 		      name = None, description = None, symbol = None, type = None, 
-		      comment = None, 
-			  horizontal_dilution = None,
-			  vertical_dilution = None,
+		      comment = None, horizontal_dilution = None, vertical_dilution = None,
 			  position_dilution = None ):
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
