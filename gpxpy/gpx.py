@@ -42,7 +42,7 @@ Bounds = mod_collections.namedtuple( 'Bounds', 'min_latitude max_latitude min_lo
 TimeBounds = mod_collections.namedtuple( 'TimeBounds', 'start_time end_time' )
 
 class GPXWaypoint( mod_geo.Location ):
-
+	
 	time = None
 	name = None
 	description = None
@@ -50,7 +50,17 @@ class GPXWaypoint( mod_geo.Location ):
 	type = None
 	comment = None
 
-	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
+	# Horizontal dilution of precision
+	horizontal_dilution = None
+	# Vertical dilution of precision
+	vertical_dilution = None
+	# Position dilution of precision
+	position_dilution = None
+	
+	def __init__( self, latitude, longitude, elevation = None, time = None, 
+		      name = None, description = None, symbol = None, type = None, 
+		      comment = None, horizontal_dilution = None, vertical_dilution = None,
+			  position_dilution = None ):
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
@@ -60,6 +70,10 @@ class GPXWaypoint( mod_geo.Location ):
 		self.type = type
 		self.comment = comment
 
+		self.horizontal_dilution = horizontal_dilution
+		self.vertical_dilution = vertical_dilution
+		self.position_dilution = position_dilution
+		
 	def __str__( self ):
 		return '[wpt{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
 
@@ -81,10 +95,24 @@ class GPXWaypoint( mod_geo.Location ):
 		if version == '1.1': # TODO
 			content += mod_utils.to_xml( 'cmt', content = self.comment, escape = True )
 
+		if self.horizontal_dilution:
+			content += mod_utils.to_xml( 'hdop', content = self.horizontal_dilution )
+		if self.vertical_dilution:
+			content += mod_utils.to_xml( 'vdop', content = self.vertical_dilution )
+		if self.position_dilution:
+			content += mod_utils.to_xml( 'pdop', content = self.position_dilution )
+		
 		return mod_utils.to_xml( 'wpt', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
-
+	
+	def get_max_dilution_of_precision(self):
+		"""
+		Only care about the max dop for filtering, no need to go into too much detail
+		"""
+		return max( self.horizontal_dilution, self.vertical_dilution, self.position_dilution )
+	
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' )
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type',
+				'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution' )
 
 class GPXRoute:
 
@@ -157,7 +185,18 @@ class GPXRoutePoint( mod_geo.Location ):
 	type = None
 	comment = None
 
-	def __init__( self, latitude, longitude, elevation = None, time = None, name = None, description = None, symbol = None, type = None, comment = None ):
+	# Horizontal dilution of precision
+	horizontal_dilution = None
+	# Vertical dilution of precision
+	vertical_dilution = None
+	# Position dilution of precision
+	position_dilution = None
+
+	def __init__( self, latitude, longitude, elevation = None, time = None, name = None,
+			description = None, symbol = None, type = None, comment = None,
+			horizontal_dilution = None, vertical_dilution = None,
+			position_dilution = None ):
+
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
@@ -166,6 +205,10 @@ class GPXRoutePoint( mod_geo.Location ):
 		self.symbol = symbol
 		self.type = type
 		self.comment = comment
+
+		self.horizontal_dilution = horizontal_dilution
+		self.vertical_dilution = vertical_dilution
+		self.position_dilution = position_dilution
 
 	def __str__( self ):
 		return '[rtept{%s}:%s,%s@%s]' % ( self.name, self.latitude, self.longitude, self.elevation )
@@ -186,11 +229,19 @@ class GPXRoutePoint( mod_geo.Location ):
 			content += mod_utils.to_xml( 'sym', content = self.symbol, escape = True )
 		if self.type:
 			content += mod_utils.to_xml( 'type', content = self.type, escape = True )
+	
+		if self.horizontal_dilution:
+			content += mod_utils.to_xml( 'hdop', content = self.horizontal_dilution )
+		if self.vertical_dilution:
+			content += mod_utils.to_xml( 'vdop', content = self.vertical_dilution )
+		if self.position_dilution:
+			content += mod_utils.to_xml( 'pdop', content = self.position_dilution )
 
 		return mod_utils.to_xml( 'rtept', attributes = { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment' ) 
+		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
+				'horizontal_dilution', 'vertical_dilution', 'position_dilution' ) 
 
 class GPXTrackPoint( mod_geo.Location ):
 
@@ -198,18 +249,30 @@ class GPXTrackPoint( mod_geo.Location ):
 	symbol = None
 	comment = None
 
+	# Horizontal dilution of precision
+	horizontal_dilution = None
+	# Vertical dilution of precision
+	vertical_dilution = None
+	# Position dilution of precision
+	position_dilution = None
+
 	# reloaded with reload_points_metadata():
 	__distance_from_track_start = None
 	__track_no = None
 	__segment_no = None
 	__point_no = None
 
-	def __init__( self, latitude, longitude, elevation = None, time = None, symbol = None, comment = None ):
+	def __init__( self, latitude, longitude, elevation = None, time = None, symbol = None, comment = None,
+			horizontal_dilution = None, vertical_dilution = None, position_dilution = None ):
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
 
 		self.time = time
 		self.symbol = symbol
 		self.comment = comment
+
+		self.horizontal_dilution = horizontal_dilution
+		self.vertical_dilution = vertical_dilution
+		self.position_dilution = position_dilution
 
 	def to_xml( self, version = None ):
 		content = ''
@@ -222,6 +285,13 @@ class GPXTrackPoint( mod_geo.Location ):
 			content += mod_utils.to_xml( 'cmt', content = self.comment, escape = True )
 		if self.symbol:
 			content += mod_utils.to_xml( 'sym', content = self.symbol, escape = True )
+
+		if self.horizontal_dilution:
+			content += mod_utils.to_xml( 'hdop', content = self.horizontal_dilution )
+		if self.vertical_dilution:
+			content += mod_utils.to_xml( 'vdop', content = self.vertical_dilution )
+		if self.position_dilution:
+			content += mod_utils.to_xml( 'pdop', content = self.position_dilution )
 
 		return mod_utils.to_xml( 'trkpt', { 'lat': self.latitude, 'lon': self.longitude }, content = content )
 
@@ -261,7 +331,8 @@ class GPXTrackPoint( mod_geo.Location ):
 		return '[trkpt:%s,%s@%s@%s]' % ( self.latitude, self.longitude, self.elevation, self.time )
 
 	def __hash__( self ):
-		return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment' )
+		return mod_utils.hash_object( self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
+				'horizontal_dilution', 'vertical_dilution', 'position_dilution' )
 
 class GPXTrack:
 	name = None

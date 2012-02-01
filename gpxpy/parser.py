@@ -181,8 +181,20 @@ class GPXParser( AbstractXMLParser ):
 
 		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
-
-		return mod_gpx.GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, time = time, name = name, description = desc, symbol = sym, type = type, comment = comment )
+		
+		hdop_node = mod_utils.find_first_node( node, 'hdop' )
+		hdop = mod_utils.to_number( self.get_node_data( hdop_node ) )
+		
+		vdop_node = mod_utils.find_first_node( node, 'vdop' )
+		vdop = mod_utils.to_number( self.get_node_data( vdop_node ) )
+		
+		pdop_node = mod_utils.find_first_node( node, 'pdop' )
+		pdop = mod_utils.to_number( self.get_node_data( pdop_node ) )
+		
+		return mod_gpx.GPXWaypoint( latitude = lat, longitude = lon, elevation = elevation, 
+					    time = time, name = name, description = desc, symbol = sym, 
+					    type = type, comment = comment, horizontal_dilution = hdop,
+						vertical_dilution = vdop, position_dilution = pdop)
 
 	def _parse_route( self, node ):
 		name_node = mod_utils.find_first_node( node, 'name' )
@@ -236,7 +248,17 @@ class GPXParser( AbstractXMLParser ):
 		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return mod_gpx.GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment )
+		hdop_node = mod_utils.find_first_node( node, 'hdop' )
+		hdop = mod_utils.to_number( self.get_node_data( hdop_node ) )
+		
+		vdop_node = mod_utils.find_first_node( node, 'vdop' )
+		vdop = mod_utils.to_number( self.get_node_data( vdop_node ) )
+		
+		pdop_node = mod_utils.find_first_node( node, 'pdop' )
+		pdop = mod_utils.to_number( self.get_node_data( pdop_node ) )
+
+		return mod_gpx.GPXRoutePoint( lat, lon, elevation, time, name, desc, sym, type, comment,
+				horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop )
 
 	def __parse_track( self, node ):
 		name_node = mod_utils.find_first_node( node, 'name' )
@@ -292,7 +314,18 @@ class GPXParser( AbstractXMLParser ):
 		comment_node = mod_utils.find_first_node( node, 'cmt' )
 		comment = self.get_node_data( comment_node )
 
-		return mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time, symbol = symbol, comment = comment )
+		hdop_node = mod_utils.find_first_node( node, 'hdop' )
+		hdop = mod_utils.to_number( self.get_node_data( hdop_node ) )
+		
+		vdop_node = mod_utils.find_first_node( node, 'vdop' )
+		vdop = mod_utils.to_number( self.get_node_data( vdop_node ) )
+		
+		pdop_node = mod_utils.find_first_node( node, 'pdop' )
+		pdop = mod_utils.to_number( self.get_node_data( pdop_node ) )
+
+		return mod_gpx.GPXTrackPoint( latitude = latitude, longitude = longitude, elevation = elevation, time = time,
+				symbol = symbol, comment = comment, horizontal_dilution = hdop, vertical_dilution = vdop, 
+				position_dilution = pdop )
 
 class KMLParser( AbstractXMLParser ):
 	"""
