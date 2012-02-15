@@ -40,6 +40,11 @@ DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 # named tuples used as method results:
 Bounds = mod_collections.namedtuple( 'Bounds', 'min_latitude max_latitude min_longitude max_longitude' )
 TimeBounds = mod_collections.namedtuple( 'TimeBounds', 'start_time end_time' )
+MovingData = mod_collections.namedtuple( 'MovingData', 'moving_time stopped_time moving_distance stopped_distance max_speed' )
+UphillDownhill = mod_collections.namedtuple( 'UphillDownhill', 'uphill downhill' )
+MinimumMaximum = mod_collections.namedtuple( 'MinimumMaximum', 'minimum maximum' )
+# TODO
+#NearestLocationData = mod_collections.namedtuple( 'NearestLocationData', 'location track_no segment_no point_no' )
 
 class GPXWaypoint( mod_geo.Location ):
 	
@@ -474,7 +479,7 @@ class GPXTrack:
 			if track_max_speed > max_speed:
 				max_speed = track_max_speed
 
-		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
+		return MovingData( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
 	def add_elevation( self, delta ):
 		for track_segment in self.segments:
@@ -501,7 +506,7 @@ class GPXTrack:
 
 	def get_uphill_downhill( self ):
 		if not self.segments:
-			return ( 0, 0 )
+			return UphillDownhill( 0, 0 )
 
 		uphill = 0
 		downhill = 0
@@ -512,7 +517,7 @@ class GPXTrack:
 			uphill += current_uphill
 			downhill += current_downhill
 
-		return ( uphill, downhill )
+		return UphillDownhill( uphill, downhill )
 
 	def get_location_at( self, time ):
 		""" 
@@ -529,7 +534,7 @@ class GPXTrack:
 
 	def get_elevation_extremes( self ):
 		if not self.segments:
-			return ( 0, 0 )
+			return MinimumMaximum( 0, 0 )
 
 		elevations = []
 
@@ -538,7 +543,7 @@ class GPXTrack:
 			elevations.append( _min )
 			elevations.append( _max )
 
-		return ( min( elevations ), max( elevations ) )
+		return MinimumMaximum( min( elevations ), max( elevations ) )
 
 	def to_xml( self, version = None ):
 		content = mod_utils.to_xml( 'name', content = self.name, escape = True )
@@ -710,7 +715,7 @@ class GPXTrackSegment:
 						speed = distance / timedelta.seconds
 						if speed > max_speed and not first_or_last:
 							max_speed = speed
-		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
+		return MovingData( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 	
 	def get_time_bounds(self):
 		start_time = None
@@ -815,7 +820,7 @@ class GPXTrackSegment:
 		those are simply ignored.
 		"""
 		if not self.points:
-			return ( 0, 0 )
+			return UphillDownhill( 0, 0 )
 
 		uphill = 0
 		downhill = 0
@@ -833,17 +838,17 @@ class GPXTrackSegment:
 
 			current_elevation = track_point.elevation
 
-		return ( uphill, downhill )
+		return UphillDownhill( uphill, downhill )
 
 	def get_elevation_extremes( self ):
 		""" return ( min_elevation, max_elevation ) """
 
 		if not self.points:
-			return ( 0.0, 0.0 )
+			return MinimumMaximum( 0.0, 0.0 )
 
 		elevations = [ location.elevation for location in self.points ]
 
-		return ( max( elevations ), min( elevations ) )
+		return MinimumMaximum( max( elevations ), min( elevations ) )
 
 	def get_location_at( self, time ):
 		""" 
@@ -1240,7 +1245,7 @@ class GPX:
 			if track_max_speed > max_speed:
 				max_speed = track_max_speed
 
-		return ( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
+		return MovingData( moving_time, stopped_time, moving_distance, stopped_distance, max_speed )
 
 	def reduce_points( self, max_points_no, min_distance = None ):
 		"""
@@ -1327,7 +1332,7 @@ class GPX:
 
 	def get_uphill_downhill( self ):
 		if not self.tracks:
-			return ( 0, 0 )
+			return UphillDownhill( 0, 0 )
 
 		uphill = 0
 		downhill = 0
@@ -1338,7 +1343,7 @@ class GPX:
 			uphill += current_uphill
 			downhill += current_downhill
 
-		return ( uphill, downhill )
+		return UphillDownhill( uphill, downhill )
 
 	def get_location_at( self, time ):
 		""" 
@@ -1354,7 +1359,7 @@ class GPX:
 
 	def get_elevation_extremes( self ):
 		if not self.tracks:
-			return ( 0, 0 )
+			return MinimumMaximum( 0., 0. )
 
 		elevations = []
 
@@ -1363,7 +1368,7 @@ class GPX:
 			elevations.append( _min )
 			elevations.append( _max )
 
-		return ( min( elevations ), max( elevations ) )
+		return MinimumMaximum( min( elevations ), max( elevations ) )
 
 	def __get_points_and_distances_from_start( self ):
 		distance_from_start = 0
