@@ -37,14 +37,13 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 # than this value -- we'll assume it is 0
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
-# named tuples used as method results:
+# When possible, the result of various methods are named tuples defined here:
 Bounds = mod_collections.namedtuple( 'Bounds', 'min_latitude max_latitude min_longitude max_longitude' )
 TimeBounds = mod_collections.namedtuple( 'TimeBounds', 'start_time end_time' )
 MovingData = mod_collections.namedtuple( 'MovingData', 'moving_time stopped_time moving_distance stopped_distance max_speed' )
 UphillDownhill = mod_collections.namedtuple( 'UphillDownhill', 'uphill downhill' )
 MinimumMaximum = mod_collections.namedtuple( 'MinimumMaximum', 'minimum maximum' )
-# TODO
-#NearestLocationData = mod_collections.namedtuple( 'NearestLocationData', 'location track_no segment_no point_no' )
+NearestLocationData = mod_collections.namedtuple( 'NearestLocationData', 'location track_no segment_no point_no' )
 
 class GPXWaypoint( mod_geo.Location ):
 	
@@ -1441,7 +1440,7 @@ class GPX:
 				point_no_candidate = None
 
 		if distance_from_start_candidate != None:
-			result.append( ( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
+			result.append( NearestLocationData( distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate ) )
 
 		return result
 
@@ -1469,7 +1468,7 @@ class GPX:
 				result_segment_no = track_segment_no
 				result_point_no = track_point_no
 
-		return ( result, result_track_no, result_segment_no, result_point_no )
+		return NearestLocationData( result, result_track_no, result_segment_no, result_point_no )
 
 	def add_elevation( self, delta ):
 		for track in self.tracks:
