@@ -635,5 +635,50 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertEquals( gpx.min_longitude, min( longitudes ) )
 		self.assertEquals( gpx.max_longitude, max( longitudes ) )
 
+	def test_named_tuples_values( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
+		bounds = gpx.get_bounds()
+		min_lat, max_lat, min_lon, max_lon = gpx.get_bounds()
+
+		self.assertEquals( min_lat, bounds.min_latitude )
+		self.assertEquals( min_lon, bounds.min_longitude )
+		self.assertEquals( max_lat, bounds.max_latitude )
+		self.assertEquals( max_lon, bounds.max_longitude )
+
+		time_bounds = gpx.get_time_bounds()
+		start_time, end_time = gpx.get_time_bounds()
+
+		self.assertEquals( start_time, time_bounds.start_time )
+		self.assertEquals( end_time, time_bounds.end_time )
+
+		moving_data = gpx.get_moving_data()
+		moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
+		self.assertEquals( moving_time, moving_data.moving_time )
+		self.assertEquals( stopped_time, moving_data.stopped_time )
+		self.assertEquals( moving_distance, moving_data.moving_distance )
+		self.assertEquals( stopped_distance, moving_data.stopped_distance )
+		self.assertEquals( max_speed, moving_data.max_speed )
+
+		uphill_downhill = gpx.get_uphill_downhill()
+		uphill, downhill = gpx.get_uphill_downhill()
+		self.assertEquals( uphill, uphill_downhill.uphill )
+		self.assertEquals( downhill, uphill_downhill.downhill )
+
+		elevation_extreemes = gpx.get_elevation_extremes()
+		minimum, maximum = gpx.get_elevation_extremes()
+		self.assertEquals( minimum, elevation_extreemes.minimum )
+		self.assertEquals( maximum, elevation_extreemes.maximum )
+
+		location = gpx.tracks[ 1 ].segments[ 0 ].points[ 2 ]
+		location.latitude *= 1.00001
+		location.longitude *= 0.99999
+		nearest_location_data = gpx.get_nearest_location( location )
+		found_location, track_no, segment_no, point_no = gpx.get_nearest_location( location )
+		self.assertEquals( found_location, nearest_location_data.location )
+		self.assertEquals( track_no, nearest_location_data.track_no )
+		self.assertEquals( segment_no, nearest_location_data.segment_no )
+		self.assertEquals( point_no, nearest_location_data.point_no )
+
 if __name__ == '__main__':
 	mod_unittest.main()
