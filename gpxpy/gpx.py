@@ -60,6 +60,11 @@ PointData = mod_collections.namedtuple(
 		'PointData',
 		( 'point', 'distance_from_start', 'track_no', 'segment_no', 'point_no' ) )
 
+class GPXException( Exception ):
+
+    def __init__( self, message ):
+        Exception.__init__( self, message )
+
 class GPXWaypoint( mod_geo.Location ):
 	
 	time = None

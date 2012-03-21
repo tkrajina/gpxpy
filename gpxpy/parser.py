@@ -153,9 +153,9 @@ class GPXParser( AbstractXMLParser ):
 
 	def _parse_waypoint( self, node ):
 		if not node.attributes.has_key( 'lat' ):
-			raise Exception( 'Waypoint without latitude' )
+			raise mod_gpx.GPXException( 'Waypoint without latitude' )
 		if not node.attributes.has_key( 'lon' ):
-			raise Exception( 'Waypoint without longitude' )
+			raise mod_gpx.GPXException( 'Waypoint without longitude' )
 
 		lat = mod_utils.to_number( node.attributes[ 'lat' ].nodeValue )
 		lon = mod_utils.to_number( node.attributes[ 'lon' ].nodeValue )
@@ -219,9 +219,9 @@ class GPXParser( AbstractXMLParser ):
 
 	def _parse_route_point( self, node ):
 		if not node.attributes.has_key( 'lat' ):
-			raise Exception( 'Waypoint without latitude' )
+			raise mod_gpx.GPXException( 'Waypoint without latitude' )
 		if not node.attributes.has_key( 'lon' ):
-			raise Exception( 'Waypoint without longitude' )
+			raise mod_gpx.GPXException( 'Waypoint without longitude' )
 
 		lat = mod_utils.to_number( node.attributes[ 'lat' ].nodeValue )
 		lon = mod_utils.to_number( node.attributes[ 'lon' ].nodeValue )
