@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pdb as mod_pdb
 import unittest as mod_unittest
 import time as mod_time
 import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
 
+import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
@@ -89,6 +91,17 @@ class Tests( mod_unittest.TestCase ):
 			print 'Parser error while reparsing: %s' % parser.get_error()
 
 		return gpx
+
+	def test_simple_parse_function( self ):
+		# Must not throw any exception:
+		mod_gpxpy.parse( open( 'test_files/korita-zbevnica.gpx' ) )
+
+	def test_simple_parse_function_invalid_xml( self ):
+		try:
+			mod_gpxpy.parse( '<gpx></gpx' )
+			self.fail()
+		except mod_gpx.GPXException, e:
+			self.assertTrue( 'unclosed token: line 1, column 5' in e.message )
 
 	def test_waypoints_equality_after_reparse( self ):
 		gpx = self.__parse( 'cerknicko-jezero.gpx' )
