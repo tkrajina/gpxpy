@@ -1,1 +1,0 @@
-- remove extreemes (options in smooth() remove_elevation_extreemes, remove_latlon_extreemes, default False for both)

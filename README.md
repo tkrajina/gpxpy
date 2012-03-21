@@ -32,8 +32,7 @@ Usage
     	for point in route:
     		print 'Point at ({0},{1}) -> {2}'.format( point.latitude, point.longitude, point.elevation )
     
-    # There are more utility methods and functions...
-    
+    # There are many more utility methods and functions:
     # You can manipulate/add/remove tracks, segments, points, waypoints and routes and
     # get the GPX XML file from the resulting object:
     
