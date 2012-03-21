@@ -18,6 +18,7 @@ import gpx as mod_gpx
 import parser as mod_parser
 
 def parse( xml_or_file ):
+	""" Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
 
 	parser = mod_parser.GPXParser( xml_or_file )
 
