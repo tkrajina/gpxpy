@@ -66,7 +66,7 @@ def equals( object1, object2, ignore = None ):
 
 # TODO: Track segment speed in point test
 
-class TestWaypoint( mod_unittest.TestCase ):
+class Tests( mod_unittest.TestCase ):
 
 	def __parse( self, file ):
 		f = open( 'test_files/%s' % file )
@@ -635,7 +635,7 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertEquals( gpx.min_longitude, min( longitudes ) )
 		self.assertEquals( gpx.max_longitude, max( longitudes ) )
 
-	def test_named_tuples_values( self ):
+	def test_named_tuples_values_bounds( self ):
 		gpx = self.__parse( 'korita-zbevnica.gpx' )
 
 		bounds = gpx.get_bounds()
@@ -646,11 +646,17 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertEquals( max_lat, bounds.max_latitude )
 		self.assertEquals( max_lon, bounds.max_longitude )
 
+	def test_named_tuples_values_time_bounds( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
 		time_bounds = gpx.get_time_bounds()
 		start_time, end_time = gpx.get_time_bounds()
 
 		self.assertEquals( start_time, time_bounds.start_time )
 		self.assertEquals( end_time, time_bounds.end_time )
+
+	def test_named_tuples_values_moving_data( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
 
 		moving_data = gpx.get_moving_data()
 		moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
@@ -660,15 +666,24 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertEquals( stopped_distance, moving_data.stopped_distance )
 		self.assertEquals( max_speed, moving_data.max_speed )
 
+	def test_named_tuples_values_uphill_downhill( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
 		uphill_downhill = gpx.get_uphill_downhill()
 		uphill, downhill = gpx.get_uphill_downhill()
 		self.assertEquals( uphill, uphill_downhill.uphill )
 		self.assertEquals( downhill, uphill_downhill.downhill )
 
+	def test_named_tuples_values_elevation_extreemes( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
 		elevation_extreemes = gpx.get_elevation_extremes()
 		minimum, maximum = gpx.get_elevation_extremes()
 		self.assertEquals( minimum, elevation_extreemes.minimum )
 		self.assertEquals( maximum, elevation_extreemes.maximum )
+
+	def test_named_tuples_values_nearest_location_data( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
 
 		location = gpx.tracks[ 1 ].segments[ 0 ].points[ 2 ]
 		location.latitude *= 1.00001
@@ -679,6 +694,39 @@ class TestWaypoint( mod_unittest.TestCase ):
 		self.assertEquals( track_no, nearest_location_data.track_no )
 		self.assertEquals( segment_no, nearest_location_data.segment_no )
 		self.assertEquals( point_no, nearest_location_data.point_no )
+
+	def test_named_tuples_values_point_data( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
+		points_datas = gpx.get_points_data()
+
+		for point_data in points_datas:
+			point, distance_from_start, track_no, segment_no, point_no = point_data
+			self.assertEquals( point, point_data.point )
+			self.assertEquals( distance_from_start, point_data.distance_from_start )
+			self.assertEquals( track_no, point_data.track_no )
+			self.assertEquals( segment_no, point_data.segment_no )
+			self.assertEquals( point_no, point_data.point_no )
+
+	def test_track_points_data( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
+		points_data_2d = gpx.get_points_data( distance_2d = True )
+
+		point, distance_from_start, track_no, segment_no, point_no = points_data_2d[ -1 ]
+		self.assertEquals( track_no, len( gpx.tracks ) - 1 )
+		self.assertEquals( segment_no, len( gpx.tracks[ -1 ].segments ) - 1 )
+		self.assertEquals( point_no, len( gpx.tracks[ -1 ].segments[ -1 ].points ) - 1 )
+		self.assertTrue( abs( distance_from_start - gpx.length_2d() ) < 0.0001 )
+
+		points_data_3d = gpx.get_points_data( distance_2d = False )
+		point, distance_from_start, track_no, segment_no, point_no = points_data_3d[ -1 ]
+		self.assertEquals( track_no, len( gpx.tracks ) - 1 )
+		self.assertEquals( segment_no, len( gpx.tracks[ -1 ].segments ) - 1 )
+		self.assertEquals( point_no, len( gpx.tracks[ -1 ].segments[ -1 ].points ) - 1 )
+		self.assertTrue( abs( distance_from_start - gpx.length_3d() ) < 0.0001 )
+
+		self.assertTrue( gpx.length_2d() != gpx.length_3d() )
 
 if __name__ == '__main__':
 	mod_unittest.main()

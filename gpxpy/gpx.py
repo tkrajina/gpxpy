@@ -38,12 +38,27 @@ SMOOTHING_RATIO = ( 0.4, 0.2, 0.4 )
 DEFAULT_STOPPED_SPEED_TRESHOLD = 1
 
 # When possible, the result of various methods are named tuples defined here:
-Bounds = mod_collections.namedtuple( 'Bounds', 'min_latitude max_latitude min_longitude max_longitude' )
-TimeBounds = mod_collections.namedtuple( 'TimeBounds', 'start_time end_time' )
-MovingData = mod_collections.namedtuple( 'MovingData', 'moving_time stopped_time moving_distance stopped_distance max_speed' )
-UphillDownhill = mod_collections.namedtuple( 'UphillDownhill', 'uphill downhill' )
-MinimumMaximum = mod_collections.namedtuple( 'MinimumMaximum', 'minimum maximum' )
-NearestLocationData = mod_collections.namedtuple( 'NearestLocationData', 'location track_no segment_no point_no' )
+Bounds = mod_collections.namedtuple(
+		'Bounds',
+		( 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude' ) )
+TimeBounds = mod_collections.namedtuple(
+		'TimeBounds',
+		( 'start_time', 'end_time' ) )
+MovingData = mod_collections.namedtuple(
+		'MovingData',
+		( 'moving_time', 'stopped_time', 'moving_distance', 'stopped_distance', 'max_speed' ) )
+UphillDownhill = mod_collections.namedtuple(
+		'UphillDownhill',
+		( 'uphill', 'downhill' ) )
+MinimumMaximum = mod_collections.namedtuple(
+		'MinimumMaximum',
+		( 'minimum', 'maximum' ) )
+NearestLocationData = mod_collections.namedtuple(
+		'NearestLocationData',
+		( 'location', 'track_no', 'segment_no', 'point_no' ) )
+PointData = mod_collections.namedtuple(
+		'PointData',
+		( 'point', 'distance_from_start', 'track_no', 'segment_no', 'point_no' ) )
 
 class GPXWaypoint( mod_geo.Location ):
 	
@@ -61,8 +76,8 @@ class GPXWaypoint( mod_geo.Location ):
 	# Position dilution of precision
 	position_dilution = None
 	
-	def __init__( self, latitude, longitude, elevation = None, time = None, 
-		      name = None, description = None, symbol = None, type = None, 
+	def __init__( self, latitude, longitude, elevation = None, time = None,
+		      name = None, description = None, symbol = None, type = None,
 		      comment = None, horizontal_dilution = None, vertical_dilution = None,
 			  position_dilution = None ):
 		mod_geo.Location.__init__( self, latitude, longitude, elevation )
@@ -245,7 +260,7 @@ class GPXRoutePoint( mod_geo.Location ):
 
 	def __hash__( self ):
 		return mod_utils.hash_object( self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
-				'horizontal_dilution', 'vertical_dilution', 'position_dilution' ) 
+				'horizontal_dilution', 'vertical_dilution', 'position_dilution' )
 
 class GPXTrackPoint( mod_geo.Location ):
 
@@ -419,7 +434,7 @@ class GPXTrack:
 		return length
 
 	def split( self, track_segment_no, track_point_no ):
-		""" Splits One of the segments in two parts. If one of the splitted segments is empty 
+		""" Splits One of the segments in two parts. If one of the splitted segments is empty
 		it will not be added in the result """
 		new_segments = []
 		for i in range( len( self.segments ) ):
@@ -1369,7 +1384,11 @@ class GPX:
 
 		return MinimumMaximum( min( elevations ), max( elevations ) )
 
-	def __get_points_and_distances_from_start( self ):
+	def get_points_data( self, distance_2d = False ):
+		"""
+		Returns a list of tuples containing the actual point, its distance from the start,
+		track_no, segment_no, and segment_point_no
+		"""
 		distance_from_start = 0
 		previous_point = None
 
@@ -1383,9 +1402,14 @@ class GPX:
 				for point_no in range( len( segment.points ) ):
 					point = segment.points[ point_no ]
 					if previous_point and point_no > 0:
-						distance_from_start += point.distance_3d( previous_point )
+						if distance_2d:
+							distance = point.distance_2d( previous_point )
+						else:
+							distance = point.distance_3d( previous_point )
 
-					points.append( ( point, distance_from_start, track_no, segment_no, point_no  ) )
+						distance_from_start += distance
+
+					points.append( PointData( point, distance_from_start, track_no, segment_no, point_no  ) )
 
 					previous_point = point
 
@@ -1406,7 +1430,7 @@ class GPX:
 
 		result = []
 		
-		points = self.__get_points_and_distances_from_start()
+		points = self.get_points_data()
 
 		if not points:
 			return ()
