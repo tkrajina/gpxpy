@@ -8,14 +8,11 @@ You can see it in action on [my online GPS track editor and organizer](http://ww
 Usage
 -----
 
-    import gpxpy.parser as parser
+    import gpxpy
     
     gpx_file = open( 'test_files/cerknicko-jezero.gpx', 'r' )
     
-    gpx_parser = parser.GPXParser( gpx_file )
-    gpx_parser.parse()
-    
-    gpx_file.close()
+    gpx_parser = gpxpy.parse( gpx_file )
     
     gpx = gpx_parser.get_gpx()
     
