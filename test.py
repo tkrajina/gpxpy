@@ -741,5 +741,16 @@ class Tests( mod_unittest.TestCase ):
 
 		self.assertTrue( gpx.length_2d() != gpx.length_3d() )
 
+	def test_walk_route_points( self ):
+		gpx = mod_gpxpy.parse( file( 'test_files/route.gpx' ) )
+
+		for point in gpx.routes[ 0 ].walk( only_points = True ):
+			self.assertTrue( point )
+
+		for point, point_no in gpx.routes[ 0 ].walk():
+			self.assertTrue( point )
+
+		self.assertEquals( point_no, len( gpx.routes[ 0 ].points ) - 1 )
+
 if __name__ == '__main__':
 	mod_unittest.main()

@@ -180,6 +180,13 @@ class GPXRoute:
 	def get_points( self ):
 		return self.points
 
+	def walk( self, only_points = False ):
+		for point_no, point in enumerate( self.points ):
+			if only_points:
+				yield point
+			else:
+				yield point, point_no
+
 	def move( self, latitude_diff, longitude_diff ):
 		for route_point in self.points:
 			route_point.move( latitude_diff, longitude_diff )
