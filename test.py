@@ -170,12 +170,12 @@ class Tests( mod_unittest.TestCase ):
 
 		started = mod_time.time()
 		gpx = parser.parse()
-		points_original = len( gpx.get_points() )
+		points_original = gpx.get_track_points_no()
 		time_original = mod_time.time() - started
 
 		gpx.reduce_points( max_reduced_points_no )
 
-		points_reduced = len( gpx.get_points() )
+		points_reduced = gpx.get_track_points_no()
 
 		result = gpx.to_xml()
 		result = result.encode( 'utf-8' )
@@ -230,11 +230,11 @@ class Tests( mod_unittest.TestCase ):
 		gpx = parser.parse()
 		f.close()
 
-		print len( gpx.get_points() )
+		print gpx.get_track_points_no()
 
 		#gpx.reduce_points( 1000, min_distance = 5 )
 
-		print len( gpx.get_points() )
+		print gpx.get_track_points_no()
 
 		length = gpx.length_3d()
 		print 'Distance: %s' % length
@@ -354,9 +354,9 @@ class Tests( mod_unittest.TestCase ):
 
 		gpx = parser.parse()
 
-		points_before = len( gpx.get_points() )
+		points_before = gpx.get_track_points_no()
 		gpx.smooth( vertical = False, horizontal = True, remove_extreemes = True )
-		points_after = len( gpx.get_points() )
+		points_after = gpx.get_track_points_no()
 
 		print points_before
 		print points_after
@@ -370,9 +370,9 @@ class Tests( mod_unittest.TestCase ):
 
 		gpx = parser.parse()
 
-		points_before = len( gpx.get_points() )
+		points_before = gpx.get_track_points_no()
 		gpx.smooth( vertical = True, horizontal = False, remove_extreemes = True )
-		points_after = len( gpx.get_points() )
+		points_after = gpx.get_track_points_no()
 
 		print points_before
 		print points_after
@@ -387,9 +387,9 @@ class Tests( mod_unittest.TestCase ):
 
 		gpx = parser.parse()
 
-		points_before = len( gpx.get_points() )
+		points_before = gpx.get_track_points_no()
 		gpx.smooth( vertical = True, horizontal = True, remove_extreemes = True )
-		points_after = len( gpx.get_points() )
+		points_after = gpx.get_track_points_no()
 
 		print points_before
 		print points_after
@@ -751,6 +751,19 @@ class Tests( mod_unittest.TestCase ):
 			self.assertTrue( point )
 
 		self.assertEquals( point_no, len( gpx.routes[ 0 ].points ) - 1 )
+
+	def test_walk_gpx_points( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+
+		for point in gpx.walk():
+			self.assertTrue( point )
+
+		for point, track_no, segment_no, point_no in gpx.walk():
+			self.assertTrue( point )
+
+		self.assertEquals( track_no, len( gpx.tracks ) - 1 )
+		self.assertEquals( segment_no, len( gpx.tracks[ -1 ].segments ) - 1 )
+		self.assertEquals( point_no, len( gpx.tracks[ -1 ].segments[ -1 ].points ) - 1 )
 
 if __name__ == '__main__':
 	mod_unittest.main()

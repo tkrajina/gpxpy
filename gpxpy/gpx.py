@@ -1239,7 +1239,7 @@ class GPX:
 		min_distance = The minimum distance between two points
 		"""
 
-		points_no = self.get_points()
+		points_no = list( self.walk() )
 		if not max_points_no or points_no <= max_points_no:
 			return
 
@@ -1269,7 +1269,8 @@ class GPX:
 
 				track_segment.points = reduced_points
 
-		mod_logging.debug( 'Track reduced to %s points' % len( self.get_points() ) )
+		# TODO
+		mod_logging.debug( 'Track reduced to %s points' % self.get_track_points_no() )
 
 	def split( self, track_no, track_segment_no, track_point_no ):
 		track = self.tracks[ track_no ]
@@ -1292,11 +1293,23 @@ class GPX:
 				result += length
 		return result
 
-	def get_points( self ):
-		result = []
+	def walk( self, only_points = False ):
+		""" Use this to iterate through points """
+		for track_no, track in enumerate( self.tracks ):
+			for segment_no, segment in enumerate( track.segments ):
+				for point_no, point in enumerate( segment.points ):
+					if only_points:
+						yield point
+					else:
+						yield point, track_no, segment_no, point_no
+
+	def get_track_points_no( self ):
+		""" Number of track points, *without* route and waypoints """
+		result = 0
 
 		for track in self.tracks:
-			result += track.get_points()
+			for segment in track.segments:
+				result += len( segment.points )
 
 		return result
 
