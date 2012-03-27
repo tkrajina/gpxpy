@@ -765,5 +765,36 @@ class Tests( mod_unittest.TestCase ):
 		self.assertEquals( segment_no, len( gpx.tracks[ -1 ].segments ) - 1 )
 		self.assertEquals( point_no, len( gpx.tracks[ -1 ].segments[ -1 ].points ) - 1 )
 
+	def test_walk_gpx_points( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+		track = gpx.tracks[ 1 ]
+
+		for point in track.walk():
+			self.assertTrue( point )
+
+		for point, segment_no, point_no in track.walk():
+			self.assertTrue( point )
+
+		self.assertEquals( segment_no, len( track.segments ) - 1 )
+		self.assertEquals( point_no, len( track.segments[ -1 ].points ) - 1 )
+
+	def test_walk_segment_points( self ):
+		gpx = self.__parse( 'korita-zbevnica.gpx' )
+		track = gpx.tracks[ 1 ]
+		segment = track.segments[ 0 ]
+
+		assert len( segment.points ) > 0
+
+		for point in segment.walk():
+			self.assertTrue( point )
+
+		"""
+		for point, segment_no, point_no in track.walk():
+			self.assertTrue( point )
+
+		self.assertEquals( segment_no, len( track.segments ) - 1 )
+		self.assertEquals( point_no, len( track.segments[ -1 ].points ) - 1 )
+		"""
+
 if __name__ == '__main__':
 	mod_unittest.main()

@@ -177,9 +177,6 @@ class GPXRoute:
 
 		return mod_geo.Location( latitude = sum_lat / n, longitude = sum_lon / n )
 
-	def get_points( self ):
-		return self.points
-
 	def walk( self, only_points = False ):
 		for point_no, point in enumerate( self.points ):
 			if only_points:
@@ -423,11 +420,19 @@ class GPXTrack:
 
 		return Bounds( min_lat, max_lat, min_lon, max_lon )
 
-	def get_points( self ):
-		result = []
+	def walk( self, only_points = False ):
+		for segment_no, segment in enumerate( self.segments ):
+			for point_no, point in enumerate( segment.points ):
+				if only_points:
+					yield point
+				else:
+					yield point, segment_no, point_no
+
+	def get_points_no( self ):
+		result = 0
 
 		for track_segment in self.segments:
-			result += track_segment.get_points()
+			result += track_segment.get_points_no()
 
 		return result
 
@@ -593,14 +598,6 @@ class GPXTrack:
 
 		return mod_geo.Location( latitude = sum_lat / n, longitude = sum_lon / n )
 
-	def get_points_no( self ):
-		result = 0
-
-		for track_segment in self.segments:
-			result += track_segment.get_points_no()
-
-		return result
-
 	def smooth( self, vertical = True, horizontal = False, remove_extreemes = False ):
 		""" See: GPXTrackSegment.smooth() """
 		for track_segment in self.segments:
@@ -665,8 +662,19 @@ class GPXTrackSegment:
 		for track_point in self.points:
 			track_point.move( latitude_diff, longitude_diff )
 
-	def get_points( self ):
-		return self.points
+	def walk( self, only_points = False ):
+		""" Use this to iterate through points """
+		for point_no, point in enumerate( self.points ):
+			if only_points:
+				yield point
+			else:
+				yield point, point_no
+
+	def get_points_no( self ):
+		""" Number of points """
+		if not self.points:
+			return 0
+		return len( self.points )
 
 	def split( self, point_no ):
 		""" Splits this segment in two parts. Point #point_no remains in the first part. 
@@ -905,12 +913,6 @@ class GPXTrackSegment:
 		for track_point in self.points:
 			content += track_point.to_xml( version )
 		return mod_utils.to_xml( 'trkseg', content = content )
-
-	def get_points_no( self ):
-		""" Number of points """
-		if not self.points:
-			return 0
-		return len( self.points )
 
 	def get_nearest_location( self, location ):
 		""" Return the ( location, track_point_no ) on this track segment """
