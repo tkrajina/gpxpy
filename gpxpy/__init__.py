@@ -18,13 +18,13 @@ import gpx as mod_gpx
 import parser as mod_parser
 
 def parse( xml_or_file ):
-	""" Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
+    """ Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
 
-	parser = mod_parser.GPXParser( xml_or_file )
+    parser = mod_parser.GPXParser( xml_or_file )
 
-	gpx = parser.parse()
+    gpx = parser.parse()
 
-	if not parser.is_valid():
-		raise mod_gpx.GPXException( 'Error parsing {0}: {1}'.format( xml_or_file[ 0 : 100 ], parser.get_error() ) )
+    if not parser.is_valid():
+        raise mod_gpx.GPXException( 'Error parsing {0}: {1}'.format( xml_or_file[ 0 : 100 ], parser.get_error() ) )
 
-	return gpx
+    return gpx
