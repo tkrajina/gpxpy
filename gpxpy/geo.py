@@ -63,6 +63,21 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
 
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
+def elevation_angle(location1, location2, radians=False):
+    """ Uphill/downhill angle between two locations. """
+    if location1.elevation == None or location2.elevation == None:
+        return None
+
+    b = float(location2.elevation - location1.elevation)
+    a = location2.distance_2d(location1)
+
+    angle = mod_math.atan(b / a)
+
+    if radians:
+        return angle
+
+    return 180 * angle / mod_math.pi
+
 class Location:
     """ Generic geographical location """
 
@@ -89,6 +104,9 @@ class Location:
             return None
 
         return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
+
+    def elevation_angle(self, location, radians=False):
+        return elevation_angle(self, location, radians)
 
     def move(self, latitude_diff, longitude_diff):
         self.latitude += latitude_diff
