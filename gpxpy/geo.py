@@ -41,6 +41,10 @@ def length(locations=[], _3d=None):
                 length += d
     return length
 
+def length_2d(locations=[]):
+    """ 2-dimensional length of locations (only latitude and longitude, no elevation """
+    return length(locations, False)
+
 def length_3d(locations=[]):
     """ 3-dimensional length of locations (is uses latitude, longitude and elevation). """
     return length(locations, True)
@@ -58,10 +62,6 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
         return distance_2d
 
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
-
-def length_2d(locations=[]):
-    """ 2-dimensional length of locations (only latitude and longitude, no elevation """
-    return length(locations, None)
 
 class Location:
     """ Generic geographical location """
