@@ -12,9 +12,7 @@ Usage
     
     gpx_file = open( 'test_files/cerknicko-jezero.gpx', 'r' )
     
-    gpx_parser = gpxpy.parse( gpx_file )
-    
-    gpx = gpx_parser.get_gpx()
+    gpx = gpxpy.parse( gpx_file )
     
     for track in gpx.tracks:
     	for segment in track.segments:
