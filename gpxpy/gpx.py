@@ -184,6 +184,9 @@ class GPXRoute:
             else:
                 yield point, point_no
 
+    def get_points_no(self):
+        return len(self.points)
+
     def move(self, latitude_diff, longitude_diff):
         for route_point in self.points:
             route_point.move(latitude_diff, longitude_diff)
