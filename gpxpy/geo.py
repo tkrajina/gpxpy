@@ -71,6 +71,9 @@ def elevation_angle(location1, location2, radians=False):
     b = float(location2.elevation - location1.elevation)
     a = location2.distance_2d(location1)
 
+    if a == 0:
+        return 0
+
     angle = mod_math.atan(b / a)
 
     if radians:
