@@ -61,12 +61,10 @@ PointData = mod_collections.namedtuple(
         ('point', 'distance_from_start', 'track_no', 'segment_no', 'point_no'))
 
 class GPXException(Exception):
-
     def __init__(self, message):
         Exception.__init__(self, message)
 
 class GPXWaypoint(mod_geo.Location):
-	
     time = None
     name = None
     description = None
@@ -139,7 +137,6 @@ class GPXWaypoint(mod_geo.Location):
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXRoute:
-
     name = None
     description = None
     number = None
@@ -152,6 +149,10 @@ class GPXRoute:
         self.number = number
 
         self.points = []
+
+    def remove_elevation(self):
+        for point in self.points:
+            point.remove_elevation()
 
     def length(self):
         return mod_geo.length_2d(self.points)
@@ -208,7 +209,6 @@ class GPXRoute:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXRoutePoint(mod_geo.Location):
-
     time = None
     name = None
     description = None
@@ -275,7 +275,6 @@ class GPXRoutePoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXTrackPoint(mod_geo.Location):
-
     time = None
     symbol = None
     comment = None
@@ -298,6 +297,10 @@ class GPXTrackPoint(mod_geo.Location):
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
+
+    def remove_time(self):
+        """ Will remove time metadata. """
+        self.time = None
 
     def to_xml(self, version=None):
         content = ''
@@ -372,6 +375,14 @@ class GPXTrack:
         self.number = number
 
         self.segments = []
+
+    def remove_time(self):
+        for segment in self.segments:
+            segment.remove_time()
+
+    def remove_elevation(self):
+        for segment in self.segments:
+            segment.remove_elevation()
 
     def remove_empty(self):
         """ Removes empty segments and/or routes """
@@ -654,6 +665,14 @@ class GPXTrackSegment:
 
     def __init__(self, points=None):
         self.points = points if points else []
+
+    def remove_time(self):
+        for track_point in self.points:
+            track_point.remove_time()
+
+    def remove_elevation(self):
+        for track_point in self.points:
+            track_point.remove_elevation()
 
     def length_2d(self):
         return mod_geo.length_2d(self.points)
@@ -1125,6 +1144,23 @@ class GPX:
         self.max_latitude = None
         self.min_longitude = None
         self.max_longitude = None
+
+    def remove_time(self):
+        """ Will remove time metadata. """
+        for track in self.tracks:
+            track.remove_time()
+
+    def remove_elevation(self, tracks=True, routes=False, waypoints=False):
+        """ Will remove elevation metadata. """
+        if tracks:
+            for track in self.tracks:
+                track.remove_elevation()
+        if routes:
+            for route in self.routes:
+                route.remove_elevation()
+        if waypoints:
+            for waypoint in self.waypoints:
+                waypoint.remove_elevation()
 
     def get_time_bounds(self):
         """

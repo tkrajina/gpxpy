@@ -113,6 +113,32 @@ class Tests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
 
+    def test_remove_elevation(self):
+        gpx = self.__parse('cerknicko-jezero.gpx')
+
+        for point, track_no, segment_no, point_no in gpx.walk():
+            self.assertTrue(point.elevation != None)
+
+        gpx.remove_elevation(tracks=True, waypoints=True, routes=True)
+
+        for point, track_no, segment_no, point_no in gpx.walk():
+            self.assertTrue(point.elevation == None)
+
+        xml = gpx.to_xml()
+
+        self.assertFalse('<ele>' in xml)
+
+    def test_remove_time(self):
+        gpx = self.__parse('cerknicko-jezero.gpx')
+
+        for point, track_no, segment_no, point_no in gpx.walk():
+            self.assertTrue(point.time != None)
+
+        gpx.remove_time()
+
+        for point, track_no, segment_no, point_no in gpx.walk():
+            self.assertTrue(point.time == None)
+
     def test_has_times_false(self):
         gpx = self.__parse('cerknicko-without-times.gpx')
         self.assertFalse(gpx.has_times())

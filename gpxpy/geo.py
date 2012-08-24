@@ -96,6 +96,9 @@ class Location:
     def has_elevation(self):
         return self.elevation or self.elevation == 0
 
+    def remove_elevation(self):
+        self.elevation = None
+
     def distance_2d(self, location):
         if not location:
             return None
