@@ -323,9 +323,16 @@ class GPXParser(AbstractXMLParser):
         pdop_node = mod_utils.find_first_node(node, 'pdop')
         pdop = mod_utils.to_number(self.get_node_data(pdop_node))
 
+        extensions_node = mod_utils.find_first_node(node, 'extensions')
+        trackpointextensions_node = mod_utils.find_first_node(extensions_node, 'gpxtpx:TrackPointExtension')
+        hr_node = mod_utils.find_first_node(trackpointextensions_node, 'gpxtpx:hr')
+        hr = 0.0
+        if hr_node:
+            hr = mod_utils.to_number(self.get_node_data(hr_node))
+
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
                 symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop)
+                position_dilution=pdop, hr=hr)
 
 class KMLParser(AbstractXMLParser):
     """
