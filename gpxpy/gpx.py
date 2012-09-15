@@ -63,10 +63,12 @@ PointData = mod_collections.namedtuple(
         ('point', 'distance_from_start', 'track_no', 'segment_no', 'point_no'))
 
 class GPXException(Exception):
+
     def __init__(self, message):
         Exception.__init__(self, message)
 
 class GPXWaypoint(mod_geo.Location):
+	
     time = None
     name = None
     description = None
@@ -139,6 +141,7 @@ class GPXWaypoint(mod_geo.Location):
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXRoute:
+
     name = None
     description = None
     number = None
@@ -211,6 +214,7 @@ class GPXRoute:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXRoutePoint(mod_geo.Location):
+
     time = None
     name = None
     description = None
@@ -277,6 +281,7 @@ class GPXRoutePoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXTrackPoint(mod_geo.Location):
+
     time = None
     symbol = None
     comment = None
@@ -288,8 +293,10 @@ class GPXTrackPoint(mod_geo.Location):
     # Position dilution of precision
     position_dilution = None
 
+    speed = None
+
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
-            horizontal_dilution=None, vertical_dilution=None, position_dilution=None):
+            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
 
         self.time = time
@@ -299,6 +306,8 @@ class GPXTrackPoint(mod_geo.Location):
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
+
+        self.speed = speed
 
     def remove_time(self):
         """ Will remove time metadata. """
@@ -323,6 +332,9 @@ class GPXTrackPoint(mod_geo.Location):
         if self.position_dilution:
             content += mod_utils.to_xml('pdop', content=self.position_dilution)
 
+        if self.speed:
+            content += mod_utils.to_xml('speed', content=self.speed)
+
         return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
     def time_difference(self, track_point):
@@ -343,7 +355,7 @@ class GPXTrackPoint(mod_geo.Location):
 
         return delta.seconds
 
-    def speed(self, track_point):
+    def speed_between(self, track_point):
         if not track_point:
             return None
 
@@ -362,7 +374,7 @@ class GPXTrackPoint(mod_geo.Location):
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
-                'horizontal_dilution', 'vertical_dilution', 'position_dilution')
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
 
 class GPXTrack:
     name = None

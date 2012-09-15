@@ -641,6 +641,19 @@ class Tests(mod_unittest.TestCase):
         self.assertEquals(bounds.start_time, mod_datetime.datetime(2001, 1, 12))
         self.assertEquals(bounds.end_time, mod_datetime.datetime(2011, 1, 12))
 
+    def test_speed(self):
+        gpx = self.__parse('track_with_speed.gpx')
+        gpx2 = self.__reparse(gpx)
+
+        self.assertTrue(equals(gpx.waypoints, gpx2.waypoints))
+        self.assertTrue(equals(gpx.routes, gpx2.routes))
+        self.assertTrue(equals(gpx.tracks, gpx2.tracks))
+        self.assertTrue(equals(gpx, gpx2))
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].speed, 1.2)
+        self.assertEquals(gpx.tracks[0].segments[0].points[1].speed, 2.2)
+        self.assertEquals(gpx.tracks[0].segments[0].points[2].speed, 3.2)
+
     def test_dilutions(self):
         gpx = self.__parse('track_with_dilution_errors.gpx')
         gpx2 = self.__reparse(gpx)

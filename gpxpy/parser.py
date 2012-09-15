@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pdb
+
 import logging as mod_logging
 import datetime as mod_datetime
 
@@ -323,9 +325,12 @@ class GPXParser(AbstractXMLParser):
         pdop_node = mod_utils.find_first_node(node, 'pdop')
         pdop = mod_utils.to_number(self.get_node_data(pdop_node))
 
+        speed_node = mod_utils.find_first_node(node, 'speed')
+        speed = mod_utils.to_number(self.get_node_data(speed_node))
+
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
                 symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop)
+                position_dilution=pdop, speed=speed)
 
 class KMLParser(AbstractXMLParser):
     """
