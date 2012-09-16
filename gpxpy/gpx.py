@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pdb
+
 import logging as mod_logging
 import math as mod_math
 import datetime as mod_datetime
@@ -1298,8 +1300,8 @@ class GPX:
                 length = len(track_segment.points)
                 for i in range(length):
                     point = track_segment.points[i]
-                    if i == 0 or i == length - 1:
-                        # Leave first and last point
+                    if i == 0:
+                        # Leave first point:
                         reduced_points.append(point)
                         previous_point = point
                     elif previous_point:
