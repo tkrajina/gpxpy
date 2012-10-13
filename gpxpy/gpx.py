@@ -293,6 +293,7 @@ class GPXTrackPoint(mod_geo.Location):
     # Position dilution of precision
     position_dilution = None
 
+    # The value specified in the GPX file. Use speed_between() for a computed value:
     speed = None
 
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
@@ -356,6 +357,10 @@ class GPXTrackPoint(mod_geo.Location):
         return delta.seconds
 
     def speed_between(self, track_point):
+        """
+        Note that this is a *computed* speed. The self.speed is the value 
+        specified in the GPX file.
+        """
         if not track_point:
             return None
 
