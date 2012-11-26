@@ -1299,9 +1299,10 @@ class GPX:
         min_distance = The minimum distance between two points
         """
 
-        points_no = list(self.walk())
-        if not max_points_no or points_no <= max_points_no:
-            return
+        if not min_distance:
+            points_no = len(list(self.walk()))
+            if not max_points_no or points_no <= max_points_no:
+                return
 
         length = self.length_3d()
 
