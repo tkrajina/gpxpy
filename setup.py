@@ -26,6 +26,11 @@ mod_distutilscore.setup(
     url = 'http://www.trackprofiler.com/gpxpy/index.html',
     packages = [
         'gpxpy',
-   ],
+    ],
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 3",
+        ],
 )
 

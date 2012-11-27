@@ -16,6 +16,7 @@
 
 import logging
 import xml.sax.saxutils as mod_saxutils
+from gpxpy.portability import has_unicode_type
 
 def to_xml(tag, attributes={}, content=None, default=None, escape=False):
     result = '\n<%s' % tag
@@ -38,8 +39,7 @@ def to_xml(tag, attributes={}, content=None, default=None, escape=False):
 
     result += ''
 
-    if isinstance(result, unicode):
-        result = result.encode('utf-8')
+    result = make_str(result)
 	
     return result
 
@@ -72,7 +72,7 @@ def __hash(obj):
     if obj == None:
         return result
     elif isinstance(obj, dict):
-        raise Error('__hash_single_object for dict not yet implemented')
+        raise RuntimeError('__hash_single_object for dict not yet implemented')
     elif isinstance(obj, list) or isinstance(obj, tuple):
         return hash_list_or_tuple(obj)
 
@@ -95,3 +95,10 @@ def hash_object(obj, *attributes):
     return result
 
 
+def make_str(s):
+    """Convert a str or unicode object into a str type.
+    """
+    if has_unicode_type():
+        if isinstance(s, unicode):
+            return s.encode("utf-8")
+    return str(s)
