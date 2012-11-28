@@ -284,7 +284,7 @@ class GPXParser(AbstractXMLParser):
         child_nodes = node.getchildren()
         n = 0
         for child_node in child_nodes:
-            if child_node.tag == mod_utils.tag('trkseg',self.ns):
+            if child_node.tag == mod_utils.tag('trkpt',self.ns):
                 track_point = self.__parse_track_point(child_node)
                 track_segment.points.append(track_point)
                 n += 1
