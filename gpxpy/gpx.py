@@ -18,8 +18,6 @@
 GPX related stuff
 """
 
-import pdb
-
 import logging as mod_logging
 import math as mod_math
 import collections as mod_collections
