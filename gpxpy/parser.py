@@ -19,11 +19,12 @@ import pdb
 import logging as mod_logging
 import datetime as mod_datetime
 
-import xml.dom.minidom as mod_minidom
+from lxml import etree
 
 import gpx as mod_gpx
 import utils as mod_utils
 import re as mod_re
+
 
 def parse_time(string):
     if not string:
@@ -38,6 +39,7 @@ def parse_time(string):
         except Exception, e:
             mod_logging.error('Invalid timestemp %s' % string)
             return None
+
 
 class AbstractXMLParser:
     """ Common methods used in GPXParser and KMLParser """
@@ -72,12 +74,13 @@ class AbstractXMLParser:
         return self.gpx
 
     def get_node_data(self, node):
-        if not node:
+        if node is None:
             return None
-        child_nodes = node.childNodes
+        child_nodes = node.getchildren()
         if not child_nodes or len(child_nodes) == 0:
             return None
-        return child_nodes[0].data
+        return child_nodes[0].text
+
 
 class GPXParser(AbstractXMLParser):
 
@@ -88,7 +91,7 @@ class GPXParser(AbstractXMLParser):
 
     def parse(self):
         try:
-            dom = mod_minidom.parseString(self.xml)
+            dom = etree.XML(self.xml)
             self.__parse_dom(dom)
 
             return self.gpx
@@ -100,42 +103,37 @@ class GPXParser(AbstractXMLParser):
             return None
 
     def __parse_dom(self, dom):
-        root_nodes = dom.childNodes
+        # get the namespace
+        self.ns = dom.nsmap.get(None)
 
-        root_node = None
+        if dom.tag != mod_utils.tag('gpx',self.ns):
+            raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
-        for node in root_nodes:
-            if not root_node:
-                node_name = node.nodeName
-                if node_name == 'gpx':
-                    root_node = node
-
-        for node in root_node.childNodes:
-            node_name = node.nodeName
-            if node_name == 'time':
+        for node in dom.getchildren():
+            if node.tag == mod_utils.tag('time',self.ns):
                 time_str = self.get_node_data(node)
                 self.gpx.time = parse_time(time_str)
-            elif node_name == 'name':
+            elif node.tag == mod_utils.tag('name',self.ns):
                 self.gpx.name = self.get_node_data(node)
-            elif node_name == 'desc':
+            elif node.tag == mod_utils.tag('desc',self.ns):
                 self.gpx.description = self.get_node_data(node)
-            elif node_name == 'author':
+            elif node.tag == mod_utils.tag('author',self.ns):
                 self.gpx.author = self.get_node_data(node)
-            elif node_name == 'email':
+            elif node.tag == mod_utils.tag('email',self.ns):
                 self.gpx.email = self.get_node_data(node)
-            elif node_name == 'url':
+            elif node.tag == mod_utils.tag('url',self.ns):
                 self.gpx.url = self.get_node_data(node)
-            elif node_name == 'urlname':
+            elif node.tag == mod_utils.tag('urlname',self.ns):
                 self.gpx.urlname = self.get_node_data(node)
-            elif node_name == 'keywords':
+            elif node.tag == mod_utils.tag('keywords',self.ns):
                 self.gpx.keywords = self.get_node_data(node)
-            elif node_name == 'bounds':
+            elif node.tag == mod_utils.tag('bounds',self.ns):
                 self._parse_bounds(node)
-            elif node_name == 'wpt':
+            elif node.tag == mod_utils.tag('wpt',self.ns):
                 self.gpx.waypoints.append(self._parse_waypoint(node))
-            elif node_name == 'rte':
+            elif node.tag == mod_utils.tag('rte',self.ns):
                 self.gpx.routes.append(self._parse_route(node))
-            elif node_name == 'trk':
+            elif node.tag == mod_utils.tag('trk',self.ns):
                 self.gpx.tracks.append(self.__parse_track(node))
             else:
                 #print 'unknown %s' % node
@@ -144,151 +142,149 @@ class GPXParser(AbstractXMLParser):
         self.valid = True
 
     def _parse_bounds(self, node):
-        if node.attributes.has_key('minlat'):
-            self.gpx.min_latitude = mod_utils.to_number(node.attributes['minlat'].nodeValue)
-        if node.attributes.has_key('maxlat'):
-            self.gpx.min_latitude = mod_utils.to_number(node.attributes['maxlat'].nodeValue)
-        if node.attributes.has_key('minlon'):
-            self.gpx.min_longitude = mod_utils.to_number(node.attributes['minlon'].nodeValue)
-        if node.attributes.has_key('maxlon'):
-            self.gpx.min_longitude = mod_utils.to_number(node.attributes['maxlon'].nodeValue)
+        if node.attrib.get('minlat'):
+            self.gpx.min_latitude = mod_utils.to_number(node.attrib.get('minlat'))
+        if node.attrib.get('maxlat'):
+            self.gpx.min_latitude = mod_utils.to_number(node.attrib.get('maxlat'))
+        if node.attrib.get('minlon'):
+            self.gpx.min_longitude = mod_utils.to_number(node.attrib.get('minlon'))
+        if node.attrib.get('maxlon'):
+            self.gpx.min_longitude = mod_utils.to_number(node.attrib.get('maxlon'))
 
     def _parse_waypoint(self, node):
-        if not node.attributes.has_key('lat'):
+        if not node.attrib.get('lat'):
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not node.attributes.has_key('lon'):
+        if not node.attrib.get('lon'):
             raise mod_gpx.GPXException('Waypoint without longitude')
 
-        lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
-        lon = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        lat = mod_utils.to_number(node.attrib.get('lat'))
+        lon = mod_utils.to_number(node.attrib.get('lon'))
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
+        elevation_node = mod_utils.find_first_node(node, mod_utils.tag('ele',self.ns))
         elevation = mod_utils.to_number(self.get_node_data(elevation_node), 0)
 
-        time_node = mod_utils.find_first_node(node, 'time')
+        time_node = mod_utils.find_first_node(node, mod_utils.tag('time',self.ns))
         time_str = self.get_node_data(time_node)
         time = parse_time(time_str)
 
-        name_node = mod_utils.find_first_node(node, 'name')
+        name_node = mod_utils.find_first_node(node, mod_utils.tag('name',self.ns))
         name = self.get_node_data(name_node)
 
-        desc_node = mod_utils.find_first_node(node, 'desc')
+        desc_node = mod_utils.find_first_node(node, mod_utils.tag('desc',self.ns))
         desc = self.get_node_data(desc_node)
 
-        sym_node = mod_utils.find_first_node(node, 'sym')
+        sym_node = mod_utils.find_first_node(node, mod_utils.tag('sym',self.ns))
         sym = self.get_node_data(sym_node)
 
-        type_node = mod_utils.find_first_node(node, 'type')
+        type_node = mod_utils.find_first_node(node, mod_utils.tag('type',self.ns))
         type = self.get_node_data(type_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
+        comment_node = mod_utils.find_first_node(node, mod_utils.tag('cmt',self.ns))
         comment = self.get_node_data(comment_node)
-		
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
+
+        hdop_node = mod_utils.find_first_node(node, mod_utils.tag('hdop',self.ns))
         hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
+
+        vdop_node = mod_utils.find_first_node(node, mod_utils.tag('vdop',self.ns))
         vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
+
+        pdop_node = mod_utils.find_first_node(node, mod_utils.tag('pdop',self.ns))
         pdop = mod_utils.to_number(self.get_node_data(pdop_node))
-		
-        return mod_gpx.GPXWaypoint(latitude=lat, longitude=lon, elevation=elevation, 
-                        time=time, name=name, description=desc, symbol=sym, 
-                        type=type, comment=comment, horizontal_dilution=hdop,
-                        vertical_dilution=vdop, position_dilution=pdop)
+
+        return mod_gpx.GPXWaypoint(latitude=lat, longitude=lon, elevation=elevation,
+            time=time, name=name, description=desc, symbol=sym,
+            type=type, comment=comment, horizontal_dilution=hdop,
+            vertical_dilution=vdop, position_dilution=pdop)
 
     def _parse_route(self, node):
-        name_node = mod_utils.find_first_node(node, 'name')
+        name_node = mod_utils.find_first_node(node, mod_utils.tag('name',self.ns))
         name = self.get_node_data(name_node)
 
-        description_node = mod_utils.find_first_node(node, 'desc')
+        description_node = mod_utils.find_first_node(node, mod_utils.tag('desc',self.ns))
         description = self.get_node_data(description_node)
 
-        number_node = mod_utils.find_first_node(node, 'number')
+        number_node = mod_utils.find_first_node(node, mod_utils.tag('number',self.ns))
         number = mod_utils.to_number(self.get_node_data(number_node))
 
         route = mod_gpx.GPXRoute(name, description, number)
 
-        child_nodes = node.childNodes
+        child_nodes = node.getchildren()
         for child_node in child_nodes:
-            node_name = child_node.nodeName
-            if node_name == 'rtept':
+            if child_node.tag == mod_utils.tag('rtept',self.ns):
                 route_point = self._parse_route_point(child_node)
                 route.points.append(route_point)
 
         return route
 
     def _parse_route_point(self, node):
-        if not node.attributes.has_key('lat'):
+        if not node.attrib.get('lat'):
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not node.attributes.has_key('lon'):
+        if not node.attrib.get('lon'):
             raise mod_gpx.GPXException('Waypoint without longitude')
 
-        lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
-        lon = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        lat = mod_utils.to_number(node.attrib.get('lat'))
+        lon = mod_utils.to_number(node.attrib.get('lon'))
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
+        elevation_node = mod_utils.find_first_node(node, mod_utils.tag('ele',self.ns))
         elevation = mod_utils.to_number(self.get_node_data(elevation_node), 0)
 
-        time_node = mod_utils.find_first_node(node, 'time')
+        time_node = mod_utils.find_first_node(node, mod_utils.tag('time',self.ns))
         time_str = self.get_node_data(time_node)
         time = parse_time(time_str)
 
-        name_node = mod_utils.find_first_node(node, 'name')
+        name_node = mod_utils.find_first_node(node, mod_utils.tag('name',self.ns))
         name = self.get_node_data(name_node)
 
-        desc_node = mod_utils.find_first_node(node, 'desc')
+        desc_node = mod_utils.find_first_node(node, mod_utils.tag('desc',self.ns))
         desc = self.get_node_data(desc_node)
 
-        sym_node = mod_utils.find_first_node(node, 'sym')
+        sym_node = mod_utils.find_first_node(node, mod_utils.tag('sym',self.ns))
         sym = self.get_node_data(sym_node)
 
-        type_node = mod_utils.find_first_node(node, 'type')
+        type_node = mod_utils.find_first_node(node, mod_utils.tag('type',self.ns))
         type = self.get_node_data(type_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
+        comment_node = mod_utils.find_first_node(node, mod_utils.tag('cmt',self.ns))
         comment = self.get_node_data(comment_node)
 
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
+        hdop_node = mod_utils.find_first_node(node, mod_utils.tag('hdop',self.ns))
         hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
+
+        vdop_node = mod_utils.find_first_node(node, mod_utils.tag('vdop',self.ns))
         vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
+
+        pdop_node = mod_utils.find_first_node(node, mod_utils.tag('pdop',self.ns))
         pdop = mod_utils.to_number(self.get_node_data(pdop_node))
 
         return mod_gpx.GPXRoutePoint(lat, lon, elevation, time, name, desc, sym, type, comment,
-                horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
+            horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
 
     def __parse_track(self, node):
-        name_node = mod_utils.find_first_node(node, 'name')
+        name_node = mod_utils.find_first_node(node, mod_utils.tag('name',self.ns))
         name = self.get_node_data(name_node)
 
-        description_node = mod_utils.find_first_node(node, 'desc')
+        description_node = mod_utils.find_first_node(node, mod_utils.tag('desc',self.ns))
         description = self.get_node_data(description_node)
 
-        number_node = mod_utils.find_first_node(node, 'number')
+        number_node = mod_utils.find_first_node(node, mod_utils.tag('number',self.ns))
         number = mod_utils.to_number(self.get_node_data(number_node))
 
         track = mod_gpx.GPXTrack(name, description, number)
 
-        child_nodes = node.childNodes
+        child_nodes = node.getchildren()
         for child_node in child_nodes:
-            if child_node.nodeName == 'trkseg':
+            if child_node.tag == mod_utils.tag('trkseg',self.ns):
                 track_segment = self.__parse_track_segment(child_node)
-
                 track.segments.append(track_segment)
 
         return track
 
     def __parse_track_segment(self, node):
         track_segment = mod_gpx.GPXTrackSegment()
-        child_nodes = node.childNodes
+        child_nodes = node.getchildren()
         n = 0
         for child_node in child_nodes:
-            if child_node.nodeName == 'trkpt':
+            if child_node.tag == mod_utils.tag('trkseg',self.ns):
                 track_point = self.__parse_track_point(child_node)
                 track_segment.points.append(track_point)
                 n += 1
@@ -297,40 +293,43 @@ class GPXParser(AbstractXMLParser):
 
     def __parse_track_point(self, node):
         latitude = None
-        if node.attributes.has_key('lat'):
-            latitude = mod_utils.to_number(node.attributes['lat'].nodeValue)
+        if node.attrib.get('lat'):
+            latitude = mod_utils.to_number(node.attrib.get('lat'))
 
         longitude = None
-        if node.attributes.has_key('lon'):
-            longitude = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        if node.attrib.get('lon'):
+            longitude = mod_utils.to_number(node.attrib.get('lon'))
 
-        time_node = mod_utils.find_first_node(node, 'time')
-        time = parse_time(self.get_node_data(time_node))
+        time_node = mod_utils.find_first_node(node, mod_utils.tag('time',self.ns))
+        time_str = self.get_node_data(time_node)
+        time = parse_time(time_str)
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
-        elevation = mod_utils.to_number(self.get_node_data(elevation_node))
+        elevation_node = mod_utils.find_first_node(node, mod_utils.tag('ele',self.ns))
+        elevation = mod_utils.to_number(self.get_node_data(elevation_node), 0)
 
-        symbol_node = mod_utils.find_first_node(node, 'sym')
-        symbol = self.get_node_data(symbol_node)
+        sym_node = mod_utils.find_first_node(node, mod_utils.tag('sym',self.ns))
+        symbol = self.get_node_data(sym_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
+        comment_node = mod_utils.find_first_node(node, mod_utils.tag('cmt',self.ns))
         comment = self.get_node_data(comment_node)
 
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
+        hdop_node = mod_utils.find_first_node(node, mod_utils.tag('hdop',self.ns))
         hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
+
+        vdop_node = mod_utils.find_first_node(node, mod_utils.tag('vdop',self.ns))
         vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
+
+        pdop_node = mod_utils.find_first_node(node, mod_utils.tag('pdop',self.ns))
         pdop = mod_utils.to_number(self.get_node_data(pdop_node))
 
-        speed_node = mod_utils.find_first_node(node, 'speed')
+        speed_node = mod_utils.find_first_node(node, mod_utils.tag('speed',self.ns))
         speed = mod_utils.to_number(self.get_node_data(speed_node))
 
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
-                symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop, speed=speed)
+            symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
+            position_dilution=pdop, speed=speed)
+
+
 
 class KMLParser(AbstractXMLParser):
     """
@@ -347,7 +346,7 @@ class KMLParser(AbstractXMLParser):
     """
 
     gpx = None
-	
+
     def __init__(self, xml_or_file=None):
         self.init(xml_or_file)
 
@@ -363,10 +362,11 @@ class KMLParser(AbstractXMLParser):
             self.error = str(e)
 
             return None
-	
+
     def __parse_dom(self, xml):
         # TODO
         pass
+
 
 if __name__ == '__main__':
 
@@ -395,5 +395,3 @@ if __name__ == '__main__':
             print route.name
     else:
         print 'error: %s' % parser.get_error()
-
-

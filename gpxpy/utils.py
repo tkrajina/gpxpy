@@ -56,11 +56,11 @@ def to_number(str, default=0):
     return float(str)
 
 def find_first_node(node, child_node_name):
-    if not node or not child_node_name:
+    if node is None or child_node_name is None:
         return None
-    child_nodes = node.childNodes
+    child_nodes = node.getchildren()
     for child_node in child_nodes:
-        if child_node.nodeName == child_node_name:
+        if child_node.tag == child_node_name:
             return child_node
     return None
 
@@ -93,5 +93,8 @@ def hash_object(obj, *attributes):
         result = result * 31 + __hash(getattr(obj, attribute))
 	
     return result
+
+def tag(name, namespace):
+    return "{%s}%s" % (namespace, name)
 
 
