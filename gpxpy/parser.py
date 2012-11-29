@@ -14,48 +14,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pdb
+from __future__ import print_function
 
 import logging as mod_logging
 import datetime as mod_datetime
-
 import xml.dom.minidom as mod_minidom
-
-import gpx as mod_gpx
-import utils as mod_utils
 import re as mod_re
+
+from . import gpx as mod_gpx
+from . import utils as mod_utils
+from .portability import has_key
+
 
 def parse_time(string):
     if not string:
         return None
     try:
         return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-    except Exception, e:
+    except Exception as e:
         if mod_re.match('^.*\.\d+Z$', string):
             string = mod_re.sub('\.\d+Z', 'Z', string)
         try:
             return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-        except Exception, e:
+        except Exception as e:
             mod_logging.error('Invalid timestemp %s' % string)
             return None
+
+
 
 class AbstractXMLParser:
     """ Common methods used in GPXParser and KMLParser """
 
-    gpx = None
-    xml = None
+    def __init__(self, xml):
 
-    valid = None
-    error = None
-
-    def init(self, xml_or_file):
-        if hasattr(xml_or_file, 'read'):
-            self.xml = xml_or_file.read()
-        else:
-            if isinstance(xml_or_file, unicode):
-                self.xml = xml_or_file.encode('utf-8')
-            else:
-                self.xml = str(xml_or_file)
+        text = xml.read() if hasattr(xml, 'read') else xml
+        self.xml = mod_utils.make_str(text)
 
         self.valid = False
         self.error = None
@@ -81,18 +74,13 @@ class AbstractXMLParser:
 
 class GPXParser(AbstractXMLParser):
 
-    def __init__(self, xml_or_file=None):
-        self.init(xml_or_file)
-
-        self.gpx = mod_gpx.GPX()
-
     def parse(self):
         try:
             dom = mod_minidom.parseString(self.xml)
             self.__parse_dom(dom)
 
             return self.gpx
-        except Exception, e:
+        except Exception as e:
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
             self.error = str(e)
@@ -144,19 +132,19 @@ class GPXParser(AbstractXMLParser):
         self.valid = True
 
     def _parse_bounds(self, node):
-        if node.attributes.has_key('minlat'):
+        if has_key(node.attributes, 'minlat'):
             self.gpx.min_latitude = mod_utils.to_number(node.attributes['minlat'].nodeValue)
-        if node.attributes.has_key('maxlat'):
+        if has_key(node.attributes, 'maxlat'):
             self.gpx.min_latitude = mod_utils.to_number(node.attributes['maxlat'].nodeValue)
-        if node.attributes.has_key('minlon'):
+        if has_key(node.attributes, 'minlon'):
             self.gpx.min_longitude = mod_utils.to_number(node.attributes['minlon'].nodeValue)
-        if node.attributes.has_key('maxlon'):
+        if has_key(node.attributes, 'maxlon'):
             self.gpx.min_longitude = mod_utils.to_number(node.attributes['maxlon'].nodeValue)
 
     def _parse_waypoint(self, node):
-        if not node.attributes.has_key('lat'):
+        if not has_key(node.attributes, 'lat'):
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not node.attributes.has_key('lon'):
+        if not has_key(node.attributes, 'lon'):
             raise mod_gpx.GPXException('Waypoint without longitude')
 
         lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
@@ -220,9 +208,9 @@ class GPXParser(AbstractXMLParser):
         return route
 
     def _parse_route_point(self, node):
-        if not node.attributes.has_key('lat'):
+        if not has_key(node.attributes, 'lat'):
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not node.attributes.has_key('lon'):
+        if not has_key(node.attributes, 'lon'):
             raise mod_gpx.GPXException('Waypoint without longitude')
 
         lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
@@ -297,11 +285,11 @@ class GPXParser(AbstractXMLParser):
 
     def __parse_track_point(self, node):
         latitude = None
-        if node.attributes.has_key('lat'):
+        if has_key(node.attributes, 'lat'):
             latitude = mod_utils.to_number(node.attributes['lat'].nodeValue)
 
         longitude = None
-        if node.attributes.has_key('lon'):
+        if has_key(node.attributes, 'lon'):
             longitude = mod_utils.to_number(node.attributes['lon'].nodeValue)
 
         time_node = mod_utils.find_first_node(node, 'time')
@@ -328,9 +316,26 @@ class GPXParser(AbstractXMLParser):
         speed_node = mod_utils.find_first_node(node, 'speed')
         speed = mod_utils.to_number(self.get_node_data(speed_node))
 
+        link_nodes = mod_utils.find_nodes(node, 'link')
+        links = [self.__parse_link(link) for link in link_nodes]
+
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
                 symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop, speed=speed)
+                position_dilution=pdop, speed=speed, links=links)
+
+
+    def __parse_link(self, node):
+        href = node.attribute['href'].nodeValue if has_key(node.attributes, 'href') else None
+
+        text_node = mod_utils.find_first_node(node, 'text')
+        text = self.get_node_data(text_node)
+
+        type_node = mod_utils.find_first_node(node, 'type')
+        mime_type = self.get_node_data(type_node)
+
+        return mod_gpx.LinkData(href=href, text=text, mime_type=mime_type)
+
+
 
 class KMLParser(AbstractXMLParser):
     """
@@ -346,18 +351,13 @@ class KMLParser(AbstractXMLParser):
     See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
     """
 
-    gpx = None
-	
-    def __init__(self, xml_or_file=None):
-        self.init(xml_or_file)
-
     def parse(self):
         try:
             dom = mod_minidom.parseString(self.xml)
             self.__parse_dom(dom)
 
             return self.gpx
-        except Exception, e:
+        except Exception as e:
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
             self.error = str(e)
@@ -377,23 +377,23 @@ if __name__ == '__main__':
     gpx_xml = file.read()
     file.close()
 
-    parser = mod_gpx.GPXParser(gpx_xml)
+    parser = GPXParser(gpx_xml)
     gpx = parser.parse()
 
-    print gpx.to_xml()
+    print(gpx.to_xml())
 
     if parser.is_valid():
-        print 'TRACKS:'
+        print('TRACKS:')
         for track in gpx.tracks:
-            print 'name%s, 2d:%s, 3d:%s' % (track.name, track.length_2d(), track.length_3d())
-            print '\tTRACK SEGMENTS:'
+            print('name%s, 2d:%s, 3d:%s' % (track.name, track.length_2d(), track.length_3d()))
+            print('\tTRACK SEGMENTS:')
             for track_segment in track.segments:
-                print '\t2d:%s, 3d:%s' % (track_segment.length_2d(), track_segment.length_3d())
+                print('\t2d:%s, 3d:%s' % (track_segment.length_2d(), track_segment.length_3d()))
 
-        print 'ROUTES:'
+        print('ROUTES:')
         for route in gpx.routes:
-            print route.name
+            print(route.name)
     else:
-        print 'error: %s' % parser.get_error()
+        print('error: %s' % parser.get_error())
 
 

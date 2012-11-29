@@ -14,20 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pdb
-
-import logging as mod_logging
-import math as mod_math
-import datetime as mod_datetime
-import collections as mod_collections
-
-import utils as mod_utils
-import copy as mod_copy
-import geo as mod_geo
-
 """
 GPX related stuff
 """
+
+import logging as mod_logging
+import math as mod_math
+import collections as mod_collections
+import copy as mod_copy
+
+from . import utils as mod_utils
+from . import geo as mod_geo
 
 # GPX date format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -61,11 +58,12 @@ NearestLocationData = mod_collections.namedtuple(
 PointData = mod_collections.namedtuple(
         'PointData',
         ('point', 'distance_from_start', 'track_no', 'segment_no', 'point_no'))
+LinkData = mod_collections.namedtuple(
+        'LinkData',
+        ('href', 'text', 'mime_type'))
 
 class GPXException(Exception):
-
-    def __init__(self, message):
-        Exception.__init__(self, message)
+    pass
 
 class GPXWaypoint(mod_geo.Location):
 	
@@ -252,7 +250,7 @@ class GPXRoutePoint(mod_geo.Location):
 
     def to_xml(self, version=None):
         content = ''
-        if self.elevation != None:
+        if self.elevation is not None:
             content += mod_utils.to_xml('ele', content=self.elevation)
         if self.time:
             content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
@@ -297,7 +295,8 @@ class GPXTrackPoint(mod_geo.Location):
     speed = None
 
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
-            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None):
+            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
+            links=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
 
         self.time = time
@@ -309,6 +308,8 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
 
         self.speed = speed
+
+        self.links = links if links is not None else []
 
     def remove_time(self):
         """ Will remove time metadata. """
@@ -335,6 +336,15 @@ class GPXTrackPoint(mod_geo.Location):
 
         if self.speed:
             content += mod_utils.to_xml('speed', content=self.speed)
+
+        for link in self.links:
+            link_content = ''
+            if link.text is not None:
+                link_content += mod_utils.to_xml('text', content=link.text)
+            if link.mime_type is not None:
+                link_content += mod_utils.to_xml('type', content=link.mime_type)
+            content += mod_utils.to_xml('link', attributes={'href':link.href},
+                                        content=link_content)
 
         return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
@@ -379,7 +389,7 @@ class GPXTrackPoint(mod_geo.Location):
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
-                'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed', 'links')
 
 class GPXTrack:
     name = None
@@ -1292,17 +1302,22 @@ class GPX:
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
 
-    def reduce_points(self, max_points_no, min_distance=None):
+    def reduce_points(self, max_points_no=None, min_distance=None):
         """
         Reduce this track to the desired number of points
         max_points = The maximum number of points after the reduction
         min_distance = The minimum distance between two points
         """
 
-        if not min_distance:
-            points_no = len(list(self.walk()))
-            if not max_points_no or points_no <= max_points_no:
-                return
+        if max_points_no is None and min_distance is None:
+            raise ValueError("Either max_point_no or min_distance must be supplied")
+
+        if max_points_no is not None and max_points_no < 2:
+            raise ValueError("max_points_no must be greater than or equal to 2")
+
+        points_no = len(list(self.walk()))
+        if max_points_no is not None and points_no <= max_points_no:
+            return
 
         length = self.length_3d()
 

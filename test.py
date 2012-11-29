@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function
+
 import pdb
 
 import unittest as mod_unittest
@@ -22,11 +24,16 @@ import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
+import io as mod_io
+import sys as mod_sys
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
+
+from gpxpy.portability import is_callable
+from gpxpy.utils import make_str
 
 def equals(object1, object2, ignore=None):
     """ Testing purposes only """
@@ -35,17 +42,17 @@ def equals(object1, object2, ignore=None):
         return True
 
     if not object1 or not object2:
-        print 'Not obj2'
+        print('Not obj2')
         return False
 
     if not object1.__class__ == object2.__class__:
-        print 'Not obj1'
+        print('Not obj1')
         return False
 
     attributes = []
     for attr in dir(object1):
         if not ignore or not attr in ignore:
-            if not callable(getattr(object1, attr)) and not attr.startswith('_'):
+            if not is_callable(getattr(object1, attr)) and not attr.startswith('_'):
                 if not attr in attributes:
                     attributes.append(attr)
 
@@ -59,11 +66,11 @@ def equals(object1, object2, ignore=None):
         if not attr1 and not attr2:
             return True
         if not attr1 or not attr2:
-            print 'Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2)
+            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
             return False
 
         if not equals(attr1, attr2):
-            print 'Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2)
+            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
             return None
 
     return True
@@ -72,14 +79,17 @@ def equals(object1, object2, ignore=None):
 
 class Tests(mod_unittest.TestCase):
 
-    def __parse(self, file):
-        f = open('test_files/%s' % file)
+    def __parse(self, file, encoding=None):
+        if encoding is None:
+            encoding = mod_sys.getdefaultencoding()
+
+        f = mod_io.open('test_files/%s' % file, 'r', encoding=encoding)
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
         if not gpx:
-            print 'Parser error: %s' % parser.get_error()
+            print('Parser error: %s' % parser.get_error())
 
         return gpx
 		
@@ -90,7 +100,7 @@ class Tests(mod_unittest.TestCase):
         gpx = parser.parse()
 
         if not gpx:
-            print 'Parser error while reparsing: %s' % parser.get_error()
+            print('Parser error while reparsing: %s' % parser.get_error())
 
         return gpx
 
@@ -102,8 +112,8 @@ class Tests(mod_unittest.TestCase):
         try:
             mod_gpxpy.parse('<gpx></gpx')
             self.fail()
-        except mod_gpx.GPXException, e:
-            self.assertTrue('unclosed token: line 1, column 5' in e.message)
+        except mod_gpx.GPXException as e:
+            self.assertTrue('unclosed token: line 1, column 5' in str(e))
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
@@ -157,11 +167,11 @@ class Tests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[3].has_times())
 
     def test_unicode(self):
-        gpx = self.__parse('unicode.gpx')
+        gpx = self.__parse('unicode.gpx', encoding='utf8')
 
         name = gpx.waypoints[0].name
 
-        self.assertTrue(name.encode('utf-8') == 'šđčćž')
+        self.assertTrue(make_str(name) == 'šđčćž')
 
     def test_nearest_location_1(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -213,11 +223,11 @@ class Tests(mod_unittest.TestCase):
         parser.parse()
         time_reduced = mod_time.time() - started
 
-        print time_original
-        print points_original
+        print(time_original)
+        print(points_original)
 
-        print time_reduced
-        print points_reduced
+        print(time_reduced)
+        print(points_reduced)
 
         self.assertTrue(time_reduced < time_original)
         self.assertTrue(points_reduced < points_original)
@@ -240,11 +250,11 @@ class Tests(mod_unittest.TestCase):
         cloned_gpx.smooth(vertical=True, horizontal=True)
         cloned_gpx.smooth(vertical=True, horizontal=False)
 
-        print '2d:', gpx.length_2d()
-        print '2d cloned and smoothed:', cloned_gpx.length_2d()
+        print('2d:', gpx.length_2d())
+        print('2d cloned and smoothed:', cloned_gpx.length_2d())
 
-        print '3d:', gpx.length_3d()
-        print '3d cloned and smoothed:', cloned_gpx.length_3d()
+        print('3d:', gpx.length_3d())
+        print('3d cloned and smoothed:', cloned_gpx.length_3d())
 
         self.assertTrue(gpx.length_3d() == original_3d)
         self.assertTrue(gpx.length_2d() == original_2d)
@@ -259,11 +269,11 @@ class Tests(mod_unittest.TestCase):
         for point, track_no, segment_no, point_no in gpx.walk():
             if point_no > 0:
                 previous_point = gpx.tracks[track_no].segments[segment_no].points[point_no - 1]
-                print point.distance_3d(previous_point)
+                print(point.distance_3d(previous_point))
                 if point.distance_3d(previous_point) < min_distance_before_reduce:
                     min_distance_before_reduce = point.distance_3d(previous_point)
 
-        gpx.reduce_points(100000, min_distance=10)
+        gpx.reduce_points(min_distance=10)
 
         min_distance_after_reduce = 1000000
         for point, track_no, segment_no, point_no in gpx.walk():
@@ -283,14 +293,14 @@ class Tests(mod_unittest.TestCase):
         gpx = parser.parse()
         f.close()
 
-        print gpx.get_track_points_no()
+        print(gpx.get_track_points_no())
 
         #gpx.reduce_points(1000, min_distance=5)
 
-        print gpx.get_track_points_no()
+        print(gpx.get_track_points_no())
 
         length = gpx.length_3d()
-        print 'Distance: %s' % length
+        print('Distance: %s' % length)
 
         gpx.reduce_points(2000, min_distance=10)
 
@@ -298,18 +308,18 @@ class Tests(mod_unittest.TestCase):
         gpx.smooth(vertical=True, horizontal=False)
 
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_treshold=0.1)
-        print '-----'
-        print 'Length: %s' % length
-        print 'Moving time: %s (%smin)' % (moving_time, moving_time / 60.)
-        print 'Stopped time: %s (%smin)' % (stopped_time, stopped_time / 60.)
-        print 'Moving distance: %s' % moving_distance
-        print 'Stopped distance: %s' % stopped_distance
-        print 'Max speed: %sm/s' % max_speed
-        print '-----'
+        print('-----')
+        print('Length: %s' % length)
+        print('Moving time: %s (%smin)' % (moving_time, moving_time / 60.))
+        print('Stopped time: %s (%smin)' % (stopped_time, stopped_time / 60.))
+        print('Moving distance: %s' % moving_distance)
+        print('Stopped distance: %s' % stopped_distance)
+        print('Max speed: %sm/s' % max_speed)
+        print('-----')
 
         # TODO: More tests and checks
         self.assertTrue(moving_distance < length)
-        print 'Dakle:', moving_distance, length
+        print('Dakle:', moving_distance, length)
         self.assertTrue(moving_distance > 0.75 * length)
         self.assertTrue(stopped_distance < 0.1 * length)
 
@@ -342,7 +352,7 @@ class Tests(mod_unittest.TestCase):
         after = len(track.segments)
 
         self.assertTrue(before + 1 == after)
-        print 'Points in first (splitted) part:', len(track.segments[0].points)
+        print('Points in first (splitted) part:', len(track.segments[0].points))
 
         # From 0 to 10th point == 11 points:
         self.assertTrue(len(track.segments[0].points) == 11)
@@ -386,8 +396,8 @@ class Tests(mod_unittest.TestCase):
         original_segment = segment.clone()
 
         segment.remove_point(3)
-        print segment.points[0]
-        print original_segment.points[0]
+        print(segment.points[0])
+        print(original_segment.points[0])
         self.assertTrue(equals(segment.points[0], original_segment.points[0]))
         self.assertTrue(equals(segment.points[1], original_segment.points[1]))
         self.assertTrue(equals(segment.points[2], original_segment.points[2]))
@@ -398,7 +408,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_distance(self):
         distance = mod_geo.distance(48.56806,21.43467, None, 48.599214,21.430878, None)
-        print distance
+        print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
     def test_horizontal_smooth_remove_extreemes(self):
@@ -412,8 +422,8 @@ class Tests(mod_unittest.TestCase):
         gpx.smooth(vertical=False, horizontal=True, remove_extreemes=True)
         points_after = gpx.get_track_points_no()
 
-        print points_before
-        print points_after
+        print(points_before)
+        print(points_after)
 
         self.assertTrue(points_before - 2 == points_after)
 
@@ -428,8 +438,8 @@ class Tests(mod_unittest.TestCase):
         gpx.smooth(vertical=True, horizontal=False, remove_extreemes=True)
         points_after = gpx.get_track_points_no()
 
-        print points_before
-        print points_after
+        print(points_before)
+        print(points_after)
 
 
         self.assertTrue(points_before - 1 == points_after)
@@ -445,8 +455,8 @@ class Tests(mod_unittest.TestCase):
         gpx.smooth(vertical=True, horizontal=True, remove_extreemes=True)
         points_after = gpx.get_track_points_no()
 
-        print points_before
-        print points_after
+        print(points_before)
+        print(points_after)
 
         self.assertTrue(points_before - 3 == points_after)
 
@@ -505,7 +515,7 @@ class Tests(mod_unittest.TestCase):
 
         result = gpx.get_nearest_locations(location_to_find_on_track)
 
-        print 'Found', result
+        print('Found', result)
 
         self.assertTrue(len(result) == 2)
 
@@ -515,15 +525,15 @@ class Tests(mod_unittest.TestCase):
 
         self.assertTrue(hash(location_1) == hash(location_2))
 
-        location_2.elevation *= 2
-        location_2.latitude *= 2
-        location_2.longitude *= 2
+        location_2.elevation *= 2.0
+        location_2.latitude *= 2.0
+        location_2.longitude *= 2.0
 
         self.assertTrue(hash(location_1) != hash(location_2))
 
-        location_2.elevation /= 2
-        location_2.latitude /= 2
-        location_2.longitude /= 2
+        location_2.elevation /= 2.0
+        location_2.latitude /= 2.0
+        location_2.longitude /= 2.0
 
         self.assertTrue(hash(location_1) == hash(location_2))
 
@@ -533,15 +543,15 @@ class Tests(mod_unittest.TestCase):
 
         self.assertTrue(hash(point_1) == hash(point_2))
 
-        point_2.elevation *= 2
-        point_2.latitude *= 2
-        point_2.longitude *= 2
+        point_2.elevation *= 2.0
+        point_2.latitude *= 2.0
+        point_2.longitude *= 2.0
 
         self.assertTrue(hash(point_1) != hash(point_2))
 
-        point_2.elevation /= 2
-        point_2.latitude /= 2
-        point_2.longitude /= 2
+        point_2.elevation /= 2.0
+        point_2.latitude /= 2.0
+        point_2.longitude /= 2.0
 
         self.assertTrue(hash(point_1) == hash(point_2))
 
@@ -700,8 +710,8 @@ class Tests(mod_unittest.TestCase):
 
         bounds = gpx.get_bounds()
 
-        print latitudes
-        print longitudes
+        print(latitudes)
+        print(longitudes)
 
         self.assertEquals(bounds.min_latitude, min(latitudes))
         self.assertEquals(bounds.max_latitude, max(latitudes))
@@ -809,7 +819,7 @@ class Tests(mod_unittest.TestCase):
         self.assertTrue(gpx.length_2d() != gpx.length_3d())
 
     def test_walk_route_points(self):
-        gpx = mod_gpxpy.parse(file('test_files/route.gpx'))
+        gpx = mod_gpxpy.parse(open('test_files/route.gpx'))
 
         for point in gpx.routes[0].walk(only_points=True):
             self.assertTrue(point)
@@ -938,4 +948,3 @@ class Tests(mod_unittest.TestCase):
 
 if __name__ == '__main__':
     mod_unittest.main()
-als

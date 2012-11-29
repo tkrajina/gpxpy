@@ -15,7 +15,8 @@
 # limitations under the License.
 
 import math as mod_math
-import utils as mod_utils
+
+from . import utils as mod_utils
 
 # Generic geo related function and class(es)
 

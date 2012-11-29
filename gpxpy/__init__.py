@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import gpx as mod_gpx
-import parser as mod_parser
+from . import gpx as mod_gpx
+from . import parser as mod_parser
 
 def parse(xml_or_file):
     """ Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
