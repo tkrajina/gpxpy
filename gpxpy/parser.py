@@ -316,9 +316,26 @@ class GPXParser(AbstractXMLParser):
         speed_node = mod_utils.find_first_node(node, 'speed')
         speed = mod_utils.to_number(self.get_node_data(speed_node))
 
+        link_nodes = mod_utils.find_nodes(node, 'link')
+        links = [self.__parse_link(link) for link in link_nodes]
+
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
                 symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop, speed=speed)
+                position_dilution=pdop, speed=speed, links=links)
+
+
+    def __parse_link(self, node):
+        href = node.attribute['href'].nodeValue if has_key(node.attributes, 'href') else None
+
+        text_node = mod_utils.find_first_node(node, 'text')
+        text = self.get_node_data(text_node)
+
+        type_node = mod_utils.find_first_node(node, 'type')
+        mime_type = self.get_node_data(type_node)
+
+        return mod_gpx.LinkData(href=href, text=text, mime_type=mime_type)
+
+
 
 class KMLParser(AbstractXMLParser):
     """
