@@ -64,6 +64,15 @@ def find_first_node(node, child_node_name):
             return child_node
     return None
 
+def find_nodes(node, child_node_name):
+    if not node or not child_node_name:
+        return
+    child_nodes = node.childNodes
+    for child_node in child_nodes:
+        if child_node.nodeName == child_node_name:
+            yield child_node
+
+
 # Hash utilities:
 
 def __hash(obj):

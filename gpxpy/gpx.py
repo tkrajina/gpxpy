@@ -58,6 +58,9 @@ NearestLocationData = mod_collections.namedtuple(
 PointData = mod_collections.namedtuple(
         'PointData',
         ('point', 'distance_from_start', 'track_no', 'segment_no', 'point_no'))
+LinkData = mod_collections.namedtuple(
+        'LinkData',
+        ('href', 'text', 'mime_type'))
 
 class GPXException(Exception):
     pass
@@ -292,7 +295,8 @@ class GPXTrackPoint(mod_geo.Location):
     speed = None
 
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
-            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None):
+            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
+            links=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
 
         self.time = time
@@ -304,6 +308,8 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
 
         self.speed = speed
+
+        self.links = links if links is not None else []
 
     def remove_time(self):
         """ Will remove time metadata. """
@@ -330,6 +336,15 @@ class GPXTrackPoint(mod_geo.Location):
 
         if self.speed:
             content += mod_utils.to_xml('speed', content=self.speed)
+
+        for link in self.links:
+            link_content = ''
+            if link.text is not None:
+                link_content += mod_utils.to_xml('text', content=link.text)
+            if link.mime_type is not None:
+                link_content += mod_utils.to_xml('type', content=link.mime_type)
+            content += mod_utils.to_xml('link', attributes={'href':link.href},
+                                        content=link_content)
 
         return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
@@ -374,7 +389,7 @@ class GPXTrackPoint(mod_geo.Location):
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
-                'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed', 'links')
 
 class GPXTrack:
     name = None
