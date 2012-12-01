@@ -30,6 +30,9 @@ import utils as mod_utils
 import re as mod_re
 
 class XMLParser:
+    """
+    Used when lxml is not available. Ises standard minidom.
+    """
 
     dom = None
     xml = None
@@ -83,6 +86,9 @@ class XMLParser:
         return None
 
 class LXMLParser:
+    """
+    Used when lxml is available. 
+    """
 
     xml = None
     dom = None
@@ -149,14 +155,19 @@ def parse_time(string):
             return None
 
 
-class AbstractXMLParser:
-    """ Common methods used in GPXParser and KMLParser """
+class GPXParser:
 
     gpx = None
     xml = None
-
     valid = None
     error = None
+
+    xml_parser = None
+
+    def __init__(self, xml_or_file=None):
+        self.init(xml_or_file)
+
+        self.gpx = mod_gpx.GPX()
 
     def init(self, xml_or_file):
         if hasattr(xml_or_file, 'read'):
@@ -180,17 +191,6 @@ class AbstractXMLParser:
 
     def get_gpx(self):
         return self.gpx
-
-
-class GPXParser(AbstractXMLParser):
-
-    xml_parser = None
-    gpx = None
-
-    def __init__(self, xml_or_file=None):
-        self.init(xml_or_file)
-
-        self.gpx = mod_gpx.GPX()
 
     def parse(self):
         try:
@@ -445,43 +445,6 @@ class GPXParser(AbstractXMLParser):
             symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
             position_dilution=pdop, speed=speed)
 
-
-
-class KMLParser(AbstractXMLParser):
-    """
-    Generic KML parser. Note that KML is a very generic format with much more than simple GPS tracks.
-
-    Since this library is meant for GPS tracks, this parser will try to parse only tracks and waypoints
-    from the KML file. Note, also, that KML doesn't know about routes.
-
-    The result is a GPX object.
-
-    NOTE THAT THIS IS AN EXPERIMENTAL FEATURE.
-
-    See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
-    """
-
-    gpx = None
-
-    def __init__(self, xml_or_file=None):
-        self.init(xml_or_file)
-
-    def parse(self):
-        try:
-            dom = mod_minidom.parseString(self.xml)
-            self.__parse_dom(dom)
-
-            return self.gpx
-        except Exception, e:
-            mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
-            mod_logging.exception(e)
-            self.error = str(e)
-
-            return None
-
-    def __parse_dom(self, xml):
-        # TODO
-        pass
 
 
 if __name__ == '__main__':
