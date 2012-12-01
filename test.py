@@ -938,4 +938,3 @@ class Tests(mod_unittest.TestCase):
 
 if __name__ == '__main__':
     mod_unittest.main()
-als
