@@ -18,9 +18,12 @@ import pdb
 
 import logging as mod_logging
 import datetime as mod_datetime
-
-# TODO
 import xml.dom.minidom as mod_minidom
+
+try:
+    import lxml.etree as mod_etree
+except:
+    pass # LXML not available
 
 import gpx as mod_gpx
 import utils as mod_utils
@@ -81,15 +84,54 @@ class XMLParser:
 
 class LXMLParser:
 
-    dom = None
     xml = None
+    dom = None
+    ns = None
 
     def __init__(self, xml):
         self.xml = xml
-        self.dom = etree.XML(xml)
+        self.dom = mod_etree.XML(xml)
         # get the namespace
-        self.ns = dom.nsmap.get(None)
+        self.ns = self.dom.nsmap.get(None)
 
+    def get_first_child(self, node=None, name=None):
+        if node is None:
+            if name:
+                if self.get_node_name(self.dom) == name:
+                    return self.dom
+            return self.dom
+
+        children = node.getchildren()
+
+        if not children:
+            return None
+
+        if name:
+            for node in children:
+                if self.get_node_name(node) == name:
+                    return node
+            return None
+
+        return children[0]
+
+    def get_node_name(self, node):
+        if '}' in node.tag:
+            return node.tag.split('}')[1]
+        return node.tag
+
+    def get_children(self, node=None):
+        if node is None:
+            node = self.dom
+        return node.getchildren()
+
+    def get_node_data(self, node):
+        if node is None:
+            return None
+
+        return node.text
+
+    def get_node_attribute(self, node, attribute):
+        return node.attrib.get(attribute)
 
 
 def parse_time(string):
@@ -152,7 +194,7 @@ class GPXParser(AbstractXMLParser):
 
     def parse(self):
         try:
-            self.xml_parser = XMLParser(self.xml)
+            self.xml_parser = LXMLParser(self.xml)
             self.__parse_dom()
 
             return self.gpx
