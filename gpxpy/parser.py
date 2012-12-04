@@ -164,10 +164,10 @@ class GPXParser:
     xml_parser_type = None
     xml_parser = None
 
-    def __init__(self, xml_or_file=None, parser='lxml'):
+    def __init__(self, xml_or_file=None, parser=None):
         """
-        Parser may be lxml of minidom. If you set to lxml and lxml is not installed, then
-        it will use minidom
+        Parser may be lxml of minidom. If you set to None then lxml will be used if installed
+        otherwise minidom.
         """
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
@@ -198,12 +198,13 @@ class GPXParser:
 
     def parse(self):
         try:
-            if self.xml_parser_type == 'lxml':
+            if self.xml_parser_type is None:
                 if mod_etree:
                     self.xml_parser = LXMLParser(self.xml)
                 else:
-                    mod_logging('lxml not available, using minidom')
                     self.xml_parser = XMLParser(self.xml)
+            if self.xml_parser_type == 'lxml':
+                self.xml_parser = LXMLParser(self.xml)
             elif self.xml_parser_type == 'minidom':
                 self.xml_parser = XMLParser(self.xml)
             else:
