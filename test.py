@@ -32,6 +32,7 @@ Run single test with:
 
 import pdb
 
+import logging as mod_logging
 import unittest as mod_unittest
 import time as mod_time
 import copy as mod_copy
@@ -49,6 +50,9 @@ import gpxpy.geo as mod_geo
 from gpxpy.utils import make_str
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
+
+mod_logging.basicConfig(level=mod_logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
 def equals(object1, object2, ignore=None):
     """ Testing purposes only """
