@@ -83,7 +83,7 @@ class XMLParser:
         return child_nodes[0].nodeValue
 
     def get_node_attribute(self, node, attribute):
-        if node.attributes.has_key(attribute):
+        if attribute in node.attributes.keys():
             return node.attributes[attribute].nodeValue
         return None
 
@@ -175,13 +175,8 @@ class GPXParser:
         self.xml_parser_type = parser
 
     def init(self, xml_or_file):
-        if hasattr(xml_or_file, 'read'):
-            self.xml = xml_or_file.read()
-        else:
-            if isinstance(xml_or_file, unicode):
-                self.xml = xml_or_file.encode('utf-8')
-            else:
-                self.xml = str(xml_or_file)
+        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
+        self.xml = mod_utils.make_str(text)
 
         self.valid = False
         self.error = None
