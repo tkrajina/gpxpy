@@ -181,7 +181,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[3].has_times())
 
     def test_unicode(self):
-        gpx = self.__parse('unicode.gpx', encoding='utf8')
+        gpx = self.__parse('unicode.gpx')
 
         name = gpx.waypoints[0].name
 

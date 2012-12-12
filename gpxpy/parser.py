@@ -16,6 +16,8 @@
 
 from __future__ import print_function
 
+import pdb
+
 import logging as mod_logging
 import datetime as mod_datetime
 import xml.dom.minidom as mod_minidom
@@ -81,7 +83,7 @@ class XMLParser:
         return child_nodes[0].nodeValue
 
     def get_node_attribute(self, node, attribute):
-        if attribute in node.attributes:
+        if node.attributes.has_key(attribute):
             return node.attributes[attribute].nodeValue
         return None
 
