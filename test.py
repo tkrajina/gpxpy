@@ -16,6 +16,20 @@
 
 from __future__ import print_function
 
+"""
+Run all tests with:
+    $ python -m unittest test
+
+Run minidom parser tests with:
+    $ python -m unittest test.MinidomTests
+
+Run lxml parser tests with:
+    $ python -m unittest test.LxmlTests
+
+Run single test with:
+    $ python -m unittest test.LxmlTests.test_method
+"""
+
 import pdb
 
 import unittest as mod_unittest
@@ -77,14 +91,14 @@ def equals(object1, object2, ignore=None):
 
 # TODO: Track segment speed in point test
 
-class Tests(mod_unittest.TestCase):
+class LxmlTests(mod_unittest.TestCase):
 
-    def __parse(self, file, encoding=None):
-        if encoding is None:
-            encoding = mod_sys.getdefaultencoding()
+    def get_parser_type(self):
+        return 'lxml'
 
-        f = mod_io.open('test_files/%s' % file, 'r', encoding=encoding)
-        parser = mod_parser.GPXParser(f)
+    def __parse(self, file):
+        f = open('test_files/%s' % file)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -96,7 +110,7 @@ class Tests(mod_unittest.TestCase):
     def __reparse(self, gpx):
         xml = gpx.to_xml()
 
-        parser = mod_parser.GPXParser(xml)
+        parser = mod_parser.GPXParser(xml, parser=self.get_parser_type())
         gpx = parser.parse()
 
         if not gpx:
@@ -113,7 +127,7 @@ class Tests(mod_unittest.TestCase):
             mod_gpxpy.parse('<gpx></gpx')
             self.fail()
         except mod_gpx.GPXException as e:
-            self.assertTrue('unclosed token: line 1, column 5' in str(e))
+            self.assertTrue(('unclosed token: line 1, column 5' in e.message) or ('expected \'>\'' in e.message))
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
@@ -200,7 +214,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -219,7 +233,7 @@ class Tests(mod_unittest.TestCase):
         result = result.encode('utf-8')
 
         started = mod_time.time()
-        parser = mod_parser.GPXParser(result)
+        parser = mod_parser.GPXParser(result, parser=self.get_parser_type())
         parser.parse()
         time_reduced = mod_time.time() - started
 
@@ -235,7 +249,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_clone_and_smooth(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -289,7 +303,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_moving_stopped_times(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -325,7 +339,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_split_on_impossible_index(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -339,7 +353,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_split(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -365,7 +379,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_split_and_join(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -387,7 +401,7 @@ class Tests(mod_unittest.TestCase):
 
     def test_remove_point_from_segment(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
 
@@ -414,7 +428,7 @@ class Tests(mod_unittest.TestCase):
     def test_horizontal_smooth_remove_extreemes(self):
         f = open('test_files/track-with-extreemes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
@@ -430,7 +444,7 @@ class Tests(mod_unittest.TestCase):
     def test_vertical_smooth_remove_extreemes(self):
         f = open('test_files/track-with-extreemes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
@@ -447,7 +461,7 @@ class Tests(mod_unittest.TestCase):
     def test_horizontal_and_vertical_smooth_remove_extreemes(self):
         f = open('test_files/track-with-extreemes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f)
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
@@ -945,6 +959,11 @@ class Tests(mod_unittest.TestCase):
         self.assertEquals(loc1.elevation_angle(loc2), mod_geo.elevation_angle(loc1, loc2))
         self.assertEquals(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
         self.assertEquals(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
+
+class MinidomTests(LxmlTests):
+
+    def get_parser_type(self):
+        return 'minidom'
 
 if __name__ == '__main__':
     mod_unittest.main()

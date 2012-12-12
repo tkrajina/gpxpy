@@ -21,10 +21,123 @@ import datetime as mod_datetime
 import xml.dom.minidom as mod_minidom
 import re as mod_re
 
+try:
+    import lxml.etree as mod_etree
+except:
+    pass # LXML not available
+
 from . import gpx as mod_gpx
 from . import utils as mod_utils
-from .portability import has_key
 
+class XMLParser:
+    """
+    Used when lxml is not available. Ises standard minidom.
+    """
+
+    dom = None
+    xml = None
+
+    def __init__(self, xml):
+        self.xml = xml
+        self.dom = mod_minidom.parseString(xml)
+
+    def get_first_child(self, node=None, name=None):
+        # TODO: Remove find_first_node from utils!
+        if not node:
+            node = self.dom
+
+        children = node.childNodes
+        if not children:
+            return None
+
+        if not name:
+            return children[0]
+
+        for tmp_node in children:
+            if tmp_node.nodeName == name:
+                return tmp_node
+
+        return None
+
+    def get_node_name(self, node):
+        if not node:
+            return None
+        return node.nodeName
+
+    def get_children(self, node=None):
+        if not node:
+            node = self.dom
+
+        return node.childNodes
+
+    def get_node_data(self, node):
+        if node is None:
+            return None
+
+        child_nodes = self.get_children(node)
+        if not child_nodes or len(child_nodes) == 0:
+            return None
+
+        return child_nodes[0].nodeValue
+
+    def get_node_attribute(self, node, attribute):
+        if attribute in node.attributes:
+            return node.attributes[attribute].nodeValue
+        return None
+
+class LXMLParser:
+    """
+    Used when lxml is available. 
+    """
+
+    xml = None
+    dom = None
+    ns = None
+
+    def __init__(self, xml):
+        self.xml = xml
+        self.dom = mod_etree.XML(xml)
+        # get the namespace
+        self.ns = self.dom.nsmap.get(None)
+
+    def get_first_child(self, node=None, name=None):
+        if node is None:
+            if name:
+                if self.get_node_name(self.dom) == name:
+                    return self.dom
+            return self.dom
+
+        children = node.getchildren()
+
+        if not children:
+            return None
+
+        if name:
+            for node in children:
+                if self.get_node_name(node) == name:
+                    return node
+            return None
+
+        return children[0]
+
+    def get_node_name(self, node):
+        if '}' in node.tag:
+            return node.tag.split('}')[1]
+        return node.tag
+
+    def get_children(self, node=None):
+        if node is None:
+            node = self.dom
+        return node.getchildren()
+
+    def get_node_data(self, node):
+        if node is None:
+            return None
+
+        return node.text
+
+    def get_node_attribute(self, node, attribute):
+        return node.attrib.get(attribute)
 
 def parse_time(string):
     if not string:
@@ -41,14 +154,32 @@ def parse_time(string):
             return None
 
 
+class GPXParser:
 
-class AbstractXMLParser:
-    """ Common methods used in GPXParser and KMLParser """
+    gpx = None
+    xml = None
+    valid = None
+    error = None
+    xml_parser_type = None
+    xml_parser = None
 
-    def __init__(self, xml):
+    def __init__(self, xml_or_file=None, parser=None):
+        """
+        Parser may be lxml of minidom. If you set to None then lxml will be used if installed
+        otherwise minidom.
+        """
+        self.init(xml_or_file)
+        self.gpx = mod_gpx.GPX()
+        self.xml_parser_type = parser
 
-        text = xml.read() if hasattr(xml, 'read') else xml
-        self.xml = mod_utils.make_str(text)
+    def init(self, xml_or_file):
+        if hasattr(xml_or_file, 'read'):
+            self.xml = xml_or_file.read()
+        else:
+            if isinstance(xml_or_file, unicode):
+                self.xml = xml_or_file.encode('utf-8')
+            else:
+                self.xml = str(xml_or_file)
 
         self.valid = False
         self.error = None
@@ -64,20 +195,21 @@ class AbstractXMLParser:
     def get_gpx(self):
         return self.gpx
 
-    def get_node_data(self, node):
-        if not node:
-            return None
-        child_nodes = node.childNodes
-        if not child_nodes or len(child_nodes) == 0:
-            return None
-        return child_nodes[0].data
-
-class GPXParser(AbstractXMLParser):
-
     def parse(self):
         try:
-            dom = mod_minidom.parseString(self.xml)
-            self.__parse_dom(dom)
+            if self.xml_parser_type is None:
+                if mod_etree:
+                    self.xml_parser = LXMLParser(self.xml)
+                else:
+                    self.xml_parser = XMLParser(self.xml)
+            if self.xml_parser_type == 'lxml':
+                self.xml_parser = LXMLParser(self.xml)
+            elif self.xml_parser_type == 'minidom':
+                self.xml_parser = XMLParser(self.xml)
+            else:
+                raise mod_gpx.GPXException('Invalit parser type: %s' % self.xml_parser_type)
+
+            self.__parse_dom()
 
             return self.gpx
         except Exception as e:
@@ -87,36 +219,31 @@ class GPXParser(AbstractXMLParser):
 
             return None
 
-    def __parse_dom(self, dom):
-        root_nodes = dom.childNodes
+    def __parse_dom(self):
 
-        root_node = None
+        node = self.xml_parser.get_first_child(name='gpx')
+        if not node:
+            raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
-        for node in root_nodes:
-            if not root_node:
-                node_name = node.nodeName
-                if node_name == 'gpx':
-                    root_node = node
-
-        for node in root_node.childNodes:
-            node_name = node.nodeName
+        for node in self.xml_parser.get_children(node):
+            node_name = self.xml_parser.get_node_name(node)
             if node_name == 'time':
-                time_str = self.get_node_data(node)
+                time_str = self.xml_parser.get_node_data(node)
                 self.gpx.time = parse_time(time_str)
             elif node_name == 'name':
-                self.gpx.name = self.get_node_data(node)
+                self.gpx.name = self.xml_parser.get_node_data(node)
             elif node_name == 'desc':
-                self.gpx.description = self.get_node_data(node)
+                self.gpx.description = self.xml_parser.get_node_data(node)
             elif node_name == 'author':
-                self.gpx.author = self.get_node_data(node)
+                self.gpx.author = self.xml_parser.get_node_data(node)
             elif node_name == 'email':
-                self.gpx.email = self.get_node_data(node)
+                self.gpx.email = self.xml_parser.get_node_data(node)
             elif node_name == 'url':
-                self.gpx.url = self.get_node_data(node)
+                self.gpx.url = self.xml_parser.get_node_data(node)
             elif node_name == 'urlname':
-                self.gpx.urlname = self.get_node_data(node)
+                self.gpx.urlname = self.xml_parser.get_node_data(node)
             elif node_name == 'keywords':
-                self.gpx.keywords = self.get_node_data(node)
+                self.gpx.keywords = self.xml_parser.get_node_data(node)
             elif node_name == 'bounds':
                 self._parse_bounds(node)
             elif node_name == 'wpt':
@@ -132,151 +259,162 @@ class GPXParser(AbstractXMLParser):
         self.valid = True
 
     def _parse_bounds(self, node):
-        if has_key(node.attributes, 'minlat'):
-            self.gpx.min_latitude = mod_utils.to_number(node.attributes['minlat'].nodeValue)
-        if has_key(node.attributes, 'maxlat'):
-            self.gpx.min_latitude = mod_utils.to_number(node.attributes['maxlat'].nodeValue)
-        if has_key(node.attributes, 'minlon'):
-            self.gpx.min_longitude = mod_utils.to_number(node.attributes['minlon'].nodeValue)
-        if has_key(node.attributes, 'maxlon'):
-            self.gpx.min_longitude = mod_utils.to_number(node.attributes['maxlon'].nodeValue)
+        minlat = self.xml_parser.get_node_attribute(node, 'minlat')
+        if minlat:
+            self.gpx.min_latitude = mod_utils.to_number(minlat)
+
+        maxlat = self.xml_parser.get_node_attribute(node, 'maxlat')
+        if maxlat:
+            self.gpx.min_latitude = mod_utils.to_number(maxlat)
+
+        minlon = self.xml_parser.get_node_attribute(node, 'minlon')
+        if minlon:
+            self.gpx.min_longitude = mod_utils.to_number(minlon)
+
+        maxlon = self.xml_parser.get_node_attribute(node, 'maxlon')
+        if maxlon:
+            self.gpx.min_longitude = mod_utils.to_number(maxlon)
 
     def _parse_waypoint(self, node):
-        if not has_key(node.attributes, 'lat'):
+        lat = self.xml_parser.get_node_attribute(node, 'lat')
+        if not lat:
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not has_key(node.attributes, 'lon'):
+
+        lon = self.xml_parser.get_node_attribute(node, 'lon')
+        if not lon:
             raise mod_gpx.GPXException('Waypoint without longitude')
 
-        lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
-        lon = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        lat = mod_utils.to_number(lat)
+        lon = mod_utils.to_number(lon)
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
-        elevation = mod_utils.to_number(self.get_node_data(elevation_node), 0)
+        elevation_node = self.xml_parser.get_first_child(node, 'ele')
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), 0)
 
-        time_node = mod_utils.find_first_node(node, 'time')
-        time_str = self.get_node_data(time_node)
+        time_node = self.xml_parser.get_first_child(node, 'time')
+        time_str = self.xml_parser.get_node_data(time_node)
         time = parse_time(time_str)
 
-        name_node = mod_utils.find_first_node(node, 'name')
-        name = self.get_node_data(name_node)
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
 
-        desc_node = mod_utils.find_first_node(node, 'desc')
-        desc = self.get_node_data(desc_node)
+        desc_node = self.xml_parser.get_first_child(node, 'desc')
+        desc = self.xml_parser.get_node_data(desc_node)
 
-        sym_node = mod_utils.find_first_node(node, 'sym')
-        sym = self.get_node_data(sym_node)
+        sym_node = self.xml_parser.get_first_child(node, 'sym')
+        sym = self.xml_parser.get_node_data(sym_node)
 
-        type_node = mod_utils.find_first_node(node, 'type')
-        type = self.get_node_data(type_node)
+        type_node = self.xml_parser.get_first_child(node, 'type')
+        type = self.xml_parser.get_node_data(type_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
-        comment = self.get_node_data(comment_node)
-		
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
-        hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
-        vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
-        pdop = mod_utils.to_number(self.get_node_data(pdop_node))
-		
-        return mod_gpx.GPXWaypoint(latitude=lat, longitude=lon, elevation=elevation, 
-                        time=time, name=name, description=desc, symbol=sym, 
-                        type=type, comment=comment, horizontal_dilution=hdop,
-                        vertical_dilution=vdop, position_dilution=pdop)
+        comment_node = self.xml_parser.get_first_child(node, 'cmt')
+        comment = self.xml_parser.get_node_data(comment_node)
+
+        hdop_node = self.xml_parser.get_first_child(node, 'hdop')
+        hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
+
+        vdop_node = self.xml_parser.get_first_child(node, 'vdop')
+        vdop = mod_utils.to_number(self.xml_parser.get_node_data(vdop_node))
+
+        pdop_node = self.xml_parser.get_first_child(node, 'pdop')
+        pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
+
+        return mod_gpx.GPXWaypoint(latitude=lat, longitude=lon, elevation=elevation,
+            time=time, name=name, description=desc, symbol=sym,
+            type=type, comment=comment, horizontal_dilution=hdop,
+            vertical_dilution=vdop, position_dilution=pdop)
 
     def _parse_route(self, node):
-        name_node = mod_utils.find_first_node(node, 'name')
-        name = self.get_node_data(name_node)
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
 
-        description_node = mod_utils.find_first_node(node, 'desc')
-        description = self.get_node_data(description_node)
+        description_node = self.xml_parser.get_first_child(node, 'desc')
+        description = self.xml_parser.get_node_data(description_node)
 
-        number_node = mod_utils.find_first_node(node, 'number')
-        number = mod_utils.to_number(self.get_node_data(number_node))
+        number_node = self.xml_parser.get_first_child(node, 'number')
+        number = mod_utils.to_number(self.xml_parser.get_node_data(number_node))
 
         route = mod_gpx.GPXRoute(name, description, number)
 
-        child_nodes = node.childNodes
+        child_nodes = self.xml_parser.get_children(node)
         for child_node in child_nodes:
-            node_name = child_node.nodeName
-            if node_name == 'rtept':
+            if self.xml_parser.get_node_name(child_node) == 'rtept':
                 route_point = self._parse_route_point(child_node)
                 route.points.append(route_point)
 
         return route
 
     def _parse_route_point(self, node):
-        if not has_key(node.attributes, 'lat'):
+        lat = self.xml_parser.get_node_attribute(node, 'lat')
+        if not lat:
             raise mod_gpx.GPXException('Waypoint without latitude')
-        if not has_key(node.attributes, 'lon'):
+
+        lon = self.xml_parser.get_node_attribute(node, 'lon')
+        if not lon:
             raise mod_gpx.GPXException('Waypoint without longitude')
 
-        lat = mod_utils.to_number(node.attributes['lat'].nodeValue)
-        lon = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        lat = mod_utils.to_number(lat)
+        lon = mod_utils.to_number(lon)
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
-        elevation = mod_utils.to_number(self.get_node_data(elevation_node), 0)
+        elevation_node = self.xml_parser.get_first_child(node, 'ele')
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), 0)
 
-        time_node = mod_utils.find_first_node(node, 'time')
-        time_str = self.get_node_data(time_node)
+        time_node = self.xml_parser.get_first_child(node, 'time')
+        time_str = self.xml_parser.get_node_data(time_node)
         time = parse_time(time_str)
 
-        name_node = mod_utils.find_first_node(node, 'name')
-        name = self.get_node_data(name_node)
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
 
-        desc_node = mod_utils.find_first_node(node, 'desc')
-        desc = self.get_node_data(desc_node)
+        desc_node = self.xml_parser.get_first_child(node, 'desc')
+        desc = self.xml_parser.get_node_data(desc_node)
 
-        sym_node = mod_utils.find_first_node(node, 'sym')
-        sym = self.get_node_data(sym_node)
+        sym_node = self.xml_parser.get_first_child(node, 'sym')
+        sym = self.xml_parser.get_node_data(sym_node)
 
-        type_node = mod_utils.find_first_node(node, 'type')
-        type = self.get_node_data(type_node)
+        type_node = self.xml_parser.get_first_child(node, 'type')
+        type = self.xml_parser.get_node_data(type_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
-        comment = self.get_node_data(comment_node)
+        comment_node = self.xml_parser.get_first_child(node, 'cmt')
+        comment = self.xml_parser.get_node_data(comment_node)
 
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
-        hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
-        vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
-        pdop = mod_utils.to_number(self.get_node_data(pdop_node))
+        hdop_node = self.xml_parser.get_first_child(node, 'hdop')
+        hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
+
+        vdop_node = self.xml_parser.get_first_child(node, 'vdop')
+        vdop = mod_utils.to_number(self.xml_parser.get_node_data(vdop_node))
+
+        pdop_node = self.xml_parser.get_first_child(node, 'pdop')
+        pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
 
         return mod_gpx.GPXRoutePoint(lat, lon, elevation, time, name, desc, sym, type, comment,
-                horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
+            horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
 
     def __parse_track(self, node):
-        name_node = mod_utils.find_first_node(node, 'name')
-        name = self.get_node_data(name_node)
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
 
-        description_node = mod_utils.find_first_node(node, 'desc')
-        description = self.get_node_data(description_node)
+        description_node = self.xml_parser.get_first_child(node, 'desc')
+        description = self.xml_parser.get_node_data(description_node)
 
-        number_node = mod_utils.find_first_node(node, 'number')
-        number = mod_utils.to_number(self.get_node_data(number_node))
+        number_node = self.xml_parser.get_first_child(node, 'number')
+        number = mod_utils.to_number(self.xml_parser.get_node_data(number_node))
 
         track = mod_gpx.GPXTrack(name, description, number)
 
-        child_nodes = node.childNodes
+        child_nodes = self.xml_parser.get_children(node)
         for child_node in child_nodes:
-            if child_node.nodeName == 'trkseg':
+            if self.xml_parser.get_node_name(child_node) == 'trkseg':
                 track_segment = self.__parse_track_segment(child_node)
-
                 track.segments.append(track_segment)
 
         return track
 
     def __parse_track_segment(self, node):
         track_segment = mod_gpx.GPXTrackSegment()
-        child_nodes = node.childNodes
+        child_nodes = self.xml_parser.get_children(node)
         n = 0
         for child_node in child_nodes:
-            if child_node.nodeName == 'trkpt':
+            if self.xml_parser.get_node_name(child_node) == 'trkpt':
                 track_point = self.__parse_track_point(child_node)
                 track_segment.points.append(track_point)
                 n += 1
@@ -284,72 +422,44 @@ class GPXParser(AbstractXMLParser):
         return track_segment
 
     def __parse_track_point(self, node):
-        latitude = None
-        if has_key(node.attributes, 'lat'):
-            latitude = mod_utils.to_number(node.attributes['lat'].nodeValue)
+        latitude = self.xml_parser.get_node_attribute(node, 'lat')
+        if latitude:
+            latitude = mod_utils.to_number(latitude)
 
-        longitude = None
-        if has_key(node.attributes, 'lon'):
-            longitude = mod_utils.to_number(node.attributes['lon'].nodeValue)
+        longitude = self.xml_parser.get_node_attribute(node, 'lon')
+        if longitude:
+            longitude = mod_utils.to_number(longitude)
 
-        time_node = mod_utils.find_first_node(node, 'time')
-        time = parse_time(self.get_node_data(time_node))
+        time_node = self.xml_parser.get_first_child(node, 'time')
+        time_str = self.xml_parser.get_node_data(time_node)
+        time = parse_time(time_str)
 
-        elevation_node = mod_utils.find_first_node(node, 'ele')
-        elevation = mod_utils.to_number(self.get_node_data(elevation_node))
+        elevation_node = self.xml_parser.get_first_child(node, 'ele')
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), 0)
 
-        symbol_node = mod_utils.find_first_node(node, 'sym')
-        symbol = self.get_node_data(symbol_node)
+        sym_node = self.xml_parser.get_first_child(node, 'sym')
+        symbol = self.xml_parser.get_node_data(sym_node)
 
-        comment_node = mod_utils.find_first_node(node, 'cmt')
-        comment = self.get_node_data(comment_node)
+        comment_node = self.xml_parser.get_first_child(node, 'cmt')
+        comment = self.xml_parser.get_node_data(comment_node)
 
-        hdop_node = mod_utils.find_first_node(node, 'hdop')
-        hdop = mod_utils.to_number(self.get_node_data(hdop_node))
-		
-        vdop_node = mod_utils.find_first_node(node, 'vdop')
-        vdop = mod_utils.to_number(self.get_node_data(vdop_node))
-		
-        pdop_node = mod_utils.find_first_node(node, 'pdop')
-        pdop = mod_utils.to_number(self.get_node_data(pdop_node))
+        hdop_node = self.xml_parser.get_first_child(node, 'hdop')
+        hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
 
-        speed_node = mod_utils.find_first_node(node, 'speed')
-        speed = mod_utils.to_number(self.get_node_data(speed_node))
+        vdop_node = self.xml_parser.get_first_child(node, 'vdop')
+        vdop = mod_utils.to_number(self.xml_parser.get_node_data(vdop_node))
+
+        pdop_node = self.xml_parser.get_first_child(node, 'pdop')
+        pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
+
+        speed_node = self.xml_parser.get_first_child(node, 'speed')
+        speed = mod_utils.to_number(self.xml_parser.get_node_data(speed_node))
 
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
-                symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop, 
-                position_dilution=pdop, speed=speed)
+            symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
+            position_dilution=pdop, speed=speed)
 
-class KMLParser(AbstractXMLParser):
-    """
-    Generic KML parser. Note that KML is a very generic format with much more than simple GPS tracks.
 
-    Since this library is meant for GPS tracks, this parser will try to parse only tracks and waypoints
-    from the KML file. Note, also, that KML doesn't know about routes.
-
-    The result is a GPX object.
-
-    NOTE THAT THIS IS AN EXPERIMENTAL FEATURE.
-
-    See http://code.google.com/apis/kml/documentation/kmlreference.html for more details.
-    """
-
-    def parse(self):
-        try:
-            dom = mod_minidom.parseString(self.xml)
-            self.__parse_dom(dom)
-
-            return self.gpx
-        except Exception as e:
-            mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
-            mod_logging.exception(e)
-            self.error = str(e)
-
-            return None
-	
-    def __parse_dom(self, xml):
-        # TODO
-        pass
 
 if __name__ == '__main__':
 
@@ -378,5 +488,3 @@ if __name__ == '__main__':
             print(route.name)
     else:
         print('error: %s' % parser.get_error())
-
-
