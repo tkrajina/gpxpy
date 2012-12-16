@@ -17,3 +17,5 @@ Time and geo bounds methods based on Yakov Istomin fork ( https://github.com/Val
 Lxml library based on Isaev Igor fork ( https://github.com/itoldya )
 
 ===============================================================================
+
+Python3 compatibility from Robert Smallshire  ( https://github.com/rob-smallshire )
