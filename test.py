@@ -120,11 +120,11 @@ class LxmlTests(mod_unittest.TestCase):
 
     def test_simple_parse_function(self):
         # Must not throw any exception:
-        mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx'))
+        mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx'), parser=self.get_parser_type())
 
     def test_simple_parse_function_invalid_xml(self):
         try:
-            mod_gpxpy.parse('<gpx></gpx')
+            mod_gpxpy.parse('<gpx></gpx', parser=self.get_parser_type())
             self.fail()
         except mod_gpx.GPXException as e:
             self.assertTrue(('unclosed token: line 1, column 5' in e.message) or ('expected \'>\'' in e.message))
@@ -277,7 +277,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(gpx.length_2d() > cloned_gpx.length_2d())
 		
     def test_reduce_by_min_distance(self):
-        gpx = mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'))
+        gpx = mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser=self.get_parser_type())
 
         min_distance_before_reduce = 1000000
         for point, track_no, segment_no, point_no in gpx.walk():
