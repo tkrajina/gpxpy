@@ -205,12 +205,12 @@ class GPXParser:
                     self.xml_parser = LXMLParser(self.xml)
                 else:
                     self.xml_parser = XMLParser(self.xml)
-            if self.xml_parser_type == 'lxml':
+            elif self.xml_parser_type == 'lxml':
                 self.xml_parser = LXMLParser(self.xml)
             elif self.xml_parser_type == 'minidom':
                 self.xml_parser = XMLParser(self.xml)
             else:
-                raise mod_gpx.GPXException('Invalit parser type: %s' % self.xml_parser_type)
+                raise mod_gpx.GPXException('Invalid parser type: %s' % self.xml_parser_type)
 
             self.__parse_dom()
 
