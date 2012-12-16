@@ -59,6 +59,38 @@ Usage
 
     print 'Created GPX:', gpx.to_xml()
 
+XML parsing
+-----------
+
+If lxml is available, then it will be used for XML parsing.
+Otherwise minidom is used.
+Note that lxml is 2-3 times faster so, if you can choose -- use it :)
+
+Pull requests
+-------------
+
+OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with python 2.6+ and python 3+.
+
+Run all tests with:
+
+    $ python -m unittest test
+    $ python3 -m unittest test
+
+Run only minidom parser tests with:
+
+    $ python -m unittest test.MinidomTests
+    $ python3 -m unittest test.MinidomTests
+
+Run only lxml parser tests with:
+
+    $ python -m unittest test.LxmlTests
+    $ python3 -m unittest test.LxmlTests
+
+Run a single test with:
+
+    $ python -m unittest test.LxmlTests.test_method
+    $ python3 -m unittest test.LxmlTests.test_method
+
 GPX Version:
 ------------
 
