@@ -628,18 +628,18 @@ class LxmlTests(mod_unittest.TestCase):
 
         bounds = gpx.get_bounds()
 
-        self.assertEquals(bounds.min_latitude, -100)
-        self.assertEquals(bounds.max_latitude, 100)
-        self.assertEquals(bounds.min_longitude, -100)
-        self.assertEquals(bounds.max_longitude, 100)
+        self.assertEqual(bounds.min_latitude, -100)
+        self.assertEqual(bounds.max_latitude, 100)
+        self.assertEqual(bounds.min_longitude, -100)
+        self.assertEqual(bounds.max_longitude, 100)
 
         # Test refresh bounds:
 
         gpx.refresh_bounds()
-        self.assertEquals(gpx.min_latitude, -100)
-        self.assertEquals(gpx.max_latitude, 100)
-        self.assertEquals(gpx.min_longitude, -100)
-        self.assertEquals(gpx.max_longitude, 100)
+        self.assertEqual(gpx.min_latitude, -100)
+        self.assertEqual(gpx.max_latitude, 100)
+        self.assertEqual(gpx.min_longitude, -100)
+        self.assertEqual(gpx.max_longitude, 100)
 
     def test_time_bounds(self):
         gpx = mod_gpx.GPX()
@@ -662,8 +662,8 @@ class LxmlTests(mod_unittest.TestCase):
 
         bounds = gpx.get_time_bounds()
 
-        self.assertEquals(bounds.start_time, mod_datetime.datetime(2001, 1, 12))
-        self.assertEquals(bounds.end_time, mod_datetime.datetime(2011, 1, 12))
+        self.assertEqual(bounds.start_time, mod_datetime.datetime(2001, 1, 12))
+        self.assertEqual(bounds.end_time, mod_datetime.datetime(2011, 1, 12))
 
     def test_speed(self):
         gpx = self.__parse('track_with_speed.gpx')
@@ -674,9 +674,9 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
 
-        self.assertEquals(gpx.tracks[0].segments[0].points[0].speed, 1.2)
-        self.assertEquals(gpx.tracks[0].segments[0].points[1].speed, 2.2)
-        self.assertEquals(gpx.tracks[0].segments[0].points[2].speed, 3.2)
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].speed, 1.2)
+        self.assertEqual(gpx.tracks[0].segments[0].points[1].speed, 2.2)
+        self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
     def test_dilutions(self):
         gpx = self.__parse('track_with_dilution_errors.gpx')
@@ -727,17 +727,17 @@ class LxmlTests(mod_unittest.TestCase):
         print(latitudes)
         print(longitudes)
 
-        self.assertEquals(bounds.min_latitude, min(latitudes))
-        self.assertEquals(bounds.max_latitude, max(latitudes))
-        self.assertEquals(bounds.min_longitude, min(longitudes))
-        self.assertEquals(bounds.max_longitude, max(longitudes))
+        self.assertEqual(bounds.min_latitude, min(latitudes))
+        self.assertEqual(bounds.max_latitude, max(latitudes))
+        self.assertEqual(bounds.min_longitude, min(longitudes))
+        self.assertEqual(bounds.max_longitude, max(longitudes))
 
         gpx.refresh_bounds()
 
-        self.assertEquals(gpx.min_latitude, min(latitudes))
-        self.assertEquals(gpx.max_latitude, max(latitudes))
-        self.assertEquals(gpx.min_longitude, min(longitudes))
-        self.assertEquals(gpx.max_longitude, max(longitudes))
+        self.assertEqual(gpx.min_latitude, min(latitudes))
+        self.assertEqual(gpx.max_latitude, max(latitudes))
+        self.assertEqual(gpx.min_longitude, min(longitudes))
+        self.assertEqual(gpx.max_longitude, max(longitudes))
 
     def test_named_tuples_values_bounds(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -745,10 +745,10 @@ class LxmlTests(mod_unittest.TestCase):
         bounds = gpx.get_bounds()
         min_lat, max_lat, min_lon, max_lon=gpx.get_bounds()
 
-        self.assertEquals(min_lat, bounds.min_latitude)
-        self.assertEquals(min_lon, bounds.min_longitude)
-        self.assertEquals(max_lat, bounds.max_latitude)
-        self.assertEquals(max_lon, bounds.max_longitude)
+        self.assertEqual(min_lat, bounds.min_latitude)
+        self.assertEqual(min_lon, bounds.min_longitude)
+        self.assertEqual(max_lat, bounds.max_latitude)
+        self.assertEqual(max_lon, bounds.max_longitude)
 
     def test_named_tuples_values_time_bounds(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -756,35 +756,35 @@ class LxmlTests(mod_unittest.TestCase):
         time_bounds = gpx.get_time_bounds()
         start_time, end_time = gpx.get_time_bounds()
 
-        self.assertEquals(start_time, time_bounds.start_time)
-        self.assertEquals(end_time, time_bounds.end_time)
+        self.assertEqual(start_time, time_bounds.start_time)
+        self.assertEqual(end_time, time_bounds.end_time)
 
     def test_named_tuples_values_moving_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')
 
         moving_data = gpx.get_moving_data()
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed=gpx.get_moving_data()
-        self.assertEquals(moving_time, moving_data.moving_time)
-        self.assertEquals(stopped_time, moving_data.stopped_time)
-        self.assertEquals(moving_distance, moving_data.moving_distance)
-        self.assertEquals(stopped_distance, moving_data.stopped_distance)
-        self.assertEquals(max_speed, moving_data.max_speed)
+        self.assertEqual(moving_time, moving_data.moving_time)
+        self.assertEqual(stopped_time, moving_data.stopped_time)
+        self.assertEqual(moving_distance, moving_data.moving_distance)
+        self.assertEqual(stopped_distance, moving_data.stopped_distance)
+        self.assertEqual(max_speed, moving_data.max_speed)
 
     def test_named_tuples_values_uphill_downhill(self):
         gpx = self.__parse('korita-zbevnica.gpx')
 
         uphill_downhill = gpx.get_uphill_downhill()
         uphill, downhill = gpx.get_uphill_downhill()
-        self.assertEquals(uphill, uphill_downhill.uphill)
-        self.assertEquals(downhill, uphill_downhill.downhill)
+        self.assertEqual(uphill, uphill_downhill.uphill)
+        self.assertEqual(downhill, uphill_downhill.downhill)
 
     def test_named_tuples_values_elevation_extreemes(self):
         gpx = self.__parse('korita-zbevnica.gpx')
 
         elevation_extreemes = gpx.get_elevation_extremes()
         minimum, maximum = gpx.get_elevation_extremes()
-        self.assertEquals(minimum, elevation_extreemes.minimum)
-        self.assertEquals(maximum, elevation_extreemes.maximum)
+        self.assertEqual(minimum, elevation_extreemes.minimum)
+        self.assertEqual(maximum, elevation_extreemes.maximum)
 
     def test_named_tuples_values_nearest_location_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -794,10 +794,10 @@ class LxmlTests(mod_unittest.TestCase):
         location.longitude *= 0.99999
         nearest_location_data = gpx.get_nearest_location(location)
         found_location, track_no, segment_no, point_no=gpx.get_nearest_location(location)
-        self.assertEquals(found_location, nearest_location_data.location)
-        self.assertEquals(track_no, nearest_location_data.track_no)
-        self.assertEquals(segment_no, nearest_location_data.segment_no)
-        self.assertEquals(point_no, nearest_location_data.point_no)
+        self.assertEqual(found_location, nearest_location_data.location)
+        self.assertEqual(track_no, nearest_location_data.track_no)
+        self.assertEqual(segment_no, nearest_location_data.segment_no)
+        self.assertEqual(point_no, nearest_location_data.point_no)
 
     def test_named_tuples_values_point_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -806,11 +806,11 @@ class LxmlTests(mod_unittest.TestCase):
 
         for point_data in points_datas:
             point, distance_from_start, track_no, segment_no, point_no=point_data
-            self.assertEquals(point, point_data.point)
-            self.assertEquals(distance_from_start, point_data.distance_from_start)
-            self.assertEquals(track_no, point_data.track_no)
-            self.assertEquals(segment_no, point_data.segment_no)
-            self.assertEquals(point_no, point_data.point_no)
+            self.assertEqual(point, point_data.point)
+            self.assertEqual(distance_from_start, point_data.distance_from_start)
+            self.assertEqual(track_no, point_data.track_no)
+            self.assertEqual(segment_no, point_data.segment_no)
+            self.assertEqual(point_no, point_data.point_no)
 
     def test_track_points_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -818,22 +818,22 @@ class LxmlTests(mod_unittest.TestCase):
         points_data_2d = gpx.get_points_data(distance_2d=True)
 
         point, distance_from_start, track_no, segment_no, point_no=points_data_2d[-1]
-        self.assertEquals(track_no, len(gpx.tracks) - 1)
-        self.assertEquals(segment_no, len(gpx.tracks[-1].segments) - 1)
-        self.assertEquals(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
+        self.assertEqual(track_no, len(gpx.tracks) - 1)
+        self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
+        self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
         self.assertTrue(abs(distance_from_start - gpx.length_2d()) < 0.0001)
 
         points_data_3d = gpx.get_points_data(distance_2d=False)
         point, distance_from_start, track_no, segment_no, point_no=points_data_3d[-1]
-        self.assertEquals(track_no, len(gpx.tracks) - 1)
-        self.assertEquals(segment_no, len(gpx.tracks[-1].segments) - 1)
-        self.assertEquals(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
+        self.assertEqual(track_no, len(gpx.tracks) - 1)
+        self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
+        self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
         self.assertTrue(abs(distance_from_start - gpx.length_3d()) < 0.0001)
 
         self.assertTrue(gpx.length_2d() != gpx.length_3d())
 
     def test_walk_route_points(self):
-        gpx = mod_gpxpy.parse(open('test_files/route.gpx'))
+        gpx = mod_gpxpy.parse(open('test_files/route.gpx'), parser=self.get_parser_type())
 
         for point in gpx.routes[0].walk(only_points=True):
             self.assertTrue(point)
@@ -841,7 +841,7 @@ class LxmlTests(mod_unittest.TestCase):
         for point, point_no in gpx.routes[0].walk():
             self.assertTrue(point)
 
-        self.assertEquals(point_no, len(gpx.routes[0].points) - 1)
+        self.assertEqual(point_no, len(gpx.routes[0].points) - 1)
 
     def test_walk_gpx_points(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -852,9 +852,9 @@ class LxmlTests(mod_unittest.TestCase):
         for point, track_no, segment_no, point_no in gpx.walk():
             self.assertTrue(point)
 
-        self.assertEquals(track_no, len(gpx.tracks) - 1)
-        self.assertEquals(segment_no, len(gpx.tracks[-1].segments) - 1)
-        self.assertEquals(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
+        self.assertEqual(track_no, len(gpx.tracks) - 1)
+        self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
+        self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
 
     def test_walk_gpx_points(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -866,8 +866,8 @@ class LxmlTests(mod_unittest.TestCase):
         for point, segment_no, point_no in track.walk():
             self.assertTrue(point)
 
-        self.assertEquals(segment_no, len(track.segments) - 1)
-        self.assertEquals(point_no, len(track.segments[-1].points) - 1)
+        self.assertEqual(segment_no, len(track.segments) - 1)
+        self.assertEqual(point_no, len(track.segments[-1].points) - 1)
 
     def test_walk_segment_points(self):
         gpx = self.__parse('korita-zbevnica.gpx')
@@ -883,8 +883,8 @@ class LxmlTests(mod_unittest.TestCase):
         for point, segment_no, point_no in track.walk():
             self.assertTrue(point)
 
-        self.assertEquals(segment_no, len(track.segments) - 1)
-        self.assertEquals(point_no, len(track.segments[-1].points) - 1)
+        self.assertEqual(segment_no, len(track.segments) - 1)
+        self.assertEqual(point_no, len(track.segments[-1].points) - 1)
         """
 
     def test_angle_0(self):
@@ -897,8 +897,8 @@ class LxmlTests(mod_unittest.TestCase):
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
 
-        self.assertEquals(angle_radians, 0)
-        self.assertEquals(angle_degrees, 0)
+        self.assertEqual(angle_radians, 0)
+        self.assertEqual(angle_degrees, 0)
 
     def test_angle(self):
         loc1 = mod_geo.Location(0, 0)
@@ -910,8 +910,8 @@ class LxmlTests(mod_unittest.TestCase):
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
 
-        self.assertEquals(angle_radians, mod_math.pi / 4)
-        self.assertEquals(angle_degrees, 45)
+        self.assertEqual(angle_radians, mod_math.pi / 4)
+        self.assertEqual(angle_degrees, 45)
 
     def test_angle_2(self):
         loc1 = mod_geo.Location(45, 45)
@@ -949,16 +949,16 @@ class LxmlTests(mod_unittest.TestCase):
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
 
-        self.assertEquals(angle_radians, - mod_math.pi / 4)
-        self.assertEquals(angle_degrees, - 45)
+        self.assertEqual(angle_radians, - mod_math.pi / 4)
+        self.assertEqual(angle_degrees, - 45)
 
     def test_angle_loc(self):
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
-        self.assertEquals(loc1.elevation_angle(loc2), mod_geo.elevation_angle(loc1, loc2))
-        self.assertEquals(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
-        self.assertEquals(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
+        self.assertEqual(loc1.elevation_angle(loc2), mod_geo.elevation_angle(loc1, loc2))
+        self.assertEqual(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
+        self.assertEqual(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
 
 class MinidomTests(LxmlTests):
 
