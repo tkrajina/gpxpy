@@ -127,7 +127,7 @@ class LxmlTests(mod_unittest.TestCase):
             mod_gpxpy.parse('<gpx></gpx', parser=self.get_parser_type())
             self.fail()
         except mod_gpx.GPXException as e:
-            self.assertTrue(('unclosed token: line 1, column 5' in e.message) or ('expected \'>\'' in e.message))
+            self.assertTrue(('unclosed token: line 1, column 5' in str(e)) or ('expected \'>\'' in str(e)))
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
