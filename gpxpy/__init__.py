@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import gpx as mod_gpx
-from . import parser as mod_parser
-
 def parse(xml_or_file, parser='lxml'):
     """ Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
+
+    from . import gpx as mod_gpx
+    from . import parser as mod_parser
 
     parser = mod_parser.GPXParser(xml_or_file, parser=parser)
 
