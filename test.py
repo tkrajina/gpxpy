@@ -46,7 +46,6 @@ import gpxpy.gpx as mod_gpx
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
 
-from gpxpy.portability import is_callable
 from gpxpy.utils import make_str
 
 def equals(object1, object2, ignore=None):
@@ -66,7 +65,7 @@ def equals(object1, object2, ignore=None):
     attributes = []
     for attr in dir(object1):
         if not ignore or not attr in ignore:
-            if not is_callable(getattr(object1, attr)) and not attr.startswith('_'):
+            if not hasattr(object1, '__call__') and not attr.startswith('_'):
                 if not attr in attributes:
                     attributes.append(attr)
 
