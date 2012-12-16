@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
+import sys as mod_sys
 import xml.sax.saxutils as mod_saxutils
-from gpxpy.portability import has_unicode_type
+
+PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
 def to_xml(tag, attributes={}, content=None, default=None, escape=False):
     result = '\n<%s' % tag
@@ -87,9 +88,8 @@ def hash_object(obj, *attributes):
 
 
 def make_str(s):
-    """Convert a str or unicode object into a str type.
-    """
-    if has_unicode_type():
+    """ Convert a str or unicode object into a str type. """
+    if PYTHON_VERSION[0] == '2':
         if isinstance(s, unicode):
             return s.encode("utf-8")
     return str(s)

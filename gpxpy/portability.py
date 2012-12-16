@@ -11,16 +11,3 @@ except NameError:
     # Python 3
     def is_string(s):
         return isinstance(s, str)
-
-try:
-    # Python 2
-    #noinspection PyCompatibility
-    unicode()
-
-    def has_unicode_type():
-        return True
-
-except NameError:
-    # Python 3
-    def has_unicode_type():
-        return False

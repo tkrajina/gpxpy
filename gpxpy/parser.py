@@ -19,12 +19,9 @@ from __future__ import print_function
 import pdb
 
 import re as mod_re
-import sys as mod_sys
 import logging as mod_logging
 import datetime as mod_datetime
 import xml.dom.minidom as mod_minidom
-
-PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
 try:
     import lxml.etree as mod_etree
@@ -100,7 +97,7 @@ class LXMLParser:
     ns = None
 
     def __init__(self, xml):
-        if PYTHON_VERSION[0] == '3':
+        if mod_utils.PYTHON_VERSION[0] == '3':
             # In python 3 all strings are unicode and for some reason lxml 
             # don't like unicode strings with XMLs declared as UTF-8:
             self.xml = xml.encode('utf-8')
