@@ -23,7 +23,8 @@ from . import utils as mod_utils
 # One degree in meters:
 ONE_DEGREE = 1000. * 10000.8 / 90.
 
-def length(locations=[], _3d=None):
+def length(locations=None, _3d=None):
+    locations = locations or []
     if not locations:
         return 0
     length = 0
@@ -42,12 +43,14 @@ def length(locations=[], _3d=None):
                 length += d
     return length
 
-def length_2d(locations=[]):
+def length_2d(locations=None):
     """ 2-dimensional length of locations (only latitude and longitude, no elevation """
+    locations = locations or []
     return length(locations, False)
 
-def length_3d(locations=[]):
+def length_3d(locations):
     """ 3-dimensional length of locations (is uses latitude, longitude and elevation). """
+    locations = locations or []
     return length(locations, True)
 
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
