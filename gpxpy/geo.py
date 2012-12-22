@@ -48,7 +48,7 @@ def length_2d(locations=None):
     locations = locations or []
     return length(locations, False)
 
-def length_3d(locations):
+def length_3d(locations=None):
     """ 3-dimensional length of locations (is uses latitude, longitude and elevation). """
     locations = locations or []
     return length(locations, True)
