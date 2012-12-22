@@ -102,7 +102,7 @@ class GPXWaypoint(mod_geo.Location):
 
     def to_xml(self, version=None):
         content = ''
-        if self.elevation != None:
+        if self.elevation is not None:
             content += mod_utils.to_xml('ele', content=self.elevation)
         if self.time:
             content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
@@ -280,7 +280,7 @@ class GPXTrackPoint(mod_geo.Location):
     def to_xml(self, version=None):
         content = ''
 
-        if self.elevation != None:
+        if self.elevation is not None:
             content += mod_utils.to_xml('ele', content=self.elevation)
         if self.time:
             content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
@@ -960,7 +960,7 @@ class GPXTrackSegment:
                 distances.append(self.points[i].distance_2d(self.points[i - 1]))
                 elevation_1 = self.points[i].elevation
                 elevation_2 = self.points[i - 1].elevation
-                if elevation_1 != None and elevation_2 != None:
+                if elevation_1 is not None and elevation_2 is not None:
                     elevations_delta.append(abs(elevation_1 - elevation_2))
             if distances:
                 avg_distance = 1.0 * sum(distances) / len(distances)
@@ -1443,7 +1443,7 @@ class GPX:
                     segment_no_candidate = segment_no
                     point_no_candidate = point_no
             else:
-                if distance_from_start_candidate != None:
+                if distance_from_start_candidate is not None:
                     result.append((distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
                 min_distance_candidate = None
                 distance_from_start_candidate = None
@@ -1451,7 +1451,7 @@ class GPX:
                 segment_no_candidate = None
                 point_no_candidate = None
 
-        if distance_from_start_candidate != None:
+        if distance_from_start_candidate is not None:
             result.append(NearestLocationData(distance_from_start_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
 
         return result

@@ -146,7 +146,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.elevation != None)
+            self.assertTrue(point.elevation is not None)
 
         gpx.remove_elevation(tracks=True, waypoints=True, routes=True)
 
@@ -161,7 +161,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.time != None)
+            self.assertTrue(point.time is not None)
 
         gpx.remove_time()
 
