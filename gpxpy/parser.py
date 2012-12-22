@@ -152,12 +152,12 @@ def parse_time(string):
         return None
     try:
         return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-    except Exception as e:
+    except ValueError as e:
         if mod_re.match('^.*\.\d+Z$', string):
             string = mod_re.sub('\.\d+Z', 'Z', string)
         try:
             return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-        except Exception as e:
+        except ValueError as e:
             mod_logging.error('Invalid timestemp %s' % string)
             return None
 
