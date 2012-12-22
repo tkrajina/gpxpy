@@ -259,20 +259,6 @@ class GPXRoutePoint(mod_geo.Location):
 
 class GPXTrackPoint(mod_geo.Location):
 
-    time = None
-    symbol = None
-    comment = None
-
-    # Horizontal dilution of precision
-    horizontal_dilution = None
-    # Vertical dilution of precision
-    vertical_dilution = None
-    # Position dilution of precision
-    position_dilution = None
-
-    # The value specified in the GPX file. Use speed_between() for a computed value:
-    speed = None
-
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
@@ -281,9 +267,9 @@ class GPXTrackPoint(mod_geo.Location):
         self.symbol = symbol
         self.comment = comment
 
-        self.horizontal_dilution = horizontal_dilution
-        self.vertical_dilution = vertical_dilution
-        self.position_dilution = position_dilution
+        self.horizontal_dilution = horizontal_dilution # Horizontal dilution of precision
+        self.vertical_dilution = vertical_dilution     # Vertical dilution of precision
+        self.position_dilution = position_dilution     # Position dilution of precision
 
         self.speed = speed
 
