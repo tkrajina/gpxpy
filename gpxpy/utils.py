@@ -54,10 +54,15 @@ def is_numeric(object):
     except ValueError:
         return False
 
-def to_number(str, default=0):
-    if not str:
-        return None
-    return float(str)
+def to_number(s, default=0):
+    try:
+        return float(s)
+    except TypeError:
+        pass
+    except ValueError:
+        pass
+    return default
+
 
 # Hash utilities:
 
