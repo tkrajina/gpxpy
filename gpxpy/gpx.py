@@ -706,7 +706,6 @@ class GPXTrackSegment:
 
         max_speed = 0.
 
-        previous = None
         for i in range(1, len(self.points)):
 
             previous = self.points[i - 1]
