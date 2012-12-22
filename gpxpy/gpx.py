@@ -1203,7 +1203,7 @@ class GPX:
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed_ms = cloned_gpx.get_moving_data
         max_speed_kmh = max_speed_ms * 60. ** 2 / 1000.
 
-        Do experiment with your own variatins before you get the values you expect.
+        Experiment with your own variations to get the values you expect.
 
         Max speed is in m/s. 
         """
