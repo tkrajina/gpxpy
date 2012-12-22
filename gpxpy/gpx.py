@@ -629,7 +629,7 @@ class GPXTrack:
                     result_track_segment_no = i
                     result_track_point_no = track_point_no
 
-        return (result, result_track_segment_no, result_track_point_no)
+        return result, result_track_segment_no, result_track_point_no
 
     def clone(self):
         return mod_copy.deepcopy(self)
