@@ -48,6 +48,8 @@ import gpxpy.geo as mod_geo
 
 from gpxpy.utils import make_str
 
+PYTHON_VERSION = mod_sys.version.split(' ')[0]
+
 def equals(object1, object2, ignore=None):
     """ Testing purposes only """
 
@@ -95,8 +97,12 @@ class LxmlTests(mod_unittest.TestCase):
     def get_parser_type(self):
         return 'lxml'
 
-    def __parse(self, file):
-        f = open('test_files/%s' % file)
+    def __parse(self, file, encoding=None):
+        if PYTHON_VERSION[0] == '3':
+            f = open('test_files/%s' % file, encoding=encoding)
+        else:
+            f = open('test_files/%s' % file)
+
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse()
         f.close()
@@ -180,7 +186,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[3].has_times())
 
     def test_unicode(self):
-        gpx = self.__parse('unicode.gpx')
+        gpx = self.__parse('unicode.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
