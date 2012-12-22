@@ -914,7 +914,7 @@ class GPXTrackSegment:
     def get_nearest_location(self, location):
         """ Return the (location, track_point_no) on this track segment """
         if not self.points:
-            return (None, None)
+            return None, None
 
         result = None
         current_distance = None
