@@ -139,12 +139,6 @@ class GPXWaypoint(mod_geo.Location):
 
 class GPXRoute:
 
-    name = None
-    description = None
-    number = None
-
-    points = []
-
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
