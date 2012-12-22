@@ -19,7 +19,8 @@ import xml.sax.saxutils as mod_saxutils
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
-def to_xml(tag, attributes={}, content=None, default=None, escape=False):
+def to_xml(tag, attributes=None, content=None, default=None, escape=False):
+    attributes = attributes or {}
     result = '\n<%s' % tag
 
     if not content and default:
