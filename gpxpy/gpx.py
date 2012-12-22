@@ -36,7 +36,7 @@ SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 
 # When computing stopped time -- this is the minimum speed between two points,
 # if speed is less than this value -- we'll assume it is zero
-DEFAULT_STOPPED_SPEED_TRESHOLD = 1
+DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
 # When possible, the result of various methods are named tuples defined here:
 Bounds = mod_collections.namedtuple(
@@ -736,7 +736,7 @@ class GPXTrackSegment:
 
     def get_moving_data(self, stopped_speed_treshold=None):
         if not stopped_speed_treshold:
-            stopped_speed_treshold = DEFAULT_STOPPED_SPEED_TRESHOLD
+            stopped_speed_treshold = DEFAULT_STOPPED_SPEED_THRESHOLD
 
         moving_time = 0.
         stopped_time = 0.
