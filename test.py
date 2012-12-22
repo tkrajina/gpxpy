@@ -38,7 +38,6 @@ import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
-import io as mod_io
 import sys as mod_sys
 
 import gpxpy as mod_gpxpy
