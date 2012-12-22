@@ -1077,23 +1077,6 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 class GPX:
-    time = None
-    name = None
-    description = None
-    author = None
-    email = None
-    url = None
-    urlname = None
-    keywords = None
-
-    waypoints = []
-    routes = []
-    tracks = []
-
-    min_latitude = None
-    max_latitude = None
-    min_longitude = None
-    max_longitude = None
 
     def __init__(self, waypoints=None, routes=None, tracks=None):
         self.time = None
