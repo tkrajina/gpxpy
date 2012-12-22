@@ -430,15 +430,15 @@ class LxmlTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
-    def test_horizontal_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_horizontal_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=False, horizontal=True, remove_extreemes=True)
+        gpx.smooth(vertical=False, horizontal=True, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -446,15 +446,15 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 2 == points_after)
 
-    def test_vertical_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_vertical_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=True, horizontal=False, remove_extreemes=True)
+        gpx.smooth(vertical=True, horizontal=False, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -463,15 +463,15 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 1 == points_after)
 
-    def test_horizontal_and_vertical_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_horizontal_and_vertical_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=True, horizontal=True, remove_extreemes=True)
+        gpx.smooth(vertical=True, horizontal=True, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -783,13 +783,13 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(uphill, uphill_downhill.uphill)
         self.assertEqual(downhill, uphill_downhill.downhill)
 
-    def test_named_tuples_values_elevation_extreemes(self):
+    def test_named_tuples_values_elevation_extremes(self):
         gpx = self.__parse('korita-zbevnica.gpx')
 
-        elevation_extreemes = gpx.get_elevation_extremes()
+        elevation_extremes = gpx.get_elevation_extremes()
         minimum, maximum = gpx.get_elevation_extremes()
-        self.assertEqual(minimum, elevation_extreemes.minimum)
-        self.assertEqual(maximum, elevation_extreemes.maximum)
+        self.assertEqual(minimum, elevation_extremes.minimum)
+        self.assertEqual(maximum, elevation_extremes.maximum)
 
     def test_named_tuples_values_nearest_location_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')

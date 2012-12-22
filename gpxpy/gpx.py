@@ -589,10 +589,10 @@ class GPXTrack:
 
         return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
 
-    def smooth(self, vertical=True, horizontal=False, remove_extreemes=False):
+    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         """ See: GPXTrackSegment.smooth() """
         for track_segment in self.segments:
-            track_segment.smooth(vertical, horizontal, remove_extreemes)
+            track_segment.smooth(vertical, horizontal, remove_extremes)
 
     def has_times(self):
         """ See GPXTrackSegment.has_times() """
@@ -934,7 +934,7 @@ class GPXTrackSegment:
 
         return (result, result_track_point_no)
 
-    def smooth(self, vertical=True, horizontal=False, remove_extreemes=False):
+    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         """ "Smooths" the elevation graph. Can be called multiple times. """
         if len(self.points) <= 3:
             return
@@ -948,11 +948,11 @@ class GPXTrackSegment:
             latitudes.append(point.latitude)
             longitudes.append(point.longitude)
 
-        remove_elevation_extreemes_treshold = 1000
+        remove_elevation_extremes_treshold = 1000
 
         avg_distance = 0
         avg_elevation_delta = 1
-        if remove_extreemes:
+        if remove_extremes:
             # compute the average distance between two points:
             distances = []
             elevations_delta = []
@@ -970,8 +970,8 @@ class GPXTrackSegment:
         # If The point moved more than this number * the average distance between two
         # points -- then is a candidate for deletion:
         # TODO: Make this a method parameter
-        remove_2d_extreemes_treshold = 1.75 * avg_distance
-        remove_elevation_extreemes_treshold = avg_elevation_delta * 5 # TODO: Param
+        remove_2d_extremes_treshold = 1.75 * avg_distance
+        remove_elevation_extremes_treshold = avg_elevation_delta * 5 # TODO: Param
 
         new_track_points = [self.points[0]]
 
@@ -984,18 +984,18 @@ class GPXTrackSegment:
                         SMOOTHING_RATIO[1] * elevations[i] + \
                         SMOOTHING_RATIO[2] * elevations[i + 1]
 
-                if not remove_extreemes:
+                if not remove_extremes:
                     self.points[i].elevation = new_elevation
 
-                if remove_extreemes:
+                if remove_extremes:
                     # The point must be enough distant to *both* neighbours:
                     d1 = abs(old_elevation - elevations[i - 1])
                     d2 = abs(old_elevation - elevations[i + 1])
-                    #print d1, d2, remove_2d_extreemes_treshold
+                    #print d1, d2, remove_2d_extremes_treshold
 
-                    # TODO: Remove extreemes treshold is meant only for 2D, elevation must be
+                    # TODO: Remove extremes treshold is meant only for 2D, elevation must be
                     # computed in different way!
-                    if min(d1, d2) < remove_elevation_extreemes_treshold and abs(old_elevation - new_elevation) < remove_2d_extreemes_treshold:
+                    if min(d1, d2) < remove_elevation_extremes_treshold and abs(old_elevation - new_elevation) < remove_2d_extremes_treshold:
                         new_point = self.points[i]
                     else:
                         #print 'removed elevation'
@@ -1013,7 +1013,7 @@ class GPXTrackSegment:
                         SMOOTHING_RATIO[1] * longitudes[i] + \
                         SMOOTHING_RATIO[2] * longitudes[i + 1]
 				
-                if not remove_extreemes:
+                if not remove_extremes:
                     self.points[i].latitude = new_latitude
                     self.points[i].longitude = new_longitude
 
@@ -1024,12 +1024,12 @@ class GPXTrackSegment:
                 d2 = mod_geo.distance(latitudes[i + 1], longitudes[i + 1], None, latitudes[i], longitudes[i], None)
                 d = mod_geo.distance(latitudes[i - 1], longitudes[i - 1], None, latitudes[i + 1], longitudes[i + 1], None)
 
-                #print d1, d2, d, remove_extreemes
+                #print d1, d2, d, remove_extremes
 
-                if d1 + d2 > d * 1.5 and remove_extreemes:
+                if d1 + d2 > d * 1.5 and remove_extremes:
                     d = mod_geo.distance(old_latitude, old_longitude, None, new_latitude, new_longitude, None)
-                    #print "d, treshold = ", d, remove_2d_extreemes_treshold
-                    if d < remove_2d_extreemes_treshold:
+                    #print "d, treshold = ", d, remove_2d_extremes_treshold
+                    if d < remove_2d_extremes_treshold:
                         new_point = self.points[i]
                     else:
                         #print 'removed 2d'
@@ -1171,10 +1171,10 @@ class GPX:
         self.min_longitude = bounds.min_longitude
         self.max_longitude = bounds.max_longitude
 
-    def smooth(self, vertical=True, horizontal=False, remove_extreemes=False):
+    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         """ See GPXTrackSegment.smooth(...) """
         for track in self.tracks:
-            track.smooth(vertical=vertical, horizontal=horizontal, remove_extreemes=remove_extreemes)
+            track.smooth(vertical=vertical, horizontal=horizontal, remove_extremes=remove_extremes)
 
     def remove_empty(self):
         """ Removes segments, routes """
@@ -1540,9 +1540,9 @@ class GPX:
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + mod_utils.to_xml('gpx', attributes=xml_attributes, content=content).strip()
 
-    def smooth(self, vertical=True, horizontal=False, remove_extreemes=False):
+    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         for track in self.tracks:
-            track.smooth(vertical, horizontal, remove_extreemes)
+            track.smooth(vertical, horizontal, remove_extremes)
 
     def has_times(self):
         """ See GPXTrackSegment.has_times() """
