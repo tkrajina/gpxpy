@@ -931,7 +931,7 @@ class GPXTrackSegment:
                     result = track_point
                     result_track_point_no = i
 
-        return (result, result_track_point_no)
+        return result, result_track_point_no
 
     def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         """ "Smooths" the elevation graph. Can be called multiple times. """
