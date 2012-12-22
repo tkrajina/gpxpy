@@ -638,7 +638,6 @@ class GPXTrack:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
 
 class GPXTrackSegment:
-    points = None
 
     def __init__(self, points=None):
         self.points = points if points else []
