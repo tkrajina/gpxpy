@@ -212,20 +212,6 @@ class GPXRoute:
 
 class GPXRoutePoint(mod_geo.Location):
 
-    time = None
-    name = None
-    description = None
-    symbol = None
-    type = None
-    comment = None
-
-    # Horizontal dilution of precision
-    horizontal_dilution = None
-    # Vertical dilution of precision
-    vertical_dilution = None
-    # Position dilution of precision
-    position_dilution = None
-
     def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
             description=None, symbol=None, type=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None,
@@ -240,9 +226,9 @@ class GPXRoutePoint(mod_geo.Location):
         self.type = type
         self.comment = comment
 
-        self.horizontal_dilution = horizontal_dilution
-        self.vertical_dilution = vertical_dilution
-        self.position_dilution = position_dilution
+        self.horizontal_dilution = horizontal_dilution # Horizontal dilution of precision
+        self.vertical_dilution = vertical_dilution     # Vertical dilution of precision
+        self.position_dilution = position_dilution     # Position dilution of precision
 
     def __str__(self):
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
