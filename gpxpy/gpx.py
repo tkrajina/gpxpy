@@ -302,7 +302,7 @@ class GPXTrackPoint(mod_geo.Location):
         return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
     def time_difference(self, track_point):
-        """ Time distance in seconds beween times fo those two points """
+        """ Time distance in seconds between times of those two points """
         if not self.time or not track_point or not track_point.time:
             return None
 		
