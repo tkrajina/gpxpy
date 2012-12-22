@@ -679,7 +679,7 @@ class GPXTrackSegment:
         Returns a list with two GPXTrackSegments """
         part_1 = self.points[: point_no + 1]
         part_2 = self.points[point_no + 1 :]
-        return (GPXTrackSegment(part_1), GPXTrackSegment(part_2))
+        return GPXTrackSegment(part_1), GPXTrackSegment(part_2)
 
     def join(self, track_segment):
         """ Joins with another segment """
