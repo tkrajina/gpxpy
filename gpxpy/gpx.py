@@ -1016,7 +1016,7 @@ class GPXTrackSegment:
 
                 # TODO: This is not ideal.. Because if there are points A, B and C on the same
                 # line but B is very close to C... This would remove B (and possibly) A even though
-                # it is not an extreeme. This is the reason for this algorithm:
+                # it is not an extreme. This is the reason for this algorithm:
                 d1 = mod_geo.distance(latitudes[i - 1], longitudes[i - 1], None, latitudes[i], longitudes[i], None)
                 d2 = mod_geo.distance(latitudes[i + 1], longitudes[i + 1], None, latitudes[i], longitudes[i], None)
                 d = mod_geo.distance(latitudes[i - 1], longitudes[i - 1], None, latitudes[i + 1], longitudes[i + 1], None)
@@ -1191,7 +1191,7 @@ class GPX:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
         that may be used for detecting the time stopped, and max speed. Not that those values are not
-        absolutely true, because the "stopped" or "moving" informations aren't saved in the track.
+        absolutely true, because the "stopped" or "moving" information aren't saved in the track.
 
         Because of errors in the GPS recording, it may be good to calculate them on a reduced and
         smoothed version of the track. Something like this:
