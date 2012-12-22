@@ -158,7 +158,7 @@ def parse_time(string):
         try:
             return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
         except ValueError as e:
-            mod_logging.error('Invalid timestemp %s' % string)
+            mod_logging.error('Invalid timestamp %s' % string)
             return None
 
 
