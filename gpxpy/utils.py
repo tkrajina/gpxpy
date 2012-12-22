@@ -49,7 +49,9 @@ def is_numeric(object):
     try:
         float(object)
         return True
-    except:
+    except TypeError:
+        return False
+    except ValueError:
         return False
 
 def to_number(str, default=0):
