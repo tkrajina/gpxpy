@@ -61,7 +61,7 @@ def to_number(str, default=0):
 def __hash(obj):
     result = 0
 
-    if obj == None:
+    if obj is None:
         return result
     elif isinstance(obj, dict):
         raise RuntimeError('__hash_single_object for dict not yet implemented')

@@ -151,7 +151,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx.remove_elevation(tracks=True, waypoints=True, routes=True)
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.elevation == None)
+            self.assertTrue(point.elevation is None)
 
         xml = gpx.to_xml()
 
@@ -166,7 +166,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx.remove_time()
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.time == None)
+            self.assertTrue(point.time is None)
 
     def test_has_times_false(self):
         gpx = self.__parse('cerknicko-without-times.gpx')

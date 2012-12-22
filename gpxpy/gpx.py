@@ -515,7 +515,7 @@ class GPXTrack:
             duration = track_segment.get_duration()
             if duration or duration == 0:
                 result += duration
-            elif duration == None:
+            elif duration is None:
                 return None
 
         return result
@@ -763,13 +763,13 @@ class GPXTrackSegment:
         max_lon = None
 
         for point in self.points:
-            if min_lat == None or point.latitude < min_lat:
+            if min_lat is None or point.latitude < min_lat:
                 min_lat = point.latitude
-            if max_lat == None or point.latitude > max_lat:
+            if max_lat is None or point.latitude > max_lat:
                 max_lat = point.latitude
-            if min_lon == None or point.longitude < min_lon:
+            if min_lon is None or point.longitude < min_lon:
                 min_lon = point.longitude
-            if max_lon == None or point.longitude > max_lon:
+            if max_lon is None or point.longitude > max_lon:
                 max_lon = point.longitude
 
         return Bounds(min_lat, max_lat, min_lon, max_lon)
@@ -1327,7 +1327,7 @@ class GPX:
             duration = track.get_duration()
             if duration or duration == 0:
                 result += duration
-            elif duration == None:
+            elif duration is None:
                 return None
 
         return result
@@ -1436,7 +1436,7 @@ class GPX:
         for point, distance_from_start, track_no, segment_no, point_no in points:
             distance = location.distance_3d(point)
             if distance < threshold:
-                if min_distance_candidate == None or distance < min_distance_candidate:
+                if min_distance_candidate is None or distance < min_distance_candidate:
                     min_distance_candidate = distance
                     distance_from_start_candidate = distance_from_start
                     track_no_candidate = track_no

@@ -54,7 +54,7 @@ def length_3d(locations):
     return length(locations, True)
 
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
-    """ Distance between two points. If elevation == None compute a 2d distance """
+    """ Distance between two points. If elevation is None compute a 2d distance """
 
     coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
     x = latitude_1 - latitude_2
@@ -62,14 +62,14 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
 
     distance_2d = mod_math.sqrt(x * x + y * y) * ONE_DEGREE
 
-    if elevation_1 == None or elevation_2 == None or elevation_1 == elevation_2:
+    if elevation_1 is None or elevation_2 is None or elevation_1 == elevation_2:
         return distance_2d
 
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
 def elevation_angle(location1, location2, radians=False):
     """ Uphill/downhill angle between two locations. """
-    if location1.elevation == None or location2.elevation == None:
+    if location1.elevation is None or location2.elevation is None:
         return None
 
     b = float(location2.elevation - location1.elevation)
