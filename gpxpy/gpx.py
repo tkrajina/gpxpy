@@ -1079,8 +1079,6 @@ class GPXTrackSegment:
 class GPX:
 
     def __init__(self, waypoints=None, routes=None, tracks=None):
-        self.time = None
-
         if waypoints: self.waypoints = waypoints
         else: self.waypoints = []
 
