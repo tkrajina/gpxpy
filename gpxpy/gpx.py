@@ -476,7 +476,7 @@ class GPXTrack:
                 new_segments.append(segment)
         self.segments = new_segments
 
-    def get_moving_data(self, stopped_speed_treshold=None):
+    def get_moving_data(self, stopped_speed_threshold=None):
         moving_time = 0.
         stopped_time = 0.
 
@@ -486,7 +486,7 @@ class GPXTrack:
         max_speed = 0.
 
         for segment in self.segments:
-            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = segment.get_moving_data(stopped_speed_treshold)
+            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = segment.get_moving_data(stopped_speed_threshold)
             moving_time += track_moving_time
             stopped_time += track_stopped_time
             moving_distance += track_moving_distance
@@ -694,9 +694,9 @@ class GPXTrackSegment:
 
         self.points = part_1 + part_2
 
-    def get_moving_data(self, stopped_speed_treshold=None):
-        if not stopped_speed_treshold:
-            stopped_speed_treshold = DEFAULT_STOPPED_SPEED_THRESHOLD
+    def get_moving_data(self, stopped_speed_threshold=None):
+        if not stopped_speed_threshold:
+            stopped_speed_threshold = DEFAULT_STOPPED_SPEED_THRESHOLD
 
         moving_time = 0.
         stopped_time = 0.
@@ -729,8 +729,8 @@ class GPXTrackSegment:
                 if seconds > 0:
                     speed = (distance / 1000.) / (timedelta.seconds / 60. ** 2)
 
-                #print speed, stopped_speed_treshold
-                if speed <= stopped_speed_treshold:
+                #print speed, stopped_speed_threshold
+                if speed <= stopped_speed_threshold:
                     stopped_time += timedelta.seconds
                     stopped_distance += distance
                 else:
@@ -948,7 +948,7 @@ class GPXTrackSegment:
             latitudes.append(point.latitude)
             longitudes.append(point.longitude)
 
-        remove_elevation_extremes_treshold = 1000
+        remove_elevation_extremes_threshold = 1000
 
         avg_distance = 0
         avg_elevation_delta = 1
@@ -970,8 +970,8 @@ class GPXTrackSegment:
         # If The point moved more than this number * the average distance between two
         # points -- then is a candidate for deletion:
         # TODO: Make this a method parameter
-        remove_2d_extremes_treshold = 1.75 * avg_distance
-        remove_elevation_extremes_treshold = avg_elevation_delta * 5 # TODO: Param
+        remove_2d_extremes_threshold = 1.75 * avg_distance
+        remove_elevation_extremes_threshold = avg_elevation_delta * 5 # TODO: Param
 
         new_track_points = [self.points[0]]
 
@@ -991,11 +991,11 @@ class GPXTrackSegment:
                     # The point must be enough distant to *both* neighbours:
                     d1 = abs(old_elevation - elevations[i - 1])
                     d2 = abs(old_elevation - elevations[i + 1])
-                    #print d1, d2, remove_2d_extremes_treshold
+                    #print d1, d2, remove_2d_extremes_threshold
 
-                    # TODO: Remove extremes treshold is meant only for 2D, elevation must be
+                    # TODO: Remove extremes threshold is meant only for 2D, elevation must be
                     # computed in different way!
-                    if min(d1, d2) < remove_elevation_extremes_treshold and abs(old_elevation - new_elevation) < remove_2d_extremes_treshold:
+                    if min(d1, d2) < remove_elevation_extremes_threshold and abs(old_elevation - new_elevation) < remove_2d_extremes_threshold:
                         new_point = self.points[i]
                     else:
                         #print 'removed elevation'
@@ -1028,8 +1028,8 @@ class GPXTrackSegment:
 
                 if d1 + d2 > d * 1.5 and remove_extremes:
                     d = mod_geo.distance(old_latitude, old_longitude, None, new_latitude, new_longitude, None)
-                    #print "d, treshold = ", d, remove_2d_extremes_treshold
-                    if d < remove_2d_extremes_treshold:
+                    #print "d, threshold = ", d, remove_2d_extremes_threshold
+                    if d < remove_2d_extremes_threshold:
                         new_point = self.points[i]
                     else:
                         #print 'removed 2d'
@@ -1190,7 +1190,7 @@ class GPX:
         for track in self.tracks:
             track.remove_empty()
 
-    def get_moving_data(self, stopped_speed_treshold=None):
+    def get_moving_data(self, stopped_speed_threshold=None):
         """
         Return a tuple of (moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
         that may be used for detecting the time stopped, and max speed. Not that those values are not
@@ -1219,7 +1219,7 @@ class GPX:
         max_speed = 0.
 
         for track in self.tracks:
-            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = track.get_moving_data(stopped_speed_treshold)
+            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = track.get_moving_data(stopped_speed_threshold)
             moving_time += track_moving_time
             stopped_time += track_stopped_time
             moving_distance += track_moving_distance
@@ -1403,18 +1403,18 @@ class GPX:
 
         return points
 
-    def get_nearest_locations(self, location, treshold_distance=0.01):
+    def get_nearest_locations(self, location, threshold_distance=0.01):
         """
         Returns a list of locations of elements like
         consisting of points where the location may be on the track
 
-        treshold_distance is the the minimum distance from the track
+        threshold_distance is the the minimum distance from the track
         so that the point *may* be counted as to be "on the track".
         For example 0.01 means 1% of the track distance.
         """
 
         assert location
-        assert treshold_distance
+        assert threshold_distance
 
         result = []
 		
@@ -1425,7 +1425,7 @@ class GPX:
 
         distance = points[- 1][1]
 
-        treshold = distance * treshold_distance
+        threshold = distance * threshold_distance
 
         min_distance_candidate = None
         distance_from_start_candidate = None
@@ -1435,7 +1435,7 @@ class GPX:
 
         for point, distance_from_start, track_no, segment_no, point_no in points:
             distance = location.distance_3d(point)
-            if distance < treshold:
+            if distance < threshold:
                 if min_distance_candidate == None or distance < min_distance_candidate:
                     min_distance_candidate = distance
                     distance_from_start_candidate = distance_from_start

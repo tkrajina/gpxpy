@@ -326,7 +326,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx.smooth(vertical=True, horizontal=True)
         gpx.smooth(vertical=True, horizontal=False)
 
-        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_treshold=0.1)
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
         print('Length: %s' % length)
         print('Moving time: %s (%smin)' % (moving_time, moving_time / 60.))
