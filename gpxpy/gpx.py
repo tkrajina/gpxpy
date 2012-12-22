@@ -345,11 +345,6 @@ class GPXTrackPoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
 
 class GPXTrack:
-    name = None
-    description = None
-    number = None
-
-    segments = None
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
