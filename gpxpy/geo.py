@@ -23,7 +23,8 @@ from . import utils as mod_utils
 # One degree in meters:
 ONE_DEGREE = 1000. * 10000.8 / 90.
 
-def length(locations=[], _3d=None):
+def length(locations=None, _3d=None):
+    locations = locations or []
     if not locations:
         return 0
     length = 0
@@ -42,16 +43,18 @@ def length(locations=[], _3d=None):
                 length += d
     return length
 
-def length_2d(locations=[]):
+def length_2d(locations=None):
     """ 2-dimensional length of locations (only latitude and longitude, no elevation """
+    locations = locations or []
     return length(locations, False)
 
-def length_3d(locations=[]):
+def length_3d(locations=None):
     """ 3-dimensional length of locations (is uses latitude, longitude and elevation). """
+    locations = locations or []
     return length(locations, True)
 
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
-    """ Distance between two points. If elevation == None compute a 2d distance """
+    """ Distance between two points. If elevation is None compute a 2d distance """
 
     coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
     x = latitude_1 - latitude_2
@@ -59,14 +62,14 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
 
     distance_2d = mod_math.sqrt(x * x + y * y) * ONE_DEGREE
 
-    if elevation_1 == None or elevation_2 == None or elevation_1 == elevation_2:
+    if elevation_1 is None or elevation_2 is None or elevation_1 == elevation_2:
         return distance_2d
 
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
 def elevation_angle(location1, location2, radians=False):
     """ Uphill/downhill angle between two locations. """
-    if location1.elevation == None or location2.elevation == None:
+    if location1.elevation is None or location2.elevation is None:
         return None
 
     b = float(location2.elevation - location1.elevation)

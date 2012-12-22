@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 """
 Run all tests with:
     $ python -m unittest test
@@ -30,6 +28,8 @@ Run single test with:
     $ python -m unittest test.LxmlTests.test_method
 """
 
+from __future__ import print_function
+
 import pdb
 
 import logging as mod_logging
@@ -39,7 +39,6 @@ import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
-import io as mod_io
 import sys as mod_sys
 
 import gpxpy as mod_gpxpy
@@ -151,12 +150,12 @@ class LxmlTests(mod_unittest.TestCase):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.elevation != None)
+            self.assertTrue(point.elevation is not None)
 
         gpx.remove_elevation(tracks=True, waypoints=True, routes=True)
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.elevation == None)
+            self.assertTrue(point.elevation is None)
 
         xml = gpx.to_xml()
 
@@ -166,12 +165,12 @@ class LxmlTests(mod_unittest.TestCase):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.time != None)
+            self.assertTrue(point.time is not None)
 
         gpx.remove_time()
 
         for point, track_no, segment_no, point_no in gpx.walk():
-            self.assertTrue(point.time == None)
+            self.assertTrue(point.time is None)
 
     def test_has_times_false(self):
         gpx = self.__parse('cerknicko-without-times.gpx')
@@ -330,7 +329,7 @@ class LxmlTests(mod_unittest.TestCase):
         gpx.smooth(vertical=True, horizontal=True)
         gpx.smooth(vertical=True, horizontal=False)
 
-        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_treshold=0.1)
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
         print('Length: %s' % length)
         print('Moving time: %s (%smin)' % (moving_time, moving_time / 60.))
@@ -434,15 +433,15 @@ class LxmlTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
-    def test_horizontal_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_horizontal_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=False, horizontal=True, remove_extreemes=True)
+        gpx.smooth(vertical=False, horizontal=True, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -450,15 +449,15 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 2 == points_after)
 
-    def test_vertical_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_vertical_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=True, horizontal=False, remove_extreemes=True)
+        gpx.smooth(vertical=True, horizontal=False, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -467,15 +466,15 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 1 == points_after)
 
-    def test_horizontal_and_vertical_smooth_remove_extreemes(self):
-        f = open('test_files/track-with-extreemes.gpx', 'r')
+    def test_horizontal_and_vertical_smooth_remove_extremes(self):
+        f = open('test_files/track-with-extremes.gpx', 'r')
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
 
         gpx = parser.parse()
 
         points_before = gpx.get_track_points_no()
-        gpx.smooth(vertical=True, horizontal=True, remove_extreemes=True)
+        gpx.smooth(vertical=True, horizontal=True, remove_extremes=True)
         points_after = gpx.get_track_points_no()
 
         print(points_before)
@@ -787,13 +786,13 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(uphill, uphill_downhill.uphill)
         self.assertEqual(downhill, uphill_downhill.downhill)
 
-    def test_named_tuples_values_elevation_extreemes(self):
+    def test_named_tuples_values_elevation_extremes(self):
         gpx = self.__parse('korita-zbevnica.gpx')
 
-        elevation_extreemes = gpx.get_elevation_extremes()
+        elevation_extremes = gpx.get_elevation_extremes()
         minimum, maximum = gpx.get_elevation_extremes()
-        self.assertEqual(minimum, elevation_extreemes.minimum)
-        self.assertEqual(maximum, elevation_extreemes.maximum)
+        self.assertEqual(minimum, elevation_extremes.minimum)
+        self.assertEqual(maximum, elevation_extremes.maximum)
 
     def test_named_tuples_values_nearest_location_data(self):
         gpx = self.__parse('korita-zbevnica.gpx')

@@ -19,7 +19,8 @@ import xml.sax.saxutils as mod_saxutils
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
-def to_xml(tag, attributes={}, content=None, default=None, escape=False):
+def to_xml(tag, attributes=None, content=None, default=None, escape=False):
+    attributes = attributes or {}
     result = '\n<%s' % tag
 
     if not content and default:
@@ -48,20 +49,27 @@ def is_numeric(object):
     try:
         float(object)
         return True
-    except:
+    except TypeError:
+        return False
+    except ValueError:
         return False
 
-def to_number(str, default=0):
-    if not str:
-        return None
-    return float(str)
+def to_number(s, default=0):
+    try:
+        return float(s)
+    except TypeError:
+        pass
+    except ValueError:
+        pass
+    return default
+
 
 # Hash utilities:
 
 def __hash(obj):
     result = 0
 
-    if obj == None:
+    if obj is None:
         return result
     elif isinstance(obj, dict):
         raise RuntimeError('__hash_single_object for dict not yet implemented')
