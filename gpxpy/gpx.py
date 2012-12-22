@@ -436,8 +436,8 @@ class GPXTrack:
         return length
 
     def split(self, track_segment_no, track_point_no):
-        """ Splits One of the segments in two parts. If one of the splitted segments is empty
-        it will not be added in the result """
+        """ Splits One of the segments in two parts. If one of the split
+        segments is empty it will not be added in the result """
         new_segments = []
         for i in range(len(self.segments)):
             segment = self.segments[i]
