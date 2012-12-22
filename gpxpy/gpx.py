@@ -947,8 +947,6 @@ class GPXTrackSegment:
             latitudes.append(point.latitude)
             longitudes.append(point.longitude)
 
-        remove_elevation_extremes_threshold = 1000
-
         avg_distance = 0
         avg_elevation_delta = 1
         if remove_extremes:
