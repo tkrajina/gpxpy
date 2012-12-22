@@ -153,8 +153,8 @@ def parse_time(string):
     try:
         return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
     except ValueError as e:
-        if mod_re.match('^.*\.\d+Z$', string):
-            string = mod_re.sub('\.\d+Z', 'Z', string)
+        if mod_re.match(r'^.*\.\d+Z$', string):
+            string = mod_re.sub(r'\.\d+Z', 'Z', string)
         try:
             return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
         except ValueError as e:
