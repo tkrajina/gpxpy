@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 """
 Run all tests with:
     $ python -m unittest test
@@ -29,6 +27,8 @@ Run lxml parser tests with:
 Run single test with:
     $ python -m unittest test.LxmlTests.test_method
 """
+
+from __future__ import print_function
 
 import pdb
 
