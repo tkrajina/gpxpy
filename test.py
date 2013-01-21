@@ -968,6 +968,46 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
         self.assertEqual(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
 
+    def test_ignore_maximums_for_max_speed(self):
+        gpx = mod_gpx.GPX()
+
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        tmp_time = mod_datetime.datetime.now()
+
+        segment = mod_gpx.GPXTrackSegment()
+        for i in range(4):
+            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
+            tmp_time += mod_datetime.timedelta(minutes=10)
+        track.segments.append(segment)
+
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_too_small_segment = gpx.get_moving_data()
+
+        # Too few points:
+        mod_logging.debug('max_speed = %s', max_speed_with_too_small_segment)
+        self.assertFalse(max_speed_with_too_small_segment)
+
+        segment = mod_gpx.GPXTrackSegment()
+        for i in range(55):
+            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
+            tmp_time += mod_datetime.timedelta(minutes=10)
+        track.segments.append(segment)
+
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_equal_speeds = gpx.get_moving_data()
+
+        mod_logging.debug('max_speed = %s', max_speed_with_equal_speeds)
+        self.assertTrue(max_speed_with_equal_speeds > 0)
+
+        for i in range(1):
+            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
+            tmp_time += mod_datetime.timedelta(minutes=5)
+
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_extreemes = gpx.get_moving_data()
+
+        self.assertTrue(abs(max_speed_with_extreemes - max_speed_with_equal_speeds) < 0.001)
+        # TODO: Add some local axtreemes and check that they are not counted in max_speed:
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):

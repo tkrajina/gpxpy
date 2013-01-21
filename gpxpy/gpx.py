@@ -704,7 +704,7 @@ class GPXTrackSegment:
         moving_distance = 0.
         stopped_distance = 0.
 
-        max_speed = 0.
+        speeds = []
 
         for i in range(1, len(self.points)):
 
@@ -724,12 +724,13 @@ class GPXTrackSegment:
                     distance = point.distance_2d(previous)
 
                 seconds = timedelta.seconds
-                speed = 0
+                speed_kmh = 0
                 if seconds > 0:
-                    speed = (distance / 1000.) / (timedelta.seconds / 60. ** 2)
+                    # TODO: compute treshold in m/s instead this to kmh every time:
+                    speed_kmh = (distance / 1000.) / (timedelta.seconds / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
-                if speed <= stopped_speed_threshold:
+                if speed_kmh <= stopped_speed_threshold:
                     stopped_time += timedelta.seconds
                     stopped_distance += distance
                 else:
@@ -737,9 +738,17 @@ class GPXTrackSegment:
                     moving_distance += distance
 
                     if distance and moving_time:
-                        speed = distance / timedelta.seconds
-                        if speed > max_speed and not first_or_last:
-                            max_speed = speed
+                        speeds.append(distance / timedelta.seconds)
+
+        # Compute max_speed:
+        max_speed = None
+        # TODO parametrize treshold!
+        if speeds and len(speeds) > 50:
+            speeds.sort()
+            # Will ignore the 5% biggest speeds (because of possible errors)
+            # TODO: parametrize this:
+            max_speed = speeds[int(-len(speeds)*0.05)]
+
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
 	
     def get_time_bounds(self):
