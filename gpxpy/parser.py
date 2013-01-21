@@ -225,7 +225,7 @@ class GPXParser:
     def __parse_dom(self):
 
         node = self.xml_parser.get_first_child(name='gpx')
-        if not node:
+        if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
         for node in self.xml_parser.get_children(node):
