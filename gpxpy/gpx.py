@@ -492,7 +492,7 @@ class GPXTrack:
             moving_distance += track_moving_distance
             stopped_distance += track_stopped_distance
 
-            if track_max_speed > max_speed:
+            if track_max_speed is not None and track_max_speed > max_speed:
                 max_speed = track_max_speed
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
