@@ -976,11 +976,13 @@ class LxmlTests(mod_unittest.TestCase):
 
         tmp_time = mod_datetime.datetime.now()
 
-        segment = mod_gpx.GPXTrackSegment()
+        tmp_longitude = 0
+        segment_1 = mod_gpx.GPXTrackSegment()
         for i in range(4):
-            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
-            tmp_time += mod_datetime.timedelta(minutes=10)
-        track.segments.append(segment)
+            segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
+            tmp_longitude += 0.01
+            tmp_time += mod_datetime.timedelta(hours=1)
+        track.segments.append(segment_1)
 
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_too_small_segment = gpx.get_moving_data()
 
@@ -988,11 +990,13 @@ class LxmlTests(mod_unittest.TestCase):
         mod_logging.debug('max_speed = %s', max_speed_with_too_small_segment)
         self.assertFalse(max_speed_with_too_small_segment)
 
-        segment = mod_gpx.GPXTrackSegment()
+        tmp_longitude = 0.
+        segment_2 = mod_gpx.GPXTrackSegment()
         for i in range(55):
-            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
-            tmp_time += mod_datetime.timedelta(minutes=10)
-        track.segments.append(segment)
+            segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
+            tmp_longitude += 0.01
+            tmp_time += mod_datetime.timedelta(hours=1)
+        track.segments.append(segment_2)
 
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_equal_speeds = gpx.get_moving_data()
 
@@ -1000,13 +1004,26 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(max_speed_with_equal_speeds > 0)
 
         for i in range(1):
-            segment.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=i / 0.00001, time=tmp_time))
-            tmp_time += mod_datetime.timedelta(minutes=5)
-
+            segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
+            tmp_longitude += 0.7
+            tmp_time += mod_datetime.timedelta(hours=1)
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_extreemes = gpx.get_moving_data()
 
         self.assertTrue(abs(max_speed_with_extreemes - max_speed_with_equal_speeds) < 0.001)
-        # TODO: Add some local axtreemes and check that they are not counted in max_speed:
+
+        for i in range(10):
+            # Sometimes add on start, sometimes on end:
+            if i % 2 == 0:
+                segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
+            else:
+                segment_2.points.insert(0, mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
+            tmp_longitude += 0.5
+            tmp_time += mod_datetime.timedelta(hours=1)
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed_with_more_extreemes = gpx.get_moving_data()
+
+        mod_logging.debug('max_speed_with_more_extreemes = %s', max_speed_with_more_extreemes)
+        mod_logging.debug('max_speed_with_extreemes = %s', max_speed_with_extreemes)
+        self.assertTrue(max_speed_with_more_extreemes - max_speed_with_extreemes > 10)
 
 class MinidomTests(LxmlTests):
 
