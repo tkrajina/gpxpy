@@ -741,13 +741,15 @@ class GPXTrackSegment:
                         speeds.append(distance / timedelta.seconds)
 
         # Compute max_speed:
+        # It is computed by using the 95percentile only of tracks with more than 50 points
+        # TODO parametrize treshold and percentile values
         max_speed = None
-        # TODO parametrize treshold!
         if speeds and len(speeds) > 50:
             speeds.sort()
-            # Will ignore the 5% biggest speeds (because of possible errors)
-            # TODO: parametrize this:
-            max_speed = speeds[int(-len(speeds)*0.05)]
+            index = int(len(speeds) * 0.95)
+            if index >= len(speeds):
+                index = -1
+            max_speed = speeds[index]
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
 	
