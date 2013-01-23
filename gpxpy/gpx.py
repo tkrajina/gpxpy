@@ -704,7 +704,7 @@ class GPXTrackSegment:
         moving_distance = 0.
         stopped_distance = 0.
 
-        speeds = []
+        speeds_and_distances = []
 
         for i in range(1, len(self.points)):
 
@@ -738,18 +738,11 @@ class GPXTrackSegment:
                     moving_distance += distance
 
                     if distance and moving_time:
-                        speeds.append(distance / timedelta.seconds)
+                        speeds_and_distances.append((distance / timedelta.seconds, distance, ))
 
-        # Compute max_speed:
-        # It is computed by using the 95percentile only of tracks with more than 50 points
-        # TODO parametrize treshold and percentile values
         max_speed = None
-        if speeds and len(speeds) > 50:
-            speeds.sort()
-            index = int(len(speeds) * 0.95)
-            if index >= len(speeds):
-                index = -1
-            max_speed = speeds[index]
+        if speeds_and_distances:
+            max_speed = mod_geo.calculate_max_speed(speeds_and_distances)
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
 	

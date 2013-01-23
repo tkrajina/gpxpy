@@ -53,6 +53,44 @@ def length_3d(locations=None):
     locations = locations or []
     return length(locations, True)
 
+def calculate_max_speed(speeds_and_distances):
+    """
+    Compute average distance and standard deviation for distance. Extreemes 
+    in dinstances are usually extreemes in speeds, so we will ignore them, 
+    here.
+
+    speeds_and_distances must be a list containing pairs of (speed, distance) 
+    for every point in a track segment.
+    """
+    assert speeds_and_distances
+    if len(speeds_and_distances) > 0:
+        assert len(speeds_and_distances[0]) == 2
+        # ...
+        assert len(speeds_and_distances[-1]) == 2
+
+    size = float(len(speeds_and_distances))
+    distances = map(lambda x: x[1], speeds_and_distances)
+    average_distance = sum(distances) / float(size)
+    standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/size)
+
+    # Ignore items where the distance is too big:
+    filtered_speeds_and_distances = filter(lambda speed_and_distance: speed_and_distance[1] < standard_distance_deviation * 1.5, speeds_and_distances)
+    #print speeds_and_distances[:10]
+    #print filtered_speeds_and_distances[:10]
+
+    # sort by speed:
+    speeds = map(lambda speed_and_distance: speed_and_distance[0], filtered_speeds_and_distances)
+    if not speeds:
+        return None
+    speeds.sort()
+
+    # Even here there may be some extreemes => ignore the last 5%:
+    index = int(len(speeds) * 0.95)
+    if index >= len(speeds):
+        index = -1
+
+    return speeds[index]
+
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
     """ Distance between two points. If elevation is None compute a 2d distance """
 
