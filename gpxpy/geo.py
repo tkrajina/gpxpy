@@ -74,12 +74,14 @@ def calculate_max_speed(speeds_and_distances):
     standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/size)
 
     # Ignore items where the distance is too big:
-    filtered_speeds_and_distances = filter(lambda speed_and_distance: speed_and_distance[1] < standard_distance_deviation * 1.5, speeds_and_distances)
+    filtered_speeds_and_distances = filter(lambda speed_and_distance: speed_and_distance[1] <= standard_distance_deviation * 1.5, speeds_and_distances)
     #print speeds_and_distances[:10]
     #print filtered_speeds_and_distances[:10]
 
     # sort by speed:
     speeds = map(lambda speed_and_distance: speed_and_distance[0], filtered_speeds_and_distances)
+    if not isinstance(speeds, list): # python3
+        speeds = list(speeds)
     if not speeds:
         return None
     speeds.sort()
