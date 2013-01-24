@@ -1003,7 +1003,8 @@ class LxmlTests(mod_unittest.TestCase):
         mod_logging.debug('max_speed = %s', max_speed_with_equal_speeds)
         self.assertTrue(max_speed_with_equal_speeds > 0)
 
-        for i in range(1):
+        # When we add to few extreemes, they should be ignored:
+        for i in range(10):
             segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
             tmp_longitude += 0.7
             tmp_time += mod_datetime.timedelta(hours=1)
@@ -1011,7 +1012,8 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue(abs(max_speed_with_extreemes - max_speed_with_equal_speeds) < 0.001)
 
-        for i in range(10):
+        # But if there are many extreemes (they are no more extreemes):
+        for i in range(100):
             # Sometimes add on start, sometimes on end:
             if i % 2 == 0:
                 segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))

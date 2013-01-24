@@ -77,23 +77,15 @@ def calculate_max_speed(speeds_and_distances):
         mod_logging.debug('Segment too small to compute speed, size=%s', size)
         return None
 
-    #mod_logging.debug('size=%s', size)
     distances = list(map(lambda x: x[1], speeds_and_distances))
-    #mod_logging.debug('distances=%s', list(distances))
     average_distance = sum(distances) / float(size)
-    #mod_logging.debug('average_distance=%s', average_distance)
     standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/size)
-    #mod_logging.debug('standard_distance_deviation=%s', standard_distance_deviation)
 
     # Ignore items where the distance is too big:
     filtered_speeds_and_distances = filter(lambda speed_and_distance: abs(speed_and_distance[1] - average_distance) <= standard_distance_deviation * 1.5, speeds_and_distances)
-    #mod_logging.debug('filtered_speeds_and_distances=%s', filtered_speeds_and_distances)
-    #print speeds_and_distances[:10]
-    #print filtered_speeds_and_distances[:10]
 
     # sort by speed:
     speeds = list(map(lambda speed_and_distance: speed_and_distance[0], filtered_speeds_and_distances))
-    #mod_logging.debug('speeds=%s', list(speeds))
     if not isinstance(speeds, list): # python3
         speeds = list(speeds)
     if not speeds:
