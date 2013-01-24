@@ -99,6 +99,31 @@ def calculate_max_speed(speeds_and_distances):
 
     return speeds[index]
 
+def calculate_uphill_downhill(elevations):
+    if not elevations:
+        return 0, 0
+
+    size = len(elevations)
+    def __filter(n):
+        if 0 < n < size - 1:
+            return elevations[n-1]*.3 + elevations[n]*.4 + elevations[n+1]*.3
+        else:
+            return elevations[n]
+
+    smoothed_elevations = map(__filter, range(size))
+
+    uphill, downhill = 0., 0.
+
+    for n, elevation in enumerate(smoothed_elevations):
+        if n > 0:
+            d = elevation - smoothed_elevations[n-1]
+            if d > 0:
+                uphill += d
+            else:
+                downhill -= d
+
+    return uphill, downhill
+
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
     """ Distance between two points. If elevation is None compute a 2d distance """
 

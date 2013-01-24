@@ -851,21 +851,8 @@ class GPXTrackSegment:
         if not self.points:
             return UphillDownhill(0, 0)
 
-        uphill = 0
-        downhill = 0
-
-        current_elevation = None
-        for track_point in self.points:
-            if not current_elevation:
-                current_elevation = track_point.elevation
-
-            if track_point.elevation and current_elevation:
-                if current_elevation > track_point.elevation:
-                    downhill += current_elevation - track_point.elevation
-                else:
-                    uphill += track_point.elevation - current_elevation
-
-            current_elevation = track_point.elevation
+        elevations = list(map(lambda point:point.elevation, self.points))
+        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
 
         return UphillDownhill(uphill, downhill)
 
