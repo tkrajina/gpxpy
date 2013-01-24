@@ -91,6 +91,23 @@ Run a single test with:
     $ python -m unittest test.LxmlTests.test_method
     $ python3 -m unittest test.LxmlTests.test_method
 
+GPXInfo
+-------
+
+The repository contain a little command line utility to extract basic statistics from a file.
+Example usage:
+
+    $ gpxinfo oko-visnjana.gpx 
+    File: oko-visnjana.gpx
+      Moving time: 00:54:14
+      Stopped time: 00:21:39
+      Stopped distance: 68.728721187m
+      Max speed: 5.44979377836m/s = 19.6192576021km/h
+      Total uphill: 413.1m
+      Total downhill: 404.8m
+      Started: 2012-08-06 17:10:26
+      Ended: 2012-08-06 18:26:19
+
 GPX Version:
 ------------
 

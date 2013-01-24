@@ -1,0 +1,58 @@
+#!/usr/bin/python
+
+import sys as mod_sys
+import logging as mod_logging
+import math as mod_math
+
+import gpxpy as mod_gpxpy
+
+mod_logging.basicConfig(level=mod_logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+
+gpx_files = mod_sys.argv[1:]
+
+def format_time(time_s):
+    if not time_s:
+        return 'n/a'
+    minutes = mod_math.floor(time_s / 60.)
+    hours = mod_math.floor(minutes / 60.)
+
+    return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
+
+if not gpx_files:
+    print('No GPX files given')
+    mod_sys.exit(1)
+
+for gpx_file in gpx_files:
+    try:
+        gpx = mod_gpxpy.parse(open(gpx_file))
+
+        print('File: %s' % gpx_file)
+
+        if gpx.name: 
+            print('  GPX name: %s' % gpx.name)
+        if gpx.description:
+            print('  GPX description: %s' % gpx.description)
+        if gpx.author:
+            print('  Author: %s' % gpx.author)
+        if gpx.email:
+            print('  Email: %s' % gpx.email)
+
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
+        print('  Moving time: %s' % format_time(moving_time))
+        print('  Stopped time: %s' % format_time(stopped_time))
+        print('  Stopped distance: %sm' % stopped_distance)
+        print('  Max speed: %sm/s = %skm/h' % (max_speed, max_speed * 60. ** 2 / 1000.))
+
+        uphill, downhill = gpx.get_uphill_downhill()
+        print('  Total uphill: %sm' % uphill)
+        print('  Total downhill: %sm' % downhill)
+
+        start_time, end_time = gpx.get_time_bounds()
+        print('  Started: %s' % start_time)
+        print('  Ended: %s' % end_time)
+        print('')
+    except Exception as e:
+        mod_logging.exception(e)
+        print('Error processing %s' % gpx_file)
+        mod_sys.exit(1)
