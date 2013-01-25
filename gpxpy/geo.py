@@ -110,7 +110,7 @@ def calculate_uphill_downhill(elevations):
         else:
             return elevations[n]
 
-    smoothed_elevations = map(__filter, range(size))
+    smoothed_elevations = list(map(__filter, range(size)))
 
     uphill, downhill = 0., 0.
 
