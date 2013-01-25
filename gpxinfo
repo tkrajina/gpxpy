@@ -6,8 +6,8 @@ import math as mod_math
 
 import gpxpy as mod_gpxpy
 
-mod_logging.basicConfig(level=mod_logging.DEBUG,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+#mod_logging.basicConfig(level=mod_logging.DEBUG,
+#                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
 gpx_files = mod_sys.argv[1:]
 
@@ -41,7 +41,7 @@ for gpx_file in gpx_files:
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
         print('  Moving time: %s' % format_time(moving_time))
         print('  Stopped time: %s' % format_time(stopped_time))
-        print('  Stopped distance: %sm' % stopped_distance)
+        #print('  Stopped distance: %sm' % stopped_distance)
         print('  Max speed: %sm/s = %skm/h' % (max_speed, max_speed * 60. ** 2 / 1000.))
 
         uphill, downhill = gpx.get_uphill_downhill()
