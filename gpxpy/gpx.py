@@ -550,14 +550,19 @@ class GPXTrack:
 
     def get_elevation_extremes(self):
         if not self.segments:
-            return MinimumMaximum(0, 0)
+            return MinimumMaximum(None, None)
 
         elevations = []
 
         for track_segment in self.segments:
             (_min, _max) = track_segment.get_elevation_extremes()
-            elevations.append(_min)
-            elevations.append(_max)
+            if _min is not None:
+                elevations.append(_min)
+            if _max is not None:
+                elevations.append(_max)
+
+        if len(elevations) == 0:
+            return MinimumMaximum(None, None)
 
         return MinimumMaximum(min(elevations), max(elevations))
 
@@ -860,9 +865,14 @@ class GPXTrackSegment:
         """ return (min_elevation, max_elevation) """
 
         if not self.points:
-            return MinimumMaximum(0.0, 0.0)
+            return MinimumMaximum(None, None)
 
-        elevations = [location.elevation for location in self.points]
+        elevations = map(lambda location:location.elevation, self.points)
+        elevations = filter(lambda elevation:elevation is not None, elevations)
+        elevations = list(elevations)
+
+        if len(elevations) == 0:
+            return MinimumMaximum(None, None)
 
         return MinimumMaximum(max(elevations), min(elevations))
 
@@ -1349,14 +1359,19 @@ class GPX:
 
     def get_elevation_extremes(self):
         if not self.tracks:
-            return MinimumMaximum(0., 0.)
+            return MinimumMaximum(None, None)
 
         elevations = []
 
         for track in self.tracks:
             (_min, _max) = track.get_elevation_extremes()
-            elevations.append(_min)
-            elevations.append(_max)
+            if _min is not None:
+                elevations.append(_min)
+            if _max is not None:
+                elevations.append(_max)
+
+        if len(elevations) == 0:
+            return MinimumMaximum(None, None)
 
         return MinimumMaximum(min(elevations), max(elevations))
 

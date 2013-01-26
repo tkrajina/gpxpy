@@ -1027,6 +1027,30 @@ class LxmlTests(mod_unittest.TestCase):
         mod_logging.debug('max_speed_with_extreemes = %s', max_speed_with_extreemes)
         self.assertTrue(max_speed_with_more_extreemes - max_speed_with_extreemes > 10)
 
+    def test_track_with_elevation_zero(self):
+        with open('test_files/cerknicko-jezero-with-elevations-zero.gpx') as f:
+            gpx = mod_gpxpy.parse(f)
+
+            minimum, maximum = gpx.get_elevation_extremes()
+            self.assertEqual(minimum, 0)
+            self.assertEqual(maximum, 0)
+
+            uphill, downhill = gpx.get_uphill_downhill()
+            self.assertEqual(uphill, 0)
+            self.assertEqual(downhill, 0)
+
+    def test_track_without_elevation(self):
+        with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
+            gpx = mod_gpxpy.parse(f)
+
+            minimum, maximum = gpx.get_elevation_extremes()
+            self.assertEqual(minimum, None)
+            self.assertEqual(maximum, None)
+
+            uphill, downhill = gpx.get_uphill_downhill()
+            self.assertEqual(uphill, 0)
+            self.assertEqual(downhill, 0)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):
