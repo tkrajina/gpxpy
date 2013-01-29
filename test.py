@@ -1051,6 +1051,32 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertEqual(uphill, 0)
             self.assertEqual(downhill, 0)
 
+    def test_track_with_some_points_are_without_elevations(self):
+        gpx = mod_gpx.GPX()
+
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        tmp_latlong = 0
+        segment_1 = mod_gpx.GPXTrackSegment()
+        for i in range(4):
+            point = mod_gpx.GPXTrackPoint(latitude=tmp_latlong, longitude=tmp_latlong)
+            segment_1.points.append(point)
+            if i % 3 == 0:
+                point.elevation = None
+            else:
+                point.elevation = 100 / (i + 1)
+
+        track.segments.append(segment_1)
+
+        minimum, maximum = gpx.get_elevation_extremes()
+        self.assertTrue(minimum is not None)
+        self.assertTrue(maximum is not None)
+
+        uphill, downhill = gpx.get_uphill_downhill()
+        self.assertTrue(uphill is not None)
+        self.assertTrue(downhill is not None)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):

@@ -105,13 +105,15 @@ def calculate_uphill_downhill(elevations):
 
     size = len(elevations)
     def __filter(n):
+        current_ele = elevations[n]
+        if current_ele is None:
+            return False
         if 0 < n < size - 1:
             previous_ele = elevations[n-1]
-            current_ele = elevations[n]
             next_ele = elevations[n+1]
             if previous_ele is not None and current_ele is not None and next_ele is not None: 
                 return previous_ele*.3 + current_ele*.4 + next_ele*.3
-        return elevations[n]
+        return current_ele
 
     smoothed_elevations = list(map(__filter, range(size)))
 
@@ -119,7 +121,10 @@ def calculate_uphill_downhill(elevations):
 
     for n, elevation in enumerate(smoothed_elevations):
         if n > 0 and elevation is not None and smoothed_elevations is not None:
-            d = elevation - smoothed_elevations[n-1]
+            try:
+                d = elevation - smoothed_elevations[n-1]
+            except:
+                import pdb;pdb.set_trace()
             if d > 0:
                 uphill += d
             else:
