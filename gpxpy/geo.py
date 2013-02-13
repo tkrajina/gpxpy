@@ -26,6 +26,29 @@ from . import utils as mod_utils
 # One degree in meters:
 ONE_DEGREE = 1000. * 10000.8 / 90.
 
+EARTH_RADIUS = 6371 * 1000
+
+def to_rad(x):
+    return x / 180. * mod_math.pi
+
+def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
+    """
+    Haversine distance between two points.
+
+    Implemented from http://www.movable-type.co.uk/scripts/latlong.html
+    """
+    d_lat = to_rad(latitude_1 - latitude_2)
+    d_lon = to_rad(longitude_1 - longitude_2)
+    lat1 = to_rad(latitude_1)
+    lat2 = to_rad(latitude_2)
+
+    a = mod_math.sin(d_lat/2) * mod_math.sin(d_lat/2) + \
+        mod_math.sin(d_lon/2) * mod_math.sin(d_lon/2) * mod_math.cos(lat1) * mod_math.cos(lat2)
+    c = 2 * mod_math.atan2(mod_math.sqrt(a), mod_math.sqrt(1-a))
+    d = EARTH_RADIUS * c
+
+    return d
+
 def length(locations=None, _3d=None):
     locations = locations or []
     if not locations:
@@ -130,7 +153,16 @@ def calculate_uphill_downhill(elevations):
     return uphill, downhill
 
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
-    """ Distance between two points. If elevation is None compute a 2d distance """
+    """
+    Distance between two points. If elevation is None compute a 2d distance
+
+    Haversine distance are used for distant points where elevation makes a 
+    small difference, so it is ignored.
+    """
+
+    # If points too distance -- compute haversine distance:
+    if abs(latitude_1 - latitude_2) > .5 or abs(longitude_1 - longitude_2) > .5:
+        return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
     coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
     x = latitude_1 - latitude_2

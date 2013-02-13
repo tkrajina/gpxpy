@@ -433,6 +433,31 @@ class LxmlTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
+    def test_haversine_distance(self):
+        loc1 = mod_geo.Location(1, 2)
+        loc2 = mod_geo.Location(2, 3)
+
+        self.assertEqual(loc1.distance_2d(loc2),
+                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, None))
+
+        loc1 = mod_geo.Location(1, 2)
+        loc2 = mod_geo.Location(3, 4)
+
+        self.assertEqual(loc1.distance_2d(loc2),
+                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, None))
+
+        loc1 = mod_geo.Location(1, 2)
+        loc2 = mod_geo.Location(3.1, 4)
+
+        self.assertEqual(loc1.distance_2d(loc2),
+                         mod_geo.haversine_distance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude))
+
+        loc1 = mod_geo.Location(1, 2)
+        loc2 = mod_geo.Location(2, 4.1)
+
+        self.assertEqual(loc1.distance_2d(loc2),
+                         mod_geo.haversine_distance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude))
+
     def test_horizontal_smooth_remove_extremes(self):
         f = open('test_files/track-with-extremes.gpx', 'r')
 
