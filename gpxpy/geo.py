@@ -121,10 +121,7 @@ def calculate_uphill_downhill(elevations):
 
     for n, elevation in enumerate(smoothed_elevations):
         if n > 0 and elevation is not None and smoothed_elevations is not None:
-            try:
-                d = elevation - smoothed_elevations[n-1]
-            except:
-                import pdb;pdb.set_trace()
+            d = elevation - smoothed_elevations[n-1]
             if d > 0:
                 uphill += d
             else:
