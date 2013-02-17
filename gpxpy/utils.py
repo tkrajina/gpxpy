@@ -23,23 +23,20 @@ def to_xml(tag, attributes=None, content=None, default=None, escape=False):
     attributes = attributes or {}
     result = '\n<%s' % tag
 
-    if not content and default:
+    if content is None and default:
         content = default
 
     if attributes:
         for attribute in attributes.keys():
             result += ' %s="%s"' % (attribute, attributes[attribute])
-    if content:
+
+    if content is None:
+        result += '/>'
+    else:
         if escape:
             result += '>%s</%s>' % (mod_saxutils.escape(content), tag)
         else:
             result += '>%s</%s>' % (content, tag)
-    elif content == '':
-        result += '></%s>' % tag
-    else:
-        result += '/>'
-
-    result += ''
 
     result = make_str(result)
 	
