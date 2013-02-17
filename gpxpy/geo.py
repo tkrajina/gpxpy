@@ -152,16 +152,21 @@ def calculate_uphill_downhill(elevations):
 
     return uphill, downhill
 
-def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2):
+def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2,
+             haversine=None):
     """
     Distance between two points. If elevation is None compute a 2d distance
 
-    Haversine distance are used for distant points where elevation makes a 
-    small difference, so it is ignored.
+    if haversine==True -- haversine will be used for every computations, 
+    otherwise...
+
+    Haversine distance will be used for distant points where elevation makes a 
+    small difference, so it is ignored. That's because haversine is 5-6 times 
+    slower than the dummy distance algorithm (which is OK for most GPS tracks).
     """
 
     # If points too distance -- compute haversine distance:
-    if abs(latitude_1 - latitude_2) > .5 or abs(longitude_1 - longitude_2) > .5:
+    if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
     coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
