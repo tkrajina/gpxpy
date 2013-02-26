@@ -18,7 +18,7 @@ import distutils.core as mod_distutilscore
 
 mod_distutilscore.setup(
     name = 'gpxpy',
-    version = '0.8.6',
+    version = '0.8.7',
     description = 'GPX file parser and GPS track manipulation library',
     license = 'Apache License, Version 2.0',
     author = 'Tomo Krajina',
