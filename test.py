@@ -238,7 +238,8 @@ class LxmlTests(mod_unittest.TestCase):
         points_reduced = gpx.get_track_points_no()
 
         result = gpx.to_xml()
-        result = result.encode('utf-8')
+        if mod_sys.version_info[0] != 3:
+            result = result.encode('utf-8')
 
         started = mod_time.time()
         parser = mod_parser.GPXParser(result, parser=self.get_parser_type())
