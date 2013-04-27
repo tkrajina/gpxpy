@@ -36,9 +36,6 @@ class XMLParser:
     Used when lxml is not available. Uses standard minidom.
     """
 
-    dom = None
-    xml = None
-
     def __init__(self, xml):
         self.xml = xml
         self.dom = mod_minidom.parseString(xml)
@@ -91,10 +88,6 @@ class LXMLParser:
     """
     Used when lxml is available. 
     """
-
-    xml = None
-    dom = None
-    ns = None
 
     def __init__(self, xml):
         if mod_utils.PYTHON_VERSION[0] == '3':
@@ -164,13 +157,6 @@ def parse_time(string):
 
 class GPXParser:
 
-    gpx = None
-    xml = None
-    valid = None
-    error = None
-    xml_parser_type = None
-    xml_parser = None
-
     def __init__(self, xml_or_file=None, parser=None):
         """
         Parser may be lxml of minidom. If you set to None then lxml will be used if installed
@@ -179,21 +165,12 @@ class GPXParser:
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
         self.xml_parser_type = parser
+        self.xml_parser = None
 
     def init(self, xml_or_file):
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
         self.xml = mod_utils.make_str(text)
-
-        self.valid = False
-        self.error = None
-
         self.gpx = mod_gpx.GPX()
-
-    def is_valid(self):
-        return self.valid
-
-    def get_error(self):
-        return self.error
 
     def get_gpx(self):
         return self.gpx
@@ -218,9 +195,8 @@ class GPXParser:
         except Exception as e:
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
-            self.error = str(e)
 
-            return None
+            raise mod_gpx.GPXException('Error parsing XML: %s' % str(e))
 
     def __parse_dom(self):
 
@@ -478,16 +454,13 @@ if __name__ == '__main__':
 
     print(gpx.to_xml())
 
-    if parser.is_valid():
-        print('TRACKS:')
-        for track in gpx.tracks:
-            print('name%s, 2d:%s, 3d:%s' % (track.name, track.length_2d(), track.length_3d()))
-            print('\tTRACK SEGMENTS:')
-            for track_segment in track.segments:
-                print('\t2d:%s, 3d:%s' % (track_segment.length_2d(), track_segment.length_3d()))
+    print('TRACKS:')
+    for track in gpx.tracks:
+        print('name%s, 2d:%s, 3d:%s' % (track.name, track.length_2d(), track.length_3d()))
+        print('\tTRACK SEGMENTS:')
+        for track_segment in track.segments:
+            print('\t2d:%s, 3d:%s' % (track_segment.length_2d(), track_segment.length_3d()))
 
-        print('ROUTES:')
-        for route in gpx.routes:
-            print(route.name)
-    else:
-        print('error: %s' % parser.get_error())
+    print('ROUTES:')
+    for route in gpx.routes:
+        print(route.name)

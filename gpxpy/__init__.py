@@ -22,10 +22,4 @@ def parse(xml_or_file, parser='lxml'):
 
     parser = mod_parser.GPXParser(xml_or_file, parser=parser)
 
-    gpx = parser.parse()
-
-    if not parser.is_valid():
-        raise mod_gpx.GPXException('Error parsing {0}: {1}'.format(xml_or_file[0 : 100], parser.get_error()))
-
-    return gpx
-
+    return parser.parse()
