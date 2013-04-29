@@ -176,6 +176,13 @@ class GPXParser:
         return self.gpx
 
     def parse(self):
+        """
+        Parses the XML file and returns a GPX object.
+
+        It will throw GPXXMLSyntaxException if the XML file is invalid or 
+        GPXException if the XML file is valid but something is wrong with the 
+        GPX data.
+        """
         try:
             if self.xml_parser_type is None:
                 if mod_etree:

@@ -15,7 +15,10 @@
 # limitations under the License.
 
 def parse(xml_or_file, parser='lxml'):
-    """ Parse xml (string) or file object. This is just an wrapper for GPXParser.parse() function """
+    """
+    Parse xml (string) or file object. This is just an wrapper for 
+    GPXParser.parse() function.
+    """
 
     from . import gpx as mod_gpx
     from . import parser as mod_parser
