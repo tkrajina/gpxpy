@@ -136,6 +136,13 @@ class LxmlTests(mod_unittest.TestCase):
             self.fail()
         except mod_gpx.GPXException as e:
             self.assertTrue(('unclosed token: line 1, column 5' in str(e)) or ('expected \'>\'' in str(e)))
+            self.assertTrue(isinstance(e, mod_gpx.GPXXMLSyntaxException))
+            self.assertTrue(e.original_exception)
+
+            import lxml.etree as mod_etree
+            import xml.parsers.expat as mod_expat
+            self.assertTrue(isinstance(e.original_exception, mod_etree.XMLSyntaxError)
+                            or isinstance(e.original_exception, mod_expat.ExpatError))
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
