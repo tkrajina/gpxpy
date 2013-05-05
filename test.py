@@ -736,6 +736,25 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
 
+    def test_name_comment_and_symbol(self):
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        point = mod_gpx.GPXTrackPoint(12, 13, name='aaa', comment='ccc', symbol='sss')
+        segment.points.append(point)
+
+        xml = gpx.to_xml()
+
+        self.assertTrue('<name>aaa' in xml )
+
+        gpx2 = self.__reparse(gpx)
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].name, 'aaa')
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].comment, 'ccc')
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].symbol, 'sss')
+
     def test_get_bounds_and_refresh_bounds(self):
         gpx = mod_gpx.GPX()
 

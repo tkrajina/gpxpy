@@ -422,6 +422,9 @@ class GPXParser:
         comment_node = self.xml_parser.get_first_child(node, 'cmt')
         comment = self.xml_parser.get_node_data(comment_node)
 
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
+
         hdop_node = self.xml_parser.get_first_child(node, 'hdop')
         hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
 
@@ -436,7 +439,7 @@ class GPXParser:
 
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
             symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
-            position_dilution=pdop, speed=speed)
+            position_dilution=pdop, speed=speed, name=name)
 
 
 
