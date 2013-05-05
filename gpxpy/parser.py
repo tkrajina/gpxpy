@@ -176,6 +176,13 @@ class GPXParser:
         return self.gpx
 
     def parse(self):
+        """
+        Parses the XML file and returns a GPX object.
+
+        It will throw GPXXMLSyntaxException if the XML file is invalid or 
+        GPXException if the XML file is valid but something is wrong with the 
+        GPX data.
+        """
         try:
             if self.xml_parser_type is None:
                 if mod_etree:
@@ -193,10 +200,18 @@ class GPXParser:
 
             return self.gpx
         except Exception as e:
+            # The exception here can be a lxml or minidom exception.
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
 
-            raise mod_gpx.GPXException('Error parsing XML: %s' % str(e))
+            # The library should work in the same way regardless of the 
+            # underlying XML parser that's why the exception thrown 
+            # here is GPXXMLSyntaxException (instead of simply throwing the 
+            # original minidom or lxml exception e). 
+            #
+            # But, if the user need the original exception (lxml or minidom) 
+            # it is available with GPXXMLSyntaxException.original_exception:
+            raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 
     def __parse_dom(self):
 
