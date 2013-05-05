@@ -72,13 +72,11 @@ class GPXXMLSyntaxException(GPXException):
     """
     Exception used when the the XML syntax is invalid.
 
-    The original_exception can be a minidom or lxml exception.
+    The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).
     """
-
     def __init__(self, message, original_exception):
         GPXException.__init__(self, message)
-
-        self.original_exception = original_exception
+        self.__cause__ = original_exception
 
 class GPXWaypoint(mod_geo.Location):
 	
