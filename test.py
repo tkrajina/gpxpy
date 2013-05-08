@@ -153,6 +153,12 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
 
+    def test_waypoint_time(self):
+        gpx = self.__parse('cerknicko-jezero.gpx')
+
+        self.assertTrue(gpx.waypoints[0].time)
+        self.assertTrue(isinstance(gpx.waypoints[0].time, mod_datetime.datetime))
+
     def test_remove_elevation(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
