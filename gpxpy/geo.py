@@ -165,7 +165,7 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
     slower than the dummy distance algorithm (which is OK for most GPS tracks).
     """
 
-    # If points too distance -- compute haversine distance:
+    # If points too distant -- compute haversine distance:
     if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
