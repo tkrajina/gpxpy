@@ -38,6 +38,11 @@ for gpx_file in gpx_files:
         if gpx.email:
             print('  Email: %s' % gpx.email)
 
+        length_2d = gpx.length_2d()
+        length_3d = gpx.length_3d()
+        print('  Length 2D: %s' % (length_2d / 1000.))
+        print('  Length 3D: %s' % (length_3d / 1000.))
+
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
         print('  Moving time: %s' % format_time(moving_time))
         print('  Stopped time: %s' % format_time(stopped_time))
