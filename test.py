@@ -139,10 +139,14 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertTrue(isinstance(e, mod_gpx.GPXXMLSyntaxException))
             self.assertTrue(e.__cause__)
 
-            import lxml.etree as mod_etree
-            import xml.parsers.expat as mod_expat
-            self.assertTrue(isinstance(e.__cause__, mod_etree.XMLSyntaxError)
-                            or isinstance(e.__cause__, mod_expat.ExpatError))
+            try:
+                # more checks if lxml:
+                import lxml.etree as mod_etree
+                import xml.parsers.expat as mod_expat
+                self.assertTrue(isinstance(e.__cause__, mod_etree.XMLSyntaxError)
+                                or isinstance(e.__cause__, mod_expat.ExpatError))
+            except:
+                pass
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
@@ -1087,7 +1091,7 @@ class LxmlTests(mod_unittest.TestCase):
 
     def test_track_with_elevation_zero(self):
         with open('test_files/cerknicko-jezero-with-elevations-zero.gpx') as f:
-            gpx = mod_gpxpy.parse(f)
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
 
             minimum, maximum = gpx.get_elevation_extremes()
             self.assertEqual(minimum, 0)
@@ -1099,7 +1103,7 @@ class LxmlTests(mod_unittest.TestCase):
 
     def test_track_without_elevation(self):
         with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
-            gpx = mod_gpxpy.parse(f)
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
 
             minimum, maximum = gpx.get_elevation_extremes()
             self.assertEqual(minimum, None)

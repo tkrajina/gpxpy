@@ -26,6 +26,7 @@ import xml.dom.minidom as mod_minidom
 try:
     import lxml.etree as mod_etree
 except:
+    mod_etree = None
     pass # LXML not available
 
 from . import gpx as mod_gpx
@@ -90,6 +91,8 @@ class LXMLParser:
     """
 
     def __init__(self, xml):
+        assert mod_etree
+
         if mod_utils.PYTHON_VERSION[0] == '3':
             # In python 3 all strings are unicode and for some reason lxml 
             # don't like unicode strings with XMLs declared as UTF-8:
