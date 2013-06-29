@@ -628,6 +628,16 @@ class GPXTrack:
 
         return result
 
+    def has_elevations(self):
+        if not self.segments:
+            return None
+
+        result = True
+        for track_segment in self.segments:
+            result = result and track_segment.has_elevations()
+
+        return result
+
     def get_nearest_location(self, location):
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
         if not self.segments:
@@ -1074,17 +1084,31 @@ class GPXTrackSegment:
             # ... or otherwise one empty track segment would change the entire 
             # track's "has_times" status!
 
-        has_first = self.points[0]
-        has_last = self.points[-1]
-
         found = 0
         for track_point in self.points:
             if track_point.time:
                 found += 1
 
-        found = float(found) / float(len(self.points))
+        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
-        return has_first and found > .75 and has_last
+    def has_elevations(self):
+        """ 
+        Returns if points in this segment contains timestamps.
+
+        At least the first, last points and 75% of others must have times fot this 
+        method to return true.
+        """
+        if not self.points:
+            return True
+            # ... or otherwise one empty track segment would change the entire 
+            # track's "has_times" status!
+
+        found = 0
+        for track_point in self.points:
+            if track_point.elevation != None:
+                found += 1
+
+        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'points')
@@ -1573,6 +1597,17 @@ class GPX:
         result = True
         for track in self.tracks:
             result = result and track.has_times()
+
+        return result
+
+    def has_elevations(self):
+        """ See GPXTrackSegment.has_times() """
+        if not self.tracks:
+            return None
+
+        result = True
+        for track in self.tracks:
+            result = result and track.has_elevations()
 
         return result
 

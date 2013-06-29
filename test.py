@@ -1113,6 +1113,16 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertEqual(uphill, 0)
             self.assertEqual(downhill, 0)
 
+    def test_has_elevation_false(self):
+        with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            self.assertFalse(gpx.has_elevations())
+
+    def test_has_elevation_true(self):
+        with open('test_files/cerknicko-jezero.gpx') as f:
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            self.assertFalse(gpx.has_elevations())
+
     def test_track_with_some_points_are_without_elevations(self):
         gpx = mod_gpx.GPX()
 
