@@ -1105,7 +1105,7 @@ class GPXTrackSegment:
 
         found = 0
         for track_point in self.points:
-            if track_point.elevation != None:
+            if track_point.elevation:
                 found += 1
 
         return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
