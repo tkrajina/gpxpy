@@ -1149,6 +1149,12 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(uphill is not None)
         self.assertTrue(downhill is not None)
 
+    def test_track_with_empty_segment(self):
+        with open('test_files/track-with-empty-segment.gpx') as f:
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude)
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):
