@@ -849,8 +849,9 @@ class GPXTrackSegment:
         if not delta:
             return
 
-        for track_point in self.points and track_point.elevation != None:
-            track_point.elevation += delta
+        for track_point in self.points:
+            if track_point.elevation != None:
+                track_point.elevation += delta
 
     def get_duration(self):
         """ Duration in seconds """
