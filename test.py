@@ -126,6 +126,11 @@ class LxmlTests(mod_unittest.TestCase):
 
         return gpx
 
+    def test_parse_with_all_parser_typer(self):
+        self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx')))
+        self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser='minidom'))
+        self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser='lxml'))
+
     def test_simple_parse_function(self):
         # Must not throw any exception:
         mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx'), parser=self.get_parser_type())
@@ -1148,6 +1153,12 @@ class LxmlTests(mod_unittest.TestCase):
         uphill, downhill = gpx.get_uphill_downhill()
         self.assertTrue(uphill is not None)
         self.assertTrue(downhill is not None)
+
+    def test_track_with_empty_segment(self):
+        with open('test_files/track-with-empty-segment.gpx') as f:
+            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude)
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude)
 
 class MinidomTests(LxmlTests):
 

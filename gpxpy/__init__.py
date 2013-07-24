@@ -14,10 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-def parse(xml_or_file, parser='lxml'):
+def parse(xml_or_file, parser=None):
     """
     Parse xml (string) or file object. This is just an wrapper for 
     GPXParser.parse() function.
+
+    parser may be 'lxml', 'minidom' or None (then it will be automatically 
+    detected, lxml if possible).
     """
 
     from . import gpx as mod_gpx
