@@ -855,7 +855,7 @@ class GPXTrackSegment:
 
     def get_duration(self):
         """ Duration in seconds """
-        if not self.points:
+        if not self.points or len(self.points) < 2:
             return 0
 
         # Search for start:

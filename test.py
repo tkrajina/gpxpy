@@ -183,6 +183,26 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 90)
         self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
 
+    def test_get_duration(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
+        self.assertEqual(gpx.get_duration(), 0)
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[1].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
+        self.assertEqual(gpx.get_duration(), 0)
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[2].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
+        gpx.tracks[0].segments[2].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                time=mod_datetime.datetime(2013, 1, 1, 12, 31)))
+        self.assertEqual(gpx.get_duration(), 60)
+
     def test_remove_elevation(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
