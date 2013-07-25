@@ -168,6 +168,21 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(gpx.waypoints[0].time)
         self.assertTrue(isinstance(gpx.waypoints[0].time, mod_datetime.datetime))
 
+    def test_add_elevation(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13, elevation=100))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
+
+        gpx.add_elevation(10)
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 110)
+        self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
+
+        gpx.add_elevation(-20)
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 90)
+        self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
+
     def test_remove_elevation(self):
         gpx = self.__parse('cerknicko-jezero.gpx')
 
