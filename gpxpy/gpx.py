@@ -1290,10 +1290,10 @@ class GPX:
 
         length = self.length_3d()
 
-        if not min_distance:
-            min_distance = mod_math.ceil(length / float(max_points_no))
-            if not min_distance or min_distance < 0:
-                min_distance = 100
+        min_distance = min_distance or 0
+        max_points_no = max_points_no or 1000000000
+
+        min_distance = max(min_distance, mod_math.ceil(length / float(max_points_no)))
 
         for track in self.tracks:
             for track_segment in track.segments:
