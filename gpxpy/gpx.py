@@ -519,6 +519,10 @@ class GPXTrack:
         for track_segment in self.segments:
             track_segment.add_elevation(delta)
 
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track_segment in self.segments:
+            track_segment.add_missing_data(get_data_function, add_missing_function)
+
     def move(self, latitude_diff, longitude_diff):
         for track_segment in self.segments:
             track_segment.move(latitude_diff, longitude_diff)
@@ -843,7 +847,6 @@ class GPXTrackSegment:
         return speed_2
 
     def add_elevation(self, delta):
-
         mod_logging.debug('delta = %s' % delta)
 
         if not delta:
@@ -852,6 +855,29 @@ class GPXTrackSegment:
         for track_point in self.points:
             if track_point.elevation != None:
                 track_point.elevation += delta
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        if not get_data_function:
+            raise GPXException('Invalid get_data_function: %s' % get_data_function)
+        if not add_missing_function:
+            raise GPXException('Invalid add_missing_function: %s' % add_missing_function)
+
+        # Points between two points *without* data:
+        interval = []
+        # Points before and after the interval *with* data:
+        start_point = None
+
+        for track_point in self.points:
+            data = get_data_function(track_point)
+            if data == None:
+                if not start_point:
+                    start_point = point
+                interval.append(track_point)
+            else:
+                if interval:
+                    add_missing_function(interval, start_point, point)
+                    start_point = None
+                    interval = []
 
     def get_duration(self):
         """ Duration in seconds """
@@ -1531,6 +1557,22 @@ class GPX:
     def add_elevation(self, delta):
         for track in self.tracks:
             track.add_elevation(delta)
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track in self.tracks:
+            track.add_missing_data(get_data_function, add_missing_function)
+
+    def add_missing_elevation(self):
+        def _add(interval, start, end):
+            pass # TODO
+        self.add_missing_data(get_data_function=lambda point: point.elevation,
+                              add_missing_data=_add)
+
+    def add_missing_time(self):
+        def _add(interval, start, end):
+            pass #TODO
+        self.add_missing_data(get_data_function=lambda point: point.time,
+                              add_missing_data=_add)
 
     def move(self, latitude_diff, longitude_diff):
         for route in self.routes:
