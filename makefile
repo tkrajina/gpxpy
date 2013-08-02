@@ -16,3 +16,8 @@ check-all-commited:
 pypi-upload: test check-all-commited
 	python setup.py register
 	python setup.py sdist upload
+ctags:
+	ctags -R .
+clean:
+	rm -Rf build
+	rm -v -- $(shell find . -name "*.pyc")
