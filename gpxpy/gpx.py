@@ -867,17 +867,19 @@ class GPXTrackSegment:
         # Points before and after the interval *with* data:
         start_point = None
 
+        previous_point = None
         for track_point in self.points:
             data = get_data_function(track_point)
-            if data == None:
+            if data == None and previous_point:
                 if not start_point:
-                    start_point = point
+                    start_point = previous_point
                 interval.append(track_point)
             else:
                 if interval:
-                    add_missing_function(interval, start_point, point)
+                    add_missing_function(interval, start_point, track_point)
                     start_point = None
                     interval = []
+            previous_point = track_point
 
     def get_duration(self):
         """ Duration in seconds """
