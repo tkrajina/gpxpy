@@ -1306,6 +1306,35 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
         self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
 
+    def test_add_missing_time(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+                time=20))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
+
+        gpx.add_missing_time()
+
+        print(gpx.tracks[0].segments[0].points[1].time)
+        print(gpx.tracks[0].segments[0].points[2].time)
+        print(gpx.tracks[0].segments[0].points[3].time)
+        """
+        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
+        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
+        self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
+        """
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):

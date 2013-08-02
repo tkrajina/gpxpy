@@ -1589,6 +1589,12 @@ class GPX:
 
     def add_missing_elevation(self):
         def _add(interval, start, end, distances_ratios):
+            assert start
+            assert end
+            assert start.time != None
+            assert end.time != None
+            assert interval
+            assert len(interval) == len(distances_ratios)
             for i in range(len(interval)):
                 interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
 
@@ -1596,15 +1602,24 @@ class GPX:
                               add_missing_function=_add)
 
     def add_missing_time(self):
-        def _add(interval, start, end):
+        def _add(interval, start, end, distances_ratios):
             assert start
             assert end
             assert start.time != None
             assert end.time != None
             assert interval
+            assert len(interval) == len(distances_ratios)
+
+            seconds_between = (end.time -  start.time).total_seconds()
+
+            for i in range(len(interval)):
+                point = interval[i]
+                ratio = distances_ratios[i]
+                point.time = start.time + mod_datetime.timedelta(seconds + ratio * seconds_between)
+                print(point.time)
 
         self.add_missing_data(get_data_function=lambda point: point.time,
-                              add_missing_data=_add)
+                              add_missing_function=_add)
 
     def move(self, latitude_diff, longitude_diff):
         for route in self.routes:
