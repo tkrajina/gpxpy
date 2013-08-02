@@ -1209,7 +1209,7 @@ class LxmlTests(mod_unittest.TestCase):
                 elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point):
+        def _add_missing_function(interval, start_point, end_point, ratios):
             raise Error()
 
         gpx.add_missing_data(get_data_function=lambda point:point.elevation,
@@ -1229,13 +1229,14 @@ class LxmlTests(mod_unittest.TestCase):
                 elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point):
+        def _add_missing_function(interval, start_point, end_point, ratios):
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
             assert end_point.latitude == 12 and end_point.longitude == 15
             assert len(interval) == 1
             assert interval[0].latitude == 12 and interval[0].longitude == 14
+            assert ratios
             interval[0].elevation = 314
 
         gpx.add_missing_data(get_data_function=lambda point:point.elevation,
@@ -1261,13 +1262,14 @@ class LxmlTests(mod_unittest.TestCase):
                 elevation=None))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point):
+        def _add_missing_function(interval, start_point, end_point, ratios):
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
             assert end_point.latitude == 12 and end_point.longitude == 15
             assert len(interval) == 1
             assert interval[0].latitude == 12 and interval[0].longitude == 14
+            assert ratios
             interval[0].elevation = 314
 
         gpx.add_missing_data(get_data_function=lambda point:point.elevation,

@@ -876,10 +876,33 @@ class GPXTrackSegment:
                 interval.append(track_point)
             else:
                 if interval:
-                    add_missing_function(interval, start_point, track_point)
+                    distances_ratios = self._get_interval_distances_ratios(interval,
+                                                            start_point, track_point)
+                    add_missing_function(interval, start_point, track_point,
+                                         distances_ratios)
                     start_point = None
                     interval = []
             previous_point = track_point
+
+    def _get_interval_distances_ratios(self, interval, start, end):
+        assert start, start
+        assert end, end
+        assert interval, interval
+        assert len(interval) > 0, interval
+
+        distances = []
+        distance_from_start = 0
+        previous_point = start
+        for point in interval:
+            distance_from_start += float(point.distance_3d(previous_point))
+            distances.append(distance_from_start)
+            previous_point = point
+
+        from_start_to_end = distances[-1] + interval[-1].distance_3d(end)
+
+        assert len(interval) == len(distances)
+
+        return list(map(lambda distance : distance / from_start_to_end, distances))
 
     def get_duration(self):
         """ Duration in seconds """
@@ -1565,21 +1588,7 @@ class GPX:
             track.add_missing_data(get_data_function, add_missing_function)
 
     def add_missing_elevation(self):
-        def _add(interval, start, end):
-            distances = []
-            distance_from_start = 0
-            previous_point = start
-            for point in interval:
-                distance_from_start += float(point.distance_3d(previous_point))
-                distances.append(distance_from_start)
-                previous_point = point
-
-            from_start_to_end = distances[-1] + interval[-1].distance_3d(end)
-
-            assert len(interval) == len(distances)
-
-            distances_ratios = list(map(lambda distance : distance / from_start_to_end, distances))
-
+        def _add(interval, start, end, distances_ratios):
             for i in range(len(interval)):
                 interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
 
