@@ -1300,13 +1300,13 @@ class LxmlTests(mod_unittest.TestCase):
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
                 elevation=None))
 
-        gpx.add_missing_elevation()
+        gpx.add_missing_elevations()
 
         self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
         self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
         self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
 
-    def test_add_missing_time(self):
+    def test_add_missing_times(self):
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
@@ -1317,23 +1317,34 @@ class LxmlTests(mod_unittest.TestCase):
                 time=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
                 time=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12,
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12,
                 time=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
-                time=20))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
                 time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
 
-        gpx.add_missing_time()
+        gpx.add_missing_times()
 
-        print(gpx.tracks[0].segments[0].points[1].time)
-        print(gpx.tracks[0].segments[0].points[2].time)
-        print(gpx.tracks[0].segments[0].points[3].time)
-        """
-        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
-        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
-        self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
-        """
+        time_1 = gpx.tracks[0].segments[0].points[1].time
+        time_2 = gpx.tracks[0].segments[0].points[2].time
+        time_3 = gpx.tracks[0].segments[0].points[3].time
+
+        self.assertEqual(2013, time_1.year)
+        self.assertEqual(1, time_1.month)
+        self.assertEqual(2, time_1.day)
+        self.assertEqual(13, time_1.hour)
+        self.assertEqual(15, time_1.minute)
+
+        self.assertEqual(2013, time_2.year)
+        self.assertEqual(1, time_2.month)
+        self.assertEqual(2, time_2.day)
+        self.assertEqual(13, time_2.hour)
+        self.assertEqual(30, time_2.minute)
+
+        self.assertEqual(2013, time_3.year)
+        self.assertEqual(1, time_3.month)
+        self.assertEqual(2, time_3.day)
+        self.assertEqual(13, time_3.hour)
+        self.assertEqual(45, time_3.minute)
 
 class MinidomTests(LxmlTests):
 

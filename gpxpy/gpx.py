@@ -20,13 +20,14 @@ GPX related stuff
 
 import pdb
 
-import logging as mod_logging
-import math as mod_math
-import collections as mod_collections
-import copy as mod_copy
+import logging      as mod_logging
+import math         as mod_math
+import collections  as mod_collections
+import copy         as mod_copy
+import datetime     as mod_datetime
 
 from . import utils as mod_utils
-from . import geo as mod_geo
+from . import geo   as mod_geo
 
 # GPX date format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -1587,12 +1588,12 @@ class GPX:
         for track in self.tracks:
             track.add_missing_data(get_data_function, add_missing_function)
 
-    def add_missing_elevation(self):
+    def add_missing_elevations(self):
         def _add(interval, start, end, distances_ratios):
             assert start
             assert end
-            assert start.time != None
-            assert end.time != None
+            assert start.elevation != None
+            assert end.elevation != None
             assert interval
             assert len(interval) == len(distances_ratios)
             for i in range(len(interval)):
@@ -1601,7 +1602,7 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.elevation,
                               add_missing_function=_add)
 
-    def add_missing_time(self):
+    def add_missing_times(self):
         def _add(interval, start, end, distances_ratios):
             assert start
             assert end
@@ -1610,12 +1611,13 @@ class GPX:
             assert interval
             assert len(interval) == len(distances_ratios)
 
-            seconds_between = (end.time -  start.time).total_seconds()
+            seconds_between = float((end.time -  start.time).seconds)
 
             for i in range(len(interval)):
                 point = interval[i]
                 ratio = distances_ratios[i]
-                point.time = start.time + mod_datetime.timedelta(seconds + ratio * seconds_between)
+                point.time = start.time + mod_datetime.timedelta(
+                        seconds=(seconds_between + ratio * seconds_between))
                 print(point.time)
 
         self.add_missing_data(get_data_function=lambda point: point.time,
