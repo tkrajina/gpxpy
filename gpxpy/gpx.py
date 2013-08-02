@@ -1566,20 +1566,22 @@ class GPX:
 
     def add_missing_elevation(self):
         def _add(interval, start, end):
-            pdb.set_trace()
             distances = []
-            for point_no, point in enumerate(interval):
-                if point_no > 0:
-                    distances.append(float(point.distance_3d(interval[point_no - 1])))
-                else:
-                    distances.append(float(point.distance_3d(start)))
-            assert len(interval) == len(distances)
-            sum_distances = sum(distances) + interval[-1].distance_3d(end)
+            distance_from_start = 0
+            previous_point = start
+            for point in interval:
+                distance_from_start += float(point.distance_3d(previous_point))
+                distances.append(distance_from_start)
+                previous_point = point
 
-            distances_ratio = map(lambda distance : distance / sum_distances, distances)
+            from_start_to_end = distances[-1] + interval[-1].distance_3d(end)
+
+            assert len(interval) == len(distances)
+
+            distances_ratios = list(map(lambda distance : distance / from_start_to_end, distances))
 
             for i in range(len(interval)):
-                interval[i].elevation = start.elevation + distances_ratio[i] * (end.elevation - start.elevation)
+                interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
 
         self.add_missing_data(get_data_function=lambda point: point.elevation,
                               add_missing_function=_add)
