@@ -1280,6 +1280,30 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertEquals(314, gpx.tracks[0].segments[0].points[2].elevation)
 
+    def test_add_missing_elevations(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13.25,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13.5,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13.9,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
+                elevation=20))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
+                elevation=None))
+
+        gpx.add_missing_elevation()
+
+        print(gpx.tracks[0].segments[0].points[2].elevation)
+        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
+        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):
