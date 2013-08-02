@@ -1195,6 +1195,157 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude)
             self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude)
 
+    def test_add_missing_data_no_intervals(self):
+        # Test only that the add_missing_function is called with the right data
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
+                elevation=100))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
+                elevation=20))
+
+        # Shouldn't be called because all points have elevation
+        def _add_missing_function(interval, start_point, end_point, ratios):
+            raise Error()
+
+        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+                             add_missing_function=_add_missing_function)
+
+    def test_add_missing_data_one_interval(self):
+        # Test only that the add_missing_function is called with the right data
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
+                elevation=20))
+
+        # Shouldn't be called because all points have elevation
+        def _add_missing_function(interval, start_point, end_point, ratios):
+            assert start_point
+            assert start_point.latitude == 12 and start_point.longitude == 13
+            assert end_point
+            assert end_point.latitude == 12 and end_point.longitude == 15
+            assert len(interval) == 1
+            assert interval[0].latitude == 12 and interval[0].longitude == 14
+            assert ratios
+            interval[0].elevation = 314
+
+        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+                             add_missing_function=_add_missing_function)
+
+        self.assertEquals(314, gpx.tracks[0].segments[0].points[1].elevation)
+
+    def test_add_missing_data_one_interval_and_empty_points_on_start_and_end(self):
+        # Test only that the add_missing_function is called with the right data
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
+                elevation=20))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
+                elevation=None))
+
+        # Shouldn't be called because all points have elevation
+        def _add_missing_function(interval, start_point, end_point, ratios):
+            assert start_point
+            assert start_point.latitude == 12 and start_point.longitude == 13
+            assert end_point
+            assert end_point.latitude == 12 and end_point.longitude == 15
+            assert len(interval) == 1
+            assert interval[0].latitude == 12 and interval[0].longitude == 14
+            assert ratios
+            interval[0].elevation = 314
+
+        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+                             add_missing_function=_add_missing_function)
+
+        # Points at start and end should not have elevation 314 because have 
+        # no two bounding points with elevations:
+        self.assertEquals(None, gpx.tracks[0].segments[0].points[0].elevation)
+        self.assertEquals(None, gpx.tracks[0].segments[0].points[-1].elevation)
+
+        self.assertEquals(314, gpx.tracks[0].segments[0].points[2].elevation)
+
+    def test_add_missing_elevations(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
+                elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12,
+                elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+                elevation=20))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
+                elevation=None))
+
+        gpx.add_missing_elevations()
+
+        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
+        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
+        self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
+
+    def test_add_missing_times(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
+
+        gpx.add_missing_times()
+
+        time_1 = gpx.tracks[0].segments[0].points[1].time
+        time_2 = gpx.tracks[0].segments[0].points[2].time
+        time_3 = gpx.tracks[0].segments[0].points[3].time
+
+        self.assertEqual(2013, time_1.year)
+        self.assertEqual(1, time_1.month)
+        self.assertEqual(2, time_1.day)
+        self.assertEqual(13, time_1.hour)
+        self.assertEqual(15, time_1.minute)
+
+        self.assertEqual(2013, time_2.year)
+        self.assertEqual(1, time_2.month)
+        self.assertEqual(2, time_2.day)
+        self.assertEqual(13, time_2.hour)
+        self.assertEqual(30, time_2.minute)
+
+        self.assertEqual(2013, time_3.year)
+        self.assertEqual(1, time_3.month)
+        self.assertEqual(2, time_3.day)
+        self.assertEqual(13, time_3.hour)
+        self.assertEqual(45, time_3.minute)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):

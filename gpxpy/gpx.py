@@ -20,13 +20,14 @@ GPX related stuff
 
 import pdb
 
-import logging as mod_logging
-import math as mod_math
-import collections as mod_collections
-import copy as mod_copy
+import logging      as mod_logging
+import math         as mod_math
+import collections  as mod_collections
+import copy         as mod_copy
+import datetime     as mod_datetime
 
 from . import utils as mod_utils
-from . import geo as mod_geo
+from . import geo   as mod_geo
 
 # GPX date format
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -519,6 +520,10 @@ class GPXTrack:
         for track_segment in self.segments:
             track_segment.add_elevation(delta)
 
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track_segment in self.segments:
+            track_segment.add_missing_data(get_data_function, add_missing_function)
+
     def move(self, latitude_diff, longitude_diff):
         for track_segment in self.segments:
             track_segment.move(latitude_diff, longitude_diff)
@@ -843,7 +848,6 @@ class GPXTrackSegment:
         return speed_2
 
     def add_elevation(self, delta):
-
         mod_logging.debug('delta = %s' % delta)
 
         if not delta:
@@ -852,6 +856,54 @@ class GPXTrackSegment:
         for track_point in self.points:
             if track_point.elevation != None:
                 track_point.elevation += delta
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        if not get_data_function:
+            raise GPXException('Invalid get_data_function: %s' % get_data_function)
+        if not add_missing_function:
+            raise GPXException('Invalid add_missing_function: %s' % add_missing_function)
+
+        # Points between two points *without* data:
+        interval = []
+        # Points before and after the interval *with* data:
+        start_point = None
+
+        previous_point = None
+        for track_point in self.points:
+            data = get_data_function(track_point)
+            if data == None and previous_point:
+                if not start_point:
+                    start_point = previous_point
+                interval.append(track_point)
+            else:
+                if interval:
+                    distances_ratios = self._get_interval_distances_ratios(interval,
+                                                            start_point, track_point)
+                    add_missing_function(interval, start_point, track_point,
+                                         distances_ratios)
+                    start_point = None
+                    interval = []
+            previous_point = track_point
+
+    def _get_interval_distances_ratios(self, interval, start, end):
+        assert start, start
+        assert end, end
+        assert interval, interval
+        assert len(interval) > 0, interval
+
+        distances = []
+        distance_from_start = 0
+        previous_point = start
+        for point in interval:
+            distance_from_start += float(point.distance_3d(previous_point))
+            distances.append(distance_from_start)
+            previous_point = point
+
+        from_start_to_end = distances[-1] + interval[-1].distance_3d(end)
+
+        assert len(interval) == len(distances)
+
+        return list(map(lambda distance : distance / from_start_to_end, distances))
 
     def get_duration(self):
         """ Duration in seconds """
@@ -1531,6 +1583,45 @@ class GPX:
     def add_elevation(self, delta):
         for track in self.tracks:
             track.add_elevation(delta)
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track in self.tracks:
+            track.add_missing_data(get_data_function, add_missing_function)
+
+    def add_missing_elevations(self):
+        def _add(interval, start, end, distances_ratios):
+            assert start
+            assert end
+            assert start.elevation != None
+            assert end.elevation != None
+            assert interval
+            assert len(interval) == len(distances_ratios)
+            for i in range(len(interval)):
+                interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
+
+        self.add_missing_data(get_data_function=lambda point: point.elevation,
+                              add_missing_function=_add)
+
+    def add_missing_times(self):
+        def _add(interval, start, end, distances_ratios):
+            assert start
+            assert end
+            assert start.time != None
+            assert end.time != None
+            assert interval
+            assert len(interval) == len(distances_ratios)
+
+            seconds_between = float((end.time -  start.time).seconds)
+
+            for i in range(len(interval)):
+                point = interval[i]
+                ratio = distances_ratios[i]
+                point.time = start.time + mod_datetime.timedelta(
+                        seconds=(seconds_between + ratio * seconds_between))
+                print(point.time)
+
+        self.add_missing_data(get_data_function=lambda point: point.time,
+                              add_missing_function=_add)
 
     def move(self, latitude_diff, longitude_diff):
         for route in self.routes:
