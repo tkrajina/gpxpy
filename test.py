@@ -313,6 +313,24 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(points_reduced < points_original)
         self.assertTrue(points_reduced < max_reduced_points_no)
 
+    def test_smooth_without_removing_extreemes_preserves_point_count(self):
+        gpx = self.__parse('first_and_last_elevation.gpx')
+        l = len(list(gpx.walk()))
+        gpx.smooth(vertical=True, horizontal=False)
+        self.assertEquals(l, len(list(gpx.walk())))
+
+    def test_smooth_without_removing_extreemes_preserves_point_count_2(self):
+        gpx = self.__parse('first_and_last_elevation.gpx')
+        l = len(list(gpx.walk()))
+        gpx.smooth(vertical=False, horizontal=True)
+        self.assertEquals(l, len(list(gpx.walk())))
+
+    def test_smooth_without_removing_extreemes_preserves_point_count_3(self):
+        gpx = self.__parse('first_and_last_elevation.gpx')
+        l = len(list(gpx.walk()))
+        gpx.smooth(vertical=True, horizontal=True)
+        self.assertEquals(l, len(list(gpx.walk())))
+
     def test_clone_and_smooth(self):
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())

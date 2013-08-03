@@ -1081,6 +1081,8 @@ class GPXTrackSegment:
                         point_removed = True
                 else:
                     new_point = self.points[i]
+            else:
+                new_point = self.points[i]
 
             if horizontal:
                 old_latitude = self.points[i].latitude
