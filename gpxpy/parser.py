@@ -338,6 +338,15 @@ class GPXParser:
                 route_point = self._parse_route_point(child_node)
                 route.points.append(route_point)
 
+                # append AutoroutePoints to route_points
+                extensions_node = self.xml_parser.get_first_child(child_node, 'extensions')
+                route_point_extension = self.xml_parser.get_first_child(extensions_node, 'RoutePointExtension')
+                rpt_nodes = self.xml_parser.get_children(route_point_extension)
+                for rpt_node in rpt_nodes:
+                    if self.xml_parser.get_node_name(rpt_node) == 'rpt':
+                        auto_route_point = self._parse_route_point(rpt_node)
+                        route.points.append(auto_route_point)
+
         return route
 
     def _parse_route_point(self, node):
