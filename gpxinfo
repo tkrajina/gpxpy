@@ -56,6 +56,10 @@ for gpx_file in gpx_files:
         start_time, end_time = gpx.get_time_bounds()
         print('  Started: %s' % start_time)
         print('  Ended: %s' % end_time)
+
+        points_no = len(list(gpx.walk(only_point=True)))
+        print('  Points: %s' % points_no)
+
         print('')
     except Exception as e:
         mod_logging.exception(e)
