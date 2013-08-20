@@ -831,8 +831,8 @@ class GPXTrackSegment:
         #mod_logging.debug('previous: %s' % previous_point)
         #mod_logging.debug('next: %s' % next_point)
 
-        speed_1 = point.speed(previous_point)
-        speed_2 = point.speed(next_point)
+        speed_1 = point.speed_between(previous_point)
+        speed_2 = point.speed_between(next_point)
 
         if speed_1:
             speed_1 = abs(speed_1)
