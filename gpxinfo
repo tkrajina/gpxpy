@@ -19,6 +19,53 @@ def format_time(time_s):
 
     return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
 
+def print_gpx_part_info(gpx_part, indentation='    '):
+    """
+    gpx_part may be a track or segment.
+    """
+    length_2d = gpx.length_2d()
+    length_3d = gpx.length_3d()
+    print('%sLength 2D: %s' % (indentation, length_2d / 1000.))
+    print('%sLength 3D: %s' % (indentation, length_3d / 1000.))
+
+    moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
+    print('%sMoving time: %s' % (indentation, format_time(moving_time)))
+    print('%sStopped time: %s' % (indentation, format_time(stopped_time)))
+    #print('%sStopped distance: %sm' % stopped_distance)
+    print('%sMax speed: %sm/s = %skm/h' % (indentation, max_speed, max_speed * 60. ** 2 / 1000.))
+
+    uphill, downhill = gpx.get_uphill_downhill()
+    print('%sTotal uphill: %sm' % (indentation, uphill))
+    print('%sTotal downhill: %sm' % (indentation, downhill))
+
+    start_time, end_time = gpx.get_time_bounds()
+    print('%sStarted: %s' % (indentation, start_time))
+    print('%sEnded: %s' % (indentation, end_time))
+
+    points_no = len(list(gpx.walk(only_points=True)))
+    print('%sPoints: %s' % (indentation, points_no))
+
+    print('')
+
+def print_gpx_info(gpx):
+    print('File: %s' % gpx_file)
+
+    if gpx.name: 
+        print('  GPX name: %s' % gpx.name)
+    if gpx.description:
+        print('  GPX description: %s' % gpx.description)
+    if gpx.author:
+        print('  Author: %s' % gpx.author)
+    if gpx.email:
+        print('  Email: %s' % gpx.email)
+
+    print_gpx_part_info(gpx)
+
+    for track_no, track in enumerate(gpx.tracks):
+        for segment_no, segment in enumerate(track.segments):
+            print '    Track #%s, Segment #%s' % (track_no, segment_no)
+            print_gpx_part_info(segment, indentation='        ')
+
 if not gpx_files:
     print('No GPX files given')
     mod_sys.exit(1)
@@ -26,41 +73,7 @@ if not gpx_files:
 for gpx_file in gpx_files:
     try:
         gpx = mod_gpxpy.parse(open(gpx_file))
-
-        print('File: %s' % gpx_file)
-
-        if gpx.name: 
-            print('  GPX name: %s' % gpx.name)
-        if gpx.description:
-            print('  GPX description: %s' % gpx.description)
-        if gpx.author:
-            print('  Author: %s' % gpx.author)
-        if gpx.email:
-            print('  Email: %s' % gpx.email)
-
-        length_2d = gpx.length_2d()
-        length_3d = gpx.length_3d()
-        print('  Length 2D: %s' % (length_2d / 1000.))
-        print('  Length 3D: %s' % (length_3d / 1000.))
-
-        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
-        print('  Moving time: %s' % format_time(moving_time))
-        print('  Stopped time: %s' % format_time(stopped_time))
-        #print('  Stopped distance: %sm' % stopped_distance)
-        print('  Max speed: %sm/s = %skm/h' % (max_speed, max_speed * 60. ** 2 / 1000.))
-
-        uphill, downhill = gpx.get_uphill_downhill()
-        print('  Total uphill: %sm' % uphill)
-        print('  Total downhill: %sm' % downhill)
-
-        start_time, end_time = gpx.get_time_bounds()
-        print('  Started: %s' % start_time)
-        print('  Ended: %s' % end_time)
-
-        points_no = len(list(gpx.walk(only_point=True)))
-        print('  Points: %s' % points_no)
-
-        print('')
+        print_gpx_info(gpx)
     except Exception as e:
         mod_logging.exception(e)
         print('Error processing %s' % gpx_file)
