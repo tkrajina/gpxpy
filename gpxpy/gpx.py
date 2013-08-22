@@ -372,6 +372,13 @@ class GPXTrack:
 
         self.segments = []
 
+    def simplify(self):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        for segment in self.segments:
+            segment.simplify()
+
     def remove_time(self):
         for segment in self.segments:
             segment.remove_time()
@@ -679,6 +686,13 @@ class GPXTrackSegment:
 
     def __init__(self, points=None):
         self.points = points if points else []
+
+    def simplify(self):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        print 'TODO'
+        pass
 
     def remove_time(self):
         for track_point in self.points:
@@ -1196,6 +1210,13 @@ class GPX:
         self.max_latitude = None
         self.min_longitude = None
         self.max_longitude = None
+
+    def simplify(self):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        for track in self.tracks:
+            track.simplify()
 
     def remove_time(self):
         """ Will remove time metadata. """
