@@ -198,6 +198,24 @@ def elevation_angle(location1, location2, radians=False):
 
     return 180 * angle / mod_math.pi
 
+def distance_from_line(point, line_point_1, line_point_2):
+    """ Distance of point from a line given with two points. """
+    assert point, point
+    assert line_point_1, line_point_1
+    assert line_point_2, line_point_2
+
+    a = line_point_1.distance_2d(line_point_2)
+
+    if a == 0:
+        raise Exception('Invalid line (%s, %s)' % (line_point_1, line_point_2))
+
+    b = line_point_1.distance_2d(point)
+    c = line_point_2.distance_2d(point)
+
+    s = (a + b + c) / 2.
+
+    return 2. * mod_math.sqrt(s * (s - a) * (s - b) * (s - c)) / a
+
 class Location:
     """ Generic geographical location """
 

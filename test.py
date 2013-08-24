@@ -1364,6 +1364,12 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(13, time_3.hour)
         self.assertEqual(45, time_3.minute)
 
+    def test_distance_from_line(self):
+        d = mod_geo.distance_from_line(mod_geo.Location(1, 1),
+                                       mod_geo.Location(0, -1),
+                                       mod_geo.Location(0, 1))
+        self.assertTrue(abs(d - mod_geo.ONE_DEGREE) < 100)
+
 class MinidomTests(LxmlTests):
 
     def get_parser_type(self):
