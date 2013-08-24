@@ -80,7 +80,6 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 class GPXWaypoint(mod_geo.Location):
-	
     time = None
     name = None
     description = None
@@ -153,7 +152,6 @@ class GPXWaypoint(mod_geo.Location):
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXRoute:
-
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
@@ -220,7 +218,6 @@ class GPXRoute:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXRoutePoint(mod_geo.Location):
-
     def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
             description=None, symbol=None, type=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None,
@@ -273,7 +270,6 @@ class GPXRoutePoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXTrackPoint(mod_geo.Location):
-
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
             name=None):
@@ -364,7 +360,6 @@ class GPXTrackPoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
 
 class GPXTrack:
-
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
@@ -372,12 +367,12 @@ class GPXTrack:
 
         self.segments = []
 
-    def simplify(self):
+    def simplify(self, max_distance=None):
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
         for segment in self.segments:
-            segment.simplify()
+            segment.simplify(max_distance=max_distance)
 
     def remove_time(self):
         for segment in self.segments:
@@ -683,16 +678,43 @@ class GPXTrack:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
 
 class GPXTrackSegment:
-
     def __init__(self, points=None):
         self.points = points if points else []
 
-    def simplify(self):
+    def simplify(self, max_distance=None):
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
-        print 'TODO'
-        pass
+        if len(self.points) <= 2:
+            return
+
+        if not max_distance:
+            max_distance = 10
+
+        result = [self.points[0]]
+
+        next_point = self._find_next_simplified_point(0, max_distance)
+        if next_point != None:
+            result.append(self.points[next_point])
+            while next_point != None:
+                next_point = self._find_next_simplified_point(next_point, max_distance)
+                if next_point != None:
+                    result.append(self.points[next_point])
+
+        if not (self.points[-1] in result):
+            result.append(self.points[-1])
+
+        self.points = result
+
+    def _find_next_simplified_point(self, pos, max_distance):
+        for candidate in range(pos + 1, len(self.points) - 1):
+            for i in range(pos + 1, candidate):
+                d = mod_geo.distance_from_line(self.points[i],
+                                               self.points[pos],
+                                               self.points[candidate])
+                if d > max_distance:
+                    return candidate - 1
+        return None
 
     def remove_time(self):
         for track_point in self.points:
@@ -1186,7 +1208,6 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 class GPX:
-
     def __init__(self, waypoints=None, routes=None, tracks=None):
         if waypoints: self.waypoints = waypoints
         else: self.waypoints = []
@@ -1211,12 +1232,12 @@ class GPX:
         self.min_longitude = None
         self.max_longitude = None
 
-    def simplify(self):
+    def simplify(self, max_distance=None):
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
         for track in self.tracks:
-            track.simplify()
+            track.simplify(max_distance=max_distance)
 
     def remove_time(self):
         """ Will remove time metadata. """

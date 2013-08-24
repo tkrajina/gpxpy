@@ -214,7 +214,7 @@ def distance_from_line(point, line_point_1, line_point_2):
 
     s = (a + b + c) / 2.
 
-    return 2. * mod_math.sqrt(s * (s - a) * (s - b) * (s - c)) / a
+    return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
 
 class Location:
     """ Generic geographical location """
