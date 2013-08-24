@@ -33,6 +33,7 @@ from __future__ import print_function
 import pdb
 
 import logging as mod_logging
+import os as mod_os
 import unittest as mod_unittest
 import time as mod_time
 import copy as mod_copy
@@ -1369,6 +1370,35 @@ class LxmlTests(mod_unittest.TestCase):
                                        mod_geo.Location(0, -1),
                                        mod_geo.Location(0, 1))
         self.assertTrue(abs(d - mod_geo.ONE_DEGREE) < 100)
+
+    def test_simplify(self):
+        for gpx_file in mod_os.listdir('test_files'):
+            print('Parsing:', gpx_file)
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+
+            length_2d_original = gpx.length_2d()
+
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx.simplify(max_distance=20)
+            length_2d_after_distance_20 = gpx.length_2d()
+
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx.simplify(max_distance=10)
+            length_2d_after_distance_10 = gpx.length_2d() 
+
+            print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_20)
+
+            # When simplifying the resulting disnatce should alway be less than the original:
+            self.assertTrue(length_2d_original >= length_2d_after_distance_10)
+            self.assertTrue(length_2d_original >= length_2d_after_distance_20)
+
+            # Simplify with bigger max_distance and => bigger error from original
+            self.assertTrue(length_2d_after_distance_10 >= length_2d_after_distance_20)
+
+            # The resulting distance usually shouldn't be too different from 
+            # the orignial (here check for 80% and 70%)
+            self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .8)
+            self.assertTrue(length_2d_after_distance_20 >= length_2d_original * .7)
 
 class MinidomTests(LxmlTests):
 
