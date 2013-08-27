@@ -96,12 +96,23 @@ def equals(object1, object2, ignore=None):
 
 # TODO: Track segment speed in point test
 
-class LxmlTests(mod_unittest.TestCase):
+class AbstractTests:
+    """
+    Add tests here. 
+
+    Tests will be run twice (once with Lxml and once with Minidom Parser).
+
+    If you run 'make test' then all tests will be run with python2 and python3
+
+    To be even more sure that everything works as expected -- try...
+        python -m unittest test.MinidomTests
+    ...with python-lxml and without python-lxml installed.
+    """
 
     def get_parser_type(self):
-        return 'lxml'
+        raise Exception('Implement this in subclasses')
 
-    def __parse(self, file, encoding=None):
+    def parse(self, file, encoding=None):
         if PYTHON_VERSION[0] == '3':
             f = open('test_files/%s' % file, encoding=encoding)
         else:
@@ -116,7 +127,7 @@ class LxmlTests(mod_unittest.TestCase):
 
         return gpx
 		
-    def __reparse(self, gpx):
+    def reparse(self, gpx):
         xml = gpx.to_xml()
 
         parser = mod_parser.GPXParser(xml, parser=self.get_parser_type())
@@ -155,8 +166,8 @@ class LxmlTests(mod_unittest.TestCase):
                 pass
 
     def test_waypoints_equality_after_reparse(self):
-        gpx = self.__parse('cerknicko-jezero.gpx')
-        gpx2 = self.__reparse(gpx)
+        gpx = self.parse('cerknicko-jezero.gpx')
+        gpx2 = self.reparse(gpx)
 
         self.assertTrue(equals(gpx.waypoints, gpx2.waypoints))
         self.assertTrue(equals(gpx.routes, gpx2.routes))
@@ -164,7 +175,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx, gpx2))
 
     def test_waypoint_time(self):
-        gpx = self.__parse('cerknicko-jezero.gpx')
+        gpx = self.parse('cerknicko-jezero.gpx')
 
         self.assertTrue(gpx.waypoints[0].time)
         self.assertTrue(isinstance(gpx.waypoints[0].time, mod_datetime.datetime))
@@ -205,7 +216,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(gpx.get_duration(), 60)
 
     def test_remove_elevation(self):
-        gpx = self.__parse('cerknicko-jezero.gpx')
+        gpx = self.parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
             self.assertTrue(point.elevation is not None)
@@ -220,7 +231,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertFalse('<ele>' in xml)
 
     def test_remove_time(self):
-        gpx = self.__parse('cerknicko-jezero.gpx')
+        gpx = self.parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
             self.assertTrue(point.time is not None)
@@ -231,11 +242,11 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertTrue(point.time is None)
 
     def test_has_times_false(self):
-        gpx = self.__parse('cerknicko-without-times.gpx')
+        gpx = self.parse('cerknicko-without-times.gpx')
         self.assertFalse(gpx.has_times())
 
     def test_has_times(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
         self.assertTrue(len(gpx.tracks) == 4)
         # Empty -- True
         self.assertTrue(gpx.tracks[0].has_times())
@@ -247,14 +258,14 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[3].has_times())
 
     def test_unicode(self):
-        gpx = self.__parse('unicode.gpx', encoding='utf-8')
+        gpx = self.parse('unicode.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'šđčćž')
 
     def test_nearest_location_1(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         location = mod_geo.Location(45.451058791, 14.027903696)
         nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location)
@@ -274,7 +285,7 @@ class LxmlTests(mod_unittest.TestCase):
 
     def test_long_timestamps(self):
         # Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
-        gpx = self.__parse('Mojstrovka.gpx')
+        gpx = self.parse('Mojstrovka.gpx')
 
         # %Y-%m-%dT%H:%M:%SZ'
 
@@ -315,19 +326,19 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertTrue(points_reduced < max_reduced_points_no)
 
     def test_smooth_without_removing_extreemes_preserves_point_count(self):
-        gpx = self.__parse('first_and_last_elevation.gpx')
+        gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=True, horizontal=False)
         self.assertEquals(l, len(list(gpx.walk())))
 
     def test_smooth_without_removing_extreemes_preserves_point_count_2(self):
-        gpx = self.__parse('first_and_last_elevation.gpx')
+        gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=False, horizontal=True)
         self.assertEquals(l, len(list(gpx.walk())))
 
     def test_smooth_without_removing_extreemes_preserves_point_count_3(self):
-        gpx = self.__parse('first_and_last_elevation.gpx')
+        gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=True, horizontal=True)
         self.assertEquals(l, len(list(gpx.walk())))
@@ -776,8 +787,8 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(bounds.end_time, mod_datetime.datetime(2011, 1, 12))
 
     def test_speed(self):
-        gpx = self.__parse('track_with_speed.gpx')
-        gpx2 = self.__reparse(gpx)
+        gpx = self.parse('track_with_speed.gpx')
+        gpx2 = self.reparse(gpx)
 
         self.assertTrue(equals(gpx.waypoints, gpx2.waypoints))
         self.assertTrue(equals(gpx.routes, gpx2.routes))
@@ -789,8 +800,8 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
     def test_dilutions(self):
-        gpx = self.__parse('track_with_dilution_errors.gpx')
-        gpx2 = self.__reparse(gpx)
+        gpx = self.parse('track_with_dilution_errors.gpx')
+        gpx2 = self.reparse(gpx)
 
         self.assertTrue(equals(gpx.waypoints, gpx2.waypoints))
         self.assertTrue(equals(gpx.routes, gpx2.routes))
@@ -825,7 +836,7 @@ class LxmlTests(mod_unittest.TestCase):
 
         self.assertTrue('<name>aaa' in xml )
 
-        gpx2 = self.__reparse(gpx)
+        gpx2 = self.reparse(gpx)
 
         self.assertEquals(gpx.tracks[0].segments[0].points[0].name, 'aaa')
         self.assertEquals(gpx.tracks[0].segments[0].points[0].comment, 'ccc')
@@ -869,7 +880,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(gpx.max_longitude, max(longitudes))
 
     def test_named_tuples_values_bounds(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         bounds = gpx.get_bounds()
         min_lat, max_lat, min_lon, max_lon=gpx.get_bounds()
@@ -880,7 +891,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(max_lon, bounds.max_longitude)
 
     def test_named_tuples_values_time_bounds(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         time_bounds = gpx.get_time_bounds()
         start_time, end_time = gpx.get_time_bounds()
@@ -889,7 +900,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(end_time, time_bounds.end_time)
 
     def test_named_tuples_values_moving_data(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         moving_data = gpx.get_moving_data()
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed=gpx.get_moving_data()
@@ -900,7 +911,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(max_speed, moving_data.max_speed)
 
     def test_named_tuples_values_uphill_downhill(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         uphill_downhill = gpx.get_uphill_downhill()
         uphill, downhill = gpx.get_uphill_downhill()
@@ -908,7 +919,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(downhill, uphill_downhill.downhill)
 
     def test_named_tuples_values_elevation_extremes(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         elevation_extremes = gpx.get_elevation_extremes()
         minimum, maximum = gpx.get_elevation_extremes()
@@ -916,7 +927,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(maximum, elevation_extremes.maximum)
 
     def test_named_tuples_values_nearest_location_data(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         location = gpx.tracks[1].segments[0].points[2]
         location.latitude *= 1.00001
@@ -929,7 +940,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(point_no, nearest_location_data.point_no)
 
     def test_named_tuples_values_point_data(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         points_datas = gpx.get_points_data()
 
@@ -942,7 +953,7 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertEqual(point_no, point_data.point_no)
 
     def test_track_points_data(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         points_data_2d = gpx.get_points_data(distance_2d=True)
 
@@ -973,7 +984,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(point_no, len(gpx.routes[0].points) - 1)
 
     def test_walk_gpx_points(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
 
         for point in gpx.walk():
             self.assertTrue(point)
@@ -986,7 +997,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
 
     def test_walk_gpx_points(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
         track = gpx.tracks[1]
 
         for point in track.walk():
@@ -999,7 +1010,7 @@ class LxmlTests(mod_unittest.TestCase):
         self.assertEqual(point_no, len(track.segments[-1].points) - 1)
 
     def test_walk_segment_points(self):
-        gpx = self.__parse('korita-zbevnica.gpx')
+        gpx = self.parse('korita-zbevnica.gpx')
         track = gpx.tracks[1]
         segment = track.segments[0]
 
@@ -1374,7 +1385,7 @@ class LxmlTests(mod_unittest.TestCase):
     def test_simplify(self):
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
 
             length_2d_original = gpx.length_2d()
 
@@ -1400,8 +1411,11 @@ class LxmlTests(mod_unittest.TestCase):
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .8)
             self.assertTrue(length_2d_after_distance_20 >= length_2d_original * .7)
 
-class MinidomTests(LxmlTests):
+class LxmlTests(mod_unittest.TestCase, AbstractTests):
+    def get_parser_type(self):
+        return 'lxml'
 
+class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
         return 'minidom'
 
