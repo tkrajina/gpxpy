@@ -939,7 +939,9 @@ class GPXTrackSegment:
 
         assert len(interval) == len(distances)
 
-        return list(map(lambda distance : distance / from_start_to_end, distances))
+        return list(map(
+                lambda distance : (distance / from_start_to_end) if from_start_to_end else 0,
+                distances))
 
     def get_duration(self):
         """ Duration in seconds """
