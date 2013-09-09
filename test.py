@@ -173,6 +173,15 @@ class AbstractTests:
         gpx = self.parse('cerknicko-jezero-no-creator.gpx')
         self.assertEquals(gpx.creator,None)
 
+    def test_to_xml_creator(self):
+        gpx = self.parse('cerknicko-jezero.gpx')
+        xml = gpx.to_xml()
+        self.assertTrue('creator="GPSBabel - http://www.gpsbabel.org"' in xml )
+
+        gpx2 = self.reparse(gpx)
+        self.assertEquals(gpx2.creator,"GPSBabel - http://www.gpsbabel.org")
+
+
     def test_waypoints_equality_after_reparse(self):
         gpx = self.parse('cerknicko-jezero.gpx')
         gpx2 = self.reparse(gpx)
