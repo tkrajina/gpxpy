@@ -1228,6 +1228,7 @@ class GPX:
         self.urlname = None
         self.time = None
         self.keywords = None
+        self.creator = None
 
         self.min_latitude = None
         self.max_latitude = None
@@ -1720,6 +1721,8 @@ class GPX:
                 'xmlns': 'http://www.topografix.com/GPX/1/0',
                 'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
        }
+        if self.creator:
+          xml_attributes['creator'] = self.creator
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + mod_utils.to_xml('gpx', attributes=xml_attributes, content=content).strip()
 
