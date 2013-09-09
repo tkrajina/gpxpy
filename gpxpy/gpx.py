@@ -1228,6 +1228,7 @@ class GPX:
         self.urlname = None
         self.time = None
         self.keywords = None
+        self.creator = None
 
         self.min_latitude = None
         self.max_latitude = None
