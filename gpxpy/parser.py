@@ -221,8 +221,8 @@ class GPXParser:
         node = self.xml_parser.get_first_child(name='gpx')
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
-	if self.xml_parser.get_node_attribute(node, "creator"):
-	  self.gpx.creator = self.xml_parser.get_node_attribute(node, "creator")
+        if self.xml_parser.get_node_attribute(node, "creator"):
+          self.gpx.creator = self.xml_parser.get_node_attribute(node, "creator")
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
