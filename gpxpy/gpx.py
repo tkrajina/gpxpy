@@ -374,6 +374,10 @@ class GPXTrack:
         for segment in self.segments:
             segment.simplify(max_distance=max_distance)
 
+    def reduce_points(self, min_distance):
+        for segment in self.segments:
+            segment.reduce_points(min_distance)
+
     def remove_time(self):
         for segment in self.segments:
             segment.remove_time()
@@ -705,6 +709,19 @@ class GPXTrackSegment:
             result.append(self.points[-1])
 
         self.points = result
+
+    def reduce_points(self, min_distance):
+        reduced_points = []
+        for point in self.points:
+            if reduced_points:
+                distance = reduced_points[-1].distance_3d(point)
+                if distance >= min_distance:
+                    reduced_points.append(point)
+            else:
+                # Leave first point:
+                reduced_points.append(point)
+
+        self.points = reduced_points
 
     def _find_next_simplified_point(self, pos, max_distance):
         for candidate in range(pos + 1, len(self.points) - 1):
@@ -1241,6 +1258,38 @@ class GPX:
         for track in self.tracks:
             track.simplify(max_distance=max_distance)
 
+    def reduce_points(self, max_points_no=None, min_distance=None):
+        """
+        Reduce this track to the desired number of points
+        max_points = The maximum number of points after the reduction
+        min_distance = The minimum distance between two points
+        """
+
+        if max_points_no is None and min_distance is None:
+            raise ValueError("Either max_point_no or min_distance must be supplied")
+
+        if max_points_no is not None and max_points_no < 2:
+            raise ValueError("max_points_no must be greater than or equal to 2")
+
+        points_no = len(list(self.walk()))
+        if max_points_no is not None and points_no <= max_points_no:
+            # No need to reduce points only if no min_distance is specified:
+            if not min_distance:
+                return
+
+        length = self.length_3d()
+
+        min_distance = min_distance or 0
+        max_points_no = max_points_no or 1000000000
+
+        min_distance = max(min_distance, mod_math.ceil(length / float(max_points_no)))
+
+        for track in self.tracks:
+            track.reduce_points(min_distance)
+
+        # TODO
+        mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
+
     def remove_time(self):
         """ Will remove time metadata. """
         for track in self.tracks:
@@ -1368,52 +1417,6 @@ class GPX:
                 max_speed = track_max_speed
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
-
-    def reduce_points(self, max_points_no=None, min_distance=None):
-        """
-        Reduce this track to the desired number of points
-        max_points = The maximum number of points after the reduction
-        min_distance = The minimum distance between two points
-        """
-
-        if max_points_no is None and min_distance is None:
-            raise ValueError("Either max_point_no or min_distance must be supplied")
-
-        if max_points_no is not None and max_points_no < 2:
-            raise ValueError("max_points_no must be greater than or equal to 2")
-
-        points_no = len(list(self.walk()))
-        if max_points_no is not None and points_no <= max_points_no:
-            return
-
-        length = self.length_3d()
-
-        min_distance = min_distance or 0
-        max_points_no = max_points_no or 1000000000
-
-        min_distance = max(min_distance, mod_math.ceil(length / float(max_points_no)))
-
-        for track in self.tracks:
-            for track_segment in track.segments:
-                reduced_points = []
-                previous_point = None
-                length = len(track_segment.points)
-                for i in range(length):
-                    point = track_segment.points[i]
-                    if i == 0:
-                        # Leave first point:
-                        reduced_points.append(point)
-                        previous_point = point
-                    elif previous_point:
-                        distance = previous_point.distance_3d(point)
-                        if distance >= min_distance:
-                            reduced_points.append(point)
-                            previous_point = point
-
-                track_segment.points = reduced_points
-
-        # TODO
-        mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
 
     def split(self, track_no, track_segment_no, track_point_no):
         track = self.tracks[track_no]
