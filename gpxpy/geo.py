@@ -216,6 +216,26 @@ def distance_from_line(point, line_point_1, line_point_2):
 
     return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
 
+def simplify_polyline(points, max_distance):
+    """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
+
+    if len(points) < 3:
+        return points
+
+    begin, end = points[0], points[-1]
+
+    distances = []
+    for point in points[1:-1]:
+        distances.append(distance_from_line(point, begin, end))
+
+    maxdist = max(distances)
+    if maxdist < max_distance:
+        return [begin, end]
+
+    pos = distances.index(maxdist)
+    return (simplify_polyline(points[:pos + 2], max_distance) + 
+            simplify_polyline(points[pos + 1:], max_distance)[1:])
+
 class Location:
     """ Generic geographical location """
 

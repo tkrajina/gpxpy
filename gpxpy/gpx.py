@@ -689,26 +689,10 @@ class GPXTrackSegment:
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
-        if len(self.points) <= 2:
-            return
-
         if not max_distance:
             max_distance = 10
 
-        result = [self.points[0]]
-
-        next_point = self._find_next_simplified_point(0, max_distance)
-        if next_point != None:
-            result.append(self.points[next_point])
-            while next_point != None:
-                next_point = self._find_next_simplified_point(next_point, max_distance)
-                if next_point != None:
-                    result.append(self.points[next_point])
-
-        if not (self.points[-1] in result):
-            result.append(self.points[-1])
-
-        self.points = result
+        self.points = mod_geo.simplify_polyline(self.points, max_distance)
 
     def reduce_points(self, min_distance):
         reduced_points = []
