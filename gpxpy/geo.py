@@ -335,7 +335,11 @@ class Line:
         return abs(self.a * location.latitude + self.b * location.longitude + self.c) * ONE_DEGREE
 
     def distance(self, location):
-        pass
+        dummy_distance = self.dummy_distance(location)
+        latitude = (self.location1.latitude + self.location2.latitude) / 2.
+        coef = mod_math.cos(latitude / 180. * mod_math.pi)
+        shortening = coef * (float(self.location1.longitude - self.location2.longitude) / (self.location1.latitude - self.location2.latitude))
+        return dummy_distance * shortening
 
     def __str__(self):
         return 'Dummy line %s*latitude + %s*longitude + %s = 0 (angle=%s)' % (self.a, self.b, self.c, self.angle_from_north)
