@@ -224,17 +224,28 @@ def simplify_polyline(points, max_distance):
 
     begin, end = points[0], points[-1]
 
-    distances = []
-    for point in points[1:-1]:
-        distances.append(distance_from_line(point, begin, end))
+    # Use a "normal" line just to detect the most distant point (not its real distance)
+    # this is because this is faster to compute than calling distance_from_line() for
+    # every point. 
+    a, b, c = get_line_equation_coefficients(begin, end)
 
-    maxdist = max(distances)
-    if maxdist < max_distance:
+    max_distance = -1000000
+    max_distance_position = None
+    for point_no in range(len(points[1:-1])):
+        point = points[point_no]
+        d = a * point.latitude + b * point.longitude + c
+        if d > max_distance:
+            max_distance = d
+            max_distance_position = point_no
+
+    # Now that we have the most distance point, compute its real distance:
+    real_max_distance = distance_from_line(points[max_distance_position], begin, end)
+
+    if real_max_distance < max_distance:
         return [begin, end]
 
-    pos = distances.index(maxdist)
-    return (simplify_polyline(points[:pos + 2], max_distance) + 
-            simplify_polyline(points[pos + 1:], max_distance)[1:])
+    return (simplify_polyline(points[:max_distance_position + 2], max_distance) + 
+            simplify_polyline(points[max_distance_position + 1:], max_distance)[1:])
 
 class Location:
     """ Generic geographical location """
@@ -279,68 +290,17 @@ class Location:
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation') 
 
-class Line:
+def get_line_equation_coefficients(location1, location2):
     """
-    Dummy line class.
+    Get line equation coefficients for:
+        latitude * a + longitude * b + c = 0
+
+    This is a normal cartesian line (not spherical!)
     """
-
-    def __init__(self, location1, location2):
-        self.location1 = location1
-        self.location2 = location2
-        self.a, self.b, self.c = None, None, None
-        # Dummy angle (like it was a cartesian coordinate system)
-        self.angle_from_north = None
-
-        self._init_line_equation()
-        self._normalize_abc()
-
-    def _init_line_equation(self):
-        """
-        Return a, b and c for the equation of type:
-
-            a * latitude + b * longitude + c = 0
-
-        Where sqrt(a**2 + b**2) = 1. That way the distance from the line can be computed by just insertint the latitude, and longitude into:
-
-            distance_from_line(latitude, longitude) a * latitude + b * longitude + c
-
-        And checking for shortening.
-        """
-        # First compute a, b for latitude = longitude * a + b
-        if self.location1.longitude == self.location2.longitude:
-            # Vertical line:
-            self.a = float(0)
-            self.b = float(1)
-            self.c = float(-self.location1.longitude)
-        else:
-            a = float(self.location1.latitude - self.location2.latitude) / (self.location1.longitude - self.location2.longitude)
-            b = self.location1.latitude - self.location1.longitude * a
-            self.a = float(1)
-            self.b = float(-a)
-            self.c = float(-b)
-
-        if self.location1.latitude == self.location2.latitude:
-            self.angle_from_north = mod_math.pi / 2. 
-        else:
-            self.angle_from_north = mod_math.atan(float(self.location1.longitude - self.location2.longitude) / (self.location1.latitude - self.location2.latitude))
-
-    def _normalize_abc(self):
-        normalization_coef = mod_math.sqrt(self.a**2 + self.b**2)
-
-        self.a = self.a / normalization_coef
-        self.b = self.b / normalization_coef
-        self.c = self.c / normalization_coef
-
-    def dummy_distance(self, location):
-        return abs(self.a * location.latitude + self.b * location.longitude + self.c) * ONE_DEGREE
-
-    def distance(self, location):
-        dummy_distance = self.dummy_distance(location)
-        latitude = (self.location1.latitude + self.location2.latitude) / 2.
-        coef = mod_math.cos(latitude / 180. * mod_math.pi)
-        shortening = coef * (float(self.location1.longitude - self.location2.longitude) / (self.location1.latitude - self.location2.latitude))
-        return dummy_distance * shortening
-
-    def __str__(self):
-        return 'Dummy line %s*latitude + %s*longitude + %s = 0 (angle=%s)' % (self.a, self.b, self.c, self.angle_from_north)
-
+    if location1.longitude == location2.longitude:
+        # Vertical line:
+        return float(0), float(1), float(-location1.longitude)
+    else:
+        a = float(location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
+        b = location1.latitude - location1.longitude * a
+        return float(1), float(-a), float(-b)
