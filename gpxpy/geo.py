@@ -216,6 +216,21 @@ def distance_from_line(point, line_point_1, line_point_2):
 
     return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
 
+def get_line_equation_coefficients(location1, location2):
+    """
+    Get line equation coefficients for:
+        latitude * a + longitude * b + c = 0
+
+    This is a normal cartesian line (not spherical!)
+    """
+    if location1.longitude == location2.longitude:
+        # Vertical line:
+        return float(0), float(1), float(-location1.longitude)
+    else:
+        a = float(location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
+        b = location1.latitude - location1.longitude * a
+        return float(1), float(-a), float(-b)
+
 def simplify_polyline(points, max_distance):
     """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
 
@@ -224,17 +239,31 @@ def simplify_polyline(points, max_distance):
 
     begin, end = points[0], points[-1]
 
-    distances = []
-    for point in points[1:-1]:
-        distances.append(distance_from_line(point, begin, end))
+    # Use a "normal" line just to detect the most distant point (not its real distance)
+    # this is because this is faster to compute than calling distance_from_line() for
+    # every point. 
+    #
+    # This is an approximation and may have some errors near the poles, but it should
+    # be good enough for most use cases...
+    a, b, c = get_line_equation_coefficients(begin, end)
 
-    maxdist = max(distances)
-    if maxdist < max_distance:
+    tmp_max_distance = -1000000
+    tmp_max_distance_position = None
+    for point_no in range(len(points[1:-1])):
+        point = points[point_no]
+        d = abs(a * point.latitude + b * point.longitude + c)
+        if d > tmp_max_distance:
+            tmp_max_distance = d
+            tmp_max_distance_position = point_no
+
+    # Now that we have the most distance point, compute its real distance:
+    real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
+
+    if real_max_distance < max_distance:
         return [begin, end]
 
-    pos = distances.index(maxdist)
-    return (simplify_polyline(points[:pos + 2], max_distance) + 
-            simplify_polyline(points[pos + 1:], max_distance)[1:])
+    return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) + 
+            simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
 
 class Location:
     """ Generic geographical location """
@@ -277,6 +306,4 @@ class Location:
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
 
     def __hash__(self):
-                return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation') 
-
-
+        return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation') 

@@ -1425,8 +1425,8 @@ class AbstractTests:
 
             # The resulting distance usually shouldn't be too different from 
             # the orignial (here check for 80% and 70%)
-            self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .8)
-            self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .7)
+            self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
+            self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
