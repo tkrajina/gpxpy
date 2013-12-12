@@ -287,6 +287,10 @@ class Line:
     def __init__(self, location1, location2):
         self.location1 = location1
         self.location2 = location2
+        self.a, self.b, self.c = None, None, None
+        # Dummy angle (like it was a cartesian coordinate system)
+        self.angle_from_north = None
+
         self._init_line_equation()
         self._normalize_abc()
 
@@ -309,20 +313,17 @@ class Line:
             self.b = float(1)
             self.c = float(-self.location1.longitude)
         else:
-            a = (self.location1.latitude - self.location2.latitude) / (self.location1.longitude - self.location2.longitude)
+            a = float(self.location1.latitude - self.location2.latitude) / (self.location1.longitude - self.location2.longitude)
             b = self.location1.latitude - self.location1.longitude * a
-            self.angle = mod_math.atan(a)
             self.a = float(1)
             self.b = float(-a)
             self.c = float(-b)
 
         if self.location1.latitude == self.location2.latitude:
-            self.angle = mod_math.pi / 2. 
+            self.angle_from_north = mod_math.pi / 2. 
         else:
-            self.angle = mod_math.atan((self.location1.longitude - self.location2.longitude) / (self.location1.latitude - self.location2.latitude))
+            self.angle_from_north = mod_math.atan(float(self.location1.longitude - self.location2.longitude) / (self.location1.latitude - self.location2.latitude))
 
-        print 'angle=', self.angle
-    
     def _normalize_abc(self):
         normalization_coef = mod_math.sqrt(self.a**2 + self.b**2)
 
@@ -331,11 +332,11 @@ class Line:
         self.c = self.c / normalization_coef
 
     def dummy_distance(self, location):
-        return abs(self.a * location.latitude + self.b * location.longitude + self.c)
+        return abs(self.a * location.latitude + self.b * location.longitude + self.c) * ONE_DEGREE
 
     def distance(self, location):
         pass
 
     def __str__(self):
-        return 'Dummy line %s*latitude + %s*longitude + %s = 0 (angle=%s)' % (self.a, self.b, self.c, self.angle)
+        return 'Dummy line %s*latitude + %s*longitude + %s = 0 (angle=%s)' % (self.a, self.b, self.c, self.angle_from_north)
 
