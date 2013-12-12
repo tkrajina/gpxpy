@@ -229,23 +229,23 @@ def simplify_polyline(points, max_distance):
     # every point. 
     a, b, c = get_line_equation_coefficients(begin, end)
 
-    max_distance = -1000000
-    max_distance_position = None
+    tmp_max_distance = -1000000
+    tmp_max_distance_position = None
     for point_no in range(len(points[1:-1])):
         point = points[point_no]
-        d = a * point.latitude + b * point.longitude + c
-        if d > max_distance:
-            max_distance = d
-            max_distance_position = point_no
+        d = abs(a * point.latitude + b * point.longitude + c)
+        if d > tmp_max_distance:
+            tmp_max_distance = d
+            tmp_max_distance_position = point_no
 
     # Now that we have the most distance point, compute its real distance:
-    real_max_distance = distance_from_line(points[max_distance_position], begin, end)
+    real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
 
     if real_max_distance < max_distance:
         return [begin, end]
 
-    return (simplify_polyline(points[:max_distance_position + 2], max_distance) + 
-            simplify_polyline(points[max_distance_position + 1:], max_distance)[1:])
+    return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) + 
+            simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
 
 class Location:
     """ Generic geographical location """
