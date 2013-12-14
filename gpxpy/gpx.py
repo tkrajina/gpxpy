@@ -1330,6 +1330,12 @@ class GPX:
                 max_lon = bounds.max_longitude
 
         return Bounds(min_lat, max_lat, min_lon, max_lon)
+
+    def get_points_no(self):
+        result = 0
+        for track in self.tracks:
+            result += track.get_points_no()
+        return result
 	
     def refresh_bounds(self):
         """
