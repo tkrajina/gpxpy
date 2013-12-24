@@ -243,8 +243,9 @@ def simplify_polyline(points, max_distance):
     # this is because this is faster to compute than calling distance_from_line() for
     # every point. 
     #
-    # This is an approximation and may have some errors near the poles, but it should
-    # be good enough for most use cases...
+    # This is an approximation and may have some errors near the poles and if 
+    # the points are too distant, but it should be good enough for most use 
+    # cases...
     a, b, c = get_line_equation_coefficients(begin, end)
 
     tmp_max_distance = -1000000
