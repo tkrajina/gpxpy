@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import sys as mod_sys
+import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
@@ -51,9 +52,12 @@ def is_numeric(object):
     except ValueError:
         return False
 
-def to_number(s, default=0):
+def to_number(s, default=0, nan_value=None):
     try:
-        return float(s)
+        result = float(s)
+        if mod_math.isnan(result):
+            return nan_value
+        return result
     except TypeError:
         pass
     except ValueError:
@@ -90,7 +94,6 @@ def hash_object(obj, *attributes):
         result = result * 31 + __hash(getattr(obj, attribute))
 	
     return result
-
 
 def make_str(s):
     """ Convert a str or unicode object into a str type. """

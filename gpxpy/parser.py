@@ -287,7 +287,8 @@ class GPXParser:
         lon = mod_utils.to_number(lon)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -355,7 +356,8 @@ class GPXParser:
         lon = mod_utils.to_number(lon)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -434,7 +436,8 @@ class GPXParser:
         time = parse_time(time_str)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         sym_node = self.xml_parser.get_first_child(node, 'sym')
         symbol = self.xml_parser.get_node_data(sym_node)

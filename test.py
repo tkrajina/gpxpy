@@ -1428,6 +1428,14 @@ class AbstractTests:
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 
+    def test_nan_elevation(self):
+        xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
+        gpx = mod_gpxpy.parse(xml)
+
+        self.assertTrue(gpx.tracks[0].segments[0].points[0].elevation == None)
+        self.assertTrue(gpx.routes[0].points[0].elevation == None)
+        self.assertTrue(gpx.waypoints[0].elevation == None)
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
