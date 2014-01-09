@@ -28,8 +28,10 @@ ONE_DEGREE = 1000. * 10000.8 / 90.
 
 EARTH_RADIUS = 6371 * 1000
 
+
 def to_rad(x):
     return x / 180. * mod_math.pi
+
 
 def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
     """
@@ -48,6 +50,7 @@ def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
     d = EARTH_RADIUS * c
 
     return d
+
 
 def length(locations=None, _3d=None):
     locations = locations or []
@@ -69,15 +72,18 @@ def length(locations=None, _3d=None):
                 length += d
     return length
 
+
 def length_2d(locations=None):
     """ 2-dimensional length (meters) of locations (only latitude and longitude, no elevation). """
     locations = locations or []
     return length(locations, False)
 
+
 def length_3d(locations=None):
     """ 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). """
     locations = locations or []
     return length(locations, True)
+
 
 def calculate_max_speed(speeds_and_distances):
     """
@@ -109,7 +115,7 @@ def calculate_max_speed(speeds_and_distances):
 
     # sort by speed:
     speeds = list(map(lambda speed_and_distance: speed_and_distance[0], filtered_speeds_and_distances))
-    if not isinstance(speeds, list): # python3
+    if not isinstance(speeds, list):  # python3
         speeds = list(speeds)
     if not speeds:
         return None
@@ -121,6 +127,7 @@ def calculate_max_speed(speeds_and_distances):
         index = -1
 
     return speeds[index]
+
 
 def calculate_uphill_downhill(elevations):
     if not elevations:
@@ -152,6 +159,7 @@ def calculate_uphill_downhill(elevations):
 
     return uphill, downhill
 
+
 def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2,
              haversine=None):
     """
@@ -180,6 +188,7 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
 
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
+
 def elevation_angle(location1, location2, radians=False):
     """ Uphill/downhill angle between two locations. """
     if location1.elevation is None or location2.elevation is None:
@@ -197,6 +206,7 @@ def elevation_angle(location1, location2, radians=False):
         return angle
 
     return 180 * angle / mod_math.pi
+
 
 def distance_from_line(point, line_point_1, line_point_2):
     """ Distance of point from a line given with two points. """
@@ -216,6 +226,7 @@ def distance_from_line(point, line_point_1, line_point_2):
 
     return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
 
+
 def get_line_equation_coefficients(location1, location2):
     """
     Get line equation coefficients for:
@@ -230,6 +241,7 @@ def get_line_equation_coefficients(location1, location2):
         a = float(location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
         b = location1.latitude - location1.longitude * a
         return float(1), float(-a), float(-b)
+
 
 def simplify_polyline(points, max_distance):
     """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
@@ -265,6 +277,7 @@ def simplify_polyline(points, max_distance):
 
     return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) +
             simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
+
 
 class Location:
     """ Generic geographical location """

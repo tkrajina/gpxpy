@@ -13,6 +13,7 @@ import gpxpy as mod_gpxpy
 
 gpx_files = mod_sys.argv[1:]
 
+
 def format_time(time_s):
     if not time_s:
         return 'n/a'
@@ -20,6 +21,7 @@ def format_time(time_s):
     hours = mod_math.floor(minutes / 60.)
 
     return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
+
 
 def print_gpx_part_info(gpx_part, indentation='    '):
     """
@@ -57,6 +59,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     print('%sAvg distance between points: %sm' % (indentation, sum(distances) / len(list(gpx.walk()))))
 
     print('')
+
 
 def print_gpx_info(gpx):
     print('File: %s' % gpx_file)

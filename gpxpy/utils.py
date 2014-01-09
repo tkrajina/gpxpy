@@ -20,6 +20,7 @@ import xml.sax.saxutils as mod_saxutils
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
+
 def to_xml(tag, attributes=None, content=None, default=None, escape=False):
     attributes = attributes or {}
     result = '\n<%s' % tag
@@ -43,6 +44,7 @@ def to_xml(tag, attributes=None, content=None, default=None, escape=False):
 
     return result
 
+
 def is_numeric(object):
     try:
         float(object)
@@ -51,6 +53,7 @@ def is_numeric(object):
         return False
     except ValueError:
         return False
+
 
 def to_number(s, default=0, nan_value=None):
     try:
@@ -64,8 +67,8 @@ def to_number(s, default=0, nan_value=None):
         pass
     return default
 
-
 # Hash utilities:
+
 
 def __hash(obj):
     result = 0
@@ -79,6 +82,7 @@ def __hash(obj):
 
     return hash(obj)
 
+
 def hash_list_or_tuple(iteration):
     result = 17
 
@@ -87,6 +91,7 @@ def hash_list_or_tuple(iteration):
 
     return result
 
+
 def hash_object(obj, *attributes):
     result = 19
 
@@ -94,6 +99,7 @@ def hash_object(obj, *attributes):
         result = result * 31 + __hash(getattr(obj, attribute))
 
     return result
+
 
 def make_str(s):
     """ Convert a str or unicode object into a str type. """

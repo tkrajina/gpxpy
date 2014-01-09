@@ -54,6 +54,7 @@ PYTHON_VERSION = mod_sys.version.split(' ')[0]
 mod_logging.basicConfig(level=mod_logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
+
 def equals(object1, object2, ignore=None):
     """ Testing purposes only """
 
@@ -95,6 +96,7 @@ def equals(object1, object2, ignore=None):
     return True
 
 # TODO: Track segment speed in point test
+
 
 class AbstractTests:
     """
@@ -167,20 +169,19 @@ class AbstractTests:
 
     def test_creator_field(self):
         gpx = self.parse('cerknicko-jezero.gpx')
-        self.assertEquals(gpx.creator,"GPSBabel - http://www.gpsbabel.org")
-    def test_no_creator_field(self):
+        self.assertEquals(gpx.creator, "GPSBabel - http://www.gpsbabel.org")
 
+    def test_no_creator_field(self):
         gpx = self.parse('cerknicko-jezero-no-creator.gpx')
-        self.assertEquals(gpx.creator,None)
+        self.assertEquals(gpx.creator, None)
 
     def test_to_xml_creator(self):
         gpx = self.parse('cerknicko-jezero.gpx')
         xml = gpx.to_xml()
-        self.assertTrue('creator="GPSBabel - http://www.gpsbabel.org"' in xml )
+        self.assertTrue('creator="GPSBabel - http://www.gpsbabel.org"' in xml)
 
         gpx2 = self.reparse(gpx)
-        self.assertEquals(gpx2.creator,"GPSBabel - http://www.gpsbabel.org")
-
+        self.assertEquals(gpx2.creator, "GPSBabel - http://www.gpsbabel.org")
 
     def test_waypoints_equality_after_reparse(self):
         gpx = self.parse('cerknicko-jezero.gpx')
@@ -218,7 +219,7 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
+                                                                      time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
         self.assertEqual(gpx.get_duration(), 0)
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
@@ -227,9 +228,9 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[2].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
+                                                                      time=mod_datetime.datetime(2013, 1, 1, 12, 30)))
         gpx.tracks[0].segments[2].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                time=mod_datetime.datetime(2013, 1, 1, 12, 31)))
+                                                                      time=mod_datetime.datetime(2013, 1, 1, 12, 31)))
         self.assertEqual(gpx.get_duration(), 60)
 
     def test_remove_elevation(self):
@@ -534,7 +535,7 @@ class AbstractTests:
         self.assertTrue(len(segment.points) + 1 == len(original_segment.points))
 
     def test_distance(self):
-        distance = mod_geo.distance(48.56806,21.43467, None, 48.599214,21.430878, None)
+        distance = mod_geo.distance(48.56806, 21.43467, None, 48.599214, 21.430878, None)
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
@@ -592,7 +593,6 @@ class AbstractTests:
 
         print(points_before)
         print(points_after)
-
 
         self.assertTrue(points_before - 1 == points_after)
 
@@ -786,8 +786,8 @@ class AbstractTests:
 
         segment_1 = mod_gpx.GPXTrackSegment()
         segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=-12, longitude=13))
-        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=-100, longitude=-5, time=mod_datetime.datetime(2001, 1, 12) ))
-        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=100, longitude=-13 , time=mod_datetime.datetime(2003, 1, 12)))
+        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=-100, longitude=-5, time=mod_datetime.datetime(2001, 1, 12)))
+        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=100, longitude=-13, time=mod_datetime.datetime(2003, 1, 12)))
         track.segments.append(segment_1)
 
         segment_2 = mod_gpx.GPXTrackSegment()
@@ -851,7 +851,7 @@ class AbstractTests:
 
         xml = gpx.to_xml()
 
-        self.assertTrue('<name>aaa' in xml )
+        self.assertTrue('<name>aaa' in xml)
 
         gpx2 = self.reparse(gpx)
 
@@ -900,7 +900,7 @@ class AbstractTests:
         gpx = self.parse('korita-zbevnica.gpx')
 
         bounds = gpx.get_bounds()
-        min_lat, max_lat, min_lon, max_lon=gpx.get_bounds()
+        min_lat, max_lat, min_lon, max_lon = gpx.get_bounds()
 
         self.assertEqual(min_lat, bounds.min_latitude)
         self.assertEqual(min_lon, bounds.min_longitude)
@@ -920,7 +920,7 @@ class AbstractTests:
         gpx = self.parse('korita-zbevnica.gpx')
 
         moving_data = gpx.get_moving_data()
-        moving_time, stopped_time, moving_distance, stopped_distance, max_speed=gpx.get_moving_data()
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
         self.assertEqual(moving_time, moving_data.moving_time)
         self.assertEqual(stopped_time, moving_data.stopped_time)
         self.assertEqual(moving_distance, moving_data.moving_distance)
@@ -950,7 +950,7 @@ class AbstractTests:
         location.latitude *= 1.00001
         location.longitude *= 0.99999
         nearest_location_data = gpx.get_nearest_location(location)
-        found_location, track_no, segment_no, point_no=gpx.get_nearest_location(location)
+        found_location, track_no, segment_no, point_no = gpx.get_nearest_location(location)
         self.assertEqual(found_location, nearest_location_data.location)
         self.assertEqual(track_no, nearest_location_data.track_no)
         self.assertEqual(segment_no, nearest_location_data.segment_no)
@@ -962,7 +962,7 @@ class AbstractTests:
         points_datas = gpx.get_points_data()
 
         for point_data in points_datas:
-            point, distance_from_start, track_no, segment_no, point_no=point_data
+            point, distance_from_start, track_no, segment_no, point_no = point_data
             self.assertEqual(point, point_data.point)
             self.assertEqual(distance_from_start, point_data.distance_from_start)
             self.assertEqual(track_no, point_data.track_no)
@@ -974,14 +974,14 @@ class AbstractTests:
 
         points_data_2d = gpx.get_points_data(distance_2d=True)
 
-        point, distance_from_start, track_no, segment_no, point_no=points_data_2d[-1]
+        point, distance_from_start, track_no, segment_no, point_no = points_data_2d[-1]
         self.assertEqual(track_no, len(gpx.tracks) - 1)
         self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
         self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
         self.assertTrue(abs(distance_from_start - gpx.length_2d()) < 0.0001)
 
         points_data_3d = gpx.get_points_data(distance_2d=False)
-        point, distance_from_start, track_no, segment_no, point_no=points_data_3d[-1]
+        point, distance_from_start, track_no, segment_no, point_no = points_data_3d[-1]
         self.assertEqual(track_no, len(gpx.tracks) - 1)
         self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
         self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
@@ -1249,17 +1249,17 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                elevation=10))
+                                                                      elevation=10))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
-                elevation=100))
+                                                                      elevation=100))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
-                elevation=20))
+                                                                      elevation=20))
 
         # Shouldn't be called because all points have elevation
         def _add_missing_function(interval, start_point, end_point, ratios):
             raise Error()
 
-        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
                              add_missing_function=_add_missing_function)
 
     def test_add_missing_data_one_interval(self):
@@ -1269,11 +1269,11 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                elevation=10))
+                                                                      elevation=10))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
-                elevation=20))
+                                                                      elevation=20))
 
         # Shouldn't be called because all points have elevation
         def _add_missing_function(interval, start_point, end_point, ratios):
@@ -1286,7 +1286,7 @@ class AbstractTests:
             assert ratios
             interval[0].elevation = 314
 
-        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
                              add_missing_function=_add_missing_function)
 
         self.assertEquals(314, gpx.tracks[0].segments[0].points[1].elevation)
@@ -1298,15 +1298,15 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                elevation=10))
+                                                                      elevation=10))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
-                elevation=20))
+                                                                      elevation=20))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                elevation=None))
+                                                                      elevation=None))
 
         # Shouldn't be called because all points have elevation
         def _add_missing_function(interval, start_point, end_point, ratios):
@@ -1319,7 +1319,7 @@ class AbstractTests:
             assert ratios
             interval[0].elevation = 314
 
-        gpx.add_missing_data(get_data_function=lambda point:point.elevation,
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
                              add_missing_function=_add_missing_function)
 
         # Points at start and end should not have elevation 314 because have
@@ -1335,17 +1335,17 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
-                elevation=10))
+                                                                      elevation=10))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12,
-                elevation=None))
+                                                                      elevation=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
-                elevation=20))
+                                                                      elevation=20))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
-                elevation=None))
+                                                                      elevation=None))
 
         gpx.add_missing_elevations()
 
@@ -1359,15 +1359,15 @@ class AbstractTests:
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
-                time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
-                time=None))
+                                                                      time=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
-                time=None))
+                                                                      time=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12,
-                time=None))
+                                                                      time=None))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
-                time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
 
         gpx.add_missing_times()
 
@@ -1436,9 +1436,11 @@ class AbstractTests:
         self.assertTrue(gpx.routes[0].points[0].elevation == None)
         self.assertTrue(gpx.waypoints[0].elevation == None)
 
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
+
 
 class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
