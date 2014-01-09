@@ -40,7 +40,7 @@ def to_xml(tag, attributes=None, content=None, default=None, escape=False):
             result += '>%s</%s>' % (content, tag)
 
     result = make_str(result)
-	
+
     return result
 
 def is_numeric(object):
@@ -92,7 +92,7 @@ def hash_object(obj, *attributes):
 
     for attribute in attributes:
         result = result * 31 + __hash(getattr(obj, attribute))
-	
+
     return result
 
 def make_str(s):
