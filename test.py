@@ -1458,6 +1458,28 @@ class AbstractTests:
         seconds = point_1.time_difference(point_2)
         self.assertEquals(seconds, 60 * 60 * 24 + 60)
 
+    def test_parse_time(self):
+        timestamps = [
+                '2001-10-26T21:32:52',
+                #'2001-10-26T21:32:52+0200',
+                '2001-10-26T19:32:52Z',
+                #'2001-10-26T19:32:52+00:00',
+                #'-2001-10-26T21:32:52',
+                '2001-10-26T21:32:52.12679',
+                '2001-10-26T21:32:52',
+                #'2001-10-26T21:32:52+02:00',
+                '2001-10-26T19:32:52Z',
+                #'2001-10-26T19:32:52+00:00',
+                #'-2001-10-26T21:32:52',
+                '2001-10-26T21:32:52.12679',
+        ]
+        timestamps_without_tz = list(map(lambda x : x.replace('T', ' ').replace('Z', ''), timestamps))
+        for t in timestamps_without_tz:
+            timestamps.append(t)
+        for timestamp in timestamps:
+            print('Parsing: %s' % timestamp)
+            self.assertTrue(mod_parser.parse_time(timestamp) != None)
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'

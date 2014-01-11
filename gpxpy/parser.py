@@ -146,17 +146,16 @@ class LXMLParser:
 def parse_time(string):
     if not string:
         return None
-    try:
-        return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-    except ValueError as e:
-        if mod_re.match(r'^.*\.\d+Z$', string):
-            string = mod_re.sub(r'\.\d+Z', 'Z', string)
+    if 'T' in string:
+        string = string.replace('T', ' ')
+    if 'Z' in string:
+        string = string.replace('Z', '')
+    for date_format in mod_gpx.DATE_FORMATS:
         try:
-            return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
+            return mod_datetime.datetime.strptime(string, date_format)
         except ValueError as e:
-            mod_logging.error('Invalid timestamp %s' % string)
-            return None
-
+            pass
+    return None
 
 class GPXParser:
 
