@@ -484,7 +484,7 @@ class GPXTrack:
         self.segments = new_segments
 
     def join(self, track_segment_no, track_segment_no_2=None):
-        """ Joins two segments of this track. If track_segment_no_2 the join will be with the
+        """ Joins two segments of this track. If track_segment_no_2 is None, the join will be with the
         next segment """
 
         if not track_segment_no_2:
@@ -767,6 +767,10 @@ class GPXTrackSegment:
     def join(self, track_segment):
         """ Joins with another segment """
         self.points += track_segment.points
+
+    def insert(self, track_segment):
+        """ Inserts the track_segment before the existing track segment """
+        self._points[0:0] = track_segment.points
 
     def remove_point(self, point_no):
         if point_no < 0 or point_no >= len(self.points):
