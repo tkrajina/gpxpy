@@ -207,7 +207,7 @@ def distance_from_line(point, line_point_1, line_point_2):
     a = line_point_1.distance_2d(line_point_2)
 
     if a == 0:
-        raise Exception('Invalid line (%s, %s)' % (line_point_1, line_point_2))
+        return line_point_1.distance_2d(point)
 
     b = line_point_1.distance_2d(point)
     c = line_point_2.distance_2d(point)

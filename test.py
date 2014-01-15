@@ -1428,6 +1428,27 @@ class AbstractTests:
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 
+    def test_simplify_circular_gpx(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12,
+                time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+                time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
+
+        # Then the first point again:
+        gpx.tracks[0].segments[0].points.append(gpx.tracks[0].segments[0].points[0])
+
+        gpx.simplify()
+
     def test_nan_elevation(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
         gpx = mod_gpxpy.parse(xml)
