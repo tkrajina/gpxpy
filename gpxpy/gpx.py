@@ -332,7 +332,7 @@ class GPXTrackPoint(mod_geo.Location):
         else:
             delta = time_2 - time_1
 
-        return delta.seconds
+        return (delta.days * 86400) + delta.seconds
 
     def speed_between(self, track_point):
         """
