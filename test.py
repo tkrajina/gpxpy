@@ -98,7 +98,7 @@ def equals(object1, object2, ignore=None):
 
 class AbstractTests:
     """
-    Add tests here. 
+    Add tests here.
 
     Tests will be run twice (once with Lxml and once with Minidom Parser).
 
@@ -126,7 +126,7 @@ class AbstractTests:
             print('Parser error: %s' % parser.get_error())
 
         return gpx
-		
+
     def reparse(self, gpx):
         xml = gpx.to_xml()
 
@@ -388,7 +388,7 @@ class AbstractTests:
 
         self.assertTrue(gpx.length_3d() > cloned_gpx.length_3d())
         self.assertTrue(gpx.length_2d() > cloned_gpx.length_2d())
-		
+
     def test_reduce_by_min_distance(self):
         gpx = mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser=self.get_parser_type())
 
@@ -1322,7 +1322,7 @@ class AbstractTests:
         gpx.add_missing_data(get_data_function=lambda point:point.elevation,
                              add_missing_function=_add_missing_function)
 
-        # Points at start and end should not have elevation 314 because have 
+        # Points at start and end should not have elevation 314 because have
         # no two bounding points with elevations:
         self.assertEquals(None, gpx.tracks[0].segments[0].points[0].elevation)
         self.assertEquals(None, gpx.tracks[0].segments[0].points[-1].elevation)
@@ -1412,7 +1412,7 @@ class AbstractTests:
 
             gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
             gpx.simplify(max_distance=10)
-            length_2d_after_distance_10 = gpx.length_2d() 
+            length_2d_after_distance_10 = gpx.length_2d()
 
             print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_50)
 
@@ -1423,7 +1423,7 @@ class AbstractTests:
             # Simplify with bigger max_distance and => bigger error from original
             self.assertTrue(length_2d_after_distance_10 >= length_2d_after_distance_50)
 
-            # The resulting distance usually shouldn't be too different from 
+            # The resulting distance usually shouldn't be too different from
             # the orignial (here check for 80% and 70%)
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
@@ -1448,6 +1448,12 @@ class AbstractTests:
         self.assertTrue(gpx.tracks[0].segments[0].points[0].elevation == None)
         self.assertTrue(gpx.routes[0].points[0].elevation == None)
         self.assertTrue(gpx.waypoints[0].elevation == None)
+
+    def test_time_difference(self):
+        gpx = self.parse('sloth-at-lemans.gpx')
+        seconds = gpx.tracks[0].segments[0].points[0].time_difference(gpx.tracks[0].segments[0].points[-1])
+        self.assertEquals(seconds, 86420)
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
