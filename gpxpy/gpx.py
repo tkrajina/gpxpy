@@ -768,10 +768,6 @@ class GPXTrackSegment:
         """ Joins with another segment """
         self.points += track_segment.points
 
-    def insert(self, track_segment):
-        """ Inserts the track_segment before the existing track segment """
-        self._points[0:0] = track_segment.points
-
     def remove_point(self, point_no):
         if point_no < 0 or point_no >= len(self.points):
             return
