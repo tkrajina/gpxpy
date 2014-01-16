@@ -806,22 +806,22 @@ class GPXTrackSegment:
                 else:
                     distance = point.distance_2d(previous)
 
-                seconds = timedelta.seconds
+                seconds = timedelta.total_seconds()
                 speed_kmh = 0
                 if seconds > 0:
                     # TODO: compute treshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (timedelta.seconds / 60. ** 2)
+                    speed_kmh = (distance / 1000.) / (timedelta.total_seconds() / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
                 if speed_kmh <= stopped_speed_threshold:
-                    stopped_time += timedelta.seconds
+                    stopped_time += timedelta.total_seconds()
                     stopped_distance += distance
                 else:
-                    moving_time += timedelta.seconds
+                    moving_time += timedelta.total_seconds()
                     moving_distance += distance
 
                     if distance and moving_time:
-                        speeds_and_distances.append((distance / timedelta.seconds, distance, ))
+                        speeds_and_distances.append((distance / timedelta.total_seconds(), distance, ))
 
         max_speed = None
         if speeds_and_distances:
@@ -974,7 +974,7 @@ class GPXTrackSegment:
             mod_logging.debug('Not enough time data')
             return None
 
-        return (last.time - first.time).seconds
+        return (last.time - first.time).total_seconds()
 
     def get_uphill_downhill(self):
         """ 
@@ -1659,7 +1659,7 @@ class GPX:
             assert interval
             assert len(interval) == len(distances_ratios)
 
-            seconds_between = float((end.time -  start.time).seconds)
+            seconds_between = float((end.time -  start.time).total_seconds())
 
             for i in range(len(interval)):
                 point = interval[i]
