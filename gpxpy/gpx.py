@@ -340,7 +340,7 @@ class GPXTrackPoint(mod_geo.Location):
         else:
             delta = time_2 - time_1
 
-        return delta.total_seconds()
+        return mod_utils.total_seconds(delta)
 
     def speed_between(self, track_point):
         """
@@ -806,22 +806,22 @@ class GPXTrackSegment:
                 else:
                     distance = point.distance_2d(previous)
 
-                seconds = timedelta.total_seconds()
+                seconds = mod_utils.total_seconds(timedelta)
                 speed_kmh = 0
                 if seconds > 0:
                     # TODO: compute treshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (timedelta.total_seconds() / 60. ** 2)
+                    speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
                 if speed_kmh <= stopped_speed_threshold:
-                    stopped_time += timedelta.total_seconds()
+                    stopped_time += mod_utils.total_seconds(timedelta)
                     stopped_distance += distance
                 else:
-                    moving_time += timedelta.total_seconds()
+                    moving_time += mod_utils.total_seconds(timedelta)
                     moving_distance += distance
 
                     if distance and moving_time:
-                        speeds_and_distances.append((distance / timedelta.total_seconds(), distance, ))
+                        speeds_and_distances.append((distance / mod_utils.total_seconds(timedelta), distance, ))
 
         max_speed = None
         if speeds_and_distances:
@@ -974,7 +974,7 @@ class GPXTrackSegment:
             mod_logging.debug('Not enough time data')
             return None
 
-        return (last.time - first.time).total_seconds()
+        return mod_utils.total_seconds(last.time - first.time)
 
     def get_uphill_downhill(self):
         """ 
@@ -1659,7 +1659,7 @@ class GPX:
             assert interval
             assert len(interval) == len(distances_ratios)
 
-            seconds_between = float((end.time -  start.time).total_seconds())
+            seconds_between = float(mod_utils.total_seconds(end.time -  start.time))
 
             for i in range(len(interval)):
                 point = interval[i]

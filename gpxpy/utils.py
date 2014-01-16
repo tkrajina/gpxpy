@@ -64,6 +64,11 @@ def to_number(s, default=0, nan_value=None):
         pass
     return default
 
+def total_seconds(timedelta):
+    """ Some versions of python dont have timedelta.total_seconds() method. """
+    if timedelta == None:
+        return None
+    return (timedelta.days * 86400) + timedelta.seconds
 
 # Hash utilities:
 
