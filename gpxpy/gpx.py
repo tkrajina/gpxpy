@@ -1005,9 +1005,9 @@ class GPXTrackSegment:
         return MinimumMaximum(max(elevations), min(elevations))
 
     def get_location_at(self, time):
-        """ 
+        """
         Gets approx. location at given time. Note that, at the moment this method returns
-        an instance of GPXTrackPoints in the future -- this may be a mod_geo.Location instance
+        an instance of GPXTrackPoint in the future -- this may be a mod_geo.Location instance
         with approximated latitude, longitude and elevation!
         """
         if not self.points:
@@ -1023,13 +1023,12 @@ class GPXTrackSegment:
             mod_logging.debug('No times for track segment')
             return None
 
-        if time < first_time or time > last_time:
+        if not first_time <= time <= last_time:
             mod_logging.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
             return None
 
-        for i in range(len(self.points)):
-            point = self.points[i]
-            if point.time and time < point.time:
+        for point in self.points:
+            if point.time and time <= point.time:
                 # TODO: If between two points -- approx position!
                 # return mod_geo.Location(point.latitude, point.longitude)
                 return point

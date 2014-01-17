@@ -1480,6 +1480,22 @@ class AbstractTests:
             print('Parsing: %s' % timestamp)
             self.assertTrue(mod_parser.parse_time(timestamp) != None)
 
+    def test_get_location_at(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0, time=mod_datetime.datetime(2013, 1, 2, 12, 30, 0))
+        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1, time=mod_datetime.datetime(2013, 1, 2, 12, 31, 0))
+        gpx.tracks[0].segments[0].points.append(p0)
+        gpx.tracks[0].segments[0].points.append(p1)
+
+        self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 29, 30)), [])
+        self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 30, 0))[0], p0)
+        self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 30, 30))[0], p1)
+        self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 0))[0], p1)
+        self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 30)), [])
+
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
