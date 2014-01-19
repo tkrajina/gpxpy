@@ -294,6 +294,14 @@ class GPXTrackPoint(mod_geo.Location):
 
         self.speed = speed
 
+    def adjust_time(self, delta):
+        """
+        Add the amount of time in delta to the point's time. Adjust with a negative delta in order to subtract
+        time from the point.
+        """
+        if self.time:
+            self.time += delta
+
     def remove_time(self):
         """ Will remove time metadata. """
         self.time = None
@@ -385,6 +393,10 @@ class GPXTrack:
     def reduce_points(self, min_distance):
         for segment in self.segments:
             segment.reduce_points(min_distance)
+
+    def adjust_time(self, delta):
+        for segment in self.segments:
+            segment.adjust_time(delta)
 
     def remove_time(self):
         for segment in self.segments:
@@ -724,6 +736,10 @@ class GPXTrackSegment:
                 if d > max_distance:
                     return candidate - 1
         return None
+
+    def adjust_time(self, delta):
+        for track_point in self.points:
+            track_point.adjust_time(delta)
 
     def remove_time(self):
         for track_point in self.points:
@@ -1281,6 +1297,14 @@ class GPX:
 
         # TODO
         mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
+
+    def adjust_time(self, delta):
+        """
+        Adjust all of the points in all of the segments of all tracks by the given timedelta.
+        Adjust with a negative delta in order to subtract time from each point.
+        """
+        for track in self.tracks:
+            track.adjust_time(delta)
 
     def remove_time(self):
         """ Will remove time metadata. """
