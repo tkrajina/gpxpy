@@ -1495,6 +1495,31 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 0))[0], p1)
         self.assertEquals(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 30)), [])
 
+    def test_adjust_time(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0)
+        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1)
+        gpx.tracks[0].segments[0].points.append(p0)
+        gpx.tracks[0].segments[0].points.append(p1)
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0, time=mod_datetime.datetime(2013, 1, 2, 12, 30, 0))
+        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1, time=mod_datetime.datetime(2013, 1, 2, 12, 31, 0))
+        gpx.tracks[0].segments[1].points.append(p0)
+        gpx.tracks[0].segments[1].points.append(p1)
+
+        d1 = mod_datetime.timedelta(-1, -1)
+        d2 = mod_datetime.timedelta(1, 2)
+        # move back and forward to add a total of 1 second
+        gpx.adjust_time(d1)
+        gpx.adjust_time(d2)
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, None)
+        self.assertEquals(gpx.tracks[0].segments[0].points[1].time, None)
+        self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
+        self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
