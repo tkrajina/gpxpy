@@ -87,14 +87,14 @@ class XMLParser:
 
 class LXMLParser:
     """
-    Used when lxml is available. 
+    Used when lxml is available.
     """
 
     def __init__(self, xml):
         assert mod_etree
 
         if mod_utils.PYTHON_VERSION[0] == '3':
-            # In python 3 all strings are unicode and for some reason lxml 
+            # In python 3 all strings are unicode and for some reason lxml
             # don't like unicode strings with XMLs declared as UTF-8:
             self.xml = xml.encode('utf-8')
         else:
@@ -181,8 +181,8 @@ class GPXParser:
         """
         Parses the XML file and returns a GPX object.
 
-        It will throw GPXXMLSyntaxException if the XML file is invalid or 
-        GPXException if the XML file is valid but something is wrong with the 
+        It will throw GPXXMLSyntaxException if the XML file is invalid or
+        GPXException if the XML file is valid but something is wrong with the
         GPX data.
         """
         try:
@@ -206,12 +206,12 @@ class GPXParser:
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
 
-            # The library should work in the same way regardless of the 
-            # underlying XML parser that's why the exception thrown 
-            # here is GPXXMLSyntaxException (instead of simply throwing the 
-            # original minidom or lxml exception e). 
+            # The library should work in the same way regardless of the
+            # underlying XML parser that's why the exception thrown
+            # here is GPXXMLSyntaxException (instead of simply throwing the
+            # original minidom or lxml exception e).
             #
-            # But, if the user need the original exception (lxml or minidom) 
+            # But, if the user need the original exception (lxml or minidom)
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 

@@ -32,4 +32,3 @@ mod_distutilscore.setup(
     ],
     scripts=['gpxinfo']
 )
-

@@ -61,7 +61,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
 def print_gpx_info(gpx):
     print('File: %s' % gpx_file)
 
-    if gpx.name: 
+    if gpx.name:
         print('  GPX name: %s' % gpx.name)
     if gpx.description:
         print('  GPX description: %s' % gpx.description)
