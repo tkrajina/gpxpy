@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 def parse(xml_or_file, parser=None):
     """
     Parse xml (string) or file object. This is just an wrapper for

@@ -27,10 +27,11 @@ try:
     import lxml.etree as mod_etree
 except:
     mod_etree = None
-    pass # LXML not available
+    pass  # LXML not available
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
+
 
 class XMLParser:
     """
@@ -84,6 +85,7 @@ class XMLParser:
         if attribute in node.attributes.keys():
             return node.attributes[attribute].nodeValue
         return None
+
 
 class LXMLParser:
     """
@@ -143,6 +145,7 @@ class LXMLParser:
     def get_node_attribute(self, node, attribute):
         return node.attrib.get(attribute)
 
+
 def parse_time(string):
     if not string:
         return None
@@ -156,6 +159,7 @@ def parse_time(string):
         except ValueError as e:
             pass
     return None
+
 
 class GPXParser:
 
@@ -221,7 +225,7 @@ class GPXParser:
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
         if self.xml_parser.get_node_attribute(node, "creator"):
-          self.gpx.creator = self.xml_parser.get_node_attribute(node, "creator")
+            self.gpx.creator = self.xml_parser.get_node_attribute(node, "creator")
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
@@ -287,7 +291,7 @@ class GPXParser:
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
         elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
-                                        default = None, nan_value = None)
+                                        default=None, nan_value=None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -318,9 +322,9 @@ class GPXParser:
         pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
 
         return mod_gpx.GPXWaypoint(latitude=lat, longitude=lon, elevation=elevation,
-            time=time, name=name, description=desc, symbol=sym,
-            type=type, comment=comment, horizontal_dilution=hdop,
-            vertical_dilution=vdop, position_dilution=pdop)
+                                   time=time, name=name, description=desc, symbol=sym,
+                                   type=type, comment=comment, horizontal_dilution=hdop,
+                                   vertical_dilution=vdop, position_dilution=pdop)
 
     def _parse_route(self, node):
         name_node = self.xml_parser.get_first_child(node, 'name')
@@ -356,7 +360,7 @@ class GPXParser:
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
         elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
-                                        default = None, nan_value = None)
+                                        default=None, nan_value=None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -387,7 +391,7 @@ class GPXParser:
         pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
 
         return mod_gpx.GPXRoutePoint(lat, lon, elevation, time, name, desc, sym, type, comment,
-            horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
+                                     horizontal_dilution=hdop, vertical_dilution=vdop, position_dilution=pdop)
 
     def __parse_track(self, node):
         name_node = self.xml_parser.get_first_child(node, 'name')
@@ -436,7 +440,7 @@ class GPXParser:
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
         elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
-                                        default = None, nan_value = None)
+                                        default=None, nan_value=None)
 
         sym_node = self.xml_parser.get_first_child(node, 'sym')
         symbol = self.xml_parser.get_node_data(sym_node)
@@ -460,9 +464,8 @@ class GPXParser:
         speed = mod_utils.to_number(self.xml_parser.get_node_data(speed_node))
 
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
-            symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
-            position_dilution=pdop, speed=speed, name=name)
-
+                                     symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
+                                     position_dilution=pdop, speed=speed, name=name)
 
 
 if __name__ == '__main__':
