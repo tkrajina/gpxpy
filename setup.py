@@ -17,15 +17,15 @@
 import distutils.core as mod_distutilscore
 
 mod_distutilscore.setup(
-    name = 'gpxpy',
-    version = '0.9.6',
-    description = 'GPX file parser and GPS track manipulation library',
-    license = 'Apache License, Version 2.0',
-    author = 'Tomo Krajina',
-    author_email = 'tkrajina@gmail.com',
-    url = 'http://www.trackprofiler.com/gpxpy/index.html',
-    packages = ['gpxpy',],
-    classifiers = [
+    name='gpxpy',
+    version='0.9.6',
+    description='GPX file parser and GPS track manipulation library',
+    license='Apache License, Version 2.0',
+    author='Tomo Krajina',
+    author_email='tkrajina@gmail.com',
+    url='http://www.trackprofiler.com/gpxpy/index.html',
+    packages=['gpxpy',],
+    classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
