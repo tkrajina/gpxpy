@@ -306,5 +306,12 @@ class Location:
     def __str__(self):
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
 
+    def __repr__(self):
+        if self.elevation is None:
+            return 'Location(%s, %s)' % (self.latitude, self.longitude)
+        else:
+            return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
+
+
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation')
