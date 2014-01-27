@@ -122,6 +122,15 @@ class GPXWaypoint(mod_geo.Location):
     def __str__(self):
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
 
+    def __repr__(self):
+        representation = '%s, %s' % (self.latitude, self.longitude)
+        for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution':
+            value = getattr(self, attribute)
+            if value is not None:
+                representation += ', %s=%s' % (attribute, repr(value))
+        return 'GPXWaypoint(%s)' % representation
+
     def to_xml(self, version=None):
         content = ''
         if self.elevation is not None:
@@ -225,6 +234,15 @@ class GPXRoute:
     def __hash__(self):
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
+    def __repr__(self):
+        representation = ''
+        for attribute in 'name', 'description', 'number':
+            value = getattr(self, attribute)
+            if value is not None:
+                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
+        representation += '%spoints=[%s])' % (', ' if representation else '', '...' if self.points else '')
+        return 'GPXRoute(%s)' % representation
+
 class GPXRoutePoint(mod_geo.Location):
     def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
             description=None, symbol=None, type=None, comment=None,
@@ -246,6 +264,15 @@ class GPXRoutePoint(mod_geo.Location):
 
     def __str__(self):
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+
+    def __repr__(self):
+        representation = '%s, %s' % (self.latitude, self.longitude)
+        for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution':
+            value = getattr(self, attribute)
+            if value is not None:
+                representation += ', %s=%s' % (attribute, repr(value))
+        return 'GPXRoutePoint(%s)' % representation
 
     def to_xml(self, version=None):
         content = ''
@@ -293,6 +320,15 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution     # Position dilution of precision
 
         self.speed = speed
+
+    def __repr__(self):
+        representation = '%s, %s' % (self.latitude, self.longitude)
+        for attribute in 'elevation', 'time', 'symbol', 'comment', 'horizontal_dilution', \
+                'vertical_dilution', 'position_dilution', 'speed', 'name':
+            value = getattr(self, attribute)
+            if value is not None:
+                representation += ', %s=%s' % (attribute, repr(value))
+        return 'GPXTrackPoint(%s)' % representation
 
     def adjust_time(self, delta):
         """
@@ -700,6 +736,15 @@ class GPXTrack:
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
+
+    def __repr__(self):
+        representation = ''
+        for attribute in 'name', 'description', 'number':
+            value = getattr(self, attribute)
+            if value is not None:
+                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
+        representation += '%ssegments=%s' % (', ' if representation else '', repr(self.segments))
+        return 'GPXTrack(%s)' % representation
 
 class GPXTrackSegment:
     def __init__(self, points=None):
@@ -1193,7 +1238,7 @@ class GPXTrackSegment:
         """
         Returns if points in this segment contains timestamps.
 
-        At least the first, last points and 75% of others must have times fot this
+        The first point, the last point, and 75% of the points must have times for this
         method to return true.
         """
         if not self.points:
@@ -1212,7 +1257,7 @@ class GPXTrackSegment:
         """
         Returns if points in this segment contains timestamps.
 
-        At least the first, last points and 75% of others must have times fot this
+        The first point, the last point, and at least 75% of the points must have times for this
         method to return true.
         """
         if not self.points:
@@ -1229,6 +1274,9 @@ class GPXTrackSegment:
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'points')
+
+    def __repr__(self):
+        return 'GPXTrackSegment(points=[%s])' % ('...' if self.points else '')
 
     def clone(self):
         return mod_copy.deepcopy(self)
@@ -1778,6 +1826,14 @@ class GPX:
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
+
+    def __repr__(self):
+        representation = ''
+        for attribute in 'waypoints', 'routes', 'tracks':
+            value = getattr(self, attribute)
+            if value:
+                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
+        return 'GPX(%s)' % representation
 
     def clone(self):
         return mod_copy.deepcopy(self)
