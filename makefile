@@ -21,3 +21,8 @@ ctags:
 clean:
 	rm -Rf build
 	rm -v -- $(shell find . -name "*.pyc")
+	rm -Rf xsd
+download-xsd:
+	mkdir -p xsd
+	test -f xsd/gpx1.1.xsd || wget http://www.topografix.com/gpx/1/1/gpx.xsd -O xsd/gpx1.1.xsd
+	test -f xsd/gpx1.0.xsd || wget http://www.topografix.com/gpx/1/0/gpx.xsd -O xsd/gpx1.0.xsd
