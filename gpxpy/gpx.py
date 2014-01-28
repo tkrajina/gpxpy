@@ -77,6 +77,45 @@ class GPXException(Exception):
     """
     pass
 
+class GPXExtension:
+    """
+    Class containing 
+    """
+    def __init__(self, dictionary=None):
+        self.dictionary = {} if dictionary is None else dictionary
+
+    def get(self, key):
+        if self.dictionary.has_key(key):
+            return self.dictionary[key]
+        return None
+    
+    def set(self, key, value):
+        self.dictionary[key] = value
+
+    def __getattr__(self, key):
+        # TODO
+        pass
+
+    def __setattr__(self, key, value):
+        # TODO
+        pass
+
+class GPXExtensionHandler:
+    """
+    Container for specific extension classes for GPX elements. It can be 
+    used with the parser (to specify extensions) or when creating new GPX 
+    elements.
+    """
+    def __init__(self, metadata=None, route=None, route_point=None, track=None, track_segment=None,
+                 track_point=None, waypoint=None):
+        self.metadata_extension = metadata
+        self.route_extension = route
+        self.route_point_extension = route_point
+        self.track_extension = track
+        self.track_segment_extension = track_segment
+        self.track_point_extension = track_point
+        self.waypoint_extension = waypoint
+
 class GPXXMLSyntaxException(GPXException):
     """
     Exception used when the the XML syntax is invalid.
