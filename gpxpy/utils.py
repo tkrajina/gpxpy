@@ -15,6 +15,7 @@
 # limitations under the License.
 
 import sys as mod_sys
+import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
@@ -39,7 +40,7 @@ def to_xml(tag, attributes=None, content=None, default=None, escape=False):
             result += '>%s</%s>' % (content, tag)
 
     result = make_str(result)
-	
+
     return result
 
 def is_numeric(object):
@@ -51,15 +52,23 @@ def is_numeric(object):
     except ValueError:
         return False
 
-def to_number(s, default=0):
+def to_number(s, default=0, nan_value=None):
     try:
-        return float(s)
+        result = float(s)
+        if mod_math.isnan(result):
+            return nan_value
+        return result
     except TypeError:
         pass
     except ValueError:
         pass
     return default
 
+def total_seconds(timedelta):
+    """ Some versions of python dont have timedelta.total_seconds() method. """
+    if timedelta == None:
+        return None
+    return (timedelta.days * 86400) + timedelta.seconds
 
 # Hash utilities:
 
@@ -88,9 +97,8 @@ def hash_object(obj, *attributes):
 
     for attribute in attributes:
         result = result * 31 + __hash(getattr(obj, attribute))
-	
-    return result
 
+    return result
 
 def make_str(s):
     """ Convert a str or unicode object into a str type. """

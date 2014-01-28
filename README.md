@@ -97,21 +97,27 @@ GPXInfo
 The repository contain a little command line utility to extract basic statistics from a file.
 Example usage:
 
-    $ gpxinfo oko-visnjana.gpx 
-    File: oko-visnjana.gpx
-      Moving time: 00:54:14
-      Stopped time: 00:21:39
-      Stopped distance: 68.728721187m
-      Max speed: 5.44979377836m/s = 19.6192576021km/h
-      Total uphill: 413.1m
-      Total downhill: 404.8m
-      Started: 2012-08-06 17:10:26
-      Ended: 2012-08-06 18:26:19
+    $ gpxinfo voznjica.gpx 
+    File: voznjica.gpx
+      Length 2D: 63.6441229018
+      Length 3D: 63.8391428454
+      Moving time: 02:56:03
+      Stopped time: 00:21:38
+      Max speed: 14.187909492m/s = 51.0764741713km/h
+      Total uphill: 1103.1626183m
+      Total downhill: 1087.7812703m
+      Started: 2013-06-01 06:46:53
+      Ended: 2013-06-01 10:23:45
 
 GPX Version:
 ------------
 
 gpx.py can parse and generate GPX 1.0 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
+
+See also
+--------
+
+See also [srtm.py](https://github.com/tkrajina/srtm.py) if your track lacks elevation data.
 
 License
 -------

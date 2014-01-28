@@ -20,17 +20,26 @@ GPX related stuff
 
 import pdb
 
-import logging as mod_logging
-import math as mod_math
-import collections as mod_collections
-import copy as mod_copy
+import logging      as mod_logging
+import math         as mod_math
+import collections  as mod_collections
+import copy         as mod_copy
+import datetime     as mod_datetime
 
 from . import utils as mod_utils
-from . import geo as mod_geo
+from . import geo   as mod_geo
 
-# GPX date format
+# GPX date format to be used when writing the GPX output:
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
+# GPX date format(s) used for parsing. The T between date and time and Z after
+# time are allowed, too:
+DATE_FORMATS = [
+        '%Y-%m-%d %H:%M:%S',
+        '%Y-%m-%d %H:%M:%S.%f',
+        #'%Y-%m-%d %H:%M:%S%z',
+        #'%Y-%m-%d %H:%M:%S.%f%z',
+]
 # Used in smoothing, sum must be 1:
 SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 
@@ -62,10 +71,23 @@ PointData = mod_collections.namedtuple(
         ('point', 'distance_from_start', 'track_no', 'segment_no', 'point_no'))
 
 class GPXException(Exception):
+    """
+    Exception used for invalid GPX files. Is is used when the XML file is
+    valid but something is wrong with the GPX data.
+    """
     pass
 
+class GPXXMLSyntaxException(GPXException):
+    """
+    Exception used when the the XML syntax is invalid.
+
+    The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).
+    """
+    def __init__(self, message, original_exception):
+        GPXException.__init__(self, message)
+        self.__cause__ = original_exception
+
 class GPXWaypoint(mod_geo.Location):
-	
     time = None
     name = None
     description = None
@@ -79,7 +101,7 @@ class GPXWaypoint(mod_geo.Location):
     vertical_dilution = None
     # Position dilution of precision
     position_dilution = None
-	
+
     def __init__(self, latitude, longitude, elevation=None, time=None,
               name=None, description=None, symbol=None, type=None,
               comment=None, horizontal_dilution=None, vertical_dilution=None,
@@ -96,7 +118,7 @@ class GPXWaypoint(mod_geo.Location):
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
-		
+
     def __str__(self):
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
 
@@ -124,21 +146,20 @@ class GPXWaypoint(mod_geo.Location):
             content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
         if self.position_dilution:
             content += mod_utils.to_xml('pdop', content=self.position_dilution)
-		
+
         return mod_utils.to_xml('wpt', attributes={'lat': self.latitude, 'lon': self.longitude}, content=content)
-	
+
     def get_max_dilution_of_precision(self):
         """
         Only care about the max dop for filtering, no need to go into too much detail
         """
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
-	
+
     def __hash__(self):
         return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type',
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXRoute:
-
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
@@ -205,7 +226,6 @@ class GPXRoute:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXRoutePoint(mod_geo.Location):
-
     def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
             description=None, symbol=None, type=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None,
@@ -243,7 +263,7 @@ class GPXRoutePoint(mod_geo.Location):
             content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
         if self.type:
             content += mod_utils.to_xml('type', content=self.type, escape=True)
-	
+
         if self.horizontal_dilution:
             content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
         if self.vertical_dilution:
@@ -258,20 +278,29 @@ class GPXRoutePoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXTrackPoint(mod_geo.Location):
-
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
-            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None):
+            horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
+            name=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
 
         self.time = time
         self.symbol = symbol
         self.comment = comment
+        self.name = name
 
         self.horizontal_dilution = horizontal_dilution # Horizontal dilution of precision
         self.vertical_dilution = vertical_dilution     # Vertical dilution of precision
         self.position_dilution = position_dilution     # Position dilution of precision
 
         self.speed = speed
+
+    def adjust_time(self, delta):
+        """
+        Add the amount of time in delta to the point's time. Adjust with a negative delta in order to subtract
+        time from the point.
+        """
+        if self.time:
+            self.time += delta
 
     def remove_time(self):
         """ Will remove time metadata. """
@@ -286,6 +315,8 @@ class GPXTrackPoint(mod_geo.Location):
             content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
         if self.comment:
             content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
+        if self.name:
+            content += mod_utils.to_xml('name', content=self.name, escape=True)
         if self.symbol:
             content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
 
@@ -305,7 +336,7 @@ class GPXTrackPoint(mod_geo.Location):
         """ Time distance in seconds between times of those two points """
         if not self.time or not track_point or not track_point.time:
             return None
-		
+
         time_1 = self.time
         time_2 = track_point.time
 
@@ -317,11 +348,11 @@ class GPXTrackPoint(mod_geo.Location):
         else:
             delta = time_2 - time_1
 
-        return delta.seconds
+        return mod_utils.total_seconds(delta)
 
     def speed_between(self, track_point):
         """
-        Note that this is a *computed* speed. The self.speed is the value 
+        Note that this is a *computed* speed. The self.speed is the value
         specified in the GPX file.
         """
         if not track_point:
@@ -345,13 +376,27 @@ class GPXTrackPoint(mod_geo.Location):
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
 
 class GPXTrack:
-
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
         self.number = number
 
         self.segments = []
+
+    def simplify(self, max_distance=None):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        for segment in self.segments:
+            segment.simplify(max_distance=max_distance)
+
+    def reduce_points(self, min_distance):
+        for segment in self.segments:
+            segment.reduce_points(min_distance)
+
+    def adjust_time(self, delta):
+        for segment in self.segments:
+            segment.adjust_time(delta)
 
     def remove_time(self):
         for segment in self.segments:
@@ -370,7 +415,7 @@ class GPXTrack:
                 result.append(segment)
 
         self.segments = result
-	
+
     def length_2d(self):
         length = 0
         for track_segment in self.segments:
@@ -391,7 +436,7 @@ class GPXTrack:
                 end_time = point_end_time
 
         return TimeBounds(start_time, end_time)
-	
+
     def get_bounds(self):
         min_lat = None
         max_lat = None
@@ -400,13 +445,13 @@ class GPXTrack:
         for track_segment in self.segments:
             bounds = track_segment.get_bounds()
 
-            if not mod_utils.is_numeric(min_lat) or bounds.min_latitude < min_lat:
+            if not mod_utils.is_numeric(min_lat) or (bounds.min_latitude and bounds.min_latitude < min_lat):
                 min_lat = bounds.min_latitude
-            if not mod_utils.is_numeric(max_lat) or bounds.max_latitude > max_lat:
+            if not mod_utils.is_numeric(max_lat) or (bounds.max_latitude and bounds.max_latitude > max_lat):
                 max_lat = bounds.max_latitude
-            if not mod_utils.is_numeric(min_lon) or bounds.min_longitude < min_lon:
+            if not mod_utils.is_numeric(min_lon) or (bounds.min_longitude and bounds.min_longitude < min_lon):
                 min_lon = bounds.min_longitude
-            if not mod_utils.is_numeric(max_lon) or bounds.max_longitude > max_lon:
+            if not mod_utils.is_numeric(max_lon) or (bounds.max_longitude and bounds.max_longitude > max_lon):
                 max_lon = bounds.max_longitude
 
         return Bounds(min_lat, max_lat, min_lon, max_lon)
@@ -501,6 +546,10 @@ class GPXTrack:
         for track_segment in self.segments:
             track_segment.add_elevation(delta)
 
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track_segment in self.segments:
+            track_segment.add_missing_data(get_data_function, add_missing_function)
+
     def move(self, latitude_diff, longitude_diff):
         for track_segment in self.segments:
             track_segment.move(latitude_diff, longitude_diff)
@@ -536,8 +585,8 @@ class GPXTrack:
         return UphillDownhill(uphill, downhill)
 
     def get_location_at(self, time):
-        """ 
-        Get locations for this time. There may be more locations because of 
+        """
+        Get locations for this time. There may be more locations because of
         time-overlapping track segments.
         """
         result = []
@@ -610,6 +659,16 @@ class GPXTrack:
 
         return result
 
+    def has_elevations(self):
+        if not self.segments:
+            return None
+
+        result = True
+        for track_segment in self.segments:
+            result = result and track_segment.has_elevations()
+
+        return result
+
     def get_nearest_location(self, location):
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
         if not self.segments:
@@ -643,9 +702,44 @@ class GPXTrack:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
 
 class GPXTrackSegment:
-
     def __init__(self, points=None):
         self.points = points if points else []
+
+    def simplify(self, max_distance=None):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        if not max_distance:
+            max_distance = 10
+
+        self.points = mod_geo.simplify_polyline(self.points, max_distance)
+
+    def reduce_points(self, min_distance):
+        reduced_points = []
+        for point in self.points:
+            if reduced_points:
+                distance = reduced_points[-1].distance_3d(point)
+                if distance >= min_distance:
+                    reduced_points.append(point)
+            else:
+                # Leave first point:
+                reduced_points.append(point)
+
+        self.points = reduced_points
+
+    def _find_next_simplified_point(self, pos, max_distance):
+        for candidate in range(pos + 1, len(self.points) - 1):
+            for i in range(pos + 1, candidate):
+                d = mod_geo.distance_from_line(self.points[i],
+                                               self.points[pos],
+                                               self.points[candidate])
+                if d > max_distance:
+                    return candidate - 1
+        return None
+
+    def adjust_time(self, delta):
+        for track_point in self.points:
+            track_point.adjust_time(delta)
 
     def remove_time(self):
         for track_point in self.points:
@@ -680,7 +774,7 @@ class GPXTrackSegment:
         return len(self.points)
 
     def split(self, point_no):
-        """ Splits this segment in two parts. Point #point_no remains in the first part. 
+        """ Splits this segment in two parts. Point #point_no remains in the first part.
         Returns a list with two GPXTrackSegments """
         part_1 = self.points[: point_no + 1]
         part_2 = self.points[point_no + 1 :]
@@ -728,29 +822,29 @@ class GPXTrackSegment:
                 else:
                     distance = point.distance_2d(previous)
 
-                seconds = timedelta.seconds
+                seconds = mod_utils.total_seconds(timedelta)
                 speed_kmh = 0
                 if seconds > 0:
                     # TODO: compute treshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (timedelta.seconds / 60. ** 2)
+                    speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
                 if speed_kmh <= stopped_speed_threshold:
-                    stopped_time += timedelta.seconds
+                    stopped_time += mod_utils.total_seconds(timedelta)
                     stopped_distance += distance
                 else:
-                    moving_time += timedelta.seconds
+                    moving_time += mod_utils.total_seconds(timedelta)
                     moving_distance += distance
 
                     if distance and moving_time:
-                        speeds_and_distances.append((distance / timedelta.seconds, distance, ))
+                        speeds_and_distances.append((distance / mod_utils.total_seconds(timedelta), distance, ))
 
         max_speed = None
         if speeds_and_distances:
             max_speed = mod_geo.calculate_max_speed(speeds_and_distances)
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
-	
+
     def get_time_bounds(self):
         start_time = None
         end_time = None
@@ -798,8 +892,8 @@ class GPXTrackSegment:
         #mod_logging.debug('previous: %s' % previous_point)
         #mod_logging.debug('next: %s' % next_point)
 
-        speed_1 = point.speed(previous_point)
-        speed_2 = point.speed(next_point)
+        speed_1 = point.speed_between(previous_point)
+        speed_2 = point.speed_between(next_point)
 
         if speed_1:
             speed_1 = abs(speed_1)
@@ -815,18 +909,68 @@ class GPXTrackSegment:
         return speed_2
 
     def add_elevation(self, delta):
-
         mod_logging.debug('delta = %s' % delta)
 
         if not delta:
             return
 
         for track_point in self.points:
-            track_point.elevation += delta
+            if track_point.elevation != None:
+                track_point.elevation += delta
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        if not get_data_function:
+            raise GPXException('Invalid get_data_function: %s' % get_data_function)
+        if not add_missing_function:
+            raise GPXException('Invalid add_missing_function: %s' % add_missing_function)
+
+        # Points between two points *without* data:
+        interval = []
+        # Points before and after the interval *with* data:
+        start_point = None
+
+        previous_point = None
+        for track_point in self.points:
+            data = get_data_function(track_point)
+            if data == None and previous_point:
+                if not start_point:
+                    start_point = previous_point
+                interval.append(track_point)
+            else:
+                if interval:
+                    distances_ratios = self._get_interval_distances_ratios(interval,
+                                                            start_point, track_point)
+                    add_missing_function(interval, start_point, track_point,
+                                         distances_ratios)
+                    start_point = None
+                    interval = []
+            previous_point = track_point
+
+    def _get_interval_distances_ratios(self, interval, start, end):
+        assert start, start
+        assert end, end
+        assert interval, interval
+        assert len(interval) > 0, interval
+
+        distances = []
+        distance_from_start = 0
+        previous_point = start
+        for point in interval:
+            distance_from_start += float(point.distance_3d(previous_point))
+            distances.append(distance_from_start)
+            previous_point = point
+
+        from_start_to_end = distances[-1] + interval[-1].distance_3d(end)
+
+        assert len(interval) == len(distances)
+
+        return list(map(
+                lambda distance : (distance / from_start_to_end) if from_start_to_end else 0,
+                distances))
 
     def get_duration(self):
         """ Duration in seconds """
-        if not self.points:
+        if not self.points or len(self.points) < 2:
             return 0
 
         # Search for start:
@@ -846,11 +990,11 @@ class GPXTrackSegment:
             mod_logging.debug('Not enough time data')
             return None
 
-        return (last.time - first.time).seconds
+        return mod_utils.total_seconds(last.time - first.time)
 
     def get_uphill_downhill(self):
-        """ 
-        Returns (uphill, downhill). If elevation for some points is not found 
+        """
+        Returns (uphill, downhill). If elevation for some points is not found
         those are simply ignored.
         """
         if not self.points:
@@ -877,9 +1021,9 @@ class GPXTrackSegment:
         return MinimumMaximum(max(elevations), min(elevations))
 
     def get_location_at(self, time):
-        """ 
+        """
         Gets approx. location at given time. Note that, at the moment this method returns
-        an instance of GPXTrackPoints in the future -- this may be a mod_geo.Location instance
+        an instance of GPXTrackPoint in the future -- this may be a mod_geo.Location instance
         with approximated latitude, longitude and elevation!
         """
         if not self.points:
@@ -895,13 +1039,12 @@ class GPXTrackSegment:
             mod_logging.debug('No times for track segment')
             return None
 
-        if time < first_time or time > last_time:
+        if not first_time <= time <= last_time:
             mod_logging.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
             return None
 
-        for i in range(len(self.points)):
-            point = self.points[i]
-            if point.time and time < point.time:
+        for point in self.points:
+            if point.time and time <= point.time:
                 # TODO: If between two points -- approx position!
                 # return mod_geo.Location(point.latitude, point.longitude)
                 return point
@@ -1000,6 +1143,8 @@ class GPXTrackSegment:
                         point_removed = True
                 else:
                     new_point = self.points[i]
+            else:
+                new_point = self.points[i]
 
             if horizontal:
                 old_latitude = self.points[i].latitude
@@ -1010,7 +1155,7 @@ class GPXTrackSegment:
                 new_longitude = SMOOTHING_RATIO[0] * longitudes[i - 1] + \
                         SMOOTHING_RATIO[1] * longitudes[i] + \
                         SMOOTHING_RATIO[2] * longitudes[i + 1]
-				
+
                 if not remove_extremes:
                     self.points[i].latitude = new_latitude
                     self.points[i].longitude = new_longitude
@@ -1045,28 +1190,42 @@ class GPXTrackSegment:
         self.points = new_track_points
 
     def has_times(self):
-        """ 
+        """
         Returns if points in this segment contains timestamps.
 
-        At least the first, last points and 75% of others must have times fot this 
+        At least the first, last points and 75% of others must have times fot this
         method to return true.
         """
         if not self.points:
             return True
-            # ... or otherwise one empty track segment would change the entire 
+            # ... or otherwise one empty track segment would change the entire
             # track's "has_times" status!
-
-        has_first = self.points[0]
-        has_last = self.points[-1]
 
         found = 0
         for track_point in self.points:
             if track_point.time:
                 found += 1
 
-        found = float(found) / float(len(self.points))
+        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
-        return has_first and found > .75 and has_last
+    def has_elevations(self):
+        """
+        Returns if points in this segment contains timestamps.
+
+        At least the first, last points and 75% of others must have times fot this
+        method to return true.
+        """
+        if not self.points:
+            return True
+            # ... or otherwise one empty track segment would change the entire
+            # track's "has_times" status!
+
+        found = 0
+        for track_point in self.points:
+            if track_point.elevation:
+                found += 1
+
+        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'points')
@@ -1075,7 +1234,6 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 class GPX:
-
     def __init__(self, waypoints=None, routes=None, tracks=None):
         if waypoints: self.waypoints = waypoints
         else: self.waypoints = []
@@ -1094,11 +1252,59 @@ class GPX:
         self.urlname = None
         self.time = None
         self.keywords = None
+        self.creator = None
 
         self.min_latitude = None
         self.max_latitude = None
         self.min_longitude = None
         self.max_longitude = None
+
+    def simplify(self, max_distance=None):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        for track in self.tracks:
+            track.simplify(max_distance=max_distance)
+
+    def reduce_points(self, max_points_no=None, min_distance=None):
+        """
+        Reduce this track to the desired number of points
+        max_points = The maximum number of points after the reduction
+        min_distance = The minimum distance between two points
+        """
+
+        if max_points_no is None and min_distance is None:
+            raise ValueError("Either max_point_no or min_distance must be supplied")
+
+        if max_points_no is not None and max_points_no < 2:
+            raise ValueError("max_points_no must be greater than or equal to 2")
+
+        points_no = len(list(self.walk()))
+        if max_points_no is not None and points_no <= max_points_no:
+            # No need to reduce points only if no min_distance is specified:
+            if not min_distance:
+                return
+
+        length = self.length_3d()
+
+        min_distance = min_distance or 0
+        max_points_no = max_points_no or 1000000000
+
+        min_distance = max(min_distance, mod_math.ceil(length / float(max_points_no)))
+
+        for track in self.tracks:
+            track.reduce_points(min_distance)
+
+        # TODO
+        mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
+
+    def adjust_time(self, delta):
+        """
+        Adjust all of the points in all of the segments of all tracks by the given timedelta.
+        Adjust with a negative delta in order to subtract time from each point.
+        """
+        for track in self.tracks:
+            track.adjust_time(delta)
 
     def remove_time(self):
         """ Will remove time metadata. """
@@ -1119,7 +1325,7 @@ class GPX:
 
     def get_time_bounds(self):
         """
-        Returns the first and last found time in the track. 
+        Returns the first and last found time in the track.
         """
         start_time = None
         end_time = None
@@ -1155,7 +1361,13 @@ class GPX:
                 max_lon = bounds.max_longitude
 
         return Bounds(min_lat, max_lat, min_lon, max_lon)
-	
+
+    def get_points_no(self):
+        result = 0
+        for track in self.tracks:
+            result += track.get_points_no()
+        return result
+
     def refresh_bounds(self):
         """
         Compute bounds and reload min_latitude, max_latitude, min_longitude and max_longitude properties
@@ -1206,7 +1418,7 @@ class GPX:
 
         Experiment with your own variations to get the values you expect.
 
-        Max speed is in m/s. 
+        Max speed is in m/s.
         """
         moving_time = 0.
         stopped_time = 0.
@@ -1227,52 +1439,6 @@ class GPX:
                 max_speed = track_max_speed
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
-
-    def reduce_points(self, max_points_no=None, min_distance=None):
-        """
-        Reduce this track to the desired number of points
-        max_points = The maximum number of points after the reduction
-        min_distance = The minimum distance between two points
-        """
-
-        if max_points_no is None and min_distance is None:
-            raise ValueError("Either max_point_no or min_distance must be supplied")
-
-        if max_points_no is not None and max_points_no < 2:
-            raise ValueError("max_points_no must be greater than or equal to 2")
-
-        points_no = len(list(self.walk()))
-        if max_points_no is not None and points_no <= max_points_no:
-            return
-
-        length = self.length_3d()
-
-        if not min_distance:
-            min_distance = mod_math.ceil(length / float(max_points_no))
-            if not min_distance or min_distance < 0:
-                min_distance = 100
-
-        for track in self.tracks:
-            for track_segment in track.segments:
-                reduced_points = []
-                previous_point = None
-                length = len(track_segment.points)
-                for i in range(length):
-                    point = track_segment.points[i]
-                    if i == 0:
-                        # Leave first point:
-                        reduced_points.append(point)
-                        previous_point = point
-                    elif previous_point:
-                        distance = previous_point.distance_3d(point)
-                        if distance >= min_distance:
-                            reduced_points.append(point)
-                            previous_point = point
-
-                track_segment.points = reduced_points
-
-        # TODO
-        mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
 
     def split(self, track_no, track_segment_no, track_point_no):
         track = self.tracks[track_no]
@@ -1346,7 +1512,7 @@ class GPX:
         return UphillDownhill(uphill, downhill)
 
     def get_location_at(self, time):
-        """ 
+        """
         Same as GPXTrackSegment.get_location_at(time)
         """
         result = []
@@ -1420,7 +1586,7 @@ class GPX:
         assert threshold_distance
 
         result = []
-		
+
         points = self.get_points_data()
 
         if not points:
@@ -1489,6 +1655,45 @@ class GPX:
         for track in self.tracks:
             track.add_elevation(delta)
 
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track in self.tracks:
+            track.add_missing_data(get_data_function, add_missing_function)
+
+    def add_missing_elevations(self):
+        def _add(interval, start, end, distances_ratios):
+            assert start
+            assert end
+            assert start.elevation != None
+            assert end.elevation != None
+            assert interval
+            assert len(interval) == len(distances_ratios)
+            for i in range(len(interval)):
+                interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
+
+        self.add_missing_data(get_data_function=lambda point: point.elevation,
+                              add_missing_function=_add)
+
+    def add_missing_times(self):
+        def _add(interval, start, end, distances_ratios):
+            assert start
+            assert end
+            assert start.time != None
+            assert end.time != None
+            assert interval
+            assert len(interval) == len(distances_ratios)
+
+            seconds_between = float(mod_utils.total_seconds(end.time -  start.time))
+
+            for i in range(len(interval)):
+                point = interval[i]
+                ratio = distances_ratios[i]
+                point.time = start.time + mod_datetime.timedelta(
+                        seconds=(seconds_between + ratio * seconds_between))
+                print(point.time)
+
+        self.add_missing_data(get_data_function=lambda point: point.time,
+                              add_missing_function=_add)
+
     def move(self, latitude_diff, longitude_diff):
         for route in self.routes:
             route.move(latitude_diff, longitude_diff)
@@ -1539,7 +1744,9 @@ class GPX:
                 'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
                 'xmlns': 'http://www.topografix.com/GPX/1/0',
                 'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
-       }
+        }
+        if self.creator:
+            xml_attributes['creator'] = self.creator
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + mod_utils.to_xml('gpx', attributes=xml_attributes, content=content).strip()
 
@@ -1558,9 +1765,19 @@ class GPX:
 
         return result
 
+    def has_elevations(self):
+        """ See GPXTrackSegment.has_times() """
+        if not self.tracks:
+            return None
+
+        result = True
+        for track in self.tracks:
+            result = result and track.has_elevations()
+
+        return result
+
     def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude') 
+        return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
 
     def clone(self):
         return mod_copy.deepcopy(self)
-

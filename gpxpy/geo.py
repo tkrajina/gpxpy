@@ -33,7 +33,7 @@ def to_rad(x):
 
 def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
     """
-    Haversine distance between two points.
+    Haversine distance between two points, expressed in meters.
 
     Implemented from http://www.movable-type.co.uk/scripts/latlong.html
     """
@@ -70,22 +70,22 @@ def length(locations=None, _3d=None):
     return length
 
 def length_2d(locations=None):
-    """ 2-dimensional length of locations (only latitude and longitude, no elevation """
+    """ 2-dimensional length (meters) of locations (only latitude and longitude, no elevation). """
     locations = locations or []
     return length(locations, False)
 
 def length_3d(locations=None):
-    """ 3-dimensional length of locations (is uses latitude, longitude and elevation). """
+    """ 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). """
     locations = locations or []
     return length(locations, True)
 
 def calculate_max_speed(speeds_and_distances):
     """
-    Compute average distance and standard deviation for distance. Extreemes 
-    in dinstances are usually extreemes in speeds, so we will ignore them, 
+    Compute average distance and standard deviation for distance. Extremes
+    in distances are usually extremes in speeds, so we will ignore them,
     here.
 
-    speeds_and_distances must be a list containing pairs of (speed, distance) 
+    speeds_and_distances must be a list containing pairs of (speed, distance)
     for every point in a track segment.
     """
     assert speeds_and_distances
@@ -115,7 +115,7 @@ def calculate_max_speed(speeds_and_distances):
         return None
     speeds.sort()
 
-    # Even here there may be some extreemes => ignore the last 5%:
+    # Even here there may be some extremes => ignore the last 5%:
     index = int(len(speeds) * 0.95)
     if index >= len(speeds):
         index = -1
@@ -134,7 +134,7 @@ def calculate_uphill_downhill(elevations):
         if 0 < n < size - 1:
             previous_ele = elevations[n-1]
             next_ele = elevations[n+1]
-            if previous_ele is not None and current_ele is not None and next_ele is not None: 
+            if previous_ele is not None and current_ele is not None and next_ele is not None:
                 return previous_ele*.3 + current_ele*.4 + next_ele*.3
         return current_ele
 
@@ -157,15 +157,15 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
     """
     Distance between two points. If elevation is None compute a 2d distance
 
-    if haversine==True -- haversine will be used for every computations, 
+    if haversine==True -- haversine will be used for every computations,
     otherwise...
 
-    Haversine distance will be used for distant points where elevation makes a 
-    small difference, so it is ignored. That's because haversine is 5-6 times 
+    Haversine distance will be used for distant points where elevation makes a
+    small difference, so it is ignored. That's because haversine is 5-6 times
     slower than the dummy distance algorithm (which is OK for most GPS tracks).
     """
 
-    # If points too distance -- compute haversine distance:
+    # If points too distant -- compute haversine distance:
     if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
@@ -197,6 +197,74 @@ def elevation_angle(location1, location2, radians=False):
         return angle
 
     return 180 * angle / mod_math.pi
+
+def distance_from_line(point, line_point_1, line_point_2):
+    """ Distance of point from a line given with two points. """
+    assert point, point
+    assert line_point_1, line_point_1
+    assert line_point_2, line_point_2
+
+    a = line_point_1.distance_2d(line_point_2)
+
+    if a == 0:
+        return line_point_1.distance_2d(point)
+
+    b = line_point_1.distance_2d(point)
+    c = line_point_2.distance_2d(point)
+
+    s = (a + b + c) / 2.
+
+    return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
+
+def get_line_equation_coefficients(location1, location2):
+    """
+    Get line equation coefficients for:
+        latitude * a + longitude * b + c = 0
+
+    This is a normal cartesian line (not spherical!)
+    """
+    if location1.longitude == location2.longitude:
+        # Vertical line:
+        return float(0), float(1), float(-location1.longitude)
+    else:
+        a = float(location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
+        b = location1.latitude - location1.longitude * a
+        return float(1), float(-a), float(-b)
+
+def simplify_polyline(points, max_distance):
+    """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
+
+    if len(points) < 3:
+        return points
+
+    begin, end = points[0], points[-1]
+
+    # Use a "normal" line just to detect the most distant point (not its real distance)
+    # this is because this is faster to compute than calling distance_from_line() for
+    # every point.
+    #
+    # This is an approximation and may have some errors near the poles and if
+    # the points are too distant, but it should be good enough for most use
+    # cases...
+    a, b, c = get_line_equation_coefficients(begin, end)
+
+    tmp_max_distance = -1000000
+    tmp_max_distance_position = None
+    for point_no in range(len(points[1:-1])):
+        point = points[point_no]
+        d = abs(a * point.latitude + b * point.longitude + c)
+        if d > tmp_max_distance:
+            tmp_max_distance = d
+            tmp_max_distance_position = point_no
+
+    # Now that we have the most distance point, compute its real distance:
+    real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
+
+    if real_max_distance < max_distance:
+        return [begin, end]
+
+    return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) +
+            simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
 
 class Location:
     """ Generic geographical location """
@@ -234,11 +302,9 @@ class Location:
     def move(self, latitude_diff, longitude_diff):
         self.latitude += latitude_diff
         self.longitude += longitude_diff
-		
+
     def __str__(self):
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
 
     def __hash__(self):
-                return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation') 
-
-
+        return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation')

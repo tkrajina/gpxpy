@@ -26,6 +26,7 @@ import xml.dom.minidom as mod_minidom
 try:
     import lxml.etree as mod_etree
 except:
+    mod_etree = None
     pass # LXML not available
 
 from . import gpx as mod_gpx
@@ -86,12 +87,14 @@ class XMLParser:
 
 class LXMLParser:
     """
-    Used when lxml is available. 
+    Used when lxml is available.
     """
 
     def __init__(self, xml):
+        assert mod_etree
+
         if mod_utils.PYTHON_VERSION[0] == '3':
-            # In python 3 all strings are unicode and for some reason lxml 
+            # In python 3 all strings are unicode and for some reason lxml
             # don't like unicode strings with XMLs declared as UTF-8:
             self.xml = xml.encode('utf-8')
         else:
@@ -143,17 +146,16 @@ class LXMLParser:
 def parse_time(string):
     if not string:
         return None
-    try:
-        return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
-    except ValueError as e:
-        if mod_re.match(r'^.*\.\d+Z$', string):
-            string = mod_re.sub(r'\.\d+Z', 'Z', string)
+    if 'T' in string:
+        string = string.replace('T', ' ')
+    if 'Z' in string:
+        string = string.replace('Z', '')
+    for date_format in mod_gpx.DATE_FORMATS:
         try:
-            return mod_datetime.datetime.strptime(string, mod_gpx.DATE_FORMAT)
+            return mod_datetime.datetime.strptime(string, date_format)
         except ValueError as e:
-            mod_logging.error('Invalid timestamp %s' % string)
-            return None
-
+            pass
+    return None
 
 class GPXParser:
 
@@ -176,6 +178,13 @@ class GPXParser:
         return self.gpx
 
     def parse(self):
+        """
+        Parses the XML file and returns a GPX object.
+
+        It will throw GPXXMLSyntaxException if the XML file is invalid or
+        GPXException if the XML file is valid but something is wrong with the
+        GPX data.
+        """
         try:
             if self.xml_parser_type is None:
                 if mod_etree:
@@ -193,16 +202,26 @@ class GPXParser:
 
             return self.gpx
         except Exception as e:
+            # The exception here can be a lxml or minidom exception.
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
 
-            raise mod_gpx.GPXException('Error parsing XML: %s' % str(e))
+            # The library should work in the same way regardless of the
+            # underlying XML parser that's why the exception thrown
+            # here is GPXXMLSyntaxException (instead of simply throwing the
+            # original minidom or lxml exception e).
+            #
+            # But, if the user need the original exception (lxml or minidom)
+            # it is available with GPXXMLSyntaxException.original_exception:
+            raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 
     def __parse_dom(self):
 
         node = self.xml_parser.get_first_child(name='gpx')
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
+        if self.xml_parser.get_node_attribute(node, "creator"):
+          self.gpx.creator = self.xml_parser.get_node_attribute(node, "creator")
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
@@ -267,7 +286,8 @@ class GPXParser:
         lon = mod_utils.to_number(lon)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -335,7 +355,8 @@ class GPXParser:
         lon = mod_utils.to_number(lon)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
@@ -414,13 +435,17 @@ class GPXParser:
         time = parse_time(time_str)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node), None)
+        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
+                                        default = None, nan_value = None)
 
         sym_node = self.xml_parser.get_first_child(node, 'sym')
         symbol = self.xml_parser.get_node_data(sym_node)
 
         comment_node = self.xml_parser.get_first_child(node, 'cmt')
         comment = self.xml_parser.get_node_data(comment_node)
+
+        name_node = self.xml_parser.get_first_child(node, 'name')
+        name = self.xml_parser.get_node_data(name_node)
 
         hdop_node = self.xml_parser.get_first_child(node, 'hdop')
         hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
@@ -436,7 +461,7 @@ class GPXParser:
 
         return mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation, time=time,
             symbol=symbol, comment=comment, horizontal_dilution=hdop, vertical_dilution=vdop,
-            position_dilution=pdop, speed=speed)
+            position_dilution=pdop, speed=speed, name=name)
 
 
 
