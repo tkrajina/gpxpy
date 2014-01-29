@@ -539,7 +539,7 @@ class GPXTrack:
         self.segments = new_segments
 
     def join(self, track_segment_no, track_segment_no_2=None):
-        """ Joins two segments of this track. If track_segment_no_2 the join will be with the
+        """ Joins two segments of this track. If track_segment_no_2 is None, the join will be with the
         next segment """
 
         if not track_segment_no_2:
