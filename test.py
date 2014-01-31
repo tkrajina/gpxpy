@@ -1521,6 +1521,10 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
 
+    def test_unicode(self):
+        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'))
+        gpx = parser.parse()
+        gpx.to_xml()
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
