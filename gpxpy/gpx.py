@@ -1749,8 +1749,7 @@ class GPX:
                 point = interval[i]
                 ratio = distances_ratios[i]
                 point.time = start.time + mod_datetime.timedelta(
-                    seconds=(seconds_between + ratio * seconds_between))
-                print(point.time)
+                    seconds=ratio * seconds_between)
 
         self.add_missing_data(get_data_function=lambda point: point.time,
                               add_missing_function=_add)

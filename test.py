@@ -1378,20 +1378,43 @@ class AbstractTests:
         self.assertEqual(2013, time_1.year)
         self.assertEqual(1, time_1.month)
         self.assertEqual(2, time_1.day)
-        self.assertEqual(13, time_1.hour)
+        self.assertEqual(12, time_1.hour)
         self.assertEqual(15, time_1.minute)
 
         self.assertEqual(2013, time_2.year)
         self.assertEqual(1, time_2.month)
         self.assertEqual(2, time_2.day)
-        self.assertEqual(13, time_2.hour)
+        self.assertEqual(12, time_2.hour)
         self.assertEqual(30, time_2.minute)
 
         self.assertEqual(2013, time_3.year)
         self.assertEqual(1, time_3.month)
         self.assertEqual(2, time_3.day)
-        self.assertEqual(13, time_3.hour)
+        self.assertEqual(12, time_3.hour)
         self.assertEqual(45, time_3.minute)
+
+    def test_add_missing_times_2(self):
+        xml = ''
+        xml += '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk>\n'
+        xml += '<trkseg>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z</time></trkpt>\n'
+        xml += '<trkpt lat="35.7941046982" lon="-5.83285637909"></trkpt>\n'
+        xml += '<trkpt lat="35.7914309254" lon="-5.83378314972"></trkpt>\n'
+        xml += '<trkpt lat="35.791014" lon="-5.833826"><time>2014-02-02T10:25:30Z</time><ele>18</ele></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+        gpx = mod_gpxpy.parse(xml)
+
+        gpx.add_missing_times()
+
+        previous_time = None
+        for point in gpx.walk(only_points=True):
+            if point.time:
+                if previous_time:
+                    print('point.time=', point.time, 'previous_time=', previous_time)
+                    self.assertTrue(point.time > previous_time)
+            previous_time = point.time
 
     def test_distance_from_line(self):
         d = mod_geo.distance_from_line(mod_geo.Location(1, 1),
@@ -1525,6 +1548,7 @@ class AbstractTests:
         parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'))
         gpx = parser.parse()
         gpx.to_xml()
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
