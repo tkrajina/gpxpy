@@ -317,6 +317,9 @@ class Location:
         self.latitude += latitude_diff
         self.longitude += longitude_diff
 
+    def __add__(self, location_delta):
+        return location_delta.move(self)
+
     def __str__(self):
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
 
@@ -326,6 +329,57 @@ class Location:
         else:
             return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
 
-
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation')
+
+class LocationDelta:
+    """
+    Intended to use similar to timestamp.timedelta, but for Locations.
+    """
+
+    NORTH = 0
+    EAST = 90
+    SOUTH = 180
+    WEST = 270
+
+    def __init__(self, distance=None, angle=None, latitude_diff=None, longitude_diff=None):
+        """
+        Version 1:
+            Distance (in meters).
+            angle_from_north *clockwise*. 
+            ...must be given
+        Version 2:
+            latitude_diff and longitude_diff
+            ...must be given
+        """
+        if (distance is not None) and (angle is not None):
+            if (latitude_diff is not None) or (longitude_diff is not None):
+                raise Exception('No lat/lon diff if using distance and angle!')
+            self.distance = distance
+            self.angle_from_north = angle
+            self.move_function = self.move_by_angle_and_distance
+        elif (latitude_diff is not None) and (longitude_diff is not None):
+            if (distance is not None) or (angle is not None):
+                raise Exception('No distance/angle if using lat/lon diff!')
+            this.latitude_diff  = latitude_diff
+            this.longitude_diff = longitude_diff
+            self.move_function = self.move_by_lat_lon_diff
+
+    def move(self, location):
+        """
+        Move location by this timedelta.
+        """
+        mod_logging.warn('Deprecated, use __add__ with LocationDelta')
+        return self.move_function(location)
+
+    def move_by_angle_and_distance(self, location):
+        coef = mod_math.cos(location.latitude / 180. * mod_math.pi)
+        vertical_distance_diff   = mod_math.sin((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
+        horizontal_distance_diff = mod_math.cos((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
+        lat_diff = self.distance * vertical_distance_diff
+        lon_diff = self.distance * horizontal_distance_diff / coef
+        return Location(location.latitude + lat_diff, location.longitude + lon_diff)
+
+    def move_by_lat_lon_diff(self, location):
+        return Location(location.latitude  + self.latitude_diff, 
+                        location.longitude + self.longitude_diff)

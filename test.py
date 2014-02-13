@@ -95,6 +95,9 @@ def equals(object1, object2, ignore=None):
 
     return True
 
+def cca(number1, number2):
+    return 1 - number1 / number2 < 0.999
+
 # TODO: Track segment speed in point test
 
 
@@ -1549,6 +1552,45 @@ class AbstractTests:
         gpx = parser.parse()
         gpx.to_xml()
 
+    def test_location_delta(self):
+        location = mod_geo.Location(-20, -50)
+
+        location_2 = location + mod_geo.LocationDelta(angle=45, distance=100)
+        self.assertTrue(cca(location_2.latitude  - location.latitude, location_2.longitude - location.longitude))
+
+    def test_location_equator_delta_distance_111120(self):
+        self.__test_location_delta(mod_geo.Location(0, 13), 111120)
+
+    def test_location_equator_delta_distance_50(self):
+        self.__test_location_delta(mod_geo.Location(0, -50), 50)
+
+    def test_location_nonequator_delta_distance_111120(self):
+        self.__test_location_delta(mod_geo.Location(45, 13), 111120)
+
+    def test_location_nonequator_delta_distance_50(self):
+        self.__test_location_delta(mod_geo.Location(-20, -50), 50)
+
+    def __test_location_delta(self, location, distance):
+        angles = [ x * 15 for x in range(int(360 / 15)) ]
+        print(angles)
+
+        distance_from_previous_location = None
+        previous_location               = None
+
+        distances_between_points = []
+
+        for angle in angles:
+            new_location = location + mod_geo.LocationDelta(angle=angle, distance=distance)
+            # All locations same distance from center
+            self.assertTrue(cca(location.distance_2d(new_location), distance))
+            if previous_location:
+                distances_between_points.append(new_location.distance_2d(previous_location))
+            previous_location = new_location
+
+        print(distances_between_points)
+        # All points should be equidistant on a circle:
+        for i in range(1, len(distances_between_points)):
+            self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
