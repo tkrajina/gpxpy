@@ -28,7 +28,7 @@ Usage
         
     for route in gpx.routes:
         print 'Route:'
-        for point in route:
+        for point in route.points:
             print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
 
     # There are many more utility methods and functions:
