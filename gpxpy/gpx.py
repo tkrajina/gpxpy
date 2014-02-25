@@ -247,6 +247,7 @@ class GPXRoute:
         representation += '%spoints=[%s])' % (', ' if representation else '', '...' if self.points else '')
         return 'GPXRoute(%s)' % representation
 
+
 class GPXRoutePoint(mod_geo.Location):
     def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -422,6 +423,9 @@ class GPXTrack:
         self.name = name
         self.description = description
         self.number = number
+        # Type is not exactly part of the standard but a is "proposed" and a 
+        # lot of application use it:
+        self.type = None
 
         self.segments = []
 
@@ -659,6 +663,7 @@ class GPXTrack:
 
     def to_xml(self, version=None):
         content = mod_utils.to_xml('name', content=self.name, escape=True)
+        content += mod_utils.to_xml('type', content=self.type, escape=True)
         content += mod_utils.to_xml('desc', content=self.description, escape=True)
         if self.number:
             content += mod_utils.to_xml('number', content=self.number)

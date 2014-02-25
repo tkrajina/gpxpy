@@ -162,7 +162,6 @@ def parse_time(string):
 
 
 class GPXParser:
-
     def __init__(self, xml_or_file=None, parser=None):
         """
         Parser may be lxml of minidom. If you set to None then lxml will be used if installed
@@ -220,7 +219,6 @@ class GPXParser:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 
     def __parse_dom(self):
-
         node = self.xml_parser.get_first_child(name='gpx')
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
@@ -397,6 +395,9 @@ class GPXParser:
         name_node = self.xml_parser.get_first_child(node, 'name')
         name = self.xml_parser.get_node_data(name_node)
 
+        type_node = self.xml_parser.get_first_child(node, 'type')
+        type = self.xml_parser.get_node_data(type_node)
+
         description_node = self.xml_parser.get_first_child(node, 'desc')
         description = self.xml_parser.get_node_data(description_node)
 
@@ -404,6 +405,7 @@ class GPXParser:
         number = mod_utils.to_number(self.xml_parser.get_node_data(number_node))
 
         track = mod_gpx.GPXTrack(name, description, number)
+        track.type = type
 
         child_nodes = self.xml_parser.get_children(node)
         for child_node in child_nodes:
