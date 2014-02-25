@@ -218,9 +218,9 @@ class GPXRoute:
     def get_points_no(self):
         return len(self.points)
 
-    def move(self, latitude_diff, longitude_diff):
+    def move(self, location_delta):
         for route_point in self.points:
-            route_point.move(latitude_diff, longitude_diff)
+            route_point.move(location_delta)
 
     def to_xml(self, version=None):
         content = ''
@@ -592,9 +592,9 @@ class GPXTrack:
         for track_segment in self.segments:
             track_segment.add_missing_data(get_data_function, add_missing_function)
 
-    def move(self, latitude_diff, longitude_diff):
+    def move(self, location_delta):
         for track_segment in self.segments:
-            track_segment.move(latitude_diff, longitude_diff)
+            track_segment.move(location_delta)
 
     def get_duration(self):
         """ Note returns None if one of track segments hasn't time data """
@@ -806,9 +806,9 @@ class GPXTrackSegment:
     def length_3d(self):
         return mod_geo.length_3d(self.points)
 
-    def move(self, latitude_diff, longitude_diff):
+    def move(self, location_delta):
         for track_point in self.points:
-            track_point.move(latitude_diff, longitude_diff)
+            track_point.move(location_delta)
 
     def walk(self, only_points=False):
         """ Use this to iterate through points """
@@ -1754,15 +1754,15 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.time,
                               add_missing_function=_add)
 
-    def move(self, latitude_diff, longitude_diff):
+    def move(self, location_delta):
         for route in self.routes:
-            route.move(latitude_diff, longitude_diff)
+            route.move(location_delta)
 
         for waypoint in self.waypoints:
-            waypoint.move(latitude_diff, longitude_diff)
+            waypoint.move(location_delta)
 
         for track in self.tracks:
-            track.move(latitude_diff, longitude_diff)
+            track.move(location_delta)
 
     def to_xml(self):
 

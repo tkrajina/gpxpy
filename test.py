@@ -1570,6 +1570,15 @@ class AbstractTests:
     def test_location_nonequator_delta_distance_50(self):
         self.__test_location_delta(mod_geo.Location(-20, -50), 50)
 
+    def test_delta_add_and_move(self):
+        location = mod_geo.Location(45.1, 13.2)
+        delta = mod_geo.LocationDelta(angle=20, distance=1000)
+        location_2 = location + delta
+        location.move(delta)
+
+        self.assertTrue(cca(location.latitude, location_2.latitude))
+        self.assertTrue(cca(location.longitude, location_2.longitude))
+
     def __test_location_delta(self, location, distance):
         angles = [ x * 15 for x in range(int(360 / 15)) ]
         print(angles)
@@ -1591,6 +1600,7 @@ class AbstractTests:
         # All points should be equidistant on a circle:
         for i in range(1, len(distances_between_points)):
             self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):

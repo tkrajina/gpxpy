@@ -313,12 +313,12 @@ class Location:
     def elevation_angle(self, location, radians=False):
         return elevation_angle(self, location, radians)
 
-    def move(self, latitude_diff, longitude_diff):
-        self.latitude += latitude_diff
-        self.longitude += longitude_diff
+    def move(self, location_delta):
+        self.latitude, self.longitude = location_delta.move(self)
 
     def __add__(self, location_delta):
-        return location_delta.move(self)
+        latitude, longitude = location_delta.move(self)
+        return Location(latitude, longitude)
 
     def __str__(self):
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
@@ -331,6 +331,7 @@ class Location:
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation')
+
 
 class LocationDelta:
     """
@@ -369,7 +370,6 @@ class LocationDelta:
         """
         Move location by this timedelta.
         """
-        mod_logging.warn('Deprecated, use __add__ with LocationDelta')
         return self.move_function(location)
 
     def move_by_angle_and_distance(self, location):
@@ -378,8 +378,7 @@ class LocationDelta:
         horizontal_distance_diff = mod_math.cos((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
         lat_diff = self.distance * vertical_distance_diff
         lon_diff = self.distance * horizontal_distance_diff / coef
-        return Location(location.latitude + lat_diff, location.longitude + lon_diff)
+        return location.latitude + lat_diff, location.longitude + lon_diff
 
     def move_by_lat_lon_diff(self, location):
-        return Location(location.latitude  + self.latitude_diff, 
-                        location.longitude + self.longitude_diff)
+        return location.latitude  + self.latitude_diff, location.longitude + self.longitude_diff
