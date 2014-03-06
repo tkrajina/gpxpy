@@ -185,6 +185,14 @@ class GPXRoute:
             point.remove_elevation()
 
     def length(self):
+        """ 
+        Computes length (2-dimensional) of route. 
+         
+        Returns:
+        -----------
+        length: numeric
+            Length returned in meters
+         """
         return mod_geo.length_2d(self.points)
 
     def get_center(self):
@@ -338,9 +346,15 @@ class GPXTrackPoint(mod_geo.Location):
 
     def adjust_time(self, delta):
         """
-        Add the amount of time in delta to the point's time. Adjust with a negative delta in order to subtract
-        time from the point.
+        Adjusts the time of the point by the specified delta
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust time into the future
+            Negative time delta will adjust time into the past
         """
+
         if self.time:
             self.time += delta
 
@@ -375,7 +389,18 @@ class GPXTrackPoint(mod_geo.Location):
         return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
     def time_difference(self, track_point):
-        """ Time distance in seconds between times of those two points """
+        """
+        Get time difference between specified point and this point.
+
+        Parameters
+        ----------
+        track_point : GPXTrackPoint
+
+        Returns
+        ----------
+        time_difference : numeric
+            Time difference returned in seconds
+        """
         if not self.time or not track_point or not track_point.time:
             return None
 
@@ -394,8 +419,19 @@ class GPXTrackPoint(mod_geo.Location):
 
     def speed_between(self, track_point):
         """
-        Note that this is a *computed* speed. The self.speed is the value
-        specified in the GPX file.
+        Compute the speed between specified point and this point.
+
+        NOTE: This is a computed speed, not the GPXTrackPoint speed that comes
+              the GPX file.
+
+        Parameters
+        ----------
+        track_point : GPXTrackPoint
+
+        Returns
+        ----------
+        speed : numeric
+            Speed returned in meters/second
         """
         if not track_point:
             return None
@@ -437,23 +473,43 @@ class GPXTrack:
             segment.simplify(max_distance=max_distance)
 
     def reduce_points(self, min_distance):
+        """
+        Reduces the number of points in the track. Segment points will be 
+        updated in place.
+
+        Parameters
+        ----------
+        min_distance : numeric
+            The minimum separation in meters between points
+        """
         for segment in self.segments:
             segment.reduce_points(min_distance)
 
     def adjust_time(self, delta):
+        """
+        Adjusts the time of all segments in the track by the specified delta
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust time into the future
+            Negative time delta will adjust time into the past
+        """
         for segment in self.segments:
             segment.adjust_time(delta)
 
     def remove_time(self):
+        """ Removes time data for all points in all segments of track. """
         for segment in self.segments:
             segment.remove_time()
 
     def remove_elevation(self):
+        """ Removes elevation data for all points in all segments of track. """
         for segment in self.segments:
             segment.remove_elevation()
 
     def remove_empty(self):
-        """ Removes empty segments and/or routes """
+        """ Removes empty segments in track """
         result = []
 
         for segment in self.segments:
@@ -463,6 +519,16 @@ class GPXTrack:
         self.segments = result
 
     def length_2d(self):
+        """ 
+        Computes 2-dimensional length (meters) of track (only latitude and
+        longitude, no elevation). This is the sum of the 2D length of all
+        segments.
+
+        Returns
+        ----------
+        length : numeric
+            Length returned in meters
+        """
         length = 0
         for track_segment in self.segments:
             d = track_segment.length_2d()
@@ -771,6 +837,16 @@ class GPXTrackSegment:
         self.points = mod_geo.simplify_polyline(self.points, max_distance)
 
     def reduce_points(self, min_distance):
+        """
+        Reduces the number of points in the track segment. Segment points will
+        be updated in place.
+
+        Parameters
+        ----------
+        min_distance : numeric
+            The minimum separation in meters between points
+        """
+
         reduced_points = []
         for point in self.points:
             if reduced_points:
@@ -794,6 +870,15 @@ class GPXTrackSegment:
         return None
 
     def adjust_time(self, delta):
+        """
+        Adjusts the time of all points in the segment by the specified delta
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust point times into the future
+            Negative time delta will adjust point times into the past
+        """
         for track_point in self.points:
             track_point.adjust_time(delta)
 
@@ -1366,8 +1451,14 @@ class GPX:
 
     def adjust_time(self, delta):
         """
-        Adjust all of the points in all of the segments of all tracks by the given timedelta.
-        Adjust with a negative delta in order to subtract time from each point.
+        Adjusts the time of all points in all of the segments of all tracks by 
+        the specified delta.
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust times into the future
+            Negative time delta will adjust times into the past
         """
         for track in self.tracks:
             track.adjust_time(delta)
