@@ -26,8 +26,9 @@ import collections  as mod_collections
 import copy         as mod_copy
 import datetime     as mod_datetime
 
-from . import utils as mod_utils
-from . import geo   as mod_geo
+from . import utils    as mod_utils
+from . import geo      as mod_geo
+from . import gpxfield as mod_gpxfield
 
 # GPX date format to be used when writing the GPX output:
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -1234,7 +1235,12 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 class GPX:
+    __gpx_fields__ = [
+            mod_gpxfield.GPXFieldHandler('name', 'name'),
+    ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
+        mod_gpxfield.init_gpx_fields(self)
+
         if waypoints: self.waypoints = waypoints
         else: self.waypoints = []
 
@@ -1244,7 +1250,6 @@ class GPX:
         if tracks: self.tracks = tracks
         else: self.tracks = []
 
-        self.name = None
         self.description = None
         self.author = None
         self.email = None
@@ -1705,13 +1710,9 @@ class GPX:
             track.move(latitude_diff, longitude_diff)
 
     def to_xml(self):
-
-        # TODO: Implement other versions
-        version = '1.0'
-
         content = ''
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, default=' ', escape=True)
+        content = mod_gpxfield.gpx_fields_to_xml(self, content)
+
         if self.description:
             content += mod_utils.to_xml('desc', content=self.description, default=' ', escape=True)
         if self.author:

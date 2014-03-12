@@ -94,7 +94,9 @@ def equals(object1, object2, ignore=None):
 
     return True
 
-# TODO: Track segment speed in point test
+def get_xml_value(node, path):
+    # TODO
+    pass
 
 class AbstractTests:
     """
@@ -1520,6 +1522,21 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[0].points[1].time, None)
         self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
+
+    def test_gpx_10_fields(self):
+        """ Test (de) serialization all gpx1.0 fields """
+        xml = '<gpx><name>test</name></gpx>'
+        gpx = mod_gpxpy.parse(xml)
+
+        self.assertEquals(gpx.name,                       'test')
+        # TODO
+        # self.assertEquals(get_xml_value(gpx, 'gpx/name'), 'test')
+
+        print(gpx.to_xml())
+
+    def test_gpx_11_fields(self):
+        """ Test (de) serialization all gpx1.1 fields """
+        # TODO
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
