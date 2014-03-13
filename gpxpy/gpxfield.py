@@ -38,7 +38,8 @@ def init_gpx_fields(instance):
 def gpx_fields_to_xml(instance, xml):
     for gpx_field in instance.__gpx_fields__:
         value = getattr(instance, gpx_field.name)
-        xml += gpx_field.to_xml(value)
+        if value:
+            xml += gpx_field.to_xml(value)
     return xml
 
 def gpx_fields_from_xml(instance, parser, node):

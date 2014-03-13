@@ -1237,6 +1237,7 @@ class GPXTrackSegment:
 class GPX:
     __gpx_fields__ = [
             mod_gpxfield.GPXFieldHandler('name', 'name'),
+            mod_gpxfield.GPXFieldHandler('description', 'desc'),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
@@ -1250,7 +1251,6 @@ class GPX:
         if tracks: self.tracks = tracks
         else: self.tracks = []
 
-        self.description = None
         self.author = None
         self.email = None
         self.url = None
@@ -1713,8 +1713,6 @@ class GPX:
         content = ''
         content = mod_gpxfield.gpx_fields_to_xml(self, content)
 
-        if self.description:
-            content += mod_utils.to_xml('desc', content=self.description, default=' ', escape=True)
         if self.author:
             content += mod_utils.to_xml('author', content=self.author, default=' ', escape=True)
         if self.email:

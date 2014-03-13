@@ -230,8 +230,6 @@ class GPXParser:
             if node_name == 'time':
                 time_str = self.xml_parser.get_node_data(node)
                 self.gpx.time = parse_time(time_str)
-            elif node_name == 'desc':
-                self.gpx.description = self.xml_parser.get_node_data(node)
             elif node_name == 'author':
                 self.gpx.author = self.xml_parser.get_node_data(node)
             elif node_name == 'email':
