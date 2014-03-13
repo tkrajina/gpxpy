@@ -95,6 +95,20 @@ def equals(object1, object2, ignore=None):
 
     return True
 
+def get_dom_node(dom, path):
+    path_parts = path.split('/')
+    result = dom
+    for path_part in path_parts:
+        if '[' in path_part:
+            tag_name = path_part.split('[')[0]
+            n = int(path_part.split('[')[1].replace(']', ''))
+        else:
+            tag_name = path_part
+            n = 0
+
+        result = result.getElementsByTagName(tag_name)[n]
+    return result
+
 class AbstractTests:
     """
     Add tests here.
@@ -1531,14 +1545,33 @@ class AbstractTests:
         dom = mod_minidom.parseString(gpx.to_xml())
 
         self.assertEquals(gpx.name, 'example name')
-        self.assertEquals(dom.getElementsByTagName('gpx')[0].getElementsByTagName('name')[0].firstChild.nodeValue, 'example name')
+        self.assertEquals(get_dom_node(dom, 'gpx/name').firstChild.nodeValue, 'example name')
 
         self.assertEquals(gpx.description, 'example description')
-        self.assertEquals(dom.getElementsByTagName('gpx')[0].getElementsByTagName('desc')[0].firstChild.nodeValue, 'example description')
+        self.assertEquals(get_dom_node(dom, 'gpx/desc').firstChild.nodeValue, 'example description')
+
+        self.assertEquals(gpx.author, 'example author')
+        self.assertEquals(get_dom_node(dom, 'gpx/author').firstChild.nodeValue, 'example author')
+
+        self.assertEquals(gpx.email, 'example@email')
+        self.assertEquals(get_dom_node(dom, 'gpx/email').firstChild.nodeValue, 'example@email')
+
+        self.assertEquals(gpx.url, 'http://example.url')
+        self.assertEquals(get_dom_node(dom, 'gpx/url').firstChild.nodeValue, 'http://example.url')
+
+        self.assertEquals(gpx.urlname, 'example urlname')
+        self.assertEquals(get_dom_node(dom, 'gpx/urlname').firstChild.nodeValue, 'example urlname')
+
+        self.assertEquals(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
+        self.assertEquals(get_dom_node(dom, 'gpx/time').firstChild.nodeValue, '2013-01-01T12:00:00Z')
+
+        self.assertEquals(gpx.keywords, 'example keywords')
+        self.assertEquals(get_dom_node(dom, 'gpx/keywords').firstChild.nodeValue, 'example keywords')
+
+        print(gpx.to_xml())
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
-        # TODO
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):

@@ -1236,8 +1236,14 @@ class GPXTrackSegment:
 
 class GPX:
     __gpx_fields__ = [
-            mod_gpxfield.GPXFieldHandler('name', 'name'),
+            mod_gpxfield.GPXFieldHandler('name'),
             mod_gpxfield.GPXFieldHandler('description', 'desc'),
+            mod_gpxfield.GPXFieldHandler('author'),
+            mod_gpxfield.GPXFieldHandler('email'),
+            mod_gpxfield.GPXFieldHandler('url'),
+            mod_gpxfield.GPXFieldHandler('urlname'),
+            mod_gpxfield.GPXTimeFieldHandler('time'),
+            mod_gpxfield.GPXFieldHandler('keywords'),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
@@ -1251,12 +1257,6 @@ class GPX:
         if tracks: self.tracks = tracks
         else: self.tracks = []
 
-        self.author = None
-        self.email = None
-        self.url = None
-        self.urlname = None
-        self.time = None
-        self.keywords = None
         self.creator = None
 
         self.min_latitude = None
@@ -1712,21 +1712,6 @@ class GPX:
     def to_xml(self):
         content = ''
         content = mod_gpxfield.gpx_fields_to_xml(self, content)
-
-        if self.author:
-            content += mod_utils.to_xml('author', content=self.author, default=' ', escape=True)
-        if self.email:
-            content += mod_utils.to_xml('email', content=self.email, escape=True)
-        if self.url:
-            content += mod_utils.to_xml('url', content=self.url, escape=True)
-        if self.urlname:
-            content += mod_utils.to_xml('urlname', content=self.urlname, escape=True)
-        if self.time:
-            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
-        if self.keywords:
-            content += mod_utils.to_xml('keywords', content=self.keywords, default=' ', escape=True)
-
-        # TODO: bounds
 
         for waypoint in self.waypoints:
             content += waypoint.to_xml(version)

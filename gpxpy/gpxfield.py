@@ -20,9 +20,9 @@ class GPXFieldHandler:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
-    def __init__(self, name, tag):
+    def __init__(self, name, tag=None):
         self.name = name
-        self.tag = tag
+        self.tag = tag or name
 
     def from_xml(self, parser, node):
         __node = parser.get_first_child(node, self.tag)
@@ -30,6 +30,25 @@ class GPXFieldHandler:
 
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
+
+class GPXTimeFieldHandler:
+    """
+    Used for to (de)serialize fields with simple field<->xml_tag mapping.
+    """
+    def __init__(self, name, tag=None):
+        self.name = name
+        self.tag = tag or name
+
+    def from_xml(self, parser, node):
+        from . import parser as mod_parser
+        __node = parser.get_first_child(node, self.tag)
+        return mod_parser.parse_time(parser.get_node_data(__node))
+
+    def to_xml(self, value):
+        from . import gpx as mod_gpx
+        if value:
+            return mod_utils.to_xml(self.tag, content=value.strftime(mod_gpx.DATE_FORMAT))
+        return ''
 
 def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:

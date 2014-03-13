@@ -227,20 +227,7 @@ class GPXParser:
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
-            if node_name == 'time':
-                time_str = self.xml_parser.get_node_data(node)
-                self.gpx.time = parse_time(time_str)
-            elif node_name == 'author':
-                self.gpx.author = self.xml_parser.get_node_data(node)
-            elif node_name == 'email':
-                self.gpx.email = self.xml_parser.get_node_data(node)
-            elif node_name == 'url':
-                self.gpx.url = self.xml_parser.get_node_data(node)
-            elif node_name == 'urlname':
-                self.gpx.urlname = self.xml_parser.get_node_data(node)
-            elif node_name == 'keywords':
-                self.gpx.keywords = self.xml_parser.get_node_data(node)
-            elif node_name == 'bounds':
+            if node_name == 'bounds':
                 self._parse_bounds(node)
             elif node_name == 'wpt':
                 self.gpx.waypoints.append(self._parse_waypoint(node))
