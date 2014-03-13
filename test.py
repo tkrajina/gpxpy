@@ -41,6 +41,7 @@ import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
 import sys as mod_sys
+import xml.dom.minidom as mod_minidom
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
@@ -93,10 +94,6 @@ def equals(object1, object2, ignore=None):
             return None
 
     return True
-
-def get_xml_value(node, path):
-    # TODO
-    pass
 
 class AbstractTests:
     """
@@ -1525,14 +1522,19 @@ class AbstractTests:
 
     def test_gpx_10_fields(self):
         """ Test (de) serialization all gpx1.0 fields """
-        xml = '<gpx><name>test</name></gpx>'
+
+        with open('test_files/gpx1.0_with_all_fields.gpx') as f:
+            xml = f.read()
+
         gpx = mod_gpxpy.parse(xml)
 
-        self.assertEquals(gpx.name,                       'test')
-        # TODO
-        # self.assertEquals(get_xml_value(gpx, 'gpx/name'), 'test')
+        dom = mod_minidom.parseString(gpx.to_xml())
 
-        print(gpx.to_xml())
+        self.assertEquals(gpx.name, 'example name')
+        self.assertEquals(dom.getElementsByTagName('gpx')[0].getElementsByTagName('name')[0].firstChild.nodeValue, 'example name')
+
+        self.assertEquals(gpx.description, 'example description')
+        self.assertEquals(dom.getElementsByTagName('gpx')[0].getElementsByTagName('desc')[0].firstChild.nodeValue, 'example description')
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
