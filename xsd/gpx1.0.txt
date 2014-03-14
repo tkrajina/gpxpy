@@ -1,4 +1,6 @@
 gpx
+    - attr: version (xsd:string) required
+    - attr: creator (xsd:string) required
     name
     desc
     author
@@ -9,6 +11,8 @@ gpx
     keywords
     bounds
     wpt
+        - attr: lat (gpx:latitudeType) required
+        - attr: lon (gpx:longitudeType) required
         ele
         time
         magvar
@@ -28,27 +32,6 @@ gpx
         pdop
         ageofdgpsdata
         dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    ele
-    time
-    magvar
-    geoidheight
-    name
-    cmt
-    desc
-    src
-    url
-    urlname
-    sym
-    type
-    fix
-    sat
-    hdop
-    vdop
-    pdop
-    ageofdgpsdata
-    dgpsid
     rte
         name
         cmt
@@ -58,6 +41,8 @@ gpx
         urlname
         number
         rtept
+            - attr: lat (gpx:latitudeType) required
+            - attr: lon (gpx:longitudeType) required
             ele
             time
             magvar
@@ -77,77 +62,6 @@ gpx
             pdop
             ageofdgpsdata
             dgpsid
-                attr: lat (gpx:latitudeType) required
-                attr: lon (gpx:longitudeType) required
-        ele
-        time
-        magvar
-        geoidheight
-        name
-        cmt
-        desc
-        src
-        url
-        urlname
-        sym
-        type
-        fix
-        sat
-        hdop
-        vdop
-        pdop
-        ageofdgpsdata
-        dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    name
-    cmt
-    desc
-    src
-    url
-    urlname
-    number
-    rtept
-        ele
-        time
-        magvar
-        geoidheight
-        name
-        cmt
-        desc
-        src
-        url
-        urlname
-        sym
-        type
-        fix
-        sat
-        hdop
-        vdop
-        pdop
-        ageofdgpsdata
-        dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    ele
-    time
-    magvar
-    geoidheight
-    name
-    cmt
-    desc
-    src
-    url
-    urlname
-    sym
-    type
-    fix
-    sat
-    hdop
-    vdop
-    pdop
-    ageofdgpsdata
-    dgpsid
     trk
         name
         cmt
@@ -158,6 +72,8 @@ gpx
         number
         trkseg
             trkpt
+                - attr: lat (gpx:latitudeType) required
+                - attr: lon (gpx:longitudeType) required
                 ele
                 time
                 course
@@ -179,183 +95,3 @@ gpx
                 pdop
                 ageofdgpsdata
                 dgpsid
-                    attr: lat (gpx:latitudeType) required
-                    attr: lon (gpx:longitudeType) required
-            ele
-            time
-            course
-            speed
-            magvar
-            geoidheight
-            name
-            cmt
-            desc
-            src
-            url
-            urlname
-            sym
-            type
-            fix
-            sat
-            hdop
-            vdop
-            pdop
-            ageofdgpsdata
-            dgpsid
-                attr: lat (gpx:latitudeType) required
-                attr: lon (gpx:longitudeType) required
-        trkpt
-            ele
-            time
-            course
-            speed
-            magvar
-            geoidheight
-            name
-            cmt
-            desc
-            src
-            url
-            urlname
-            sym
-            type
-            fix
-            sat
-            hdop
-            vdop
-            pdop
-            ageofdgpsdata
-            dgpsid
-                attr: lat (gpx:latitudeType) required
-                attr: lon (gpx:longitudeType) required
-        ele
-        time
-        course
-        speed
-        magvar
-        geoidheight
-        name
-        cmt
-        desc
-        src
-        url
-        urlname
-        sym
-        type
-        fix
-        sat
-        hdop
-        vdop
-        pdop
-        ageofdgpsdata
-        dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    name
-    cmt
-    desc
-    src
-    url
-    urlname
-    number
-    trkseg
-        trkpt
-            ele
-            time
-            course
-            speed
-            magvar
-            geoidheight
-            name
-            cmt
-            desc
-            src
-            url
-            urlname
-            sym
-            type
-            fix
-            sat
-            hdop
-            vdop
-            pdop
-            ageofdgpsdata
-            dgpsid
-                attr: lat (gpx:latitudeType) required
-                attr: lon (gpx:longitudeType) required
-        ele
-        time
-        course
-        speed
-        magvar
-        geoidheight
-        name
-        cmt
-        desc
-        src
-        url
-        urlname
-        sym
-        type
-        fix
-        sat
-        hdop
-        vdop
-        pdop
-        ageofdgpsdata
-        dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    trkpt
-        ele
-        time
-        course
-        speed
-        magvar
-        geoidheight
-        name
-        cmt
-        desc
-        src
-        url
-        urlname
-        sym
-        type
-        fix
-        sat
-        hdop
-        vdop
-        pdop
-        ageofdgpsdata
-        dgpsid
-            attr: lat (gpx:latitudeType) required
-            attr: lon (gpx:longitudeType) required
-    ele
-    time
-    course
-    speed
-    magvar
-    geoidheight
-    name
-    cmt
-    desc
-    src
-    url
-    urlname
-    sym
-    type
-    fix
-    sat
-    hdop
-    vdop
-    pdop
-    ageofdgpsdata
-    dgpsid
-        attr: lat (gpx:latitudeType) required
-        attr: lon (gpx:longitudeType) required
-        attr: lat (gpx:latitudeType) required
-        attr: lon (gpx:longitudeType) required
-        attr: lat (gpx:latitudeType) required
-        attr: lon (gpx:longitudeType) required
-        attr: version (xsd:string) required
-        attr: creator (xsd:string) required

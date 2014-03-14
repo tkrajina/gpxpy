@@ -1,37 +1,37 @@
 gpx (gpxType)
-        attr: version (xsd:string) None
-        attr: creator (xsd:string) None
+    - attr: version (xsd:string) None
+    - attr: creator (xsd:string) None
     metadata (metadataType)
         name (xsd:string)
         desc (xsd:string)
         author (personType)
             name (xsd:string)
             email (emailType)
-                    attr: id (xsd:string) None
-                    attr: domain (xsd:string) None
+                - attr: id (xsd:string) None
+                - attr: domain (xsd:string) None
             link (linkType)
-                    attr: href (xsd:anyURI) None
+                - attr: href (xsd:anyURI) None
                 text (xsd:string)
                 type (xsd:string)
         copyright (copyrightType)
-                attr: author (xsd:string) None
+            - attr: author (xsd:string) None
             year (xsd:gYear)
             license (xsd:anyURI)
         link (linkType)
-                attr: href (xsd:anyURI) None
+            - attr: href (xsd:anyURI) None
             text (xsd:string)
             type (xsd:string)
         time (xsd:dateTime)
         keywords (xsd:string)
         bounds (boundsType)
-                attr: minlat (latitudeType) None
-                attr: minlon (longitudeType) None
-                attr: maxlat (latitudeType) None
-                attr: maxlon (longitudeType) None
+            - attr: minlat (latitudeType) None
+            - attr: minlon (longitudeType) None
+            - attr: maxlat (latitudeType) None
+            - attr: maxlon (longitudeType) None
         extensions (extensionsType)
     wpt (wptType)
-            attr: lat (latitudeType) None
-            attr: lon (longitudeType) None
+        - attr: lat (latitudeType) None
+        - attr: lon (longitudeType) None
         ele (xsd:decimal)
         time (xsd:dateTime)
         magvar (degreesType)
@@ -41,7 +41,7 @@ gpx (gpxType)
         desc (xsd:string)
         src (xsd:string)
         link (linkType)
-                attr: href (xsd:anyURI) None
+            - attr: href (xsd:anyURI) None
             text (xsd:string)
             type (xsd:string)
         sym (xsd:string)
@@ -60,15 +60,15 @@ gpx (gpxType)
         desc (xsd:string)
         src (xsd:string)
         link (linkType)
-                attr: href (xsd:anyURI) None
+            - attr: href (xsd:anyURI) None
             text (xsd:string)
             type (xsd:string)
         number (xsd:nonNegativeInteger)
         type (xsd:string)
         extensions (extensionsType)
         rtept (wptType)
-                attr: lat (latitudeType) None
-                attr: lon (longitudeType) None
+            - attr: lat (latitudeType) None
+            - attr: lon (longitudeType) None
             ele (xsd:decimal)
             time (xsd:dateTime)
             magvar (degreesType)
@@ -78,7 +78,7 @@ gpx (gpxType)
             desc (xsd:string)
             src (xsd:string)
             link (linkType)
-                    attr: href (xsd:anyURI) None
+                - attr: href (xsd:anyURI) None
                 text (xsd:string)
                 type (xsd:string)
             sym (xsd:string)
@@ -97,7 +97,7 @@ gpx (gpxType)
         desc (xsd:string)
         src (xsd:string)
         link (linkType)
-                attr: href (xsd:anyURI) None
+            - attr: href (xsd:anyURI) None
             text (xsd:string)
             type (xsd:string)
         number (xsd:nonNegativeInteger)
@@ -105,8 +105,8 @@ gpx (gpxType)
         extensions (extensionsType)
         trkseg (trksegType)
             trkpt (wptType)
-                    attr: lat (latitudeType) None
-                    attr: lon (longitudeType) None
+                - attr: lat (latitudeType) None
+                - attr: lon (longitudeType) None
                 ele (xsd:decimal)
                 time (xsd:dateTime)
                 magvar (degreesType)
@@ -116,7 +116,7 @@ gpx (gpxType)
                 desc (xsd:string)
                 src (xsd:string)
                 link (linkType)
-                        attr: href (xsd:anyURI) None
+                    - attr: href (xsd:anyURI) None
                     text (xsd:string)
                     type (xsd:string)
                 sym (xsd:string)
