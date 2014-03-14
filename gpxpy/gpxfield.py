@@ -31,6 +31,21 @@ class GPXFieldHandler:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
 
+class GPXDecimalFieldHandler:
+    """
+    Used for to (de)serialize fields with simple field<->xml_tag mapping.
+    """
+    def __init__(self, name, tag=None):
+        self.name = name
+        self.tag = tag or name
+
+    def from_xml(self, parser, node):
+        __node = parser.get_first_child(node, self.tag)
+        return float(parser.get_node_data(__node))
+
+    def to_xml(self, value):
+        return mod_utils.to_xml(self.tag, content=str(value))
+
 class GPXTimeFieldHandler:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.

@@ -49,9 +49,6 @@ SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
 # When possible, the result of various methods are named tuples defined here:
-Bounds = mod_collections.namedtuple(
-        'Bounds',
-        ('min_latitude', 'max_latitude', 'min_longitude', 'max_longitude'))
 TimeBounds = mod_collections.namedtuple(
         'TimeBounds',
         ('start_time', 'end_time'))
@@ -77,6 +74,23 @@ class GPXException(Exception):
     valid but something is wrong with the GPX data.
     """
     pass
+
+class GPXBounds:
+    __gpx_fields__ = [
+            mod_gpxfield.GPXDecimalFieldHandler('min_latitude'),
+            mod_gpxfield.GPXDecimalFieldHandler('max_latitude'),
+            mod_gpxfield.GPXDecimalFieldHandler('min_longitude'),
+            mod_gpxfield.GPXDecimalFieldHandler('max_longitude'),
+    ]
+
+    def __init__(self, min_latitude, max_latitude, min_longitude, max_longitude):
+        self.min_latitude = min_latitude
+        self.max_latitude = max_latitude
+        self.min_longitude = min_longitude
+        self.max_longitude = max_longitude
+
+    def to_xml(self):
+        return mod_gpxfield.gpx_fields_to_xml(self, content)
 
 class GPXXMLSyntaxException(GPXException):
     """
@@ -1244,6 +1258,7 @@ class GPX:
             mod_gpxfield.GPXFieldHandler('urlname'),
             mod_gpxfield.GPXTimeFieldHandler('time'),
             mod_gpxfield.GPXFieldHandler('keywords'),
+            mod_gpxfield.GPXComplexFileHandler('bounds', classs=GPXBounds),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
