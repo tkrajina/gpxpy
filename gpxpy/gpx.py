@@ -77,10 +77,10 @@ class GPXException(Exception):
 
 class GPXBounds:
     __gpx_fields__ = [
-            mod_gpxfield.GPXDecimalFieldHandler('min_latitude'),
-            mod_gpxfield.GPXDecimalFieldHandler('max_latitude'),
-            mod_gpxfield.GPXDecimalFieldHandler('min_longitude'),
-            mod_gpxfield.GPXDecimalFieldHandler('max_longitude'),
+            mod_gpxfield.GPXDecimalField('min_latitude'),
+            mod_gpxfield.GPXDecimalField('max_latitude'),
+            mod_gpxfield.GPXDecimalField('min_longitude'),
+            mod_gpxfield.GPXDecimalField('max_longitude'),
     ]
 
     def __init__(self, min_latitude, max_latitude, min_longitude, max_longitude):
@@ -1250,15 +1250,15 @@ class GPXTrackSegment:
 
 class GPX:
     __gpx_fields__ = [
-            mod_gpxfield.GPXFieldHandler('name'),
-            mod_gpxfield.GPXFieldHandler('description', 'desc'),
-            mod_gpxfield.GPXFieldHandler('author'),
-            mod_gpxfield.GPXFieldHandler('email'),
-            mod_gpxfield.GPXFieldHandler('url'),
-            mod_gpxfield.GPXFieldHandler('urlname'),
-            mod_gpxfield.GPXTimeFieldHandler('time'),
-            mod_gpxfield.GPXFieldHandler('keywords'),
-            mod_gpxfield.GPXComplexFileHandler('bounds', classs=GPXBounds),
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('author'),
+            mod_gpxfield.GPXField('email'),
+            mod_gpxfield.GPXField('url'),
+            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXTimeField('time'),
+            mod_gpxfield.GPXField('keywords'),
+            mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)

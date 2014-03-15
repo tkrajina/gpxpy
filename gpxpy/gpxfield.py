@@ -16,7 +16,7 @@
 
 from . import utils as mod_utils
 
-class GPXFieldHandler:
+class GPXField:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
@@ -31,7 +31,7 @@ class GPXFieldHandler:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
 
-class GPXDecimalFieldHandler:
+class GPXDecimalField:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
@@ -46,7 +46,7 @@ class GPXDecimalFieldHandler:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=str(value))
 
-class GPXTimeFieldHandler:
+class GPXTimeField:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
@@ -64,6 +64,18 @@ class GPXTimeFieldHandler:
         if value:
             return mod_utils.to_xml(self.tag, content=value.strftime(mod_gpx.DATE_FORMAT))
         return ''
+
+class GPXComplexField:
+    def __init__(self, name, classs, tag=None):
+        self.name = name
+        self.tag = tag or name
+        self.classs = classs
+
+    def from_xml(self, parser, node):
+        raise Exception('Not yet implemented')
+
+    def to_xml(self, value):
+        raise Exception('Not yet implemented')
 
 def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:
