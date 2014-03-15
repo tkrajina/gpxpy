@@ -106,7 +106,13 @@ def get_dom_node(dom, path):
             tag_name = path_part
             n = 0
 
-        result = result.getElementsByTagName(tag_name)[n]
+        candidates = []
+        for child in result.childNodes:
+            if child.nodeName == tag_name:
+                candidates.append(child)
+
+        result = candidates[n]
+
     return result
 
 class AbstractTests:
