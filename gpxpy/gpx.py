@@ -77,10 +77,10 @@ class GPXException(Exception):
 
 class GPXBounds:
     __gpx_fields__ = [
-            mod_gpxfield.GPXDecimalField('min_latitude', tag='minlat'),
-            mod_gpxfield.GPXDecimalField('max_latitude', tag='maxlat'),
-            mod_gpxfield.GPXDecimalField('min_longitude', tag='minlon'),
-            mod_gpxfield.GPXDecimalField('max_longitude', tag='maxlon'),
+            mod_gpxfield.GPXAttributeField('min_latitude', attribute='minlat', type=float),
+            mod_gpxfield.GPXAttributeField('max_latitude', attribute='maxlat', type=float),
+            mod_gpxfield.GPXAttributeField('min_longitude', attribute='minlon', type=float),
+            mod_gpxfield.GPXAttributeField('max_longitude', attribute='maxlon', type=float),
     ]
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):

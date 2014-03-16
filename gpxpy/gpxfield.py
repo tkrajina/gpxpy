@@ -31,6 +31,24 @@ class GPXField:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
 
+class GPXAttributeField:
+    """
+    Used for to (de)serialize fields with simple field<->xml_tag mapping.
+    """
+    def __init__(self, name, attribute=None, type=None):
+        self.name = name
+        self.attribute = attribute or name
+        self.type = type
+
+    def from_xml(self, parser, node):
+        result = parser.get_node_attribute(node, self.attribute)
+        if self.type:
+            return self.type(result)
+        return result
+
+    def to_xml(self, value):
+        return '%s="%s"' % (self.attribute, value)
+
 class GPXDecimalField:
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
@@ -38,6 +56,7 @@ class GPXDecimalField:
     def __init__(self, name, tag=None):
         self.name = name
         self.tag = tag or name
+        # TODO: Use value type like in GPXAttributeField!
 
     def from_xml(self, parser, node):
         __node = parser.get_first_child(node, self.tag)
@@ -79,6 +98,9 @@ class GPXComplexField:
         __node = parser.get_first_child(node, self.tag)
         gpx_fields_from_xml(result, parser, __node)
         return result
+
+    def __attributes_to_xml(self):
+        
 
     def to_xml(self, value):
         xml = '<' + self.tag + '>'

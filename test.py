@@ -1577,7 +1577,7 @@ class AbstractTests:
         self.assertEquals(get_dom_node(dom, 'gpx/keywords').firstChild.nodeValue, 'example keywords')
 
         self.assertEquals(gpx.bounds.min_latitude, 1.2)
-        self.assertEquals(get_dom_node(dom, 'gpx/bounds/minlat').firstChild.nodeValue, '1.2')
+        self.assertEquals(get_dom_node(dom, 'gpx/bounds').attributes['minlat'].value, '1.2')
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
