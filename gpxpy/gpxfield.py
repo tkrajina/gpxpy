@@ -16,11 +16,16 @@
 
 from . import utils as mod_utils
 
-class GPXField:
+class AbstractGPXField:
+    def __init__(self, attribute_field=None):
+        self.attribute_field = attribute_field
+
+class GPXField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, tag=None):
+        AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
 
@@ -31,11 +36,12 @@ class GPXField:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
 
-class GPXDecimalField:
+class GPXDecimalField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, tag=None):
+        AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
 
@@ -49,11 +55,12 @@ class GPXDecimalField:
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=str(value))
 
-class GPXTimeField:
+class GPXTimeField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, tag=None):
+        AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
 
@@ -68,8 +75,9 @@ class GPXTimeField:
             return mod_utils.to_xml(self.tag, content=value.strftime(mod_gpx.DATE_FORMAT))
         return ''
 
-class GPXComplexField:
+class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None):
+        AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
         self.classs = classs
@@ -89,12 +97,17 @@ def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:
         setattr(instance, gpx_field.name, None)
 
-def gpx_fields_to_xml(instance, xml):
+def gpx_fields_to_xml(instance, tag, xml):
+    attributes = ''
+    body = ''
     for gpx_field in instance.__gpx_fields__:
         value = getattr(instance, gpx_field.name)
-        if value:
-            xml += gpx_field.to_xml(value)
-    return xml
+        if gpx_field.attribute_field:
+            gpx_field.attribute_field
+        else:
+            if value:
+                body += gpx_field.to_xml(value)
+    return '<' + body + ( (' ' + attributes + '>') if attributes else '>' ) + body + '</' + tag + '>'
 
 def gpx_fields_from_xml(instance, parser, node):
     for gpx_field in instance.__gpx_fields__:
