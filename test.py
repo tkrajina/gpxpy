@@ -1550,6 +1550,8 @@ class AbstractTests:
 
         dom = mod_minidom.parseString(gpx.to_xml())
 
+        print(gpx.to_xml())
+
         self.assertEquals(gpx.name, 'example name')
         self.assertEquals(get_dom_node(dom, 'gpx/name').firstChild.nodeValue, 'example name')
 
@@ -1574,10 +1576,12 @@ class AbstractTests:
         self.assertEquals(gpx.keywords, 'example keywords')
         self.assertEquals(get_dom_node(dom, 'gpx/keywords').firstChild.nodeValue, 'example keywords')
 
-        print(gpx.to_xml())
+        self.assertEquals(gpx.bounds.min_latitude, 1.2)
+        self.assertEquals(get_dom_node(dom, 'gpx/bounds/minlat').firstChild.nodeValue, '1.2')
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
+        raise Exception('Not yet implemented')
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):

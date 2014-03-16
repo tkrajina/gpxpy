@@ -41,7 +41,10 @@ class GPXDecimalField:
 
     def from_xml(self, parser, node):
         __node = parser.get_first_child(node, self.tag)
-        return float(parser.get_node_data(__node))
+        result = parser.get_node_data(__node)
+        if result is None:
+            return result
+        return float(result)
 
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=str(value))
@@ -72,10 +75,15 @@ class GPXComplexField:
         self.classs = classs
 
     def from_xml(self, parser, node):
-        raise Exception('Not yet implemented')
+        result = self.classs()
+        __node = parser.get_first_child(node, self.tag)
+        gpx_fields_from_xml(result, parser, __node)
+        return result
 
     def to_xml(self, value):
-        raise Exception('Not yet implemented')
+        xml = '<' + self.tag + '>'
+        xml = gpx_fields_to_xml(value, xml=xml)
+        return xml + '</' + self.tag + '>'
 
 def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:

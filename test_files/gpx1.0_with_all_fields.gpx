@@ -7,4 +7,10 @@
     <urlname>example urlname</urlname>
     <time>2013-01-01T12:00:00</time>
     <keywords>example keywords</keywords>
+    <bounds>
+        <minlat>1.2</minlat>
+        <minlon>3.4</minlon>
+        <maxlat>5.6</maxlat>
+        <maxlon>7.8</maxlon>
+    </bounds>
 </gpx>
