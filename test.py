@@ -1548,9 +1548,9 @@ class AbstractTests:
 
         gpx = mod_gpxpy.parse(xml)
 
-        dom = mod_minidom.parseString(gpx.to_xml())
-
         print(gpx.to_xml())
+
+        dom = mod_minidom.parseString(gpx.to_xml())
 
         self.assertEquals(gpx.name, 'example name')
         self.assertEquals(get_dom_node(dom, 'gpx/name').firstChild.nodeValue, 'example name')

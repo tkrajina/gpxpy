@@ -1726,7 +1726,7 @@ class GPX:
 
     def to_xml(self):
         content = ''
-        content = mod_gpxfield.gpx_fields_to_xml(self, content)
+        content = mod_gpxfield.gpx_fields_to_xml(self, None, content)
 
         for waypoint in self.waypoints:
             content += waypoint.to_xml(version)

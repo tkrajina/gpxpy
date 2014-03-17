@@ -41,7 +41,7 @@ class GPXAttributeField(AbstractGPXField):
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, attribute=None, type=None):
-        AbstractGPXField.__init__(self)
+        AbstractGPXField.__init__(self, attribute_field=True)
         self.name = name
         self.attribute = attribute or name
         self.type = type
@@ -109,9 +109,7 @@ class GPXComplexField(AbstractGPXField):
         return result
 
     def to_xml(self, value):
-        xml = '<' + self.tag + '>'
-        xml = gpx_fields_to_xml(value, xml=xml)
-        return xml + '</' + self.tag + '>'
+        return gpx_fields_to_xml(value, self.tag, value)
 
 def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:
@@ -123,13 +121,15 @@ def gpx_fields_to_xml(instance, tag, xml):
     for gpx_field in instance.__gpx_fields__:
         value = getattr(instance, gpx_field.name)
         if gpx_field.attribute_field:
-            attributes += ' ' + gpx_field.attribute + '="' + value + '"'
+            attributes += ' ' + gpx_field.attribute + '="' + str(value) + '"'
         else:
             if value:
                 body += gpx_field.to_xml(value)
-    return '<' + body + ( (' ' + attributes + '>') if attributes else '>' ) \
-           + body \
-           + '</' + tag + '>'
+    if tag:
+        return '<' + tag + ( (' ' + attributes + '>') if attributes else '>' ) \
+               + body \
+               + '</' + tag + '>'
+    return body
 
 def gpx_fields_from_xml(instance, parser, node):
     for gpx_field in instance.__gpx_fields__:
