@@ -103,6 +103,10 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 class GPXWaypoint(mod_geo.Location):
+    __gpx_fields__ = [
+            # TODO
+    ]
+
     time = None
     name = None
     description = None
@@ -117,7 +121,7 @@ class GPXWaypoint(mod_geo.Location):
     # Position dilution of precision
     position_dilution = None
 
-    def __init__(self, latitude, longitude, elevation=None, time=None,
+    def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
               name=None, description=None, symbol=None, type=None,
               comment=None, horizontal_dilution=None, vertical_dilution=None,
               position_dilution=None):
@@ -1259,6 +1263,7 @@ class GPX:
             mod_gpxfield.GPXTimeField('time'),
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
+            mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', default_value=[]),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)

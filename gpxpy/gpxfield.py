@@ -17,8 +17,9 @@
 from . import utils as mod_utils
 
 class AbstractGPXField:
-    def __init__(self, attribute_field=None):
+    def __init__(self, attribute_field=None, default_value=None):
         self.attribute_field = attribute_field
+        self.default_value = default_value
 
 class GPXField(AbstractGPXField):
     """
@@ -96,8 +97,8 @@ class GPXTimeField(AbstractGPXField):
         return ''
 
 class GPXComplexField(AbstractGPXField):
-    def __init__(self, name, classs, tag=None):
-        AbstractGPXField.__init__(self)
+    def __init__(self, name, classs, tag=None, default_value=None):
+        AbstractGPXField.__init__(self, default_value=default_value)
         self.name = name
         self.tag = tag or name
         self.classs = classs

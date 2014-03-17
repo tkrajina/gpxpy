@@ -227,11 +227,7 @@ class GPXParser:
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
-            if node_name == 'bounds':
-                self._parse_bounds(node)
-            elif node_name == 'wpt':
-                self.gpx.waypoints.append(self._parse_waypoint(node))
-            elif node_name == 'rte':
+            if node_name == 'rte':
                 self.gpx.routes.append(self._parse_route(node))
             elif node_name == 'trk':
                 self.gpx.tracks.append(self.__parse_track(node))
