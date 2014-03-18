@@ -1263,7 +1263,7 @@ class GPX:
             mod_gpxfield.GPXTimeField('time'),
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
-            mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', default_value=[]),
+            mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
@@ -1730,11 +1730,7 @@ class GPX:
             track.move(latitude_diff, longitude_diff)
 
     def to_xml(self):
-        content = ''
-        content = mod_gpxfield.gpx_fields_to_xml(self, None, content)
-
-        for waypoint in self.waypoints:
-            content += waypoint.to_xml(version)
+        content = mod_gpxfield.gpx_fields_to_xml(self, None)
 
         for route in self.routes:
             content += route.to_xml(version)

@@ -14,12 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import inspect as mod_inspect
+
 from . import utils as mod_utils
 
 class AbstractGPXField:
-    def __init__(self, attribute_field=None, default_value=None):
+    def __init__(self, attribute_field=None, is_list=None):
         self.attribute_field = attribute_field
-        self.default_value = default_value
+        self.is_list = is_list
 
 class GPXField(AbstractGPXField):
     """
@@ -97,26 +99,40 @@ class GPXTimeField(AbstractGPXField):
         return ''
 
 class GPXComplexField(AbstractGPXField):
-    def __init__(self, name, classs, tag=None, default_value=None):
-        AbstractGPXField.__init__(self, default_value=default_value)
+    # This class should probably be broken into GPXComplexField and 
+    # GPXComplexListFielt depending on self.is_list
+
+    def __init__(self, name, classs, tag=None, is_list=None):
+        AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
         self.tag = tag or name
         self.classs = classs
 
     def from_xml(self, parser, node):
-        result = self.classs()
-        __node = parser.get_first_child(node, self.tag)
-        gpx_fields_from_xml(result, parser, __node)
-        return result
+        if self.is_list:
+            result = []
+            for child_node in parser.get_children(node):
+                if parser.get_node_name(child_node) == self.tag:
+                    result.append(gpx_fields_from_xml(self.classs, parser, child_node))
+            return result
+        else:
+            __node = parser.get_first_child(node, self.tag)
+            return gpx_fields_from_xml(self.classs, parser, __node)
 
     def to_xml(self, value):
-        return gpx_fields_to_xml(value, self.tag, value)
+        if self.is_list:
+            result = ''
+            for obj in value:
+                result += gpx_fields_to_xml(obj, self.tag)
+            return result
+        else:
+            return gpx_fields_to_xml(value, self.tag)
 
 def init_gpx_fields(instance):
     for gpx_field in instance.__gpx_fields__:
         setattr(instance, gpx_field.name, None)
 
-def gpx_fields_to_xml(instance, tag, xml):
+def gpx_fields_to_xml(instance, tag):
     attributes = ''
     body = ''
     for gpx_field in instance.__gpx_fields__:
@@ -132,7 +148,12 @@ def gpx_fields_to_xml(instance, tag, xml):
                + '</' + tag + '>'
     return body
 
-def gpx_fields_from_xml(instance, parser, node):
-    for gpx_field in instance.__gpx_fields__:
+def gpx_fields_from_xml(class_or_instance, parser, node):
+    if mod_inspect.isclass(class_or_instance):
+        result = class_or_instance()
+    else:
+        result = class_or_instance
+    for gpx_field in result.__gpx_fields__:
         value = gpx_field.from_xml(parser, node)
-        setattr(instance, gpx_field.name, value)
+        setattr(result, gpx_field.name, value)
+    return result
