@@ -8,8 +8,27 @@
     <time>2013-01-01T12:00:00</time>
     <keywords>example keywords</keywords>
     <bounds minlat="1.2" minlon="3.4" maxlat="5.6" maxlon="7.8" />
-    <wpt>
+    <wpt lat="12.3" lon="45.6">
+        <ele>example ele</ele>
+        <time>example time</time>
+        <magvar>1.0</magvar>
+        <geoidheight>2.0</geoidheight>
+        <name>example name</name>
+        <cmt>example cmt</cmt>
+        <desc>example desc</desc>
+        <src>example src</src>
+        <url>example url</url>
+        <urlname>example urlname</urlname>
+        <sym>example sym</sym>
+        <type>example type</type>
+        <fix>2d</fix>
+        <sat>5</sat>
+        <hdop>6</hdop>
+        <vdop>7</vdop>
+        <pdop>8</pdop>
+        <ageofdgpsdata>9</ageofdgpsdata>
+        <dgpsid>example_dgpsid</dgpsid>
     </wpt>
-    <wpt>
+    <wpt lat="13.4" lon="46.7">
     </wpt>
 </gpx>

@@ -23,18 +23,43 @@ class AbstractGPXField:
         self.attribute_field = attribute_field
         self.is_list = is_list
 
+# TODO: better hierarchy for GPXFields
+
 class GPXField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
-    def __init__(self, name, tag=None):
+    def __init__(self, name, tag=None, type=None, possible=None, mandatory=None):
         AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
+        self.type = type
+        self.possible = possible
+        self.mandatory = mandatory
 
     def from_xml(self, parser, node):
         __node = parser.get_first_child(node, self.tag)
-        return parser.get_node_data(__node)
+        result = parser.get_node_data(__node)
+
+        if result is None:
+            if self.mandatory:
+                from . import gpx as mod_gpx
+                raise mod_gpx.GPXException('%s is mandatory in %s' % (self.name, self.tag))
+            return None
+
+        if self.type:
+            try:
+                result = self.type(result)
+            except Exception as e:
+                from . import gpx as mod_gpx
+                raise mod_gpx.GPXException('Invalid value for <%s>... %s (%s)' % (self.tag, result, e))
+
+        if self.possible:
+            if not (result in self.possible):
+                from . import gpx as mod_gpx
+                raise mod_gpx.GPXException('Invalid value "%s", possible: %s' % (result, self.possible))
+
+        return result
 
     def to_xml(self, value):
         return mod_utils.to_xml(self.tag, content=value)
@@ -43,16 +68,25 @@ class GPXAttributeField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
-    def __init__(self, name, attribute=None, type=None):
+    def __init__(self, name, attribute=None, type=None, mandatory=None):
         AbstractGPXField.__init__(self, attribute_field=True)
         self.name = name
         self.attribute = attribute or name
         self.type = type
+        self.mandatory = mandatory
 
     def from_xml(self, parser, node):
         result = parser.get_node_attribute(node, self.attribute)
+
+        if result is None:
+            if self.mandatory:
+                from . import gpx as mod_gpx
+                raise mod_gpx.GPXException('%s is mandatory in element=%s' % (self.attribute, node))
+            return None
+
         if self.type:
-            return self.type(result)
+            result = self.type(result)
+
         return result
 
     def to_xml(self, value):

@@ -1579,6 +1579,21 @@ class AbstractTests:
         self.assertEquals(gpx.bounds.min_latitude, 1.2)
         self.assertEquals(get_dom_node(dom, 'gpx/bounds').attributes['minlat'].value, '1.2')
 
+        self.assertEquals(gpx.waypoints[0].latitude, 12.3)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]').attributes['lat'].value, '12.3')
+
+        self.assertEquals(gpx.waypoints[0].longitude, 45.6)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]').attributes['lon'].value, '45.6')
+
+        self.assertEquals(gpx.waypoints[0].longitude, 45.6)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]').attributes['lon'].value, '45.6')
+
+        self.assertEquals(gpx.waypoints[1].latitude, 13.4)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lat'].value, '13.4')
+
+        self.assertEquals(gpx.waypoints[1].longitude, 46.7)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lon'].value, '46.7')
+
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
         raise Exception('Not yet implemented')

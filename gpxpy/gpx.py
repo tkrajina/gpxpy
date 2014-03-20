@@ -105,6 +105,27 @@ class GPXXMLSyntaxException(GPXException):
 class GPXWaypoint(mod_geo.Location):
     __gpx_fields__ = [
             # TODO
+            mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=float, mandatory=True),
+            mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=float, mandatory=True),
+            mod_gpxfield.GPXField('elevation', 'ele'),
+            mod_gpxfield.GPXField('time'),
+            mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=float),
+            mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=float),
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('comment', 'cmt'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('source', 'src'),
+            mod_gpxfield.GPXField('url'),
+            mod_gpxfield.GPXField('url_name', 'urlname'),
+            mod_gpxfield.GPXField('symbol', 'sym'),
+            mod_gpxfield.GPXField('type'),
+            mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
+            mod_gpxfield.GPXField('satellites', 'sat', type=int),
+            mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=float),
+            mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=float),
+            mod_gpxfield.GPXField('position_dilution', 'pdop', type=float),
+            mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=float),
+            mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
     ]
 
     time = None
