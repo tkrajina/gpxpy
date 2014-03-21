@@ -77,10 +77,10 @@ class GPXException(Exception):
 
 class GPXBounds:
     __gpx_fields__ = [
-            mod_gpxfield.GPXAttributeField('min_latitude', attribute='minlat', type=float),
-            mod_gpxfield.GPXAttributeField('max_latitude', attribute='maxlat', type=float),
-            mod_gpxfield.GPXAttributeField('min_longitude', attribute='minlon', type=float),
-            mod_gpxfield.GPXAttributeField('max_longitude', attribute='maxlon', type=float),
+            mod_gpxfield.GPXAttributeField('min_latitude', attribute='minlat', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXAttributeField('max_latitude', attribute='maxlat', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXAttributeField('min_longitude', attribute='minlon', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXAttributeField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
@@ -105,12 +105,12 @@ class GPXXMLSyntaxException(GPXException):
 class GPXWaypoint(mod_geo.Location):
     __gpx_fields__ = [
             # TODO
-            mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=float, mandatory=True),
-            mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=float, mandatory=True),
-            mod_gpxfield.GPXField('elevation', 'ele', type=float),
-            mod_gpxfield.GPXField('time'),
-            mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=float),
-            mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=float),
+            mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+            mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+            mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
+            mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
@@ -120,11 +120,11 @@ class GPXWaypoint(mod_geo.Location):
             mod_gpxfield.GPXField('symbol', 'sym'),
             mod_gpxfield.GPXField('type'),
             mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
-            mod_gpxfield.GPXField('satellites', 'sat', type=int),
-            mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=float),
-            mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=float),
-            mod_gpxfield.GPXField('position_dilution', 'pdop', type=float),
-            mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=float),
+            mod_gpxfield.GPXField('satellites', 'sat', type=mod_gpxfield.INT_TYPE),
+            mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
     ]
 
@@ -1281,7 +1281,7 @@ class GPX:
             mod_gpxfield.GPXField('email'),
             mod_gpxfield.GPXField('url'),
             mod_gpxfield.GPXField('urlname'),
-            mod_gpxfield.GPXTimeField('time'),
+            mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),

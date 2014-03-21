@@ -1591,7 +1591,8 @@ class AbstractTests:
         self.assertEquals(gpx.waypoints[0].elevation, 75.1)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/ele').firstChild.nodeValue, '75.1')
 
-        # TODO: time
+        self.assertEquals(gpx.waypoints[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3))
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/time').firstChild.nodeValue, '2013-01-02T02:03:00Z')
 
         self.assertEquals(gpx.waypoints[0].magnetic_variation, 1.1)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/magvar').firstChild.nodeValue, '1.1')
@@ -1618,7 +1619,6 @@ class AbstractTests:
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/urlname').firstChild.nodeValue, 'example urlname')
 
         """
-        time'),
         'sym'),
         type'),
         'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),

@@ -144,20 +144,6 @@ class LXMLParser:
     def get_node_attribute(self, node, attribute):
         return node.attrib.get(attribute)
 
-def parse_time(string):
-    if not string:
-        return None
-    if 'T' in string:
-        string = string.replace('T', ' ')
-    if 'Z' in string:
-        string = string.replace('Z', '')
-    for date_format in mod_gpx.DATE_FORMATS:
-        try:
-            return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError as e:
-            pass
-    return None
-
 class GPXParser:
 
     def __init__(self, xml_or_file=None, parser=None):
@@ -272,7 +258,7 @@ class GPXParser:
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
-        time = parse_time(time_str)
+        #time = parse_time(time_str)
 
         name_node = self.xml_parser.get_first_child(node, 'name')
         name = self.xml_parser.get_node_data(name_node)
@@ -341,7 +327,7 @@ class GPXParser:
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
-        time = parse_time(time_str)
+        #time = parse_time(time_str)
 
         name_node = self.xml_parser.get_first_child(node, 'name')
         name = self.xml_parser.get_node_data(name_node)
@@ -413,7 +399,7 @@ class GPXParser:
 
         time_node = self.xml_parser.get_first_child(node, 'time')
         time_str = self.xml_parser.get_node_data(time_node)
-        time = parse_time(time_str)
+        #time = parse_time(time_str)
 
         elevation_node = self.xml_parser.get_first_child(node, 'ele')
         elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),

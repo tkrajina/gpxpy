@@ -15,8 +15,63 @@
 # limitations under the License.
 
 import inspect as mod_inspect
+import datetime as mod_datetime
 
 from . import utils as mod_utils
+
+class GPXFieldTypeConverter:
+    def __init__(self, from_string, to_string):
+        self.from_string = from_string
+        self.to_string = to_string
+
+def parse_time(string):
+    from . import gpx as mod_gpx
+    if not string:
+        return None
+    if 'T' in string:
+        string = string.replace('T', ' ')
+    if 'Z' in string:
+        string = string.replace('Z', '')
+    for date_format in mod_gpx.DATE_FORMATS:
+        try:
+            return mod_datetime.datetime.strptime(string, date_format)
+        except ValueError as e:
+            pass
+    return None
+
+
+class FloatConverter:
+    def __init__(self):
+        self.from_string = lambda string : float(string)
+        self.to_string =   lambda flt    : str(flt)
+
+class IntConverter:
+    def __init__(self):
+        self.from_string = lambda string : int(string)
+        self.to_string =   lambda flt    : str(flt)
+
+class TimeConverter:
+    def from_string(self, string):
+        from . import gpx as mod_gpx
+        if not string:
+            return None
+        if 'T' in string:
+            string = string.replace('T', ' ')
+        if 'Z' in string:
+            string = string.replace('Z', '')
+        for date_format in mod_gpx.DATE_FORMATS:
+            try:
+                return mod_datetime.datetime.strptime(string, date_format)
+            except ValueError as e:
+                pass
+        return None
+    def to_string(self, time):
+        from . import gpx as mod_gpx
+        return time.strftime(mod_gpx.DATE_FORMAT) if time else None
+
+INT_TYPE = IntConverter()
+FLOAT_TYPE = FloatConverter()
+TIME_TYPE = TimeConverter()
 
 class AbstractGPXField:
     def __init__(self, attribute_field=None, is_list=None):
@@ -33,7 +88,7 @@ class GPXField(AbstractGPXField):
         AbstractGPXField.__init__(self)
         self.name = name
         self.tag = tag or name
-        self.type = type
+        self.type_converter = type
         self.possible = possible
         self.mandatory = mandatory
 
@@ -47,9 +102,9 @@ class GPXField(AbstractGPXField):
                 raise mod_gpx.GPXException('%s is mandatory in %s' % (self.name, self.tag))
             return None
 
-        if self.type:
+        if self.type_converter:
             try:
-                result = self.type(result)
+                result = self.type_converter.from_string(result)
             except Exception as e:
                 from . import gpx as mod_gpx
                 raise mod_gpx.GPXException('Invalid value for <%s>... %s (%s)' % (self.tag, result, e))
@@ -62,6 +117,8 @@ class GPXField(AbstractGPXField):
         return result
 
     def to_xml(self, value):
+        if self.type_converter:
+            value = self.type_converter.to_string(value)
         return mod_utils.to_xml(self.tag, content=value)
 
 class GPXAttributeField(AbstractGPXField):
@@ -72,7 +129,7 @@ class GPXAttributeField(AbstractGPXField):
         AbstractGPXField.__init__(self, attribute_field=True)
         self.name = name
         self.attribute = attribute or name
-        self.type = type
+        self.type_converter = type
         self.mandatory = mandatory
 
     def from_xml(self, parser, node):
@@ -84,53 +141,13 @@ class GPXAttributeField(AbstractGPXField):
                 raise mod_gpx.GPXException('%s is mandatory in element=%s' % (self.attribute, node))
             return None
 
-        if self.type:
-            result = self.type(result)
+        if self.type_converter:
+            result = self.type_converter.from_string(result)
 
         return result
 
     def to_xml(self, value):
         return '%s="%s"' % (self.attribute, value)
-
-class GPXDecimalField(AbstractGPXField):
-    """
-    Used for to (de)serialize fields with simple field<->xml_tag mapping.
-    """
-    def __init__(self, name, tag=None):
-        AbstractGPXField.__init__(self)
-        self.name = name
-        self.tag = tag or name
-        # TODO: Use value type like in GPXAttributeField!
-
-    def from_xml(self, parser, node):
-        __node = parser.get_first_child(node, self.tag)
-        result = parser.get_node_data(__node)
-        if result is None:
-            return result
-        return float(result)
-
-    def to_xml(self, value):
-        return mod_utils.to_xml(self.tag, content=str(value))
-
-class GPXTimeField(AbstractGPXField):
-    """
-    Used for to (de)serialize fields with simple field<->xml_tag mapping.
-    """
-    def __init__(self, name, tag=None):
-        AbstractGPXField.__init__(self)
-        self.name = name
-        self.tag = tag or name
-
-    def from_xml(self, parser, node):
-        from . import parser as mod_parser
-        __node = parser.get_first_child(node, self.tag)
-        return mod_parser.parse_time(parser.get_node_data(__node))
-
-    def to_xml(self, value):
-        from . import gpx as mod_gpx
-        if value:
-            return mod_utils.to_xml(self.tag, content=value.strftime(mod_gpx.DATE_FORMAT))
-        return ''
 
 class GPXComplexField(AbstractGPXField):
     # This class should probably be broken into GPXComplexField and 
