@@ -9,9 +9,9 @@
     <keywords>example keywords</keywords>
     <bounds minlat="1.2" minlon="3.4" maxlat="5.6" maxlon="7.8" />
     <wpt lat="12.3" lon="45.6">
-        <ele>example ele</ele>
+        <ele>75.1</ele>
         <time>example time</time>
-        <magvar>1.0</magvar>
+        <magvar>1.1</magvar>
         <geoidheight>2.0</geoidheight>
         <name>example name</name>
         <cmt>example cmt</cmt>

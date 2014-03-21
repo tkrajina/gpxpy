@@ -1588,6 +1588,48 @@ class AbstractTests:
         self.assertEquals(gpx.waypoints[0].longitude, 45.6)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]').attributes['lon'].value, '45.6')
 
+        self.assertEquals(gpx.waypoints[0].elevation, 75.1)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/ele').firstChild.nodeValue, '75.1')
+
+        # TODO: time
+
+        self.assertEquals(gpx.waypoints[0].magnetic_variation, 1.1)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/magvar').firstChild.nodeValue, '1.1')
+
+        self.assertEquals(gpx.waypoints[0].geoid_height, 2.0)
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/geoidheight').firstChild.nodeValue, '2.0')
+
+        self.assertEquals(gpx.waypoints[0].name, 'example name')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/name').firstChild.nodeValue, 'example name')
+
+        self.assertEquals(gpx.waypoints[0].comment, 'example cmt')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/cmt').firstChild.nodeValue, 'example cmt')
+
+        self.assertEquals(gpx.waypoints[0].description, 'example desc')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/desc').firstChild.nodeValue, 'example desc')
+
+        self.assertEquals(gpx.waypoints[0].source, 'example src')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/src').firstChild.nodeValue, 'example src')
+
+        self.assertEquals(gpx.waypoints[0].url, 'example url')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/url').firstChild.nodeValue, 'example url')
+
+        self.assertEquals(gpx.waypoints[0].url_name, 'example urlname')
+        self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/urlname').firstChild.nodeValue, 'example urlname')
+
+        """
+        time'),
+        'sym'),
+        type'),
+        'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
+        'sat', type=int),
+        'hdop', type=float),
+        'vdop', type=float),
+        'pdop', type=float),
+        'ageofdgpsdata', type=float),
+        'dgpsid'),
+        """
+
         self.assertEquals(gpx.waypoints[1].latitude, 13.4)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lat'].value, '13.4')
 

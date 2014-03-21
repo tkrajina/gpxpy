@@ -107,7 +107,7 @@ class GPXWaypoint(mod_geo.Location):
             # TODO
             mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=float, mandatory=True),
             mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=float, mandatory=True),
-            mod_gpxfield.GPXField('elevation', 'ele'),
+            mod_gpxfield.GPXField('elevation', 'ele', type=float),
             mod_gpxfield.GPXField('time'),
             mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=float),
             mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=float),
