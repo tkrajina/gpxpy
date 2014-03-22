@@ -102,10 +102,10 @@ class GPXException(Exception):
 
 class GPXBounds:
     __gpx_fields__ = [
-            mod_gpxfield.GPXAttributeField('min_latitude', attribute='minlat', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXAttributeField('max_latitude', attribute='maxlat', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXAttributeField('min_longitude', attribute='minlon', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXAttributeField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('min_latitude', attribute='minlat', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('max_latitude', attribute='maxlat', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('min_longitude', attribute='minlon', type=mod_gpxfield.FLOAT_TYPE),
+            mod_gpxfield.GPXField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
@@ -1194,8 +1194,8 @@ class GPXTrack:
 
 class GPX:
     __gpx_fields__ = [
-            mod_gpxfield.GPXAttributeField('version'),
-            mod_gpxfield.GPXAttributeField('creator'),
+            mod_gpxfield.GPXField('version', attribute=True),
+            mod_gpxfield.GPXField('creator', attribute=True),
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('author'),

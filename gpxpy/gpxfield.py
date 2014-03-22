@@ -137,34 +137,6 @@ class GPXField(AbstractGPXField):
                 value = self.type_converter.to_string(value)
             return mod_utils.to_xml(self.tag, content=value)
 
-class GPXAttributeField(AbstractGPXField):
-    """
-    Used for to (de)serialize fields with simple field<->xml_tag mapping.
-    """
-    def __init__(self, name, attribute=None, type=None, mandatory=None):
-        AbstractGPXField.__init__(self, attribute_field=True)
-        self.name = name
-        self.attribute = attribute or name
-        self.type_converter = type
-        self.mandatory = mandatory
-
-    def from_xml(self, parser, node):
-        result = parser.get_node_attribute(node, self.attribute)
-
-        if result is None:
-            if self.mandatory:
-                from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('%s is mandatory in element=%s' % (self.attribute, node))
-            return None
-
-        if self.type_converter:
-            result = self.type_converter.from_string(result)
-
-        return result
-
-    def to_xml(self, value):
-        return '%s="%s"' % (self.attribute, value)
-
 class GPXComplexField(AbstractGPXField):
     # This class should probably be broken into GPXComplexField and 
     # GPXComplexListFielt depending on self.is_list
