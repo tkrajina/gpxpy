@@ -82,6 +82,8 @@ class XMLParser:
         return child_nodes[0].nodeValue
 
     def get_node_attribute(self, node, attribute):
+        if (not hasattr(node, 'attributes')) or (not node.attributes):
+            return None
         if attribute in node.attributes.keys():
             return node.attributes[attribute].nodeValue
         return None
