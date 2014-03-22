@@ -156,6 +156,8 @@ class GPXComplexField(AbstractGPXField):
             return result
         else:
             __node = parser.get_first_child(node, self.tag)
+            if __node is None:
+                return None
             return gpx_fields_from_xml(self.classs, parser, __node)
 
     def to_xml(self, value):
