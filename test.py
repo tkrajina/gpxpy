@@ -916,17 +916,6 @@ class AbstractTests:
         self.assertEqual(gpx.min_longitude, min(longitudes))
         self.assertEqual(gpx.max_longitude, max(longitudes))
 
-    def test_named_tuples_values_bounds(self):
-        gpx = self.parse('korita-zbevnica.gpx')
-
-        bounds = gpx.get_bounds()
-        min_lat, max_lat, min_lon, max_lon=gpx.get_bounds()
-
-        self.assertEqual(min_lat, bounds.min_latitude)
-        self.assertEqual(min_lon, bounds.min_longitude)
-        self.assertEqual(max_lat, bounds.max_latitude)
-        self.assertEqual(max_lon, bounds.max_longitude)
-
     def test_named_tuples_values_time_bounds(self):
         gpx = self.parse('korita-zbevnica.gpx')
 
