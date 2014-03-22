@@ -73,6 +73,14 @@ GPX_POINT_FIELDS = [
         mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
 ]
 
+# GPX track points have two more fields after time
+GPX_TRACK_POINT_FIELDS = GPX_POINT_FIELDS[:4] \
+        + [ \
+                mod_gpxfield.GPXField('course', type=mod_gpxfield.INT_TYPE), \
+                mod_gpxfield.GPXField('speed', type=mod_gpxfield.FLOAT_TYPE) \
+          ] \
+        + GPX_POINT_FIELDS[4:]
+
 # When possible, the result of various methods are named tuples defined here:
 TimeBounds = mod_collections.namedtuple(
         'TimeBounds',
@@ -262,7 +270,7 @@ class GPXRoute:
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXTrackPoint(mod_geo.Location):
-    __gpx_fields__ = GPX_POINT_FIELDS
+    __gpx_fields__ = GPX_TRACK_POINT_FIELDS
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
