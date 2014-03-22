@@ -1194,6 +1194,8 @@ class GPXTrack:
 
 class GPX:
     __gpx_fields__ = [
+            mod_gpxfield.GPXAttributeField('version'),
+            mod_gpxfield.GPXAttributeField('creator'),
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('author'),
