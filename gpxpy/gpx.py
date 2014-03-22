@@ -512,7 +512,7 @@ class GPXTrackSegment:
             if max_lon is None or point.longitude > max_lon:
                 max_lon = point.longitude
 
-        return Bounds(min_lat, max_lat, min_lon, max_lon)
+        return GPXBounds(min_lat, max_lat, min_lon, max_lon)
 
     def get_speed(self, point_no):
         """ Get speed at that point. Point may be a GPXTrackPoint instance or integer (point index) """
@@ -955,7 +955,7 @@ class GPXTrack:
             if not mod_utils.is_numeric(max_lon) or (bounds.max_longitude and bounds.max_longitude > max_lon):
                 max_lon = bounds.max_longitude
 
-        return Bounds(min_lat, max_lat, min_lon, max_lon)
+        return GPXBounds(min_lat, max_lat, min_lon, max_lon)
 
     def walk(self, only_points=False):
         for segment_no, segment in enumerate(self.segments):
@@ -1329,7 +1329,7 @@ class GPX:
             if not mod_utils.is_numeric(max_lon) or bounds.max_longitude > max_lon:
                 max_lon = bounds.max_longitude
 
-        return Bounds(min_lat, max_lat, min_lon, max_lon)
+        return GPXBounds(min_lat, max_lat, min_lon, max_lon)
 
     def get_points_no(self):
         result = 0
