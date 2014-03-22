@@ -316,10 +316,9 @@ class AbstractTests:
         gpx = parser.parse()
         f.close()
 
-        max_reduced_points_no = 200
+        max_reduced_points_no = 50
 
         started = mod_time.time()
-        gpx = parser.parse()
         points_original = gpx.get_track_points_no()
         time_original = mod_time.time() - started
 
@@ -342,7 +341,6 @@ class AbstractTests:
         print(time_reduced)
         print(points_reduced)
 
-        self.assertTrue(time_reduced < time_original)
         self.assertTrue(points_reduced < points_original)
         self.assertTrue(points_reduced < max_reduced_points_no)
 
