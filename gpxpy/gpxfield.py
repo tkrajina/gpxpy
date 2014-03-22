@@ -76,6 +76,7 @@ class AbstractGPXField:
     def __init__(self, attribute_field=None, is_list=None):
         self.attribute_field = attribute_field
         self.is_list = is_list
+        self.attribute = False
 
 # TODO: better hierarchy for GPXFields
 
@@ -83,17 +84,30 @@ class GPXField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
-    def __init__(self, name, tag=None, type=None, possible=None, mandatory=None):
+    def __init__(self, name, tag=None, attribute=None, type=None, possible=None, mandatory=None):
         AbstractGPXField.__init__(self)
         self.name = name
-        self.tag = tag or name
+        if tag and attribute:
+            raise GPXException('Only tag *or* attribute may be given!')
+        if attribute:
+            self.tag = None
+            self.attribute = name if attribute is True else attribute
+        elif tag:
+            self.tag = name if tag is True else tag
+            self.attribute = None
+        else:
+            self.tag = name
+            self.attribute = None
         self.type_converter = type
         self.possible = possible
         self.mandatory = mandatory
 
     def from_xml(self, parser, node):
-        __node = parser.get_first_child(node, self.tag)
-        result = parser.get_node_data(__node)
+        if self.attribute:
+            result = parser.get_node_attribute(node, self.attribute)
+        else:
+            __node = parser.get_first_child(node, self.tag)
+            result = parser.get_node_data(__node)
 
         if result is None:
             if self.mandatory:
@@ -116,9 +130,12 @@ class GPXField(AbstractGPXField):
         return result
 
     def to_xml(self, value):
-        if self.type_converter:
-            value = self.type_converter.to_string(value)
-        return mod_utils.to_xml(self.tag, content=value)
+        if self.attribute:
+            return '%s="%s"' % (self.attribute, value)
+        else:
+            if self.type_converter:
+                value = self.type_converter.to_string(value)
+            return mod_utils.to_xml(self.tag, content=value)
 
 class GPXAttributeField(AbstractGPXField):
     """
@@ -187,7 +204,7 @@ def gpx_fields_to_xml(instance, tag):
     body = ''
     for gpx_field in instance.__gpx_fields__:
         value = getattr(instance, gpx_field.name)
-        if gpx_field.attribute_field:
+        if gpx_field.attribute:
             attributes += ' ' + gpx_field.attribute + '="' + str(value) + '"'
         else:
             if value:

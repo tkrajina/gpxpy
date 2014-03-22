@@ -50,8 +50,8 @@ DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
 # Fields used for all point elements (route point, track point, waypoint):
 GPX_POINT_FIELDS = [
-        mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
-        mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
         mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
         mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=mod_gpxfield.FLOAT_TYPE),
