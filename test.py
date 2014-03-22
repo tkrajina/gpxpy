@@ -1618,23 +1618,39 @@ class AbstractTests:
         self.assertEquals(gpx.waypoints[0].url_name, 'example urlname')
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/urlname').firstChild.nodeValue, 'example urlname')
 
-        """
-        'sym'),
-        type'),
-        'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
-        'sat', type=int),
-        'hdop', type=float),
-        'vdop', type=float),
-        'pdop', type=float),
-        'ageofdgpsdata', type=float),
-        'dgpsid'),
-        """
-
         self.assertEquals(gpx.waypoints[1].latitude, 13.4)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lat'].value, '13.4')
 
         self.assertEquals(gpx.waypoints[1].longitude, 46.7)
         self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lon'].value, '46.7')
+
+        self.assertEquals(gpx.routes[0].name, 'example name')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/name').firstChild.nodeValue, 'example name')
+
+        self.assertEquals(gpx.routes[0].comment, 'example cmt')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/cmt').firstChild.nodeValue, 'example cmt')
+
+        self.assertEquals(gpx.routes[0].description, 'example desc')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/desc').firstChild.nodeValue, 'example desc')
+
+        self.assertEquals(gpx.routes[0].source, 'example src')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/src').firstChild.nodeValue, 'example src')
+
+        self.assertEquals(gpx.routes[0].url, 'example url')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/url').firstChild.nodeValue, 'example url')
+
+        self.assertEquals(gpx.routes[1].name, 'second route')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[1]/name').firstChild.nodeValue, 'second route')
+
+        self.assertEquals(gpx.routes[1].description, 'example desc 2')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[1]/desc').firstChild.nodeValue, 'example desc 2')
+
+        self.assertEquals(gpx.routes[0].urlname, 'example urlname')
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/urlname').firstChild.nodeValue, 'example urlname')
+
+        self.assertEquals(gpx.routes[0].number, 7)
+        self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
+
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """

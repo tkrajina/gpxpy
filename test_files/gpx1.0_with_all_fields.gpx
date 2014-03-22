@@ -31,4 +31,17 @@
     </wpt>
     <wpt lat="13.4" lon="46.7">
     </wpt>
+    <rte>
+        <name>example name</name>
+        <cmt>example cmt</cmt>
+        <desc>example desc</desc>
+        <src>example src</src>
+        <url>example url</url>
+        <urlname>example urlname</urlname>
+        <number>7</number>
+    </rte>
+    <rte>
+        <name>second route</name>
+        <desc>example desc 2</desc>
+    </rte>
 </gpx>

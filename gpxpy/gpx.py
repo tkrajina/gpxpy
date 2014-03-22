@@ -200,11 +200,19 @@ class GPXWaypoint(mod_geo.Location):
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXRoute:
+    __gpx_fields__ = [
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('comment', 'cmt'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('source', 'src'),
+            mod_gpxfield.GPXField('url'),
+            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
+    ]
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
         self.number = number
-
         self.points = []
 
     def remove_elevation(self):
@@ -1285,6 +1293,7 @@ class GPX:
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
+            mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
@@ -1753,11 +1762,8 @@ class GPX:
     def to_xml(self):
         content = mod_gpxfield.gpx_fields_to_xml(self, None)
 
-        for route in self.routes:
-            content += route.to_xml(version)
-
         for track in self.tracks:
-            content += track.to_xml(version)
+            content += track.to_xml()
 
         xml_attributes = {
                 'version': '1.0',

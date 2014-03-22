@@ -213,9 +213,7 @@ class GPXParser:
 
         for node in self.xml_parser.get_children(node):
             node_name = self.xml_parser.get_node_name(node)
-            if node_name == 'rte':
-                self.gpx.routes.append(self._parse_route(node))
-            elif node_name == 'trk':
+            if node_name == 'trk':
                 self.gpx.tracks.append(self.__parse_track(node))
             else:
                 #print 'unknown %s' % node
@@ -288,73 +286,6 @@ class GPXParser:
             time=time, name=name, description=desc, symbol=sym,
             type=type, comment=comment, horizontal_dilution=hdop,
             vertical_dilution=vdop, position_dilution=pdop)
-
-    def _parse_route(self, node):
-        name_node = self.xml_parser.get_first_child(node, 'name')
-        name = self.xml_parser.get_node_data(name_node)
-
-        description_node = self.xml_parser.get_first_child(node, 'desc')
-        description = self.xml_parser.get_node_data(description_node)
-
-        number_node = self.xml_parser.get_first_child(node, 'number')
-        number = mod_utils.to_number(self.xml_parser.get_node_data(number_node))
-
-        route = mod_gpx.GPXRoute(name, description, number)
-
-        child_nodes = self.xml_parser.get_children(node)
-        for child_node in child_nodes:
-            if self.xml_parser.get_node_name(child_node) == 'rtept':
-                route_point = self._parse_route_point(child_node)
-                route.points.append(route_point)
-
-        return route
-
-    def _parse_route_point(self, node):
-        lat = self.xml_parser.get_node_attribute(node, 'lat')
-        if not lat:
-            raise mod_gpx.GPXException('Waypoint without latitude')
-
-        lon = self.xml_parser.get_node_attribute(node, 'lon')
-        if not lon:
-            raise mod_gpx.GPXException('Waypoint without longitude')
-
-        lat = mod_utils.to_number(lat)
-        lon = mod_utils.to_number(lon)
-
-        elevation_node = self.xml_parser.get_first_child(node, 'ele')
-        elevation = mod_utils.to_number(self.xml_parser.get_node_data(elevation_node),
-                                        default = None, nan_value = None)
-
-        time_node = self.xml_parser.get_first_child(node, 'time')
-        time_str = self.xml_parser.get_node_data(time_node)
-        #time = parse_time(time_str)
-
-        name_node = self.xml_parser.get_first_child(node, 'name')
-        name = self.xml_parser.get_node_data(name_node)
-
-        desc_node = self.xml_parser.get_first_child(node, 'desc')
-        desc = self.xml_parser.get_node_data(desc_node)
-
-        sym_node = self.xml_parser.get_first_child(node, 'sym')
-        sym = self.xml_parser.get_node_data(sym_node)
-
-        type_node = self.xml_parser.get_first_child(node, 'type')
-        type = self.xml_parser.get_node_data(type_node)
-
-        comment_node = self.xml_parser.get_first_child(node, 'cmt')
-        comment = self.xml_parser.get_node_data(comment_node)
-
-        hdop_node = self.xml_parser.get_first_child(node, 'hdop')
-        hdop = mod_utils.to_number(self.xml_parser.get_node_data(hdop_node))
-
-        vdop_node = self.xml_parser.get_first_child(node, 'vdop')
-        vdop = mod_utils.to_number(self.xml_parser.get_node_data(vdop_node))
-
-        pdop_node = self.xml_parser.get_first_child(node, 'pdop')
-        pdop = mod_utils.to_number(self.xml_parser.get_node_data(pdop_node))
-
-        return mod_gpx.GPXRoutePoint(lat, lon, elevation, time, name, desc, sym, type, comment,
-            horizontal_dilution = hdop, vertical_dilution = vdop, position_dilution = pdop)
 
     def __parse_track(self, node):
         name_node = self.xml_parser.get_first_child(node, 'name')
