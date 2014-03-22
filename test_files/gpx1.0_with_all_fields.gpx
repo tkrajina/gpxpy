@@ -54,4 +54,14 @@
         <rtept lat="14" lon="24">
         </rtept>
     </rte>
+    <trk>
+        <trkseg>
+            <trkpt lat="100.1" lon="-200.2">
+            </trkpt>
+        </trkseg>
+        <trkseg>
+        </trkseg>
+    </trk>
+    <trk>
+    </trk>
 </gpx>

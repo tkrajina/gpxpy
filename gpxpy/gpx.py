@@ -114,9 +114,6 @@ class GPXBounds:
         self.min_longitude = min_longitude
         self.max_longitude = max_longitude
 
-    def to_xml(self):
-        return mod_gpxfield.gpx_fields_to_xml(self, content)
-
 class GPXXMLSyntaxException(GPXException):
     """
     Exception used when the the XML syntax is invalid.
@@ -164,33 +161,6 @@ class GPXWaypoint(mod_geo.Location):
     def __str__(self):
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
 
-    def to_xml(self, version=None):
-        content = ''
-        if self.elevation is not None:
-            content += mod_utils.to_xml('ele', content=self.elevation)
-        if self.time:
-            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, escape=True)
-        if self.description:
-            content += mod_utils.to_xml('desc', content=self.description, escape=True)
-        if self.symbol:
-            content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
-        if self.type:
-            content += mod_utils.to_xml('type', content=self.type, escape=True)
-
-        if version == '1.1': # TODO
-            content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
-
-        if self.horizontal_dilution:
-            content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
-        if self.vertical_dilution:
-            content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
-        if self.position_dilution:
-            content += mod_utils.to_xml('pdop', content=self.position_dilution)
-
-        return mod_utils.to_xml('wpt', attributes={'lat': self.latitude, 'lon': self.longitude}, content=content)
-
     def get_max_dilution_of_precision(self):
         """
         Only care about the max dop for filtering, no need to go into too much detail
@@ -224,32 +194,6 @@ class GPXRoutePoint(mod_geo.Location):
 
     def __str__(self):
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
-
-    def to_xml(self, version=None):
-        content = ''
-        if self.elevation is not None:
-            content += mod_utils.to_xml('ele', content=self.elevation)
-        if self.time:
-            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, escape=True)
-        if self.comment:
-            content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
-        if self.description:
-            content += mod_utils.to_xml('desc', content=self.description, escape=True)
-        if self.symbol:
-            content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
-        if self.type:
-            content += mod_utils.to_xml('type', content=self.type, escape=True)
-
-        if self.horizontal_dilution:
-            content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
-        if self.vertical_dilution:
-            content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
-        if self.position_dilution:
-            content += mod_utils.to_xml('pdop', content=self.position_dilution)
-
-        return mod_utils.to_xml('rtept', attributes={'lat': self.latitude, 'lon': self.longitude}, content=content)
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
@@ -314,24 +258,13 @@ class GPXRoute:
         for route_point in self.points:
             route_point.move(latitude_diff, longitude_diff)
 
-    def to_xml(self, version=None):
-        content = ''
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, escape=True)
-        if self.description:
-            content += mod_utils.to_xml('desc', content=self.description, escape=True)
-        if self.number:
-            content += mod_utils.to_xml('number', content=self.number)
-        for route_point in self.points:
-            content += route_point.to_xml(version)
-
-        return mod_utils.to_xml('rte', content=content)
-
     def __hash__(self):
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
 
 class GPXTrackPoint(mod_geo.Location):
-    def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
+    __gpx_fields__ = GPX_POINT_FIELDS
+
+    def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
             horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
             name=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
@@ -358,32 +291,6 @@ class GPXTrackPoint(mod_geo.Location):
     def remove_time(self):
         """ Will remove time metadata. """
         self.time = None
-
-    def to_xml(self, version=None):
-        content = ''
-
-        if self.elevation is not None:
-            content += mod_utils.to_xml('ele', content=self.elevation)
-        if self.time:
-            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
-        if self.comment:
-            content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, escape=True)
-        if self.symbol:
-            content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
-
-        if self.horizontal_dilution:
-            content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
-        if self.vertical_dilution:
-            content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
-        if self.position_dilution:
-            content += mod_utils.to_xml('pdop', content=self.position_dilution)
-
-        if self.speed:
-            content += mod_utils.to_xml('speed', content=self.speed)
-
-        return mod_utils.to_xml('trkpt', {'lat': self.latitude, 'lon': self.longitude}, content=content)
 
     def time_difference(self, track_point):
         """ Time distance in seconds between times of those two points """
@@ -428,333 +335,11 @@ class GPXTrackPoint(mod_geo.Location):
         return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
 
-class GPXTrack:
-    def __init__(self, name=None, description=None, number=None):
-        self.name = name
-        self.description = description
-        self.number = number
-
-        self.segments = []
-
-    def simplify(self, max_distance=None):
-        """
-        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
-        """
-        for segment in self.segments:
-            segment.simplify(max_distance=max_distance)
-
-    def reduce_points(self, min_distance):
-        for segment in self.segments:
-            segment.reduce_points(min_distance)
-
-    def adjust_time(self, delta):
-        for segment in self.segments:
-            segment.adjust_time(delta)
-
-    def remove_time(self):
-        for segment in self.segments:
-            segment.remove_time()
-
-    def remove_elevation(self):
-        for segment in self.segments:
-            segment.remove_elevation()
-
-    def remove_empty(self):
-        """ Removes empty segments and/or routes """
-        result = []
-
-        for segment in self.segments:
-            if len(segment.points) > 0:
-                result.append(segment)
-
-        self.segments = result
-
-    def length_2d(self):
-        length = 0
-        for track_segment in self.segments:
-            d = track_segment.length_2d()
-            if d:
-                length += d
-        return length
-
-    def get_time_bounds(self):
-        start_time = None
-        end_time = None
-
-        for track_segment in self.segments:
-            point_start_time, point_end_time = track_segment.get_time_bounds()
-            if not start_time and point_start_time:
-                start_time = point_start_time
-            if point_end_time:
-                end_time = point_end_time
-
-        return TimeBounds(start_time, end_time)
-
-    def get_bounds(self):
-        min_lat = None
-        max_lat = None
-        min_lon = None
-        max_lon = None
-        for track_segment in self.segments:
-            bounds = track_segment.get_bounds()
-
-            if not mod_utils.is_numeric(min_lat) or (bounds.min_latitude and bounds.min_latitude < min_lat):
-                min_lat = bounds.min_latitude
-            if not mod_utils.is_numeric(max_lat) or (bounds.max_latitude and bounds.max_latitude > max_lat):
-                max_lat = bounds.max_latitude
-            if not mod_utils.is_numeric(min_lon) or (bounds.min_longitude and bounds.min_longitude < min_lon):
-                min_lon = bounds.min_longitude
-            if not mod_utils.is_numeric(max_lon) or (bounds.max_longitude and bounds.max_longitude > max_lon):
-                max_lon = bounds.max_longitude
-
-        return Bounds(min_lat, max_lat, min_lon, max_lon)
-
-    def walk(self, only_points=False):
-        for segment_no, segment in enumerate(self.segments):
-            for point_no, point in enumerate(segment.points):
-                if only_points:
-                    yield point
-                else:
-                    yield point, segment_no, point_no
-
-    def get_points_no(self):
-        result = 0
-
-        for track_segment in self.segments:
-            result += track_segment.get_points_no()
-
-        return result
-
-    def length_3d(self):
-        length = 0
-        for track_segment in self.segments:
-            d = track_segment.length_3d()
-            if d:
-                length += d
-        return length
-
-    def split(self, track_segment_no, track_point_no):
-        """ Splits One of the segments in two parts. If one of the split
-        segments is empty it will not be added in the result """
-        new_segments = []
-        for i in range(len(self.segments)):
-            segment = self.segments[i]
-            if i == track_segment_no:
-                segment_1, segment_2 = segment.split(track_point_no)
-                if segment_1:
-                    new_segments.append(segment_1)
-                if segment_2:
-                    new_segments.append(segment_2)
-            else:
-                new_segments.append(segment)
-        self.segments = new_segments
-
-    def join(self, track_segment_no, track_segment_no_2=None):
-        """ Joins two segments of this track. If track_segment_no_2 the join will be with the
-        next segment """
-
-        if not track_segment_no_2:
-            track_segment_no_2 = track_segment_no + 1
-
-        if track_segment_no_2 >= len(self.segments):
-            return
-
-        new_segments = []
-        for i in range(len(self.segments)):
-            segment = self.segments[i]
-            if i == track_segment_no:
-                second_segment = self.segments[track_segment_no_2]
-                segment.join(second_segment)
-
-                new_segments.append(segment)
-            elif i == track_segment_no_2:
-                # Nothing, it is already joined
-                pass
-            else:
-                new_segments.append(segment)
-        self.segments = new_segments
-
-    def get_moving_data(self, stopped_speed_threshold=None):
-        moving_time = 0.
-        stopped_time = 0.
-
-        moving_distance = 0.
-        stopped_distance = 0.
-
-        max_speed = 0.
-
-        for segment in self.segments:
-            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = segment.get_moving_data(stopped_speed_threshold)
-            moving_time += track_moving_time
-            stopped_time += track_stopped_time
-            moving_distance += track_moving_distance
-            stopped_distance += track_stopped_distance
-
-            if track_max_speed is not None and track_max_speed > max_speed:
-                max_speed = track_max_speed
-
-        return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
-
-    def add_elevation(self, delta):
-        for track_segment in self.segments:
-            track_segment.add_elevation(delta)
-
-    def add_missing_data(self, get_data_function, add_missing_function):
-        for track_segment in self.segments:
-            track_segment.add_missing_data(get_data_function, add_missing_function)
-
-    def move(self, latitude_diff, longitude_diff):
-        for track_segment in self.segments:
-            track_segment.move(latitude_diff, longitude_diff)
-
-    def get_duration(self):
-        """ Note returns None if one of track segments hasn't time data """
-        if not self.segments:
-            return 0
-
-        result = 0
-        for track_segment in self.segments:
-            duration = track_segment.get_duration()
-            if duration or duration == 0:
-                result += duration
-            elif duration is None:
-                return None
-
-        return result
-
-    def get_uphill_downhill(self):
-        if not self.segments:
-            return UphillDownhill(0, 0)
-
-        uphill = 0
-        downhill = 0
-
-        for track_segment in self.segments:
-            current_uphill, current_downhill = track_segment.get_uphill_downhill()
-
-            uphill += current_uphill
-            downhill += current_downhill
-
-        return UphillDownhill(uphill, downhill)
-
-    def get_location_at(self, time):
-        """
-        Get locations for this time. There may be more locations because of
-        time-overlapping track segments.
-        """
-        result = []
-        for track_segment in self.segments:
-            location = track_segment.get_location_at(time)
-            if location:
-                result.append(location)
-
-        return result
-
-    def get_elevation_extremes(self):
-        if not self.segments:
-            return MinimumMaximum(None, None)
-
-        elevations = []
-
-        for track_segment in self.segments:
-            (_min, _max) = track_segment.get_elevation_extremes()
-            if _min is not None:
-                elevations.append(_min)
-            if _max is not None:
-                elevations.append(_max)
-
-        if len(elevations) == 0:
-            return MinimumMaximum(None, None)
-
-        return MinimumMaximum(min(elevations), max(elevations))
-
-    def to_xml(self, version=None):
-        content = mod_utils.to_xml('name', content=self.name, escape=True)
-        content += mod_utils.to_xml('desc', content=self.description, escape=True)
-        if self.number:
-            content += mod_utils.to_xml('number', content=self.number)
-        for track_segment in self.segments:
-            content += track_segment.to_xml(version)
-
-        return mod_utils.to_xml('trk', content=content)
-
-    def get_center(self):
-        """ "Average" location for this track """
-        if not self.segments:
-            return None
-        sum_lat = 0
-        sum_lon = 0
-        n = 0
-        for track_segment in self.segments:
-            for point in track_segment.points:
-                n += 1.
-                sum_lat += point.latitude
-                sum_lon += point.longitude
-
-        if not n:
-            return mod_geo.Location(float(0), float(0))
-
-        return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
-
-    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
-        """ See: GPXTrackSegment.smooth() """
-        for track_segment in self.segments:
-            track_segment.smooth(vertical, horizontal, remove_extremes)
-
-    def has_times(self):
-        """ See GPXTrackSegment.has_times() """
-        if not self.segments:
-            return None
-
-        result = True
-        for track_segment in self.segments:
-            result = result and track_segment.has_times()
-
-        return result
-
-    def has_elevations(self):
-        if not self.segments:
-            return None
-
-        result = True
-        for track_segment in self.segments:
-            result = result and track_segment.has_elevations()
-
-        return result
-
-    def get_nearest_location(self, location):
-        """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
-        if not self.segments:
-            return None
-
-        result = None
-        distance = None
-        result_track_segment_no = None
-        result_track_point_no = None
-
-        for i in range(len(self.segments)):
-            track_segment = self.segments[i]
-            nearest_location, track_point_no = track_segment.get_nearest_location(location)
-            nearest_location_distance = None
-            if nearest_location:
-                nearest_location_distance = nearest_location.distance_2d(location)
-
-            if not distance or nearest_location_distance < distance:
-                if nearest_location:
-                    distance = nearest_location_distance
-                    result = nearest_location
-                    result_track_segment_no = i
-                    result_track_point_no = track_point_no
-
-        return result, result_track_segment_no, result_track_point_no
-
-    def clone(self):
-        return mod_copy.deepcopy(self)
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
-
 class GPXTrackSegment:
+    __gpx_fields__ = [
+            mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
+    ]
+
     def __init__(self, points=None):
         self.points = points if points else []
 
@@ -1102,12 +687,6 @@ class GPXTrackSegment:
                 # return mod_geo.Location(point.latitude, point.longitude)
                 return point
 
-    def to_xml(self, version=None):
-        content = ''
-        for track_point in self.points:
-            content += track_point.to_xml(version)
-        return mod_utils.to_xml('trkseg', content=content)
-
     def get_nearest_location(self, location):
         """ Return the (location, track_point_no) on this track segment """
         if not self.points:
@@ -1286,6 +865,333 @@ class GPXTrackSegment:
     def clone(self):
         return mod_copy.deepcopy(self)
 
+class GPXTrack:
+    __gpx_fields__ = [
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('comment', 'cmt'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('source', 'src'),
+            mod_gpxfield.GPXField('url'),
+            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
+            mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
+    ]
+
+    def __init__(self, name=None, description=None, number=None):
+        self.name = name
+        self.description = description
+        self.number = number
+
+        self.segments = []
+
+    def simplify(self, max_distance=None):
+        """
+        Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
+        """
+        for segment in self.segments:
+            segment.simplify(max_distance=max_distance)
+
+    def reduce_points(self, min_distance):
+        for segment in self.segments:
+            segment.reduce_points(min_distance)
+
+    def adjust_time(self, delta):
+        for segment in self.segments:
+            segment.adjust_time(delta)
+
+    def remove_time(self):
+        for segment in self.segments:
+            segment.remove_time()
+
+    def remove_elevation(self):
+        for segment in self.segments:
+            segment.remove_elevation()
+
+    def remove_empty(self):
+        """ Removes empty segments and/or routes """
+        result = []
+
+        for segment in self.segments:
+            if len(segment.points) > 0:
+                result.append(segment)
+
+        self.segments = result
+
+    def length_2d(self):
+        length = 0
+        for track_segment in self.segments:
+            d = track_segment.length_2d()
+            if d:
+                length += d
+        return length
+
+    def get_time_bounds(self):
+        start_time = None
+        end_time = None
+
+        for track_segment in self.segments:
+            point_start_time, point_end_time = track_segment.get_time_bounds()
+            if not start_time and point_start_time:
+                start_time = point_start_time
+            if point_end_time:
+                end_time = point_end_time
+
+        return TimeBounds(start_time, end_time)
+
+    def get_bounds(self):
+        min_lat = None
+        max_lat = None
+        min_lon = None
+        max_lon = None
+        for track_segment in self.segments:
+            bounds = track_segment.get_bounds()
+
+            if not mod_utils.is_numeric(min_lat) or (bounds.min_latitude and bounds.min_latitude < min_lat):
+                min_lat = bounds.min_latitude
+            if not mod_utils.is_numeric(max_lat) or (bounds.max_latitude and bounds.max_latitude > max_lat):
+                max_lat = bounds.max_latitude
+            if not mod_utils.is_numeric(min_lon) or (bounds.min_longitude and bounds.min_longitude < min_lon):
+                min_lon = bounds.min_longitude
+            if not mod_utils.is_numeric(max_lon) or (bounds.max_longitude and bounds.max_longitude > max_lon):
+                max_lon = bounds.max_longitude
+
+        return Bounds(min_lat, max_lat, min_lon, max_lon)
+
+    def walk(self, only_points=False):
+        for segment_no, segment in enumerate(self.segments):
+            for point_no, point in enumerate(segment.points):
+                if only_points:
+                    yield point
+                else:
+                    yield point, segment_no, point_no
+
+    def get_points_no(self):
+        result = 0
+
+        for track_segment in self.segments:
+            result += track_segment.get_points_no()
+
+        return result
+
+    def length_3d(self):
+        length = 0
+        for track_segment in self.segments:
+            d = track_segment.length_3d()
+            if d:
+                length += d
+        return length
+
+    def split(self, track_segment_no, track_point_no):
+        """ Splits One of the segments in two parts. If one of the split
+        segments is empty it will not be added in the result """
+        new_segments = []
+        for i in range(len(self.segments)):
+            segment = self.segments[i]
+            if i == track_segment_no:
+                segment_1, segment_2 = segment.split(track_point_no)
+                if segment_1:
+                    new_segments.append(segment_1)
+                if segment_2:
+                    new_segments.append(segment_2)
+            else:
+                new_segments.append(segment)
+        self.segments = new_segments
+
+    def join(self, track_segment_no, track_segment_no_2=None):
+        """ Joins two segments of this track. If track_segment_no_2 the join will be with the
+        next segment """
+
+        if not track_segment_no_2:
+            track_segment_no_2 = track_segment_no + 1
+
+        if track_segment_no_2 >= len(self.segments):
+            return
+
+        new_segments = []
+        for i in range(len(self.segments)):
+            segment = self.segments[i]
+            if i == track_segment_no:
+                second_segment = self.segments[track_segment_no_2]
+                segment.join(second_segment)
+
+                new_segments.append(segment)
+            elif i == track_segment_no_2:
+                # Nothing, it is already joined
+                pass
+            else:
+                new_segments.append(segment)
+        self.segments = new_segments
+
+    def get_moving_data(self, stopped_speed_threshold=None):
+        moving_time = 0.
+        stopped_time = 0.
+
+        moving_distance = 0.
+        stopped_distance = 0.
+
+        max_speed = 0.
+
+        for segment in self.segments:
+            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = segment.get_moving_data(stopped_speed_threshold)
+            moving_time += track_moving_time
+            stopped_time += track_stopped_time
+            moving_distance += track_moving_distance
+            stopped_distance += track_stopped_distance
+
+            if track_max_speed is not None and track_max_speed > max_speed:
+                max_speed = track_max_speed
+
+        return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
+
+    def add_elevation(self, delta):
+        for track_segment in self.segments:
+            track_segment.add_elevation(delta)
+
+    def add_missing_data(self, get_data_function, add_missing_function):
+        for track_segment in self.segments:
+            track_segment.add_missing_data(get_data_function, add_missing_function)
+
+    def move(self, latitude_diff, longitude_diff):
+        for track_segment in self.segments:
+            track_segment.move(latitude_diff, longitude_diff)
+
+    def get_duration(self):
+        """ Note returns None if one of track segments hasn't time data """
+        if not self.segments:
+            return 0
+
+        result = 0
+        for track_segment in self.segments:
+            duration = track_segment.get_duration()
+            if duration or duration == 0:
+                result += duration
+            elif duration is None:
+                return None
+
+        return result
+
+    def get_uphill_downhill(self):
+        if not self.segments:
+            return UphillDownhill(0, 0)
+
+        uphill = 0
+        downhill = 0
+
+        for track_segment in self.segments:
+            current_uphill, current_downhill = track_segment.get_uphill_downhill()
+
+            uphill += current_uphill
+            downhill += current_downhill
+
+        return UphillDownhill(uphill, downhill)
+
+    def get_location_at(self, time):
+        """
+        Get locations for this time. There may be more locations because of
+        time-overlapping track segments.
+        """
+        result = []
+        for track_segment in self.segments:
+            location = track_segment.get_location_at(time)
+            if location:
+                result.append(location)
+
+        return result
+
+    def get_elevation_extremes(self):
+        if not self.segments:
+            return MinimumMaximum(None, None)
+
+        elevations = []
+
+        for track_segment in self.segments:
+            (_min, _max) = track_segment.get_elevation_extremes()
+            if _min is not None:
+                elevations.append(_min)
+            if _max is not None:
+                elevations.append(_max)
+
+        if len(elevations) == 0:
+            return MinimumMaximum(None, None)
+
+        return MinimumMaximum(min(elevations), max(elevations))
+
+    def get_center(self):
+        """ "Average" location for this track """
+        if not self.segments:
+            return None
+        sum_lat = 0
+        sum_lon = 0
+        n = 0
+        for track_segment in self.segments:
+            for point in track_segment.points:
+                n += 1.
+                sum_lat += point.latitude
+                sum_lon += point.longitude
+
+        if not n:
+            return mod_geo.Location(float(0), float(0))
+
+        return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
+
+    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
+        """ See: GPXTrackSegment.smooth() """
+        for track_segment in self.segments:
+            track_segment.smooth(vertical, horizontal, remove_extremes)
+
+    def has_times(self):
+        """ See GPXTrackSegment.has_times() """
+        if not self.segments:
+            return None
+
+        result = True
+        for track_segment in self.segments:
+            result = result and track_segment.has_times()
+
+        return result
+
+    def has_elevations(self):
+        if not self.segments:
+            return None
+
+        result = True
+        for track_segment in self.segments:
+            result = result and track_segment.has_elevations()
+
+        return result
+
+    def get_nearest_location(self, location):
+        """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
+        if not self.segments:
+            return None
+
+        result = None
+        distance = None
+        result_track_segment_no = None
+        result_track_point_no = None
+
+        for i in range(len(self.segments)):
+            track_segment = self.segments[i]
+            nearest_location, track_point_no = track_segment.get_nearest_location(location)
+            nearest_location_distance = None
+            if nearest_location:
+                nearest_location_distance = nearest_location.distance_2d(location)
+
+            if not distance or nearest_location_distance < distance:
+                if nearest_location:
+                    distance = nearest_location_distance
+                    result = nearest_location
+                    result_track_segment_no = i
+                    result_track_point_no = track_point_no
+
+        return result, result_track_segment_no, result_track_point_no
+
+    def clone(self):
+        return mod_copy.deepcopy(self)
+
+    def __hash__(self):
+        return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
+
 class GPX:
     __gpx_fields__ = [
             mod_gpxfield.GPXField('name'),
@@ -1299,6 +1205,7 @@ class GPX:
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
+            mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
     ]
     def __init__(self, waypoints=None, routes=None, tracks=None):
         mod_gpxfield.init_gpx_fields(self)
@@ -1766,9 +1673,6 @@ class GPX:
 
     def to_xml(self):
         content = mod_gpxfield.gpx_fields_to_xml(self, None)
-
-        for track in self.tracks:
-            content += track.to_xml()
 
         xml_attributes = {
                 'version': '1.0',
