@@ -39,7 +39,6 @@ def parse_time(string):
             pass
     return None
 
-
 class FloatConverter:
     def __init__(self):
         self.from_string = lambda string : float(string)
