@@ -39,9 +39,19 @@
         <url>example url</url>
         <urlname>example urlname</urlname>
         <number>7</number>
+        <rtept lat="10" lon="20">
+        </rtept>
+        <rtept lat="11" lon="21">
+        </rtept>
+        <rtept lat="12" lon="22">
+        </rtept>
     </rte>
     <rte>
         <name>second route</name>
         <desc>example desc 2</desc>
+        <rtept lat="13" lon="23">
+        </rtept>
+        <rtept lat="14" lon="24">
+        </rtept>
     </rte>
 </gpx>

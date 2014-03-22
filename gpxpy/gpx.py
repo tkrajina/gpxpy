@@ -48,6 +48,31 @@ SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 # if speed is less than this value -- we'll assume it is zero
 DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
+# Fields used for all point elements (route point, track point, waypoint):
+GPX_POINT_FIELDS = [
+        mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
+        mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('name'),
+        mod_gpxfield.GPXField('comment', 'cmt'),
+        mod_gpxfield.GPXField('description', 'desc'),
+        mod_gpxfield.GPXField('source', 'src'),
+        mod_gpxfield.GPXField('url'),
+        mod_gpxfield.GPXField('url_name', 'urlname'),
+        mod_gpxfield.GPXField('symbol', 'sym'),
+        mod_gpxfield.GPXField('type'),
+        mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
+        mod_gpxfield.GPXField('satellites', 'sat', type=mod_gpxfield.INT_TYPE),
+        mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
+]
+
 # When possible, the result of various methods are named tuples defined here:
 TimeBounds = mod_collections.namedtuple(
         'TimeBounds',
@@ -103,30 +128,7 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 class GPXWaypoint(mod_geo.Location):
-    __gpx_fields__ = [
-            # TODO
-            mod_gpxfield.GPXAttributeField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
-            mod_gpxfield.GPXAttributeField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
-            mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
-            mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('name'),
-            mod_gpxfield.GPXField('comment', 'cmt'),
-            mod_gpxfield.GPXField('description', 'desc'),
-            mod_gpxfield.GPXField('source', 'src'),
-            mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('url_name', 'urlname'),
-            mod_gpxfield.GPXField('symbol', 'sym'),
-            mod_gpxfield.GPXField('type'),
-            mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
-            mod_gpxfield.GPXField('satellites', 'sat', type=mod_gpxfield.INT_TYPE),
-            mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
-            mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
-    ]
+    __gpx_fields__ = GPX_POINT_FIELDS
 
     time = None
     name = None
@@ -199,6 +201,60 @@ class GPXWaypoint(mod_geo.Location):
         return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type',
                 'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
+class GPXRoutePoint(mod_geo.Location):
+    __gpx_fields__ = GPX_POINT_FIELDS
+
+    def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
+            description=None, symbol=None, type=None, comment=None,
+            horizontal_dilution=None, vertical_dilution=None,
+            position_dilution=None):
+
+        mod_geo.Location.__init__(self, latitude, longitude, elevation)
+
+        self.time = time
+        self.name = name
+        self.description = description
+        self.symbol = symbol
+        self.type = type
+        self.comment = comment
+
+        self.horizontal_dilution = horizontal_dilution # Horizontal dilution of precision
+        self.vertical_dilution = vertical_dilution     # Vertical dilution of precision
+        self.position_dilution = position_dilution     # Position dilution of precision
+
+    def __str__(self):
+        return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+
+    def to_xml(self, version=None):
+        content = ''
+        if self.elevation is not None:
+            content += mod_utils.to_xml('ele', content=self.elevation)
+        if self.time:
+            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
+        if self.name:
+            content += mod_utils.to_xml('name', content=self.name, escape=True)
+        if self.comment:
+            content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
+        if self.description:
+            content += mod_utils.to_xml('desc', content=self.description, escape=True)
+        if self.symbol:
+            content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
+        if self.type:
+            content += mod_utils.to_xml('type', content=self.type, escape=True)
+
+        if self.horizontal_dilution:
+            content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
+        if self.vertical_dilution:
+            content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
+        if self.position_dilution:
+            content += mod_utils.to_xml('pdop', content=self.position_dilution)
+
+        return mod_utils.to_xml('rtept', attributes={'lat': self.latitude, 'lon': self.longitude}, content=content)
+
+    def __hash__(self):
+        return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
+                'horizontal_dilution', 'vertical_dilution', 'position_dilution')
+
 class GPXRoute:
     __gpx_fields__ = [
             mod_gpxfield.GPXField('name'),
@@ -208,6 +264,7 @@ class GPXRoute:
             mod_gpxfield.GPXField('url'),
             mod_gpxfield.GPXField('urlname'),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
+            mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -272,58 +329,6 @@ class GPXRoute:
 
     def __hash__(self):
         return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
-
-class GPXRoutePoint(mod_geo.Location):
-    def __init__(self, latitude, longitude, elevation=None, time=None, name=None,
-            description=None, symbol=None, type=None, comment=None,
-            horizontal_dilution=None, vertical_dilution=None,
-            position_dilution=None):
-
-        mod_geo.Location.__init__(self, latitude, longitude, elevation)
-
-        self.time = time
-        self.name = name
-        self.description = description
-        self.symbol = symbol
-        self.type = type
-        self.comment = comment
-
-        self.horizontal_dilution = horizontal_dilution # Horizontal dilution of precision
-        self.vertical_dilution = vertical_dilution     # Vertical dilution of precision
-        self.position_dilution = position_dilution     # Position dilution of precision
-
-    def __str__(self):
-        return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
-
-    def to_xml(self, version=None):
-        content = ''
-        if self.elevation is not None:
-            content += mod_utils.to_xml('ele', content=self.elevation)
-        if self.time:
-            content += mod_utils.to_xml('time', content=self.time.strftime(DATE_FORMAT))
-        if self.name:
-            content += mod_utils.to_xml('name', content=self.name, escape=True)
-        if self.comment:
-            content += mod_utils.to_xml('cmt', content=self.comment, escape=True)
-        if self.description:
-            content += mod_utils.to_xml('desc', content=self.description, escape=True)
-        if self.symbol:
-            content += mod_utils.to_xml('sym', content=self.symbol, escape=True)
-        if self.type:
-            content += mod_utils.to_xml('type', content=self.type, escape=True)
-
-        if self.horizontal_dilution:
-            content += mod_utils.to_xml('hdop', content=self.horizontal_dilution)
-        if self.vertical_dilution:
-            content += mod_utils.to_xml('vdop', content=self.vertical_dilution)
-        if self.position_dilution:
-            content += mod_utils.to_xml('pdop', content=self.position_dilution)
-
-        return mod_utils.to_xml('rtept', attributes={'lat': self.latitude, 'lon': self.longitude}, content=content)
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
-                'horizontal_dilution', 'vertical_dilution', 'position_dilution')
 
 class GPXTrackPoint(mod_geo.Location):
     def __init__(self, latitude, longitude, elevation=None, time=None, symbol=None, comment=None,
