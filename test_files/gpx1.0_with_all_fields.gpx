@@ -55,8 +55,34 @@
         </rtept>
     </rte>
     <trk>
+        <name>example name t</name>
+        <cmt>example cmt t</cmt>
+        <desc>example desc t</desc>
+        <src>example src t</src>
+        <url>example url t</url>
+        <urlname>example urlname t</urlname>
+        <number>1</number>
         <trkseg>
             <trkpt lat="100.1" lon="-200.2">
+                <ele>11.1</ele>
+                <time>2013-01-01T12:00:04</time>
+                <magvar>12</magvar>
+                <geoidheight>13</geoidheight>
+                <name>example name</name>
+                <cmt>example cmt</cmt>
+                <desc>example desc</desc>
+                <src>example src</src>
+                <url>example url</url>
+                <urlname>example urlname</urlname>
+                <sym>example sym</sym>
+                <type>example type</type>
+                <fix>3d</fix>
+                <sat>100</sat>
+                <hdop>101</hdop>
+                <vdop>102</vdop>
+                <pdop>103</pdop>
+                <ageofdgpsdata>104</ageofdgpsdata>
+                <dgpsid>example_dgpsid</dgpsid>
             </trkpt>
         </trkseg>
         <trkseg>

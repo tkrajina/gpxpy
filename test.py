@@ -118,7 +118,10 @@ def get_dom_node(dom, path):
             if child.nodeName == tag_name:
                 candidates.append(child)
 
-        result = candidates[n]
+        try:
+            result = candidates[n]
+        except Exception as e:
+            raise Exception('Can\'t fint %sth child of %s' % (n, path_part))
 
     return result
 
@@ -1618,7 +1621,8 @@ class AbstractTests:
 
         gpx = mod_gpxpy.parse(xml)
 
-        print(gpx.to_xml())
+        # Serialize and parse again to be sure that all is preserved:
+        gpx = mod_gpxpy.parse(gpx.to_xml())
 
         dom = mod_minidom.parseString(gpx.to_xml())
 
@@ -1727,6 +1731,57 @@ class AbstractTests:
     
         self.assertEquals(len(gpx.routes[0].points), 3)
         self.assertEquals(len(gpx.routes[1].points), 2)
+
+        self.assertEquals(len(gpx.tracks), 2)
+
+        self.assertEquals(gpx.tracks[0].name, 'example name t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/name').firstChild.nodeValue, 'example name t')
+
+        self.assertEquals(gpx.tracks[0].comment, 'example cmt t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/cmt').firstChild.nodeValue, 'example cmt t')
+
+        self.assertEquals(gpx.tracks[0].description, 'example desc t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/desc').firstChild.nodeValue, 'example desc t')
+
+        self.assertEquals(gpx.tracks[0].source, 'example src t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/src').firstChild.nodeValue, 'example src t')
+
+        self.assertEquals(gpx.tracks[0].url, 'example url t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/url').firstChild.nodeValue, 'example url t')
+
+        self.assertEquals(gpx.tracks[0].urlname, 'example urlname t')
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/urlname').firstChild.nodeValue, 'example urlname t')
+
+        self.assertEquals(gpx.tracks[0].number, 1)
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/number').firstChild.nodeValue, '1')
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 01, 01, 12, 00, 04))
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue, '2013-01-01T12:00:04Z')
+
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
+        self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/magvar').firstChild.nodeValue, '12.0')
+
+        """
+                <geoidheight>13</geoidheight>
+                <name>example name</name>
+                <cmt>example cmt</cmt>
+                <desc>example desc</desc>
+                <src>example src</src>
+                <url>example url</url>
+                <urlname>example urlname</urlname>
+                <sym>example sym</sym>
+                <type>example type</type>
+                <fix>3d</fix>
+                <sat>100</sat>
+                <hdop>101</hdop>
+                <vdop>102</vdop>
+                <pdop>103</pdop>
+                <ageofdgpsdata>104</ageofdgpsdata>
+                <dgpsid>example_dgpsid</dgpsid>
+        """
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """

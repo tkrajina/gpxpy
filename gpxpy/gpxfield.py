@@ -59,10 +59,7 @@ class TimeConverter:
         if 'Z' in string:
             string = string.replace('Z', '')
         for date_format in mod_gpx.DATE_FORMATS:
-            try:
-                return mod_datetime.datetime.strptime(string, date_format)
-            except ValueError as e:
-                pass
+            return mod_datetime.datetime.strptime(string, date_format)
         return None
     def to_string(self, time):
         from . import gpx as mod_gpx
