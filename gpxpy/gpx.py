@@ -1304,36 +1304,10 @@ class GPX:
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
     ]
 
-    def __init__(self, waypoints=None, routes=None, tracks=None):
-        if waypoints:
-            self.waypoints = waypoints
-        else:
-            self.waypoints = []
-
-        if routes:
-            self.routes = routes
-        else:
-            self.routes = []
-
-        if tracks:
-            self.tracks = tracks
-        else:
-            self.tracks = []
-
-        self.name = None
-        self.description = None
-        self.author = None
-        self.email = None
-        self.url = None
-        self.urlname = None
-        self.time = None
-        self.keywords = None
-        self.creator = None
-
-        self.min_latitude = None
-        self.max_latitude = None
-        self.min_longitude = None
-        self.max_longitude = None
+    def __init__(self):
+        self.waypoints = []
+        self.routes = []
+        self.tracks = []
 
     def simplify(self, max_distance=None):
         """
