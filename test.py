@@ -1840,7 +1840,7 @@ class AbstractTests:
             self.assertEquals(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
-            self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 01, 01, 12, 00, 04))
+            self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4))
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue, '2013-01-01T12:00:04Z')
 
             self.assertEquals(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
