@@ -167,13 +167,13 @@ class GPXComplexField(AbstractGPXField):
             return gpx_fields_to_xml(value, self.tag)
 
 def init_gpx_fields(instance):
-    for gpx_field in instance.gpx_fields:
+    for gpx_field in instance.gpx_10_fields:
         setattr(instance, gpx_field.name, None)
 
 def gpx_fields_to_xml(instance, tag):
     attributes = ''
     body = ''
-    for gpx_field in instance.gpx_fields:
+    for gpx_field in instance.gpx_10_fields:
         value = getattr(instance, gpx_field.name)
         if gpx_field.attribute:
             attributes += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
@@ -191,13 +191,13 @@ def gpx_fields_from_xml(class_or_instance, parser, node):
         result = class_or_instance()
     else:
         result = class_or_instance
-    for gpx_field in result.gpx_fields:
+    for gpx_field in result.gpx_10_fields:
         value = gpx_field.from_xml(parser, node)
         setattr(result, gpx_field.name, value)
     return result
 
 def gpx_fields_fill_default_values(classs):
-    for field in classs.gpx_fields:
+    for field in classs.gpx_10_fields:
         if field.is_list:
             setattr(classs, field.name, [])
         else:
