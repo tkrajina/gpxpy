@@ -2,7 +2,7 @@
     <name>example name</name>
     <desc>example description</desc>
     <author>example author</author>
-    <email>example@email</email>
+    <email>example@email.com</email>
     <url>http://example.url</url>
     <urlname>example urlname</urlname>
     <time>2013-01-01T12:00:00</time>
@@ -27,7 +27,7 @@
         <vdop>7</vdop>
         <pdop>8</pdop>
         <ageofdgpsdata>9</ageofdgpsdata>
-        <dgpsid>example_dgpsid</dgpsid>
+        <dgpsid>45</dgpsid>
     </wpt>
     <wpt lat="13.4" lon="46.7">
     </wpt>
@@ -58,7 +58,7 @@
             <vdop>8</vdop>
             <pdop>9</pdop>
             <ageofdgpsdata>10</ageofdgpsdata>
-            <dgpsid>example_dgpsid_r</dgpsid>
+            <dgpsid>99</dgpsid>
         </rtept>
         <rtept lat="11" lon="21">
         </rtept>
@@ -82,7 +82,7 @@
         <urlname>example urlname t</urlname>
         <number>1</number>
         <trkseg>
-            <trkpt lat="100.1" lon="-200.2">
+            <trkpt lat="10.1" lon="-20.2">
                 <ele>11.1</ele>
                 <time>2013-01-01T12:00:04</time>
                 <magvar>12</magvar>
@@ -101,7 +101,7 @@
                 <vdop>102</vdop>
                 <pdop>103</pdop>
                 <ageofdgpsdata>104</ageofdgpsdata>
-                <dgpsid>example_dgpsid</dgpsid>
+                <dgpsid>99</dgpsid>
             </trkpt>
         </trkseg>
         <trkseg>

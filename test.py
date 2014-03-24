@@ -1638,8 +1638,8 @@ class AbstractTests:
             self.assertEquals(gpx.author, 'example author')
             self.assertEquals(get_dom_node(dom, 'gpx/author').firstChild.nodeValue, 'example author')
 
-            self.assertEquals(gpx.email, 'example@email')
-            self.assertEquals(get_dom_node(dom, 'gpx/email').firstChild.nodeValue, 'example@email')
+            self.assertEquals(gpx.email, 'example@email.com')
+            self.assertEquals(get_dom_node(dom, 'gpx/email').firstChild.nodeValue, 'example@email.com')
 
             self.assertEquals(gpx.url, 'http://example.url')
             self.assertEquals(get_dom_node(dom, 'gpx/url').firstChild.nodeValue, 'http://example.url')
@@ -1782,8 +1782,8 @@ class AbstractTests:
             self.assertEquals(gpx.routes[0].points[0].age_of_dgps_data, 10)
             self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ageofdgpsdata').firstChild.nodeValue, '10.0')
 
-            self.assertEquals(gpx.routes[0].points[0].dgps_id, 'example_dgpsid_r')
-            self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/dgpsid').firstChild.nodeValue, 'example_dgpsid_r')
+            self.assertEquals(gpx.routes[0].points[0].dgps_id, '99')
+            self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/dgpsid').firstChild.nodeValue, '99')
 
             # second rtept:
 
@@ -1891,8 +1891,8 @@ class AbstractTests:
             self.assertEquals(gpx.tracks[0].segments[0].points[0].age_of_dgps_data, 104)
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ageofdgpsdata').firstChild.nodeValue, '104.0')
 
-            self.assertEquals(gpx.tracks[0].segments[0].points[0].dgps_id, 'example_dgpsid')
-            self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, 'example_dgpsid')
+            self.assertEquals(gpx.tracks[0].segments[0].points[0].dgps_id, '99')
+            self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
     def test_gpx_11_fields(self):
         """ Test (de) serialization all gpx1.1 fields """
