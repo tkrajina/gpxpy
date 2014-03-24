@@ -1303,6 +1303,12 @@ class GPX:
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
     ]
+    gpx_11_fields = [
+            mod_gpxfield.GPXField('version', attribute=True),
+            mod_gpxfield.GPXField('creator', attribute=True),
+            mod_gpxfield.GPXField('name', ('metadata', 'name')),
+            mod_gpxfield.GPXField('description', ('metadata', 'desc')),
+    ]
 
     def __init__(self):
         self.waypoints = []
