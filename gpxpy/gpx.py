@@ -224,7 +224,7 @@ class GPXRoute:
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
             mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXField('url_name', 'urlname'),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
@@ -953,7 +953,7 @@ class GPXTrack:
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
             mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXField('url_name', 'urlname'),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
@@ -1295,7 +1295,7 @@ class GPX:
             mod_gpxfield.GPXField('author'),
             mod_gpxfield.GPXField('email'),
             mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('urlname'),
+            mod_gpxfield.GPXField('url_name', 'urlname'),
             mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
@@ -1821,7 +1821,7 @@ class GPX:
         return result
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'urlname', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
+        return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'url_name', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
 
     def __repr__(self):
         representation = ''

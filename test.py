@@ -1644,7 +1644,7 @@ class AbstractTests:
             self.assertEquals(gpx.url, 'http://example.url')
             self.assertEquals(get_dom_node(dom, 'gpx/url').firstChild.nodeValue, 'http://example.url')
 
-            self.assertEquals(gpx.urlname, 'example urlname')
+            self.assertEquals(gpx.url_name, 'example urlname')
             self.assertEquals(get_dom_node(dom, 'gpx/urlname').firstChild.nodeValue, 'example urlname')
 
             self.assertEquals(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
@@ -1801,7 +1801,7 @@ class AbstractTests:
             self.assertEquals(gpx.routes[1].description, 'example desc 2')
             self.assertEquals(get_dom_node(dom, 'gpx/rte[1]/desc').firstChild.nodeValue, 'example desc 2')
 
-            self.assertEquals(gpx.routes[0].urlname, 'example urlname')
+            self.assertEquals(gpx.routes[0].url_name, 'example urlname')
             self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/urlname').firstChild.nodeValue, 'example urlname')
 
             self.assertEquals(gpx.routes[0].number, 7)
@@ -1829,7 +1829,7 @@ class AbstractTests:
             self.assertEquals(gpx.tracks[0].url, 'example url t')
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/url').firstChild.nodeValue, 'example url t')
 
-            self.assertEquals(gpx.tracks[0].urlname, 'example urlname t')
+            self.assertEquals(gpx.tracks[0].url_name, 'example urlname t')
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/urlname').firstChild.nodeValue, 'example urlname t')
 
             self.assertEquals(gpx.tracks[0].number, 1)
