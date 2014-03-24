@@ -40,6 +40,25 @@
         <urlname>example urlname</urlname>
         <number>7</number>
         <rtept lat="10" lon="20">
+            <ele>75.1</ele>
+            <time>2013-01-02T02:03:03Z</time>
+            <magvar>1.2</magvar>
+            <geoidheight>2.1</geoidheight>
+            <name>example name r</name>
+            <cmt>example cmt r</cmt>
+            <desc>example desc r</desc>
+            <src>example src r</src>
+            <url>example url r</url>
+            <urlname>example urlname r</urlname>
+            <sym>example sym r</sym>
+            <type>example type r</type>
+            <fix>3d</fix>
+            <sat>6</sat>
+            <hdop>7</hdop>
+            <vdop>8</vdop>
+            <pdop>9</pdop>
+            <ageofdgpsdata>10</ageofdgpsdata>
+            <dgpsid>example_dgpsid_r</dgpsid>
         </rtept>
         <rtept lat="11" lon="21">
         </rtept>
