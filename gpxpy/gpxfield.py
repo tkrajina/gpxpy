@@ -102,7 +102,7 @@ class GPXField(AbstractGPXField):
         self.possible = possible
         self.mandatory = mandatory
 
-    def from_xml(self, parser, node):
+    def from_xml(self, parser, node, version):
         if self.attribute:
             result = parser.get_node_attribute(node, self.attribute)
         else:
@@ -147,18 +147,18 @@ class GPXComplexField(AbstractGPXField):
         self.tag = tag or name
         self.classs = classs
 
-    def from_xml(self, parser, node):
+    def from_xml(self, parser, node, version):
         if self.is_list:
             result = []
             for child_node in parser.get_children(node):
                 if parser.get_node_name(child_node) == self.tag:
-                    result.append(gpx_fields_from_xml(self.classs, parser, child_node))
+                    result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
             return result
         else:
             __node = parser.get_first_child(node, self.tag)
             if __node is None:
                 return None
-            return gpx_fields_from_xml(self.classs, parser, __node)
+            return gpx_fields_from_xml(self.classs, parser, __node, version)
 
     def to_xml(self, value):
         if self.is_list:
@@ -189,13 +189,13 @@ def gpx_fields_to_xml(instance, tag):
                + '</' + tag + '>'
     return body
 
-def gpx_fields_from_xml(class_or_instance, parser, node):
+def gpx_fields_from_xml(class_or_instance, parser, node, version):
     if mod_inspect.isclass(class_or_instance):
         result = class_or_instance()
     else:
         result = class_or_instance
     for gpx_field in result.gpx_10_fields:
-        value = gpx_field.from_xml(parser, node)
+        value = gpx_field.from_xml(parser, node, version)
         setattr(result, gpx_field.name, value)
     return result
 

@@ -33,6 +33,7 @@ from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
+
 class XMLParser:
     """
     Used when lxml is not available. Uses standard minidom.
@@ -87,6 +88,7 @@ class XMLParser:
         if attribute in node.attributes.keys():
             return node.attributes[attribute].nodeValue
         return None
+
 
 class LXMLParser:
     """
@@ -146,8 +148,8 @@ class LXMLParser:
     def get_node_attribute(self, node, attribute):
         return node.attrib.get(attribute)
 
-class GPXParser:
 
+class GPXParser:
     def __init__(self, xml_or_file=None, parser=None):
         """
         Parser may be lxml of minidom. If you set to None then lxml will be used if installed
@@ -162,9 +164,6 @@ class GPXParser:
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
         self.xml = mod_utils.make_str(text)
         self.gpx = mod_gpx.GPX()
-
-    def get_gpx(self):
-        return self.gpx
 
     def parse(self):
         """
@@ -210,10 +209,14 @@ class GPXParser:
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
-        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node)
+        version = self.xml_parser.get_node_attribute(node, 'version')
+
+        print(version)
+
+        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
+
 
 if __name__ == '__main__':
-
     file_name = 'test_files/aaa.gpx'
     #file_name = 'test_files/blue_hills.gpx'
     #file_name = 'test_files/test.gpx'
