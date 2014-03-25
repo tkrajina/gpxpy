@@ -1895,8 +1895,15 @@ class AbstractTests:
             self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
     def test_gpx_11_fields(self):
-        """ Test (de) serialization all gpx1.1 fields """
-        pass
+        with open('test_files/gpx1.1_with_all_fields.gpx') as f:
+            xml = f.read()
+
+        original_gpx = mod_gpxpy.parse(xml)
+
+        print('name=', original_gpx.name)
+
+        print(original_gpx.to_xml())
+
         # raise Exception('Not yet implemented')
 
 

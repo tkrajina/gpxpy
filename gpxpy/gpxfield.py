@@ -194,9 +194,15 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
         result = class_or_instance()
     else:
         result = class_or_instance
-    for gpx_field in result.gpx_10_fields:
+
+    fields = result.gpx_10_fields
+    if version == '1.1':
+        fields = result.gpx_11_fields
+
+    for gpx_field in fields:
         value = gpx_field.from_xml(parser, node, version)
         setattr(result, gpx_field.name, value)
+
     return result
 
 def gpx_fields_fill_default_values(classs):
