@@ -129,12 +129,14 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value):
+    def to_xml(self, value, version):
         if self.attribute:
             return '%s="%s"' % (self.attribute, value)
         else:
             if self.type_converter:
                 value = self.type_converter.to_string(value)
+            if isinstance(self.tag, list) or isinstance(self.tag, tuple):
+                raise Exception('Not yet implemented')
             return mod_utils.to_xml(self.tag, content=value)
 
 class GPXComplexField(AbstractGPXField):
@@ -160,29 +162,34 @@ class GPXComplexField(AbstractGPXField):
                 return None
             return gpx_fields_from_xml(self.classs, parser, __node, version)
 
-    def to_xml(self, value):
+    def to_xml(self, value, version):
         if self.is_list:
             result = ''
             for obj in value:
                 result += gpx_fields_to_xml(obj, self.tag)
             return result
         else:
-            return gpx_fields_to_xml(value, self.tag)
+            return gpx_fields_to_xml(value, self.tag, version)
 
 def init_gpx_fields(instance):
     for gpx_field in instance.gpx_10_fields:
         setattr(instance, gpx_field.name, None)
 
-def gpx_fields_to_xml(instance, tag):
+def gpx_fields_to_xml(instance, tag, version):
     attributes = ''
     body = ''
-    for gpx_field in instance.gpx_10_fields:
+
+    fields = instance.gpx_10_fields
+    if version == '1.1':
+        fields = instance.gpx_11_fields
+
+    for gpx_field in fields:
         value = getattr(instance, gpx_field.name)
         if gpx_field.attribute:
             attributes += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
         else:
             if value:
-                body += gpx_field.to_xml(value)
+                body += gpx_field.to_xml(value, version)
     if tag:
         return '<' + tag + ( (' ' + attributes + '>') if attributes else '>' ) \
                + body \

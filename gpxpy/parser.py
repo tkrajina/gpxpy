@@ -44,7 +44,10 @@ class XMLParser:
         self.dom = mod_minidom.parseString(xml)
 
     def get_first_child(self, node=None, name=None):
-        # TODO: Remove find_first_node from utils!
+        if name and (isinstance(name, tuple) or isinstance(name, list)):
+            next_node = self.get_first_child(node, name[0])
+            return self.get_first_child(next_node, name[1:])
+
         if not node:
             node = self.dom
 
@@ -110,6 +113,12 @@ class LXMLParser:
         self.ns = self.dom.nsmap.get(None)
 
     def get_first_child(self, node=None, name=None):
+        if name and (isinstance(name, tuple) or isinstance(name, list)):
+            next_node = self.get_first_child(node, name[0])
+            if len(name) == 1:
+                return next_node
+            return self.get_first_child(next_node, name[1:])
+
         if node is None:
             if name:
                 if self.get_node_name(self.dom) == name:

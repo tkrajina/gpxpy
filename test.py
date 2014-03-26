@@ -1900,10 +1900,10 @@ class AbstractTests:
 
         original_gpx = mod_gpxpy.parse(xml)
 
-        print('name=', original_gpx.name)
+        self.assertEquals(original_gpx.name, 'example name')
+        self.assertEquals(original_gpx.description, 'example description')
 
-        print(original_gpx.to_xml())
-
+        #print(original_gpx.to_xml('1.1'))
         # raise Exception('Not yet implemented')
 
 

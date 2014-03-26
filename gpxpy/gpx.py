@@ -1759,16 +1759,20 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
-    def to_xml(self):
-        content = mod_gpxfield.gpx_fields_to_xml(self, None)
+    def to_xml(self, version='1.0'):
+        content = mod_gpxfield.gpx_fields_to_xml(self, None, version)
+
+        if version != '1.0' and version != '1.1':
+            raise GPXException('Invalid version %s' % version)
 
         xml_attributes = {
-                'version': '1.0',
+                'version': version,
                 'creator': 'gpx.py -- https://github.com/tkrajina/gpxpy',
                 'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-                'xmlns': 'http://www.topografix.com/GPX/1/0',
-                'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd',
+                'xmlns': 'http://www.topografix.com/GPX/%s' % version.replace('.', '/'),
+                'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/%s/gpx.xsd' % version.replace('.', '/'),
         }
+
         if self.creator:
             xml_attributes['creator'] = self.creator
 
