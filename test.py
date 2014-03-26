@@ -1599,6 +1599,32 @@ class AbstractTests:
         for i in range(1, len(distances_between_points)):
             self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
 
+    def test_min_max(self):
+        gpx = mod_gpx.GPX()
+        
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=100))
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=200))
+
+        # Check for segment:
+        elevation_min, elevation_max = segment.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for gpx:
+        elevation_min, elevation_max = track.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for gpx:
+        elevation_min, elevation_max = gpx.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
