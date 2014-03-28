@@ -225,6 +225,9 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
             if current_node:
                 value = gpx_field.from_xml(parser, current_node, version)
                 setattr(result, gpx_field.name, value)
+            elif gpx_field.attribute:
+                value = gpx_field.from_xml(parser, node, version)
+                setattr(result, gpx_field.name, value)
 
     return result
 
