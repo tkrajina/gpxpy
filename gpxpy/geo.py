@@ -330,7 +330,7 @@ class Location:
             return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation')
+        return mod_utils.hash_object(self, ('latitude', 'longitude', 'elevation'))
 
 
 class LocationDelta:

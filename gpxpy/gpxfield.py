@@ -234,6 +234,8 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
 def gpx_fields_fill_default_values(classs):
     fields = classs.gpx_10_fields + classs.gpx_11_fields
 
+    gpx_field_names = []
+
     for field in fields:
         if not isinstance(field, str):
             if field.is_list:
@@ -241,3 +243,5 @@ def gpx_fields_fill_default_values(classs):
             else:
                 value = None
             setattr(classs, field.name, value)
+            gpx_field_names.append(field.name)
+    setattr(classs, 'gpx_field_names', gpx_field_names)

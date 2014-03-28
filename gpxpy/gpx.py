@@ -177,8 +177,7 @@ class GPXWaypoint(mod_geo.Location):
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type',
-                                     'comment', 'horizontal_dilution', 'vertical_dilution', 'position_dilution')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
 
 class GPXRoutePoint(mod_geo.Location):
@@ -216,8 +215,7 @@ class GPXRoutePoint(mod_geo.Location):
         return 'GPXRoutePoint(%s)' % representation
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
-                                     'horizontal_dilution', 'vertical_dilution', 'position_dilution')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
 
 class GPXRoute:
@@ -283,7 +281,7 @@ class GPXRoute:
             route_point.move(location_delta)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'name', 'description', 'number', 'points')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
     def __repr__(self):
         representation = ''
@@ -376,8 +374,7 @@ class GPXTrackPoint(mod_geo.Location):
         return '[trkpt:%s,%s@%s@%s]' % (self.latitude, self.longitude, self.elevation, self.time)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'latitude', 'longitude', 'elevation', 'time', 'symbol', 'comment',
-                                     'horizontal_dilution', 'vertical_dilution', 'position_dilution', 'speed')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
 
 class GPXTrackSegment:
@@ -906,7 +903,7 @@ class GPXTrackSegment:
         return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'points')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
     def __repr__(self):
         return 'GPXTrackSegment(points=[%s])' % ('...' if self.points else '')
@@ -1244,7 +1241,7 @@ class GPXTrack:
         return mod_copy.deepcopy(self)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'name', 'description', 'number', 'segments')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
     def __repr__(self):
         representation = ''
@@ -1780,7 +1777,7 @@ class GPX:
         return result
 
     def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'author', 'email', 'url', 'url_name', 'keywords', 'waypoints', 'routes', 'tracks', 'min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
+        return mod_utils.hash_object(self, self.gpx_field_names)
 
     def __repr__(self):
         representation = ''
