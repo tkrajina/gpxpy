@@ -295,45 +295,6 @@ class GPXRoute:
         return 'GPXRoute(%s)' % representation
 
 
-class GPXRoutePoint(mod_geo.Location):
-    gpx_10_fields = GPX_POINT_FIELDS
-    gpx_11_fields = []
-
-    def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
-                 description=None, symbol=None, type=None, comment=None,
-                 horizontal_dilution=None, vertical_dilution=None,
-                 position_dilution=None):
-
-        mod_geo.Location.__init__(self, latitude, longitude, elevation)
-
-        self.time = time
-        self.name = name
-        self.description = description
-        self.symbol = symbol
-        self.type = type
-        self.comment = comment
-
-        self.horizontal_dilution = horizontal_dilution  # Horizontal dilution of precision
-        self.vertical_dilution = vertical_dilution      # Vertical dilution of precision
-        self.position_dilution = position_dilution      # Position dilution of precision
-
-    def __str__(self):
-        return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
-
-    def __repr__(self):
-        representation = '%s, %s' % (self.latitude, self.longitude)
-        for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
-                'horizontal_dilution', 'vertical_dilution', 'position_dilution':
-            value = getattr(self, attribute)
-            if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
-        return 'GPXRoutePoint(%s)' % representation
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, 'time', 'name', 'description', 'symbol', 'type', 'comment',
-                                     'horizontal_dilution', 'vertical_dilution', 'position_dilution')
-
-
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = []
