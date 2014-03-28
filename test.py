@@ -1629,6 +1629,7 @@ class AbstractTests:
         print(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
+            # FIXME Check both original XML dom and reparsed XML dom!
             self.assertEquals(gpx.name, 'example name')
             self.assertEquals(get_dom_node(dom, 'gpx/name').firstChild.nodeValue, 'example name')
 
@@ -1900,11 +1901,24 @@ class AbstractTests:
 
         original_gpx = mod_gpxpy.parse(xml)
 
-        self.assertEquals(original_gpx.name, 'example name')
-        self.assertEquals(original_gpx.description, 'example description')
+        # Serialize and parse again to be sure that all is preserved:
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'))
 
-        #print(original_gpx.to_xml('1.1'))
+        dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
+
+        print(reparsed_gpx.to_xml('1.1'))
+
         # raise Exception('Not yet implemented')
+
+        for gpx in (original_gpx, reparsed_gpx):
+            self.assertEquals(gpx.name, 'example name')
+            self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
+
+            self.assertEquals(gpx.description, 'example description')
+            self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
+
+            self.assertEquals(gpx.author, 'example author')
+            self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'example author')
 
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):

@@ -2,6 +2,8 @@
     <metadata>
         <name>example name</name>
         <desc>example description</desc>
-        <author>example author</author>
+        <author>
+            <name>example author</name>
+        </author>
     </metadata>
 </gpx>

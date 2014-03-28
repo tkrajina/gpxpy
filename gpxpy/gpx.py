@@ -117,6 +117,7 @@ class GPXBounds:
             mod_gpxfield.GPXField('min_longitude', attribute='minlon', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
+    gpx_11_fields = []
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
         self.min_latitude = min_latitude
@@ -138,6 +139,7 @@ class GPXXMLSyntaxException(GPXException):
 
 class GPXWaypoint(mod_geo.Location):
     gpx_10_fields = GPX_POINT_FIELDS
+    gpx_11_fields = []
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
                  name=None, description=None, symbol=None, type=None,
@@ -181,6 +183,7 @@ class GPXWaypoint(mod_geo.Location):
 
 class GPXRoutePoint(mod_geo.Location):
     gpx_10_fields = GPX_POINT_FIELDS
+    gpx_11_fields = []
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -228,6 +231,8 @@ class GPXRoute:
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
+    gpx_11_fields = []
+
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.description = description
@@ -292,6 +297,7 @@ class GPXRoute:
 
 class GPXRoutePoint(mod_geo.Location):
     gpx_10_fields = GPX_POINT_FIELDS
+    gpx_11_fields = []
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -330,6 +336,7 @@ class GPXRoutePoint(mod_geo.Location):
 
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
+    gpx_11_fields = []
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -416,6 +423,7 @@ class GPXTrackSegment:
     gpx_10_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
+    gpx_11_fields = []
 
     def __init__(self, points=None):
         self.points = points if points else []
@@ -957,6 +965,7 @@ class GPXTrack:
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
+    gpx_11_fields = []
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -1306,8 +1315,13 @@ class GPX:
     gpx_11_fields = [
             mod_gpxfield.GPXField('version', attribute=True),
             mod_gpxfield.GPXField('creator', attribute=True),
-            mod_gpxfield.GPXField('name', ('metadata', 'name')),
-            mod_gpxfield.GPXField('description', ('metadata', 'desc')),
+            'metadata',
+                mod_gpxfield.GPXField('name', 'name'),
+                mod_gpxfield.GPXField('description', 'desc'),
+                'author',
+                    mod_gpxfield.GPXField('author', 'name'),
+                '/author',
+            '/metadata',
     ]
 
     def __init__(self):

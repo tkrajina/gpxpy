@@ -166,7 +166,7 @@ class GPXComplexField(AbstractGPXField):
         if self.is_list:
             result = ''
             for obj in value:
-                result += gpx_fields_to_xml(obj, self.tag)
+                result += gpx_fields_to_xml(obj, self.tag, version)
             return result
         else:
             return gpx_fields_to_xml(value, self.tag, version)
@@ -184,12 +184,15 @@ def gpx_fields_to_xml(instance, tag, version):
         fields = instance.gpx_11_fields
 
     for gpx_field in fields:
-        value = getattr(instance, gpx_field.name)
-        if gpx_field.attribute:
-            attributes += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
+        if isinstance(gpx_field, str):
+            body += '\n<%s>' % gpx_field
         else:
-            if value:
-                body += gpx_field.to_xml(value, version)
+            value = getattr(instance, gpx_field.name)
+            if gpx_field.attribute:
+                attributes += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
+            else:
+                if value:
+                    body += gpx_field.to_xml(value, version)
     if tag:
         return '<' + tag + ( (' ' + attributes + '>') if attributes else '>' ) \
                + body \
@@ -206,15 +209,32 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
     if version == '1.1':
         fields = result.gpx_11_fields
 
+    node_path = [ node ]
+
     for gpx_field in fields:
-        value = gpx_field.from_xml(parser, node, version)
-        setattr(result, gpx_field.name, value)
+        current_node = node_path[-1]
+        if isinstance (gpx_field, str):
+            if gpx_field.startswith('/'):
+                node_path.pop()
+            else:
+                if not current_node:
+                    node_path.append(None)
+                else:
+                    node_path.append(parser.get_first_child(current_node, gpx_field))
+        else:
+            if current_node:
+                value = gpx_field.from_xml(parser, current_node, version)
+                setattr(result, gpx_field.name, value)
 
     return result
 
 def gpx_fields_fill_default_values(classs):
-    for field in classs.gpx_10_fields:
-        if field.is_list:
-            setattr(classs, field.name, [])
-        else:
-            setattr(classs, field.name, None)
+    fields = classs.gpx_10_fields + classs.gpx_11_fields
+
+    for field in fields:
+        if not isinstance(field, str):
+            if field.is_list:
+                value = []
+            else:
+                value = None
+            setattr(classs, field.name, value)
