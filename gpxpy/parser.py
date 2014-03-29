@@ -214,28 +214,3 @@ class GPXParser:
         print(version)
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
-
-
-if __name__ == '__main__':
-    file_name = 'test_files/aaa.gpx'
-    #file_name = 'test_files/blue_hills.gpx'
-    #file_name = 'test_files/test.gpx'
-    file = open(file_name, 'r')
-    gpx_xml = file.read()
-    file.close()
-
-    parser = GPXParser(gpx_xml)
-    gpx = parser.parse()
-
-    print(gpx.to_xml())
-
-    print('TRACKS:')
-    for track in gpx.tracks:
-        print('name%s, 2d:%s, 3d:%s' % (track.name, track.length_2d(), track.length_3d()))
-        print('\tTRACK SEGMENTS:')
-        for track_segment in track.segments:
-            print('\t2d:%s, 3d:%s' % (track_segment.length_2d(), track_segment.length_3d()))
-
-    print('ROUTES:')
-    for route in gpx.routes:
-        print(route.name)
