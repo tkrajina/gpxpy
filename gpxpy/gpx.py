@@ -125,6 +125,9 @@ class GPXBounds:
         self.min_longitude = min_longitude
         self.max_longitude = max_longitude
 
+    def __hash__(self):
+        return mod_utils.hash_object(self, self.gpx_field_names)
+
 
 class GPXXMLSyntaxException(GPXException):
     """
