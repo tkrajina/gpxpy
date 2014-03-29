@@ -387,6 +387,16 @@ class AbstractTests:
         gpx.smooth(vertical=True, horizontal=True)
         self.assertEquals(l, len(list(gpx.walk())))
 
+    def test_clone_and_hash(self):
+        f = open('test_files/cerknicko-jezero.gpx')
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        gpx = parser.parse()
+        f.close()
+
+        cloned_gpx = gpx.clone()
+
+        self.assertTrue(hash(gpx) == hash(cloned_gpx))
+
     def test_clone_and_smooth(self):
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
@@ -397,8 +407,6 @@ class AbstractTests:
         original_3d = gpx.length_3d()
 
         cloned_gpx = gpx.clone()
-
-        self.assertTrue(hash(gpx) == hash(cloned_gpx))
 
         cloned_gpx.reduce_points(2000, min_distance=10)
         cloned_gpx.smooth(vertical=True, horizontal=True)
