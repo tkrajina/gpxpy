@@ -1906,29 +1906,36 @@ class AbstractTests:
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
     def test_gpx_11_fields(self):
+        """ Test (de) serialization all gpx1.0 fields """
+
         with open('test_files/gpx1.1_with_all_fields.gpx') as f:
             xml = f.read()
 
         original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
+        print(original_gpx.version)
+
         # Serialize and parse again to be sure that all is preserved:
-        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'), parser=self.get_parser_type())
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml(), parser=self.get_parser_type())
 
-        dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
+        print(reparsed_gpx.version)
 
-        print(reparsed_gpx.to_xml('1.1'))
+        original_dom = mod_minidom.parseString(xml)
+        reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
-        # raise Exception('Not yet implemented')
+        print(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
-            self.assertEquals(gpx.name, 'example name')
-            self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
+            # FIXME Check both original XML dom and reparsed XML dom!
+            for dom in (original_dom, reparsed_dom):
+                self.assertEquals(gpx.name, 'example name')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
 
-            self.assertEquals(gpx.description, 'example description')
-            self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
+                self.assertEquals(gpx.description, 'example description')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
 
-            self.assertEquals(gpx.author, 'example author')
-            self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'example author')
+                self.assertEquals(gpx.author, 'example author')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'example author')
 
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
