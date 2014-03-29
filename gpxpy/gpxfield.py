@@ -140,9 +140,6 @@ class GPXField(AbstractGPXField):
             return mod_utils.to_xml(self.tag, content=value)
 
 class GPXComplexField(AbstractGPXField):
-    # This class should probably be broken into GPXComplexField and 
-    # GPXComplexListFielt depending on self.is_list
-
     def __init__(self, name, classs, tag=None, is_list=None):
         AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
