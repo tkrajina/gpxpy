@@ -1427,7 +1427,7 @@ class AbstractTests:
         xml += '<trkpt lat="35.7914309254" lon="-5.83378314972"></trkpt>\n'
         xml += '<trkpt lat="35.791014" lon="-5.833826"><time>2014-02-02T10:25:30Z</time><ele>18</ele></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
-        gpx = mod_gpxpy.parse(xml)
+        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
         gpx.add_missing_times()
 
@@ -1452,11 +1452,11 @@ class AbstractTests:
 
             length_2d_original = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file))
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
 
@@ -1489,7 +1489,7 @@ class AbstractTests:
 
     def test_nan_elevation(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
-        gpx = mod_gpxpy.parse(xml)
+        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
         self.assertTrue(mod_math.isnan(gpx.tracks[0].segments[0].points[0].elevation))
         self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation))
@@ -1568,7 +1568,7 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
 
     def test_unicode(self):
-        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'))
+        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'), parser=self.get_parser_type())
         gpx = parser.parse()
         gpx.to_xml()
 
@@ -1627,10 +1627,10 @@ class AbstractTests:
         with open('test_files/gpx1.0_with_all_fields.gpx') as f:
             xml = f.read()
 
-        original_gpx = mod_gpxpy.parse(xml)
+        original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
         # Serialize and parse again to be sure that all is preserved:
-        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml())
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml(), parser=self.get_parser_type())
 
         dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
@@ -1907,10 +1907,10 @@ class AbstractTests:
         with open('test_files/gpx1.1_with_all_fields.gpx') as f:
             xml = f.read()
 
-        original_gpx = mod_gpxpy.parse(xml)
+        original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
         # Serialize and parse again to be sure that all is preserved:
-        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'))
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'), parser=self.get_parser_type())
 
         dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
 
