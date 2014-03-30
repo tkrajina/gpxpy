@@ -1734,8 +1734,14 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
-    def to_xml(self, version='1.0'):
+    def to_xml(self, version=None):
         content = mod_gpxfield.gpx_fields_to_xml(self, None, version)
+
+        if not version:
+            if self.version:
+                version = self.version
+            else:
+                version = '1.0'
 
         if version != '1.0' and version != '1.1':
             raise GPXException('Invalid version %s' % version)
