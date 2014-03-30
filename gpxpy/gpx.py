@@ -1281,8 +1281,31 @@ class GPX:
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author',
                     mod_gpxfield.GPXField('author', 'name'),
+                    # TODO: email complex field
+                    'link',
+                        mod_gpxfield.GPXField('author_link', attribute='href'),
+                        mod_gpxfield.GPXField('author_link_text', tag='text'),
+                        mod_gpxfield.GPXField('author_link_type', tag='type'),
+                    '/link',
                 '/author',
+                'copyright',
+                    mod_gpxfield.GPXField('copyright_author', attribute='author'),
+                    mod_gpxfield.GPXField('copyright_year', tag='year'),
+                    mod_gpxfield.GPXField('copyright_license', tag='license'),
+                '/copyright',
+                'link',
+                    mod_gpxfield.GPXField('link', attribute='href'),
+                    mod_gpxfield.GPXField('link_text', tag='text'),
+                    mod_gpxfield.GPXField('link_type', tag='type'),
+                '/link',
+                mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
+                mod_gpxfield.GPXField('keywords'),
+                mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
+                # TODO: Extensions
             '/metadata',
+            mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
+            mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
+            mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
     ]
 
     def __init__(self):
