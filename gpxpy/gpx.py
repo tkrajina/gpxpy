@@ -1735,8 +1735,6 @@ class GPX:
             track.move(location_delta)
 
     def to_xml(self, version=None):
-        content = mod_gpxfield.gpx_fields_to_xml(self, None, version)
-
         if not version:
             if self.version:
                 version = self.version
@@ -1746,12 +1744,15 @@ class GPX:
         if version != '1.0' and version != '1.1':
             raise GPXException('Invalid version %s' % version)
 
+        content = mod_gpxfield.gpx_fields_to_xml(self, None, version)
+
+        v = version.replace('.', '/')
         xml_attributes = {
                 'version': version,
                 'creator': 'gpx.py -- https://github.com/tkrajina/gpxpy',
                 'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-                'xmlns': 'http://www.topografix.com/GPX/%s' % version.replace('.', '/'),
-                'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/%s/gpx.xsd' % version.replace('.', '/'),
+                'xmlns': 'http://www.topografix.com/GPX/%s' % v,
+                'xsi:schemaLocation': 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v)
         }
 
         if self.creator:
