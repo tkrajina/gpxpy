@@ -19,10 +19,12 @@ import datetime as mod_datetime
 
 from . import utils as mod_utils
 
+
 class GPXFieldTypeConverter:
     def __init__(self, from_string, to_string):
         self.from_string = from_string
         self.to_string = to_string
+
 
 def parse_time(string):
     from . import gpx as mod_gpx
@@ -39,15 +41,23 @@ def parse_time(string):
             pass
     raise GPXException('Invalid time: %s' % string)
 
+
+# ----------------------------------------------------------------------------------------------------
+# Type converters used to convert from/to the string in the XML:
+# ----------------------------------------------------------------------------------------------------
+
+
 class FloatConverter:
     def __init__(self):
         self.from_string = lambda string : None if string is None else float(string.strip())
         self.to_string =   lambda flt    : str(flt)
 
+
 class IntConverter:
     def __init__(self):
         self.from_string = lambda string : None if string is None else int(string.strip())
         self.to_string =   lambda flt    : str(flt)
+
 
 class TimeConverter:
     def from_string(self, string):
@@ -68,9 +78,16 @@ class TimeConverter:
         from . import gpx as mod_gpx
         return time.strftime(mod_gpx.DATE_FORMAT) if time else None
 
+
 INT_TYPE = IntConverter()
 FLOAT_TYPE = FloatConverter()
 TIME_TYPE = TimeConverter()
+
+
+# ----------------------------------------------------------------------------------------------------
+# Field converters:
+# ----------------------------------------------------------------------------------------------------
+
 
 class AbstractGPXField:
     def __init__(self, attribute_field=None, is_list=None):
@@ -78,7 +95,6 @@ class AbstractGPXField:
         self.is_list = is_list
         self.attribute = False
 
-# TODO: better hierarchy for GPXFields
 
 class GPXField(AbstractGPXField):
     """
@@ -139,6 +155,7 @@ class GPXField(AbstractGPXField):
                 raise Exception('Not yet implemented')
             return mod_utils.to_xml(self.tag, content=value)
 
+
 class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None, is_list=None):
         AbstractGPXField.__init__(self, is_list=is_list)
@@ -168,9 +185,11 @@ class GPXComplexField(AbstractGPXField):
         else:
             return gpx_fields_to_xml(value, self.tag, version)
 
-def init_gpx_fields(instance):
-    for gpx_field in instance.gpx_10_fields:
-        setattr(instance, gpx_field.name, None)
+
+# ----------------------------------------------------------------------------------------------------
+# Utility methods:
+# ----------------------------------------------------------------------------------------------------
+
 
 def gpx_fields_to_xml(instance, tag, version):
     attributes = ''
@@ -195,6 +214,7 @@ def gpx_fields_to_xml(instance, tag, version):
                + body \
                + '</' + tag + '>'
     return body
+
 
 def gpx_fields_from_xml(class_or_instance, parser, node, version):
     if mod_inspect.isclass(class_or_instance):
@@ -228,7 +248,15 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
 
     return result
 
+
 def gpx_fields_fill_default_values(classs):
+    """
+    Will fill the default values for this class. Instances will inherit those 
+    values so we don't need to fill default values for every instance.
+
+    This method will also fill the attribute gpx_field_names with a list of 
+    gpx field names. This can be used
+    """
     fields = classs.gpx_10_fields + classs.gpx_11_fields
 
     gpx_field_names = []
