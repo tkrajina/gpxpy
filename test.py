@@ -1640,6 +1640,12 @@ class AbstractTests:
         for gpx in (original_gpx, reparsed_gpx):
             # FIXME Check both original XML dom and reparsed XML dom!
             for dom in (original_dom, reparsed_dom):
+                self.assertEquals(gpx.version, '1.0')
+                self.assertEquals(get_dom_node(dom, 'gpx').attributes['version'].nodeValue, '1.0')
+
+                self.assertEquals(gpx.creator, '...')
+                self.assertEquals(get_dom_node(dom, 'gpx').attributes['creator'].nodeValue, '...')
+
                 self.assertEquals(gpx.name, 'example name')
                 self.assertEquals(get_dom_node(dom, 'gpx/name').firstChild.nodeValue, 'example name')
 
@@ -1924,6 +1930,12 @@ class AbstractTests:
         for gpx in (original_gpx, reparsed_gpx):
             # FIXME Check both original XML dom and reparsed XML dom!
             for dom in (original_dom, reparsed_dom):
+                self.assertEquals(gpx.version, '1.1')
+                self.assertEquals(get_dom_node(dom, 'gpx').attributes['version'].nodeValue, '1.1')
+
+                self.assertEquals(gpx.creator, '...')
+                self.assertEquals(get_dom_node(dom, 'gpx').attributes['creator'].nodeValue, '...')
+
                 self.assertEquals(gpx.name, 'example name')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
 
