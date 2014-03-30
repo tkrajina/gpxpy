@@ -1913,7 +1913,6 @@ class AbstractTests:
 
         original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
 
-        print(original_gpx.version)
 
         # Serialize and parse again to be sure that all is preserved:
         reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml(), parser=self.get_parser_type())
