@@ -146,6 +146,8 @@ class LXMLParser:
         return node.text
 
     def get_node_attribute(self, node, attribute):
+        if node is None:
+            return None
         return node.attrib.get(attribute)
 
 
