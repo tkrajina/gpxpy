@@ -95,6 +95,12 @@ class AbstractGPXField:
         self.is_list = is_list
         self.attribute = False
 
+    def from_xml(self, parser, node, version):
+        raise Exception('Not implemented')
+
+    def to_xml(self, value, version):
+        raise Exception('Not implemented')
+
 
 class GPXField(AbstractGPXField):
     """
@@ -186,6 +192,33 @@ class GPXComplexField(AbstractGPXField):
             return gpx_fields_to_xml(value, self.tag, version)
 
 
+class GPXEmailField(AbstractGPXField):
+    """
+    Converts GPX1.1 email tag group from/to string.
+    """
+    def __init__(self, name, tag=None):
+        self.attribute = True
+        self.is_list = False
+        self.name = name
+        self.tag = tag or name
+
+    def from_xml(self, parser, node, version):
+        email_node = parser.get_first_child(node, self.tag)
+        email_id = parser.get_node_attribute(email_node, 'id')
+        email_domain = parser.get_node_attribute(email_node, 'domain')
+        return '%s@%s' % (email_id, email_domain)
+
+    def to_xml(self, value, version):
+        if '@' in value:
+            pos = value.find('@')
+            email_id = value[:pos]
+            email_domain = value[pos+1:]
+        else:
+            email_id = value
+            email_domain = 'unknown'
+        return '<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
+
+
 # ----------------------------------------------------------------------------------------------------
 # Utility methods:
 # ----------------------------------------------------------------------------------------------------
@@ -269,4 +302,6 @@ def gpx_fields_fill_default_values(classs):
                 value = None
             setattr(classs, field.name, value)
             gpx_field_names.append(field.name)
+    print('%s -> %s' % (classs, gpx_field_names))
     setattr(classs, 'gpx_field_names', gpx_field_names)
+    setattr(classs, '__slots__', gpx_field_names)

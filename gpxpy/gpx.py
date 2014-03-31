@@ -1281,7 +1281,7 @@ class GPX:
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author',
                     mod_gpxfield.GPXField('author', 'name'),
-                    # TODO: email complex field
+                    mod_gpxfield.GPXEmailField('email'),
                     'link',
                         mod_gpxfield.GPXField('author_link', attribute='href'),
                         mod_gpxfield.GPXField('author_link_text', tag='text'),
