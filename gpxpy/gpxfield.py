@@ -197,7 +197,7 @@ class GPXEmailField(AbstractGPXField):
     Converts GPX1.1 email tag group from/to string.
     """
     def __init__(self, name, tag=None):
-        self.attribute = True
+        self.attribute = False
         self.is_list = False
         self.name = name
         self.tag = tag or name
@@ -216,7 +216,7 @@ class GPXEmailField(AbstractGPXField):
         else:
             email_id = value
             email_domain = 'unknown'
-        return '<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
+        return '\n<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
 
 
 # ----------------------------------------------------------------------------------------------------

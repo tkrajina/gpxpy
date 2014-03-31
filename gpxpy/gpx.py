@@ -1280,7 +1280,7 @@ class GPX:
                 mod_gpxfield.GPXField('name', 'name'),
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author',
-                    mod_gpxfield.GPXField('author', 'name'),
+                    mod_gpxfield.GPXField('author_name', 'name'),
                     mod_gpxfield.GPXEmailField('email'),
                     'link',
                         mod_gpxfield.GPXField('author_link', attribute='href'),

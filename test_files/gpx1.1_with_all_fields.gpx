@@ -3,7 +3,9 @@
         <name>example name</name>
         <desc>example description</desc>
         <author>
+            <name>author name</name>
             <name>example author</name>
+            <email id="aaa" domain="bbb.com" />
         </author>
     </metadata>
 </gpx>

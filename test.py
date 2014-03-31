@@ -1939,11 +1939,15 @@ class AbstractTests:
                 self.assertEquals(gpx.name, 'example name')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
 
+                self.assertEquals(gpx.author_name, 'author name')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'author name')
+
+                self.assertEquals(gpx.email, 'aaa@bbb.com')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/email').attributes['id'].nodeValue, 'aaa')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/email').attributes['domain'].nodeValue, 'bbb.com')
+
                 self.assertEquals(gpx.description, 'example description')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
-
-                self.assertEquals(gpx.author, 'example author')
-                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'example author')
 
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
