@@ -6,6 +6,10 @@
             <name>author name</name>
             <name>example author</name>
             <email id="aaa" domain="bbb.com" />
+            <link href="http://link">
+                <text>link text</text>
+                <type>link type</type>
+            </link>
         </author>
     </metadata>
 </gpx>
