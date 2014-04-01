@@ -1767,21 +1767,16 @@ class GPX:
         if version != '1.0' and version != '1.1':
             raise GPXException('Invalid version %s' % version)
 
-        content = mod_gpxfield.gpx_fields_to_xml(self, None, version)
-
         v = version.replace('.', '/')
         xml_attributes = {
-                'version': version,
-                'creator': 'gpx.py -- https://github.com/tkrajina/gpxpy',
                 'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
                 'xmlns': 'http://www.topografix.com/GPX/%s' % v,
                 'xsi:schemaLocation': 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v)
         }
 
-        if self.creator:
-            xml_attributes['creator'] = self.creator
+        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes)
 
-        return '<?xml version="1.0" encoding="UTF-8"?>\n' + mod_utils.to_xml('gpx', attributes=xml_attributes, content=content).strip()
+        return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 
     def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         for track in self.tracks:

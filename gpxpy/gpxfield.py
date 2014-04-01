@@ -224,7 +224,7 @@ class GPXEmailField(AbstractGPXField):
 # ----------------------------------------------------------------------------------------------------
 
 
-def gpx_fields_to_xml(instance, tag, version):
+def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
@@ -233,6 +233,9 @@ def gpx_fields_to_xml(instance, tag, version):
     body = ''
     if tag:
         body = '\n<' + tag
+        if custom_attributes:
+            for key, value in custom_attributes.items():
+                body += ' %s="%s"' % (key, mod_utils.make_str(value))
 
     for gpx_field in fields:
         if isinstance(gpx_field, str):
