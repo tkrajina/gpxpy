@@ -1958,6 +1958,16 @@ class AbstractTests:
                 self.assertEquals(gpx.description, 'example description')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
 
+                # TODO
+
+                self.assertEquals(len(gpx.extensions), 3)
+                self.assertEquals(gpx.extensions['aaa'], 'bbb')
+                self.assertEquals(gpx.extensions['bbb'], 'ccc')
+                self.assertEquals(gpx.extensions['ccc'], 'ddd')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/aaa').firstChild.nodeValue, 'bbb')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/bbb').firstChild.nodeValue, 'ccc')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/ccc').firstChild.nodeValue, 'ddd')
+
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
         self.assertEquals(None, obj.min_latitude)

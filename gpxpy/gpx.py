@@ -1301,6 +1301,7 @@ class GPX:
                 mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
                 mod_gpxfield.GPXField('keywords'),
                 mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
+                mod_gpxfield.GPXExtensions('extensions'),
                 # TODO: Extensions
             '/metadata',
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),

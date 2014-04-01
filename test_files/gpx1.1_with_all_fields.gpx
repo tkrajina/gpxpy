@@ -10,6 +10,12 @@
                 <text>link text</text>
                 <type>link type</type>
             </link>
+            <!-- TODO -->
         </author>
+        <extensions>
+            <aaa>bbb</aaa>
+            <bbb>ccc</bbb>
+            <ccc>ddd</ccc>
+        </extensions>
     </metadata>
 </gpx>

@@ -70,13 +70,13 @@ class XMLParser:
         if not node:
             node = self.dom
 
-        return node.childNodes
+        return list(filter(lambda node : node.nodeType == node.ELEMENT_NODE, node.childNodes))
 
     def get_node_data(self, node):
         if node is None:
             return None
 
-        child_nodes = self.get_children(node)
+        child_nodes = node.childNodes
         if not child_nodes or len(child_nodes) == 0:
             return None
 

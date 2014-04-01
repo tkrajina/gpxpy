@@ -219,6 +219,44 @@ class GPXEmailField(AbstractGPXField):
         return '\n<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
 
 
+class GPXExtensions(AbstractGPXField):
+    """
+    GPX1.1 extensions <extensions>...</extensions> key-value type.
+    """
+    def __init__(self, name):
+        self.attribute = False
+        self.name = name
+        self.is_list = False
+
+    def from_xml(self, parser, node, version):
+        if node is None:
+            return None
+
+        node = parser.get_first_child(node, 'extensions')
+
+        children = parser.get_children(node)
+        if children is None:
+            return None
+
+        result = {}
+
+        for child in children:
+            result[parser.get_node_name(child)] = parser.get_node_data(child)
+
+        return result
+
+    def to_xml(self, value, version):
+        if value is None:
+            return ''
+
+        result = '\n<extensions>'
+        for ext_key, ext_value in value.items():
+            result += mod_utils.to_xml(ext_key, content=ext_value)
+        result += '</extensions>'
+
+        return result
+
+
 # ----------------------------------------------------------------------------------------------------
 # Utility methods:
 # ----------------------------------------------------------------------------------------------------
@@ -255,7 +293,9 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
                 if tag_open:
                     body += '>'
                     tag_open = False
-                body += gpx_field.to_xml(value, version)
+                xml_value = gpx_field.to_xml(value, version)
+                if xml_value:
+                    body += xml_value
 
     if tag:
         if tag_open:
