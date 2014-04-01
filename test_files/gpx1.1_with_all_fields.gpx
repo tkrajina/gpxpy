@@ -12,6 +12,10 @@
             </link>
             <!-- TODO -->
         </author>
+        <copyright author="gpxauth">
+            <year>2013</year>
+            <license>lic</license>
+        </copyright>
         <extensions>
             <aaa>bbb</aaa>
             <bbb>ccc</bbb>

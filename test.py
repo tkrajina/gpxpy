@@ -1939,6 +1939,9 @@ class AbstractTests:
                 self.assertEquals(gpx.name, 'example name')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/name').firstChild.nodeValue, 'example name')
 
+                self.assertEquals(gpx.description, 'example description')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
+
                 self.assertEquals(gpx.author_name, 'author name')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'author name')
 
@@ -1955,8 +1958,14 @@ class AbstractTests:
                 self.assertEquals(gpx.author_link_type, 'link type')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link/type').firstChild.nodeValue, 'link type')
 
-                self.assertEquals(gpx.description, 'example description')
-                self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
+                self.assertEquals(gpx.copyright_author, 'gpxauth')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/copyright').attributes['author'].nodeValue, 'gpxauth')
+
+                self.assertEquals(gpx.copyright_year, '2013')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/copyright/year').firstChild.nodeValue, '2013')
+
+                self.assertEquals(gpx.copyright_license, 'lic')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/copyright/license').firstChild.nodeValue, 'lic')
 
                 # TODO
 
