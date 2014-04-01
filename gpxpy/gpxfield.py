@@ -239,10 +239,10 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
 
     for gpx_field in fields:
         if isinstance(gpx_field, str):
+            if tag_open:
+                body += '>'
+                tag_open = False
             if gpx_field[0] == '/':
-                if tag_open:
-                    body += '>'
-                    tag_open = False
                 body += '<%s>' % gpx_field
             else:
                 body += '\n<%s' % gpx_field
