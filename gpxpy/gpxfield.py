@@ -258,6 +258,8 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
                 body += gpx_field.to_xml(value, version)
 
     if tag:
+        if tag_open:
+            body += '>'
         body += '</' + tag + '>'
 
     return body
