@@ -225,27 +225,38 @@ class GPXEmailField(AbstractGPXField):
 
 
 def gpx_fields_to_xml(instance, tag, version):
-    attributes = ''
-    body = ''
-
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
 
+    tag_open = bool(tag)
+    body = ''
+    if tag:
+        body = '\n<' + tag
+
     for gpx_field in fields:
         if isinstance(gpx_field, str):
-            body += '\n<%s>' % gpx_field
+            if gpx_field[0] == '/':
+                if tag_open:
+                    body += '>'
+                    tag_open = False
+                body += '<%s>' % gpx_field
+            else:
+                body += '\n<%s' % gpx_field
+                tag_open = True
         else:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                attributes += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
-            else:
-                if value:
-                    body += gpx_field.to_xml(value, version)
+                body += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
+            elif value:
+                if tag_open:
+                    body += '>'
+                    tag_open = False
+                body += gpx_field.to_xml(value, version)
+
     if tag:
-        return '<' + tag + ( (' ' + attributes + '>') if attributes else '>' ) \
-               + body \
-               + '</' + tag + '>'
+        body += '</' + tag + '>'
+
     return body
 
 

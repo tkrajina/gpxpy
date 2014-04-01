@@ -1950,10 +1950,10 @@ class AbstractTests:
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link').attributes['href'].nodeValue, 'http://link')
 
                 self.assertEquals(gpx.author_link_text, 'link text')
-                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link').firstChild.nodeValue, 'link text')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link/text').firstChild.nodeValue, 'link text')
 
                 self.assertEquals(gpx.author_link_type, 'link type')
-                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link').firstChild.nodeValue, 'link type')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/link/type').firstChild.nodeValue, 'link type')
 
                 self.assertEquals(gpx.description, 'example description')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/desc').firstChild.nodeValue, 'example description')
