@@ -29,4 +29,35 @@
             <ccc>ddd</ccc>
         </extensions>
     </metadata>
+    <wpt lat="12.3" lon="45.6">
+        <ele>75.1</ele>
+        <time>2013-01-02T02:03:00Z</time>
+        <magvar>1.1</magvar>
+        <geoidheight>2.0</geoidheight>
+        <name>example name</name>
+        <cmt>example cmt</cmt>
+        <desc>example desc</desc>
+        <src>example src</src>
+        <link href="http://link3">
+            <text>link text3</text>
+            <type>link type3</type>
+        </link>
+        <url>example url</url>
+        <urlname>example urlname</urlname>
+        <sym>example sym</sym>
+        <type>example type</type>
+        <fix>2d</fix>
+        <sat>5</sat>
+        <hdop>6</hdop>
+        <vdop>7</vdop>
+        <pdop>8</pdop>
+        <ageofdgpsdata>9</ageofdgpsdata>
+        <dgpsid>45</dgpsid>
+        <extensions>
+            <aaa>bbb</aaa>
+            <ccc>ddd</ccc>
+        </extensions>
+    </wpt>
+    <wpt lat="13.4" lon="46.7">
+    </wpt>
 </gpx>
