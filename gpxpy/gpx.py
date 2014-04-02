@@ -49,7 +49,7 @@ SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
 # Fields used for all point elements (route point, track point, waypoint):
-GPX_POINT_FIELDS = [
+GPX_10_POINT_FIELDS = [
         mod_gpxfield.GPXField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
         mod_gpxfield.GPXField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
         mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
@@ -72,14 +72,44 @@ GPX_POINT_FIELDS = [
         mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
 ]
+GPX_11_POINT_FIELDS = [
+        mod_gpxfield.GPXField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
+        mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
+        mod_gpxfield.GPXField('magnetic_variation', 'magvar', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('geoid_height', 'geoidheight', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('name'),
+        mod_gpxfield.GPXField('comment', 'cmt'),
+        mod_gpxfield.GPXField('description', 'desc'),
+        mod_gpxfield.GPXField('source', 'src'),
+        'link',
+            mod_gpxfield.GPXField('link', attribute='href'),
+            mod_gpxfield.GPXField('link_text', tag='text'),
+            mod_gpxfield.GPXField('link_type', tag='type'),
+        '/link',
+        mod_gpxfield.GPXField('url'),
+        mod_gpxfield.GPXField('url_name', 'urlname'),
+        mod_gpxfield.GPXField('symbol', 'sym'),
+        mod_gpxfield.GPXField('type'),
+        mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
+        mod_gpxfield.GPXField('satellites', 'sat', type=mod_gpxfield.INT_TYPE),
+        mod_gpxfield.GPXField('horizontal_dilution', 'hdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('vertical_dilution', 'vdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
+        mod_gpxfield.GPXExtensions('extensions'),
+]
 
-# GPX track points have two more fields after time
-GPX_TRACK_POINT_FIELDS = GPX_POINT_FIELDS[:4] \
+# GPX1.0 track points have two more fields after time
+# Note that this is not true for GPX1.1
+GPX_TRACK_POINT_FIELDS = GPX_10_POINT_FIELDS[:4] \
         + [ \
                 mod_gpxfield.GPXField('course', type=mod_gpxfield.INT_TYPE), \
                 mod_gpxfield.GPXField('speed', type=mod_gpxfield.FLOAT_TYPE) \
           ] \
-        + GPX_POINT_FIELDS[4:]
+        + GPX_10_POINT_FIELDS[4:]
 
 # When possible, the result of various methods are named tuples defined here:
 TimeBounds = mod_collections.namedtuple(
@@ -140,8 +170,8 @@ class GPXXMLSyntaxException(GPXException):
 
 
 class GPXWaypoint(mod_geo.Location):
-    gpx_10_fields = GPX_POINT_FIELDS
-    gpx_11_fields = []
+    gpx_10_fields = GPX_10_POINT_FIELDS
+    gpx_11_fields = GPX_11_POINT_FIELDS
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
                  name=None, description=None, symbol=None, type=None,
@@ -183,8 +213,8 @@ class GPXWaypoint(mod_geo.Location):
 
 
 class GPXRoutePoint(mod_geo.Location):
-    gpx_10_fields = GPX_POINT_FIELDS
-    gpx_11_fields = []
+    gpx_10_fields = GPX_10_POINT_FIELDS
+    gpx_11_fields = GPX_11_POINT_FIELDS
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -231,7 +261,21 @@ class GPXRoute:
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
-    gpx_11_fields = []
+    gpx_11_fields = [
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('comment', 'cmt'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('source', 'src'),
+            'link',
+                mod_gpxfield.GPXField('link', attribute='href'),
+                mod_gpxfield.GPXField('link_text', tag='text'),
+                mod_gpxfield.GPXField('link_type', tag='type'),
+            '/link',
+            mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
+            mod_gpxfield.GPXField('type'),
+            mod_gpxfield.GPXExtensions('extensions'),
+            mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
+    ]
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -297,7 +341,7 @@ class GPXRoute:
 
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
-    gpx_11_fields = []
+    gpx_11_fields = GPX_11_POINT_FIELDS
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -380,10 +424,9 @@ class GPXTrackPoint(mod_geo.Location):
 
 
 class GPXTrackSegment:
-    gpx_10_fields = [
+    gpx_10_fields = gpx_11_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
-    gpx_11_fields = []
 
     def __init__(self, points=None):
         self.points = points if points else []
@@ -925,7 +968,21 @@ class GPXTrack:
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
-    gpx_11_fields = []
+    gpx_11_fields = [
+            mod_gpxfield.GPXField('name'),
+            mod_gpxfield.GPXField('comment', 'cmt'),
+            mod_gpxfield.GPXField('description', 'desc'),
+            mod_gpxfield.GPXField('source', 'src'),
+            'link',
+                mod_gpxfield.GPXField('link', attribute='href'),
+                mod_gpxfield.GPXField('link_text', tag='text'),
+                mod_gpxfield.GPXField('link_type', tag='type'),
+            '/link',
+            mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
+            mod_gpxfield.GPXField('type'),
+            mod_gpxfield.GPXExtensions('extensions'),
+            mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
+    ]
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name

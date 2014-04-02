@@ -2112,6 +2112,12 @@ class AbstractTests:
         self.assertEquals([], obj.routes)
         self.assertEquals([], obj.tracks)
 
+    def test_10_to_11_conversion(self):
+        raise Exception('TODO')
+
+    def test_11_to_10_conversion(self):
+        raise Exception('TODO')
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
