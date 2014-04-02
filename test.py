@@ -1967,6 +1967,24 @@ class AbstractTests:
                 self.assertEquals(gpx.copyright_license, 'lic')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/copyright/license').firstChild.nodeValue, 'lic')
 
+                self.assertEquals(gpx.link, 'http://link2')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/link').attributes['href'].nodeValue, 'http://link2')
+
+                self.assertEquals(gpx.link_text, 'link text2')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/link/text').firstChild.nodeValue, 'link text2')
+
+                self.assertEquals(gpx.link_type, 'link type2')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/link/type').firstChild.nodeValue, 'link type2')
+
+                self.assertEquals(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
+                self.assertTrue(get_dom_node(dom, 'gpx/metadata/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
+
+                self.assertEquals(gpx.keywords, 'example keywords')
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/keywords').firstChild.nodeValue, 'example keywords')
+
+                self.assertEquals(gpx.bounds.min_latitude, 1.2)
+                self.assertEquals(get_dom_node(dom, 'gpx/metadata/bounds').attributes['minlat'].value, '1.2')
+
                 # TODO
 
                 self.assertEquals(len(gpx.extensions), 3)

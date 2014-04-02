@@ -111,13 +111,12 @@ class GPXException(Exception):
 
 
 class GPXBounds:
-    gpx_10_fields = [
+    gpx_10_fields = gpx_11_fields = [
             mod_gpxfield.GPXField('min_latitude', attribute='minlat', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('max_latitude', attribute='maxlat', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('min_longitude', attribute='minlon', type=mod_gpxfield.FLOAT_TYPE),
             mod_gpxfield.GPXField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
-    gpx_11_fields = []
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
         self.min_latitude = min_latitude
