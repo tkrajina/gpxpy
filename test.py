@@ -125,6 +125,10 @@ def get_dom_node(dom, path):
 
     return result
 
+def pretty_print_xml(xml):
+    dom = mod_minidom.parseString(xml)
+    print(dom.toprettyxml())
+
 
 class AbstractTests:
     """
@@ -1925,10 +1929,9 @@ class AbstractTests:
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
 
-        print(reparsed_gpx.to_xml())
+        pretty_print_xml(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
-            # FIXME Check both original XML dom and reparsed XML dom!
             for dom in (original_dom, reparsed_dom):
                 self.assertEquals(gpx.version, '1.1')
                 self.assertEquals(get_dom_node(dom, 'gpx').attributes['version'].nodeValue, '1.1')
