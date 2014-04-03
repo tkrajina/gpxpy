@@ -229,16 +229,19 @@ class GPXExtensionsField(AbstractGPXField):
         self.is_list = False
 
     def from_xml(self, parser, node, version):
-        if node is None:
-            return None
-
-        node = parser.get_first_child(node, 'extensions')
-
-        children = parser.get_children(node)
-        if children is None:
-            return None
-
         result = {}
+
+        if node is None:
+            return result
+
+        extensions_node = parser.get_first_child(node, 'extensions')
+
+        if not extensions_node:
+            return result
+
+        children = parser.get_children(extensions_node)
+        if children is None:
+            return result
 
         for child in children:
             result[parser.get_node_name(child)] = parser.get_node_data(child)
@@ -246,7 +249,7 @@ class GPXExtensionsField(AbstractGPXField):
         return result
 
     def to_xml(self, value, version):
-        if value is None:
+        if value is None or not value:
             return ''
 
         result = '\n<extensions>'
