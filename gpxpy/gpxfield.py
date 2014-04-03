@@ -204,11 +204,19 @@ class GPXEmailField(AbstractGPXField):
 
     def from_xml(self, parser, node, version):
         email_node = parser.get_first_child(node, self.tag)
+
+        if not email_node:
+            return None
+
         email_id = parser.get_node_attribute(email_node, 'id')
         email_domain = parser.get_node_attribute(email_node, 'domain')
+
         return '%s@%s' % (email_id, email_domain)
 
     def to_xml(self, value, version):
+        if not value:
+            return ''
+
         if '@' in value:
             pos = value.find('@')
             email_id = value[:pos]
@@ -216,6 +224,7 @@ class GPXEmailField(AbstractGPXField):
         else:
             email_id = value
             email_domain = 'unknown'
+
         return '\n<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
 
 
