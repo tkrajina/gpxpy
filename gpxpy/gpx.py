@@ -99,7 +99,7 @@ GPX_11_POINT_FIELDS = [
         mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
-        mod_gpxfield.GPXExtensions('extensions'),
+        mod_gpxfield.GPXExtensionsField('extensions'),
 ]
 
 # GPX1.0 track points have two more fields after time
@@ -273,7 +273,7 @@ class GPXRoute:
             '/link',
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
-            mod_gpxfield.GPXExtensions('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions'),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
 
@@ -980,7 +980,7 @@ class GPXTrack:
             '/link',
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
-            mod_gpxfield.GPXExtensions('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions'),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
 
@@ -1357,8 +1357,7 @@ class GPX:
                 mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
                 mod_gpxfield.GPXField('keywords'),
                 mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
-                mod_gpxfield.GPXExtensions('extensions'),
-                # TODO: Extensions
+                mod_gpxfield.GPXExtensionsField('extensions'),
             '/metadata',
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),

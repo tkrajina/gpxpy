@@ -219,7 +219,7 @@ class GPXEmailField(AbstractGPXField):
         return '\n<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
 
 
-class GPXExtensions(AbstractGPXField):
+class GPXExtensionsField(AbstractGPXField):
     """
     GPX1.1 extensions <extensions>...</extensions> key-value type.
     """
