@@ -208,7 +208,7 @@ class GPXEmailField(AbstractGPXField):
     def from_xml(self, parser, node, version):
         email_node = parser.get_first_child(node, self.tag)
 
-        if not email_node:
+        if email_node is None:
             return None
 
         email_id = parser.get_node_attribute(email_node, 'id')
@@ -248,7 +248,7 @@ class GPXExtensionsField(AbstractGPXField):
 
         extensions_node = parser.get_first_child(node, 'extensions')
 
-        if not extensions_node:
+        if extensions_node is None:
             return result
 
         children = parser.get_children(extensions_node)
@@ -338,12 +338,12 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
             if gpx_field.startswith('/'):
                 node_path.pop()
             else:
-                if not current_node:
+                if current_node is None:
                     node_path.append(None)
                 else:
                     node_path.append(parser.get_first_child(current_node, gpx_field))
         else:
-            if current_node:
+            if current_node is not None:
                 value = gpx_field.from_xml(parser, current_node, version)
                 setattr(result, gpx_field.name, value)
             elif gpx_field.attribute:
