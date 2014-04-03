@@ -152,8 +152,11 @@ class GPXField(AbstractGPXField):
         return result
 
     def to_xml(self, value, version):
+        if not value:
+            return ''
+
         if self.attribute:
-            return '%s="%s"' % (self.attribute, value)
+            return '%s="%s"' % (self.attribute, mod_utils.make_str(value))
         else:
             if self.type_converter:
                 value = self.type_converter.to_string(value)
@@ -177,10 +180,10 @@ class GPXComplexField(AbstractGPXField):
                     result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
             return result
         else:
-            __node = parser.get_first_child(node, self.tag)
-            if __node is None:
+            field_node = parser.get_first_child(node, self.tag)
+            if field_node is None:
                 return None
-            return gpx_fields_from_xml(self.classs, parser, __node, version)
+            return gpx_fields_from_xml(self.classs, parser, field_node, version)
 
     def to_xml(self, value, version):
         if self.is_list:
@@ -300,7 +303,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
         else:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body += ' %s="%s"' % (gpx_field.attribute, mod_utils.make_str(value))
+                body += ' ' + gpx_field.to_xml(value, version)
             elif value:
                 if tag_open:
                     body += '>'
