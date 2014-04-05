@@ -114,4 +114,7 @@
         <rtept lat="14" lon="24">
         </rtept>
     </rte>
+    <extensions>
+        <gpxext>...</gpxext>
+    </extensions>
 </gpx>

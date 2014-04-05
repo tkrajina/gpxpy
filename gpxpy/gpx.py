@@ -1357,11 +1357,12 @@ class GPX:
                 mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
                 mod_gpxfield.GPXField('keywords'),
                 mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
-                mod_gpxfield.GPXExtensionsField('extensions'),
+                mod_gpxfield.GPXExtensionsField('metadata_extensions', tag='extensions'),
             '/metadata',
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
+            mod_gpxfield.GPXExtensionsField('extensions'),
     ]
 
     def __init__(self):

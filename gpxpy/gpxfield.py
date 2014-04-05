@@ -235,10 +235,11 @@ class GPXExtensionsField(AbstractGPXField):
     """
     GPX1.1 extensions <extensions>...</extensions> key-value type.
     """
-    def __init__(self, name):
+    def __init__(self, name, tag=None):
         self.attribute = False
         self.name = name
         self.is_list = False
+        self.tag = tag or 'extensions'
 
     def from_xml(self, parser, node, version):
         result = {}
@@ -246,7 +247,7 @@ class GPXExtensionsField(AbstractGPXField):
         if node is None:
             return result
 
-        extensions_node = parser.get_first_child(node, 'extensions')
+        extensions_node = parser.get_first_child(node, self.tag)
 
         if extensions_node is None:
             return result
@@ -264,10 +265,10 @@ class GPXExtensionsField(AbstractGPXField):
         if value is None or not value:
             return ''
 
-        result = '\n<extensions>'
+        result = '\n<' + self.tag + '>'
         for ext_key, ext_value in value.items():
             result += mod_utils.to_xml(ext_key, content=ext_value)
-        result += '</extensions>'
+        result += '</' + self.tag + '>'
 
         return result
 

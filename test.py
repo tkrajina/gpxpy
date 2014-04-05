@@ -1993,10 +1993,10 @@ class AbstractTests:
 
                 # TODO
 
-                self.assertEquals(len(gpx.extensions), 3)
-                self.assertEquals(gpx.extensions['aaa'], 'bbb')
-                self.assertEquals(gpx.extensions['bbb'], 'ccc')
-                self.assertEquals(gpx.extensions['ccc'], 'ddd')
+                self.assertEquals(len(gpx.metadata_extensions), 3)
+                self.assertEquals(gpx.metadata_extensions['aaa'], 'bbb')
+                self.assertEquals(gpx.metadata_extensions['bbb'], 'ccc')
+                self.assertEquals(gpx.metadata_extensions['ccc'], 'ddd')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/aaa').firstChild.nodeValue, 'bbb')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/bbb').firstChild.nodeValue, 'ccc')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/extensions/ccc').firstChild.nodeValue, 'ddd')
@@ -2187,6 +2187,9 @@ class AbstractTests:
                 self.assertEquals(gpx.routes[0].points[1].longitude, 21)
                 self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[1]').attributes['lon'].value in ('21.0', '21'))
 
+                # gpx ext:
+                self.assertEquals(1, len(gpx.extensions))
+                self.assertEquals(gpx.extensions['gpxext'], '...')
 
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
