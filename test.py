@@ -125,6 +125,7 @@ def get_dom_node(dom, path):
 
     return result
 
+
 def pretty_print_xml(xml):
     dom = mod_minidom.parseString(xml)
     print(dom.toprettyxml())
@@ -2059,6 +2060,133 @@ class AbstractTests:
                 self.assertEquals(2, len(gpx.waypoints[0].extensions))
                 self.assertEquals('bbb', gpx.waypoints[0].extensions['aaa'])
                 self.assertEquals('ddd', gpx.waypoints[0].extensions['ccc'])
+
+                # 1. rte
+
+                self.assertEquals(gpx.routes[0].name, 'example name')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/name').firstChild.nodeValue, 'example name')
+
+                self.assertEquals(gpx.routes[0].comment, 'example cmt')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/cmt').firstChild.nodeValue, 'example cmt')
+
+                self.assertEquals(gpx.routes[0].description, 'example desc')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/desc').firstChild.nodeValue, 'example desc')
+
+                self.assertEquals(gpx.routes[0].source, 'example src')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/src').firstChild.nodeValue, 'example src')
+
+                self.assertEquals(gpx.routes[0].link, 'http://link3')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/link').attributes['href'].nodeValue, 'http://link3')
+
+                self.assertEquals(gpx.routes[0].link_text, 'link text3')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/link/text').firstChild.nodeValue, 'link text3')
+
+                self.assertEquals(gpx.routes[0].link_type, 'link type3')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/link/type').firstChild.nodeValue, 'link type3')
+
+                self.assertEquals(gpx.routes[0].number, 7)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
+
+                self.assertEquals(gpx.routes[0].type, 'rte type')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/type').firstChild.nodeValue, 'rte type')
+
+                self.assertEquals(2, len(gpx.routes[0].extensions))
+                self.assertEquals(gpx.routes[0].extensions['rtee1'], '1')
+                self.assertEquals(gpx.routes[0].extensions['rtee2'], '2')
+
+
+                # 2. rte
+
+                self.assertEquals(gpx.routes[1].name, 'second route')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[1]/name').firstChild.nodeValue, 'second route')
+
+                self.assertEquals(gpx.routes[1].description, 'example desc 2')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[1]/desc').firstChild.nodeValue, 'example desc 2')
+
+                self.assertEquals(gpx.routes[1].link, None)
+
+                self.assertEquals(gpx.routes[0].number, 7)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
+            
+                self.assertEquals(len(gpx.routes[0].points), 3)
+                self.assertEquals(len(gpx.routes[1].points), 2)
+
+                # Rtept
+
+                self.assertEquals(gpx.routes[0].points[0].latitude, 10)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]').attributes['lat'].value in ('10.0', '10'))
+
+                self.assertEquals(gpx.routes[0].points[0].longitude, 20)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]').attributes['lon'].value in ('20.0', '20'))
+
+                self.assertEquals(gpx.routes[0].points[0].elevation, 75.1)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ele').firstChild.nodeValue, '75.1')
+
+                self.assertEquals(gpx.routes[0].points[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, 3))
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/time').firstChild.nodeValue, '2013-01-02T02:03:03Z')
+
+                self.assertEquals(gpx.routes[0].points[0].magnetic_variation, 1.2)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/magvar').firstChild.nodeValue, '1.2')
+
+                self.assertEquals(gpx.routes[0].points[0].geoid_height, 2.1)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/geoidheight').firstChild.nodeValue, '2.1')
+
+                self.assertEquals(gpx.routes[0].points[0].name, 'example name r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/name').firstChild.nodeValue, 'example name r')
+
+                self.assertEquals(gpx.routes[0].points[0].comment, 'example cmt r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/cmt').firstChild.nodeValue, 'example cmt r')
+
+                self.assertEquals(gpx.routes[0].points[0].description, 'example desc r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/desc').firstChild.nodeValue, 'example desc r')
+
+                self.assertEquals(gpx.routes[0].points[0].source, 'example src r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/src').firstChild.nodeValue, 'example src r')
+
+                self.assertEquals(gpx.routes[0].points[0].link, 'http://linkrtept')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/link').attributes['href'].nodeValue, 'http://linkrtept')
+
+                self.assertEquals(gpx.routes[0].points[0].link_text, 'rtept link')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/link/text').firstChild.nodeValue, 'rtept link')
+
+                self.assertEquals(gpx.routes[0].points[0].link_type, 'rtept link type')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/link/type').firstChild.nodeValue, 'rtept link type')
+
+                self.assertEquals(gpx.routes[0].points[0].symbol, 'example sym r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/sym').firstChild.nodeValue, 'example sym r')
+
+                self.assertEquals(gpx.routes[0].points[0].type, 'example type r')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/type').firstChild.nodeValue, 'example type r')
+
+                self.assertEquals(gpx.routes[0].points[0].type_of_gpx_fix, '3d')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/fix').firstChild.nodeValue, '3d')
+
+                self.assertEquals(gpx.routes[0].points[0].satellites, 6)
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/sat').firstChild.nodeValue, '6')
+
+                self.assertEquals(gpx.routes[0].points[0].vertical_dilution, 8)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/vdop').firstChild.nodeValue in ('8.0', '8'))
+
+                self.assertEquals(gpx.routes[0].points[0].horizontal_dilution, 7)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/hdop').firstChild.nodeValue in ('7.0', '7'))
+
+                self.assertEquals(gpx.routes[0].points[0].position_dilution, 9)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/pdop').firstChild.nodeValue in ('9.0', '9'))
+
+                self.assertEquals(gpx.routes[0].points[0].age_of_dgps_data, 10)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ageofdgpsdata').firstChild.nodeValue in ('10.0', '10'))
+
+                self.assertEquals(gpx.routes[0].points[0].dgps_id, '99')
+                self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/dgpsid').firstChild.nodeValue, '99')
+
+                # second rtept:
+
+                self.assertEquals(gpx.routes[0].points[1].latitude, 11)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[1]').attributes['lat'].value in ('11.0', '11'))
+
+                self.assertEquals(gpx.routes[0].points[1].longitude, 21)
+                self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[1]').attributes['lon'].value in ('21.0', '21'))
+
 
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
