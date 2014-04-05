@@ -2225,11 +2225,8 @@ class AbstractTests:
                 self.assertEquals(1, len(gpx.tracks[0].extensions))
                 self.assertEquals('2', gpx.tracks[0].extensions['a1'])
 
-                # TODO there are more
-
                 # trkpt:
 
-                """
                 self.assertEquals(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
@@ -2254,11 +2251,14 @@ class AbstractTests:
                 self.assertEquals(gpx.tracks[0].segments[0].points[0].source, 'example src t')
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/src').firstChild.nodeValue, 'example src t')
 
-                self.assertEquals(gpx.tracks[0].segments[0].points[0].url, 'example url t')
-                self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/url').firstChild.nodeValue, 'example url t')
+                self.assertEquals(gpx.tracks[0].segments[0].points[0].link, 'http://trkpt')
+                self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/link').attributes['href'].nodeValue, 'http://trkpt')
 
-                self.assertEquals(gpx.tracks[0].segments[0].points[0].url_name, 'example urlname t')
-                self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/urlname').firstChild.nodeValue, 'example urlname t')
+                self.assertEquals(gpx.tracks[0].segments[0].points[0].link_text, 'trkpt link')
+                self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/link/text').firstChild.nodeValue, 'trkpt link')
+
+                self.assertEquals(gpx.tracks[0].segments[0].points[0].link_type, 'trkpt link type')
+                self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/link/type').firstChild.nodeValue, 'trkpt link type')
 
                 self.assertEquals(gpx.tracks[0].segments[0].points[0].symbol, 'example sym t')
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/sym').firstChild.nodeValue, 'example sym t')
@@ -2286,7 +2286,9 @@ class AbstractTests:
 
                 self.assertEquals(gpx.tracks[0].segments[0].points[0].dgps_id, '99')
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
-                """
+
+                self.assertEquals(1, len(gpx.tracks[0].segments[0].points[0].extensions))
+                self.assertEquals('true', gpx.tracks[0].segments[0].points[0].extensions['last'])
 
     def test_default_values(self):
         obj = mod_gpx.GPXBounds()
