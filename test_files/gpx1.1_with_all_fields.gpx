@@ -114,6 +114,53 @@
         <rtept lat="14" lon="24">
         </rtept>
     </rte>
+    <trk>
+        <name>example name t</name>
+        <cmt>example cmt t</cmt>
+        <desc>example desc t</desc>
+        <src>example src t</src>
+        <link href="http://trk">
+            <text>trk link</text>
+            <type>trk link type</type>
+        </link>
+        <number>1</number>
+        <type>t</type>
+        <extensions>
+            <a1>2</a1>
+        </extensions>
+        <trkseg>
+            <trkpt lat="10.1" lon="-20.2">
+                <ele>11.1</ele>
+                <time>2013-01-01T12:00:04</time>
+                <magvar>12</magvar>
+                <geoidheight>13</geoidheight>
+                <name>example name t</name>
+                <cmt>example cmt t</cmt>
+                <desc>example desc t</desc>
+                <src>example src t</src>
+                <link href="http://trkpt">
+                    <text>trkpt link</text>
+                    <type>trkpt link type</type>
+                </link>
+                <sym>example sym t</sym>
+                <type>example type t</type>
+                <fix>3d</fix>
+                <sat>100</sat>
+                <hdop>101</hdop>
+                <vdop>102</vdop>
+                <pdop>103</pdop>
+                <ageofdgpsdata>104</ageofdgpsdata>
+                <dgpsid>99</dgpsid>
+                <extensions>
+                    <last>true</last>
+                </extensions>
+            </trkpt>
+        </trkseg>
+        <trkseg>
+        </trkseg>
+    </trk>
+    <trk>
+    </trk>
     <extensions>
         <gpxext>...</gpxext>
     </extensions>
