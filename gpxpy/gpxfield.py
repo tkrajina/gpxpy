@@ -354,7 +354,7 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
     return result
 
 
-def gpx_fields_fill_default_values(classs):
+def gpx_check_slots_and_fill_default_values(classs):
     """
     Will fill the default values for this class. Instances will inherit those 
     values so we don't need to fill default values for every instance.
@@ -373,7 +373,11 @@ def gpx_fields_fill_default_values(classs):
             else:
                 value = None
             setattr(classs, field.name, value)
+            print('%s.%s -> %s' % (classs, field.name, value))
             gpx_field_names.append(field.name)
-    print('%s -> %s' % (classs, gpx_field_names))
-    setattr(classs, 'gpx_field_names', gpx_field_names)
-    setattr(classs, '__slots__', gpx_field_names)
+
+    gpx_field_names = tuple(gpx_field_names)
+    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
+        try: slots = classs.__slots__
+        except Exception as e: slots = '[Unknown:%s]' % e
+        raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))

@@ -148,6 +148,10 @@ class GPXBounds:
             mod_gpxfield.GPXField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
 
+    __slots__ = ('min_latitude', 'max_latitude', 'min_longitude', 
+                 'max_longitude', 'min_latitude', 'max_latitude', 
+                 'min_longitude', 'max_longitude')
+
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
         self.min_latitude = min_latitude
         self.max_latitude = max_latitude
@@ -155,7 +159,7 @@ class GPXBounds:
         self.max_longitude = max_longitude
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXXMLSyntaxException(GPXException):
@@ -172,6 +176,19 @@ class GPXXMLSyntaxException(GPXException):
 class GPXWaypoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
+
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
+                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
+                 'description', 'source', 'url', 'url_name', 'symbol', 'type', 
+                 'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
+                 'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
+                 'dgps_id', 'latitude', 'longitude', 'elevation', 'time', 
+                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
+                 'description', 'source', 'link', 'link_text', 'link_type', 
+                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
+                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
                  name=None, description=None, symbol=None, type=None,
@@ -209,12 +226,25 @@ class GPXWaypoint(mod_geo.Location):
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXRoutePoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
+
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
+                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
+                 'description', 'source', 'url', 'url_name', 'symbol', 'type', 
+                 'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
+                 'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
+                 'dgps_id', 'latitude', 'longitude', 'elevation', 'time', 
+                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
+                 'description', 'source', 'link', 'link_text', 'link_type', 
+                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
+                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -247,7 +277,7 @@ class GPXRoutePoint(mod_geo.Location):
         return 'GPXRoutePoint(%s)' % representation
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXRoute:
@@ -276,6 +306,11 @@ class GPXRoute:
             mod_gpxfield.GPXExtensionsField('extensions'),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
+
+    __slots__ = ('name', 'comment', 'description', 'source', 'url', 
+                 'url_name', 'number', 'points', 'name', 'comment', 
+                 'description', 'source', 'link', 'link_text', 'link_type', 
+                 'number', 'type', 'extensions', 'points')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -327,7 +362,7 @@ class GPXRoute:
             route_point.move(location_delta)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''
@@ -342,6 +377,20 @@ class GPXRoute:
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
+
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course', 
+                 'speed', 'magnetic_variation', 'geoid_height', 'name', 
+                 'comment', 'description', 'source', 'url', 'url_name', 
+                 'symbol', 'type', 'type_of_gpx_fix', 'satellites', 
+                 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'latitude', 'longitude', 'elevation', 'time', 
+                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
+                 'description', 'source', 'link', 'link_text', 'link_type', 
+                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
+                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -420,13 +469,15 @@ class GPXTrackPoint(mod_geo.Location):
         return '[trkpt:%s,%s@%s@%s]' % (self.latitude, self.longitude, self.elevation, self.time)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXTrackSegment:
     gpx_10_fields = gpx_11_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
+
+    __slots__ = ('points', 'points')
 
     def __init__(self, points=None):
         self.points = points if points else []
@@ -948,7 +999,7 @@ class GPXTrackSegment:
         return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         return 'GPXTrackSegment(points=[%s])' % ('...' if self.points else '')
@@ -983,6 +1034,11 @@ class GPXTrack:
             mod_gpxfield.GPXExtensionsField('extensions'),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
+
+    __slots__ = ('name', 'comment', 'description', 'source', 'url', 
+                 'url_name', 'number', 'segments', 'name', 'comment', 
+                 'description', 'source', 'link', 'link_text', 'link_type', 
+                 'number', 'type', 'extensions', 'segments')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -1300,7 +1356,7 @@ class GPXTrack:
         return mod_copy.deepcopy(self)
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''
@@ -1364,6 +1420,16 @@ class GPX:
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
             mod_gpxfield.GPXExtensionsField('extensions'),
     ]
+
+    __slots__ = ('version', 'creator', 'name', 'description', 'author', 
+                 'email', 'url', 'url_name', 'time', 'keywords', 'bounds', 
+                 'waypoints', 'routes', 'tracks', 'version', 'creator', 
+                 'name', 'description', 'author_name', 'email', 'author_link', 
+                 'author_link_text', 'author_link_type', 'copyright_author', 
+                 'copyright_year', 'copyright_license', 'link', 'link_text', 
+                 'link_type', 'time', 'keywords', 'bounds', 
+                 'metadata_extensions', 'waypoints', 'routes', 'tracks', 
+                 'extensions')
 
     def __init__(self):
         self.waypoints = []
@@ -1862,7 +1928,7 @@ class GPX:
         return result
 
     def __hash__(self):
-        return mod_utils.hash_object(self, self.gpx_field_names)
+        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''
@@ -1875,13 +1941,9 @@ class GPX:
     def clone(self):
         return mod_copy.deepcopy(self)
 
-
 # Add attributes and fill default values (lists or None) for all GPX elements:
-mod_gpxfield.gpx_fields_fill_default_values(GPXBounds)
-mod_gpxfield.gpx_fields_fill_default_values(GPXWaypoint)
-mod_gpxfield.gpx_fields_fill_default_values(GPXRoutePoint)
-mod_gpxfield.gpx_fields_fill_default_values(GPXRoute)
-mod_gpxfield.gpx_fields_fill_default_values(GPXTrackPoint)
-mod_gpxfield.gpx_fields_fill_default_values(GPXTrackSegment)
-mod_gpxfield.gpx_fields_fill_default_values(GPXTrack)
-mod_gpxfield.gpx_fields_fill_default_values(GPX)
+for var_name in dir():
+    var_value = vars()[var_name]
+    if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
+        print('Check/fill %s' % var_value)
+        mod_gpxfield.gpx_check_slots_and_fill_default_values(var_value)
