@@ -2408,12 +2408,37 @@ class AbstractTests:
 
     def test_10_to_11_conversion(self):
         original_gpx = mod_gpx.GPX()
+        original_gpx.creator = 'cr'
         original_gpx.name = 'q'
         original_gpx.description = 'w'
+        original_gpx.time = mod_datetime.datetime(2014, 4, 7, 21, 17, 39)
+        original_gpx.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
         # TODO
         #original_gpx.author = 'a'
-
         original_gpx.keywords = 'kw'
+
+        original_waypoint = mod_gpx.GPXWaypoint()
+        original_waypoint.latitude = 12.3
+        original_waypoint.longitude = 13.4
+        original_waypoint.elevation = 121.89
+        original_waypoint.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 39)
+        original_waypoint.magnetic_variation = 1
+        original_waypoint.geoid_height = 1
+        original_waypoint.name = 'n'
+        original_waypoint.comment = 'cm'
+        original_waypoint.description = 'des'
+        original_waypoint.source = 'src'
+        original_waypoint.symbol = 'sym'
+        original_waypoint.type = 'ty'
+        original_waypoint.type_of_gpx_fix = 'dgps'
+        original_waypoint.satellites = 13
+        original_waypoint.horizontal_dilution = 14
+        original_waypoint.vertical_dilution = 15
+        original_waypoint.position_dilution = 16
+        original_waypoint.age_of_dgps_data = 16
+        original_waypoint.dgps_id = '17'
+        original_gpx.waypoints.append(original_waypoint)
+        #original_waypoint. = 
 
         # Convert do GPX1.0:
         xml_10 = original_gpx.to_xml('1.0')
@@ -2434,6 +2459,9 @@ class AbstractTests:
         gpx_3 = mod_gpxpy.parse(xml_10)
 
         for gpx in (gpx_1, gpx_2, gpx_3, ):
+            self.assertTrue(gpx.creator is not None)
+            self.assertEquals(original_gpx.creator, gpx.creator)
+
             self.assertTrue(gpx.name is not None)
             self.assertEquals(original_gpx.name, gpx.name)
 
@@ -2448,6 +2476,78 @@ class AbstractTests:
             self.assertTrue(gpx.keywords is not None)
             self.assertEquals(original_gpx.keywords, gpx.keywords)
 
+            self.assertTrue(gpx.time is not None)
+            self.assertEquals(original_gpx.time, gpx.time)
+
+            self.assertTrue(gpx.bounds is not None)
+            self.assertEquals(hash(original_gpx.bounds), hash(gpx.bounds))
+
+            self.assertEquals(1, len(gpx.waypoints))
+
+            self.assertTrue(gpx.waypoints[0].latitude is not None)
+            self.assertEquals(original_gpx.waypoints[0].latitude, gpx.waypoints[0].latitude)
+
+            self.assertTrue(gpx.waypoints[0].longitude is not None)
+            self.assertEquals(original_gpx.waypoints[0].longitude, gpx.waypoints[0].longitude)
+
+            self.assertTrue(gpx.waypoints[0].elevation is not None)
+            self.assertEquals(original_gpx.waypoints[0].elevation, gpx.waypoints[0].elevation)
+
+            self.assertTrue(gpx.waypoints[0].time is not None)
+            self.assertEquals(original_gpx.waypoints[0].time, gpx.waypoints[0].time)
+
+            self.assertTrue(gpx.waypoints[0].magnetic_variation is not None)
+            self.assertEquals(original_gpx.waypoints[0].magnetic_variation, gpx.waypoints[0].magnetic_variation)
+
+            self.assertTrue(gpx.waypoints[0].geoid_height is not None)
+            self.assertEquals(original_gpx.waypoints[0].geoid_height, gpx.waypoints[0].geoid_height)
+
+            self.assertTrue(gpx.waypoints[0].name is not None)
+            self.assertEquals(original_gpx.waypoints[0].name, gpx.waypoints[0].name)
+
+            self.assertTrue(gpx.waypoints[0].comment is not None)
+            self.assertEquals(original_gpx.waypoints[0].comment, gpx.waypoints[0].comment)
+
+            self.assertTrue(gpx.waypoints[0].description is not None)
+            self.assertEquals(original_gpx.waypoints[0].description, gpx.waypoints[0].description)
+
+            self.assertTrue(gpx.waypoints[0].source is not None)
+            self.assertEquals(original_gpx.waypoints[0].source, gpx.waypoints[0].source)
+
+            # TODO: Link/url
+
+            self.assertTrue(gpx.waypoints[0].symbol is not None)
+            self.assertEquals(original_gpx.waypoints[0].symbol, gpx.waypoints[0].symbol)
+
+            self.assertTrue(gpx.waypoints[0].type is not None)
+            self.assertEquals(original_gpx.waypoints[0].type, gpx.waypoints[0].type)
+
+            self.assertTrue(gpx.waypoints[0].type_of_gpx_fix is not None)
+            self.assertEquals(original_gpx.waypoints[0].type_of_gpx_fix, gpx.waypoints[0].type_of_gpx_fix)
+
+            self.assertTrue(gpx.waypoints[0].satellites is not None)
+            self.assertEquals(original_gpx.waypoints[0].satellites, gpx.waypoints[0].satellites)
+
+            self.assertTrue(gpx.waypoints[0].horizontal_dilution is not None)
+            self.assertEquals(original_gpx.waypoints[0].horizontal_dilution, gpx.waypoints[0].horizontal_dilution)
+
+            self.assertTrue(gpx.waypoints[0].vertical_dilution is not None)
+            self.assertEquals(original_gpx.waypoints[0].vertical_dilution, gpx.waypoints[0].vertical_dilution)
+
+            self.assertTrue(gpx.waypoints[0].position_dilution is not None)
+            self.assertEquals(original_gpx.waypoints[0].position_dilution, gpx.waypoints[0].position_dilution)
+
+            self.assertTrue(gpx.waypoints[0].age_of_dgps_data is not None)
+            self.assertEquals(original_gpx.waypoints[0].age_of_dgps_data, gpx.waypoints[0].age_of_dgps_data)
+
+            self.assertTrue(gpx.waypoints[0].dgps_id is not None)
+            self.assertEquals(original_gpx.waypoints[0].dgps_id, gpx.waypoints[0].dgps_id)
+
+            """
+            self.assertTrue(gpx.waypoints[0]. is not None)
+            self.assertEquals(original_gpx.waypoints[0]., gpx.waypoints[0].)
+
+            """
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
