@@ -1881,6 +1881,9 @@ class GPX:
             track.move(location_delta)
 
     def to_xml(self, version=None):
+        """
+        FIXME: Note, this method will change self.version
+        """
         if not version:
             if self.version:
                 version = self.version
@@ -1889,6 +1892,10 @@ class GPX:
 
         if version != '1.0' and version != '1.1':
             raise GPXException('Invalid version %s' % version)
+
+        self.version = version
+        if not self.creator:
+            self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
         v = version.replace('.', '/')
         xml_attributes = {

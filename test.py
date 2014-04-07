@@ -1643,7 +1643,6 @@ class AbstractTests:
         print(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
-            # FIXME Check both original XML dom and reparsed XML dom!
             for dom in (original_dom, reparsed_dom):
                 self.assertEquals(gpx.version, '1.0')
                 self.assertEquals(get_dom_node(dom, 'gpx').attributes['version'].nodeValue, '1.0')
@@ -2408,10 +2407,46 @@ class AbstractTests:
         self.assertEquals([], obj.tracks)
 
     def test_10_to_11_conversion(self):
-        raise Exception('TODO')
+        original_gpx = mod_gpx.GPX()
+        original_gpx.name = 'q'
+        original_gpx.description = 'w'
+        # TODO
+        #original_gpx.author = 'a'
 
-    def test_11_to_10_conversion(self):
-        raise Exception('TODO')
+        original_gpx.keywords = 'kw'
+
+        # Convert do GPX1.0:
+        xml_10 = original_gpx.to_xml('1.0')
+        self.assertTrue('http://www.topografix.com/GPX/1/0' in xml_10)
+        #pretty_print_xml(xml_10)
+        gpx_1 = mod_gpxpy.parse(xml_10)
+
+        # Convert do GPX1.1:
+        xml_11 = gpx_1.to_xml('1.1')
+        self.assertTrue('http://www.topografix.com/GPX/1/1' in xml_11 and 'metadata' in xml_11)
+        pretty_print_xml(xml_11)
+        gpx_2 = mod_gpxpy.parse(xml_11)
+
+        # Convert do GPX1.0 again:
+        xml_10 = gpx_2.to_xml('1.0')
+        self.assertTrue('http://www.topografix.com/GPX/1/0' in xml_10)
+        #pretty_print_xml(xml_10)
+        gpx_3 = mod_gpxpy.parse(xml_10)
+
+        for gpx in (gpx_1, gpx_2, gpx_3, ):
+            self.assertTrue(gpx.name is not None)
+            self.assertEquals(original_gpx.name, gpx.name)
+
+            self.assertTrue(gpx.description is not None)
+            self.assertEquals(original_gpx.description, gpx.description)
+
+            """
+            self.assertTrue(gpx.author is not None)
+            self.assertEquals(original_gpx.author, gpx.author)
+            """
+
+            self.assertTrue(gpx.keywords is not None)
+            self.assertEquals(original_gpx.keywords, gpx.keywords)
 
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
