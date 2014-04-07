@@ -2438,7 +2438,39 @@ class AbstractTests:
         original_waypoint.age_of_dgps_data = 16
         original_waypoint.dgps_id = '17'
         original_gpx.waypoints.append(original_waypoint)
-        #original_waypoint. = 
+
+        original_route = mod_gpx.GPXRoute()
+        original_route.name = 'rten'
+        original_route.comment = 'rtecm'
+        original_route.description = 'rtedesc'
+        original_route.source = 'rtesrc'
+        # TODO url
+        original_route.number = 101
+
+        original_route_points = mod_gpx.GPXRoutePoint()
+        original_route_points.latitude = 34.5
+        original_route_points.longitude = 56.6
+        original_route_points.elevation = 1001
+        original_route_points.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 17)
+        original_route_points.magnetic_variation = 12
+        original_route_points.geoid_height = 13
+        original_route_points.name = 'aaaaa'
+        original_route_points.comment = 'wwww'
+        original_route_points.description = 'cccc'
+        original_route_points.source = 'qqq'
+        # TODO url
+        original_route_points.symbol = 'a.png'
+        original_route_points.type = '2'
+        original_route_points.type_of_gpx_fix = 'pps'
+        original_route_points.satellites = 23
+        original_route_points.horizontal_dilution = 19
+        original_route_points.vertical_dilution = 20
+        original_route_points.position_dilution = 21
+        original_route_points.age_of_dgps_data = 22
+        original_route_points.dgps_id = '23'
+        original_route.points.append(original_route_points)
+
+        original_gpx.routes.append(original_route)
 
         # Convert do GPX1.0:
         xml_10 = original_gpx.to_xml('1.0')
@@ -2543,9 +2575,81 @@ class AbstractTests:
             self.assertTrue(gpx.waypoints[0].dgps_id is not None)
             self.assertEquals(original_gpx.waypoints[0].dgps_id, gpx.waypoints[0].dgps_id)
 
+            self.assertTrue(gpx.routes[0].name is not None)
+            self.assertEquals(original_gpx.routes[0].name, gpx.routes[0].name)
+
+            self.assertTrue(gpx.routes[0].comment is not None)
+            self.assertEquals(original_gpx.routes[0].comment, gpx.routes[0].comment)
+
+            self.assertTrue(gpx.routes[0].description is not None)
+            self.assertEquals(original_gpx.routes[0].description, gpx.routes[0].description)
+
+            self.assertTrue(gpx.routes[0].source is not None)
+            self.assertEquals(original_gpx.routes[0].source, gpx.routes[0].source)
+
+            self.assertTrue(gpx.routes[0].number is not None)
+            self.assertEquals(original_gpx.routes[0].number, gpx.routes[0].number)
+
+            self.assertTrue(gpx.routes[0].points[0].latitude is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].latitude, gpx.routes[0].points[0].latitude)
+
+            self.assertTrue(gpx.routes[0].points[0].longitude is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].longitude, gpx.routes[0].points[0].longitude)
+
+            self.assertTrue(gpx.routes[0].points[0].elevation is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].elevation, gpx.routes[0].points[0].elevation)
+
+            self.assertTrue(gpx.routes[0].points[0].time is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].time, gpx.routes[0].points[0].time)
+
+            self.assertTrue(gpx.routes[0].points[0].magnetic_variation is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].magnetic_variation, gpx.routes[0].points[0].magnetic_variation)
+
+            self.assertTrue(gpx.routes[0].points[0].geoid_height is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].geoid_height, gpx.routes[0].points[0].geoid_height)
+
+            self.assertTrue(gpx.routes[0].points[0].name is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].name, gpx.routes[0].points[0].name)
+
+            self.assertTrue(gpx.routes[0].points[0].comment is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].comment, gpx.routes[0].points[0].comment)
+
+            self.assertTrue(gpx.routes[0].points[0].description is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].description, gpx.routes[0].points[0].description)
+
+            self.assertTrue(gpx.routes[0].points[0].source is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].source, gpx.routes[0].points[0].source)
+
+            self.assertTrue(gpx.routes[0].points[0].symbol is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].symbol, gpx.routes[0].points[0].symbol)
+
+            self.assertTrue(gpx.routes[0].points[0].type is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].type, gpx.routes[0].points[0].type)
+
+            self.assertTrue(gpx.routes[0].points[0].type_of_gpx_fix is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].type_of_gpx_fix, gpx.routes[0].points[0].type_of_gpx_fix)
+
+            self.assertTrue(gpx.routes[0].points[0].satellites is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].satellites, gpx.routes[0].points[0].satellites)
+
+            self.assertTrue(gpx.routes[0].points[0].horizontal_dilution is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].horizontal_dilution, gpx.routes[0].points[0].horizontal_dilution)
+
+            self.assertTrue(gpx.routes[0].points[0].vertical_dilution is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].vertical_dilution, gpx.routes[0].points[0].vertical_dilution)
+
+            self.assertTrue(gpx.routes[0].points[0].position_dilution is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].position_dilution, gpx.routes[0].points[0].position_dilution)
+        
+            self.assertTrue(gpx.routes[0].points[0].age_of_dgps_data is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].age_of_dgps_data, gpx.routes[0].points[0].age_of_dgps_data)
+
+            self.assertTrue(gpx.routes[0].points[0].dgps_id is not None)
+            self.assertEquals(original_gpx.routes[0].points[0].dgps_id, gpx.routes[0].points[0].dgps_id)
+
             """
-            self.assertTrue(gpx.waypoints[0]. is not None)
-            self.assertEquals(original_gpx.waypoints[0]., gpx.waypoints[0].)
+            self.assertTrue(gpx.routes[0]. is not None)
+            self.assertEquals(original_gpx.routes[0]., gpx.routes[0].)
 
             """
 
