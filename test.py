@@ -2407,6 +2407,10 @@ class AbstractTests:
         self.assertEquals([], obj.tracks)
 
     def test_10_to_11_conversion(self):
+        """
+        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0 
+        will preserver all fields common for both versions.
+        """
         original_gpx = mod_gpx.GPX()
         original_gpx.creator = 'cr'
         original_gpx.name = 'q'
@@ -2469,8 +2473,42 @@ class AbstractTests:
         original_route_points.age_of_dgps_data = 22
         original_route_points.dgps_id = '23'
         original_route.points.append(original_route_points)
-
         original_gpx.routes.append(original_route)
+
+        original_track = mod_gpx.GPXTrack()
+        original_track.name = 'rten'
+        original_track.comment = 'rtecm'
+        original_track.description = 'rtedesc'
+        original_track.source = 'rtesrc'
+        # TODO url
+        original_track.number = 101
+
+        original_track_point = mod_gpx.GPXTrackPoint()
+        original_track_point.latitude = 34.6
+        original_track_point.longitude = 57.6
+        original_track_point.elevation = 1002
+        original_track_point.time = mod_datetime.datetime(2016, 5, 8, 21, 17, 17)
+        original_track_point.magnetic_variation = 13
+        original_track_point.geoid_height = 14
+        original_track_point.name = 'aaaaajkjk'
+        original_track_point.comment = 'wwwwii'
+        original_track_point.description = 'ciccc'
+        original_track_point.source = 'qssqq'
+        # TODO url
+        original_track_point.symbol = 'ai.png'
+        original_track_point.type = '3'
+        original_track_point.type_of_gpx_fix = 'pps'
+        original_track_point.satellites = 24
+        original_track_point.horizontal_dilution = 20
+        original_track_point.vertical_dilution = 21
+        original_track_point.position_dilution = 22
+        original_track_point.age_of_dgps_data = 23
+        original_track_point.dgps_id = '22'
+
+        original_track.segments.append(mod_gpx.GPXTrackSegment())
+        original_track.segments[0].points.append(original_track_point)
+
+        original_gpx.tracks.append(original_track)
 
         # Convert do GPX1.0:
         xml_10 = original_gpx.to_xml('1.0')
@@ -2575,6 +2613,8 @@ class AbstractTests:
             self.assertTrue(gpx.waypoints[0].dgps_id is not None)
             self.assertEquals(original_gpx.waypoints[0].dgps_id, gpx.waypoints[0].dgps_id)
 
+            # route(s):
+
             self.assertTrue(gpx.routes[0].name is not None)
             self.assertEquals(original_gpx.routes[0].name, gpx.routes[0].name)
 
@@ -2647,11 +2687,79 @@ class AbstractTests:
             self.assertTrue(gpx.routes[0].points[0].dgps_id is not None)
             self.assertEquals(original_gpx.routes[0].points[0].dgps_id, gpx.routes[0].points[0].dgps_id)
 
-            """
-            self.assertTrue(gpx.routes[0]. is not None)
-            self.assertEquals(original_gpx.routes[0]., gpx.routes[0].)
+            # track(s):
 
-            """
+            self.assertTrue(gpx.tracks[0].name is not None)
+            self.assertEquals(original_gpx.tracks[0].name, gpx.tracks[0].name)
+
+            self.assertTrue(gpx.tracks[0].comment is not None)
+            self.assertEquals(original_gpx.tracks[0].comment, gpx.tracks[0].comment)
+
+            self.assertTrue(gpx.tracks[0].description is not None)
+            self.assertEquals(original_gpx.tracks[0].description, gpx.tracks[0].description)
+
+            self.assertTrue(gpx.tracks[0].source is not None)
+            self.assertEquals(original_gpx.tracks[0].source, gpx.tracks[0].source)
+
+            self.assertTrue(gpx.tracks[0].number is not None)
+            self.assertEquals(original_gpx.tracks[0].number, gpx.tracks[0].number)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].latitude is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].latitude, gpx.tracks[0].segments[0].points[0].latitude)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].longitude is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].longitude, gpx.tracks[0].segments[0].points[0].longitude)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].elevation is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].elevation, gpx.tracks[0].segments[0].points[0].elevation)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].time is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].time, gpx.tracks[0].segments[0].points[0].time)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].magnetic_variation is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].magnetic_variation, gpx.tracks[0].segments[0].points[0].magnetic_variation)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].geoid_height is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].geoid_height, gpx.tracks[0].segments[0].points[0].geoid_height)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].name is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].name, gpx.tracks[0].segments[0].points[0].name)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].comment is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].comment, gpx.tracks[0].segments[0].points[0].comment)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].description is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].description, gpx.tracks[0].segments[0].points[0].description)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].source is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].source, gpx.tracks[0].segments[0].points[0].source)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].symbol is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].symbol, gpx.tracks[0].segments[0].points[0].symbol)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].type is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].type, gpx.tracks[0].segments[0].points[0].type)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].type_of_gpx_fix is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].type_of_gpx_fix, gpx.tracks[0].segments[0].points[0].type_of_gpx_fix)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].satellites is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].satellites, gpx.tracks[0].segments[0].points[0].satellites)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].horizontal_dilution is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].horizontal_dilution, gpx.tracks[0].segments[0].points[0].horizontal_dilution)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].vertical_dilution is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].vertical_dilution, gpx.tracks[0].segments[0].points[0].vertical_dilution)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].position_dilution is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].position_dilution, gpx.tracks[0].segments[0].points[0].position_dilution)
+        
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].age_of_dgps_data is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].age_of_dgps_data, gpx.tracks[0].segments[0].points[0].age_of_dgps_data)
+
+            self.assertTrue(gpx.tracks[0].segments[0].points[0].dgps_id is not None)
+            self.assertEquals(original_gpx.tracks[0].segments[0].points[0].dgps_id, gpx.tracks[0].segments[0].points[0].dgps_id)
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
