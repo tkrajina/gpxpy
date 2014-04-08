@@ -1640,7 +1640,9 @@ class AbstractTests:
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
-        print(reparsed_gpx.to_xml())
+        # Validated  with SAXParser in "make test"
+        with open('validation_gpx10.gpx', 'w') as f:
+            f.write(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
             for dom in (original_dom, reparsed_dom):
@@ -1931,7 +1933,9 @@ class AbstractTests:
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
 
-        pretty_print_xml(reparsed_gpx.to_xml())
+        # Validated  with SAXParser in "make test"
+        with open('validation_gpx11.gpx', 'w') as f:
+            f.write(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
             for dom in (original_dom, reparsed_dom):
