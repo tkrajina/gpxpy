@@ -148,9 +148,7 @@ class GPXBounds:
             mod_gpxfield.GPXField('max_longitude', attribute='maxlon', type=mod_gpxfield.FLOAT_TYPE),
     ]
 
-    __slots__ = ('min_latitude', 'max_latitude', 'min_longitude', 
-                 'max_longitude', 'min_latitude', 'max_latitude', 
-                 'min_longitude', 'max_longitude')
+    __slots__ = ('min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
 
     def __init__(self, min_latitude=None, max_latitude=None, min_longitude=None, max_longitude=None):
         self.min_latitude = min_latitude
@@ -182,13 +180,7 @@ class GPXWaypoint(mod_geo.Location):
                  'description', 'source', 'url', 'url_name', 'symbol', 'type', 
                  'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
                  'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
-                 'dgps_id', 'latitude', 'longitude', 'elevation', 'time', 
-                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'link_type', 
-                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
-                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
-                 'extensions')
+                 'dgps_id', 'link', 'link_text', 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
                  name=None, description=None, symbol=None, type=None,
@@ -238,13 +230,7 @@ class GPXRoutePoint(mod_geo.Location):
                  'description', 'source', 'url', 'url_name', 'symbol', 'type', 
                  'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
                  'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
-                 'dgps_id', 'latitude', 'longitude', 'elevation', 'time', 
-                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'link_type', 
-                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
-                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
-                 'extensions')
+                 'dgps_id', 'link', 'link_text', 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -308,9 +294,8 @@ class GPXRoute:
     ]
 
     __slots__ = ('name', 'comment', 'description', 'source', 'url', 
-                 'url_name', 'number', 'points', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'link_type', 
-                 'number', 'type', 'extensions', 'points')
+                 'url_name', 'number', 'points', 'link', 'link_text', 
+                 'link_type', 'type', 'extensions')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -383,14 +368,8 @@ class GPXTrackPoint(mod_geo.Location):
                  'comment', 'description', 'source', 'url', 'url_name', 
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites', 
                  'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
-                 'latitude', 'longitude', 'elevation', 'time', 
-                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'link_type', 
-                 'url', 'url_name', 'symbol', 'type', 'type_of_gpx_fix', 
-                 'satellites', 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
-                 'extensions')
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 'link', 
+                 'link_text', 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -477,7 +456,7 @@ class GPXTrackSegment:
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
 
-    __slots__ = ('points', 'points')
+    __slots__ = ('points', )
 
     def __init__(self, points=None):
         self.points = points if points else []
@@ -1036,9 +1015,8 @@ class GPXTrack:
     ]
 
     __slots__ = ('name', 'comment', 'description', 'source', 'url', 
-                 'url_name', 'number', 'segments', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'link_type', 
-                 'number', 'type', 'extensions', 'segments')
+                 'url_name', 'number', 'segments', 'link', 'link_text', 
+                 'link_type', 'type', 'extensions')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
@@ -1423,12 +1401,10 @@ class GPX:
 
     __slots__ = ('version', 'creator', 'name', 'description', 'author', 
                  'email', 'url', 'url_name', 'time', 'keywords', 'bounds', 
-                 'waypoints', 'routes', 'tracks', 'version', 'creator', 
-                 'name', 'description', 'author_name', 'email', 'author_link', 
-                 'author_link_text', 'author_link_type', 'copyright_author', 
-                 'copyright_year', 'copyright_license', 'link', 'link_text', 
-                 'link_type', 'time', 'keywords', 'bounds', 
-                 'metadata_extensions', 'waypoints', 'routes', 'tracks', 
+                 'waypoints', 'routes', 'tracks', 'author_name', 
+                 'author_link', 'author_link_text', 'author_link_type', 
+                 'copyright_author', 'copyright_year', 'copyright_license', 
+                 'link', 'link_text', 'link_type', 'metadata_extensions', 
                  'extensions')
 
     def __init__(self):

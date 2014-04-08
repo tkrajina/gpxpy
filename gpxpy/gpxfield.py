@@ -374,7 +374,8 @@ def gpx_check_slots_and_fill_default_values(classs):
                 value = None
             setattr(classs, field.name, value)
             print('%s.%s -> %s' % (classs, field.name, value))
-            gpx_field_names.append(field.name)
+            if not field.name in gpx_field_names:
+                gpx_field_names.append(field.name)
 
     gpx_field_names = tuple(gpx_field_names)
     if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
