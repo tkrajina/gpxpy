@@ -188,16 +188,31 @@ class GPXWaypoint(mod_geo.Location):
                  position_dilution=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
 
+        self.latitude = latitude
+        self.longitude = longitude
+        self.elevation = elevation
         self.time = time
+        self.magnetic_variation = None
+        self.geoid_height = None
         self.name = name
+        self.comment = comment
         self.description = description
+        self.source = None
+        self.url = None
+        self.url_name = None
         self.symbol = symbol
         self.type = type
-        self.comment = comment
-
+        self.type_of_gpx_fix = None
+        self.satellites = None
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
+        self.age_of_dgps_data = None
+        self.dgps_id = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.extensions = None
 
     def __str__(self):
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -238,17 +253,31 @@ class GPXRoutePoint(mod_geo.Location):
                  position_dilution=None):
 
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
-
+        self.latitude = latitude
+        self.longitude = longitude
+        self.elevation = elevation
         self.time = time
+        self.magnetic_variation = None
+        self.geoid_height = None
         self.name = name
+        self.comment = comment
         self.description = description
+        self.source = None
+        self.url = None
+        self.url_name = None
         self.symbol = symbol
         self.type = type
-        self.comment = comment
-
-        self.horizontal_dilution = horizontal_dilution  # Horizontal dilution of precision
-        self.vertical_dilution = vertical_dilution      # Vertical dilution of precision
-        self.position_dilution = position_dilution      # Position dilution of precision
+        self.type_of_gpx_fix = None
+        self.satellites = None
+        self.horizontal_dilution = horizontal_dilution
+        self.vertical_dilution = vertical_dilution
+        self.position_dilution = position_dilution
+        self.age_of_dgps_data = None
+        self.dgps_id = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.extensions = None
 
     def __str__(self):
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -299,10 +328,18 @@ class GPXRoute:
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
+        self.comment = None
         self.description = description
+        self.source = None
+        self.url = None
+        self.url_name = None
         self.number = number
-
         self.points = []
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.type = None
+        self.extensions = None
 
     def remove_elevation(self):
         for point in self.points:
@@ -375,17 +412,33 @@ class GPXTrackPoint(mod_geo.Location):
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
                  name=None):
         mod_geo.Location.__init__(self, latitude, longitude, elevation)
-
+        self.latitude = latitude
+        self.longitude = longitude
+        self.elevation = elevation
         self.time = time
-        self.symbol = symbol
-        self.comment = comment
-        self.name = name
-
-        self.horizontal_dilution = horizontal_dilution  # Horizontal dilution of precision
-        self.vertical_dilution = vertical_dilution      # Vertical dilution of precision
-        self.position_dilution = position_dilution      # Position dilution of precision
-
+        self.course = None
         self.speed = speed
+        self.magnetic_variation = None
+        self.geoid_height = None
+        self.name = name
+        self.comment = comment
+        self.description = None
+        self.source = None
+        self.url = None
+        self.url_name = None
+        self.symbol = symbol
+        self.type = None
+        self.type_of_gpx_fix = None
+        self.satellites = None
+        self.horizontal_dilution = horizontal_dilution
+        self.vertical_dilution = vertical_dilution
+        self.position_dilution = position_dilution
+        self.age_of_dgps_data = None
+        self.dgps_id = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.extensions = None
 
     def __repr__(self):
         representation = '%s, %s' % (self.latitude, self.longitude)
@@ -1019,14 +1072,19 @@ class GPXTrack:
                  'link_type', 'type', 'extensions')
 
     def __init__(self, name=None, description=None, number=None):
-        self.name = name
-        self.description = description
-        self.number = number
-        # Type is not exactly part of the standard but a is "proposed" and a 
-        # lot of application use it:
-        self.type = None
-
+        self.name = None
+        self.comment = None
+        self.description = None
+        self.source = None
+        self.url = None
+        self.url_name = None
+        self.number = None
         self.segments = []
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.type = None
+        self.extensions = None
 
     def simplify(self, max_distance=None):
         """
@@ -1408,6 +1466,29 @@ class GPX:
                  'extensions')
 
     def __init__(self):
+        self.version = None
+        self.creator = None
+        self.name = None
+        self.description = None
+        self.author = None
+        self.email = None
+        self.url = None
+        self.url_name = None
+        self.time = None
+        self.keywords = None
+        self.bounds = None
+        self.author_name = None
+        self.author_link = None
+        self.author_link_text = None
+        self.author_link_type = None
+        self.copyright_author = None
+        self.copyright_year = None
+        self.copyright_license = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
+        self.metadata_extensions = None
+        self.extensions = None
         self.waypoints = []
         self.routes = []
         self.tracks = []
@@ -1529,10 +1610,7 @@ class GPX:
 
         bounds = self.get_bounds()
 
-        self.min_latitude = bounds.min_latitude
-        self.max_latitude = bounds.max_latitude
-        self.min_longitude = bounds.min_longitude
-        self.max_longitude = bounds.max_longitude
+        self.bounds = bounds
 
     def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
         """ See GPXTrackSegment.smooth(...) """
@@ -1929,4 +2007,4 @@ for var_name in dir():
     var_value = vars()[var_name]
     if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
         print('Check/fill %s' % var_value)
-        mod_gpxfield.gpx_check_slots_and_fill_default_values(var_value)
+        mod_gpxfield.gpx_check_slots_and_default_values(var_value)

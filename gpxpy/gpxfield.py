@@ -354,7 +354,7 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
     return result
 
 
-def gpx_check_slots_and_fill_default_values(classs):
+def gpx_check_slots_and_default_values(classs):
     """
     Will fill the default values for this class. Instances will inherit those 
     values so we don't need to fill default values for every instance.
@@ -366,13 +366,35 @@ def gpx_check_slots_and_fill_default_values(classs):
 
     gpx_field_names = []
 
+    instance = classs()
+
+    try:
+        attributes = list(filter(lambda x : x[0] != '_', dir(instance)))
+        attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
+        attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
+    except Exception as e:
+        raise Exception('Error reading attributes for %s: %s' % (classs.__name__, e))
+
+    attributes.sort()
+    slots = list(classs.__slots__)
+    slots.sort()
+
+    if attributes != slots:
+        raise Exception('Attributes for%s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
+
     for field in fields:
         if not isinstance(field, str):
             if field.is_list:
                 value = []
             else:
                 value = None
-            setattr(classs, field.name, value)
+            try:
+                actual_value = getattr(instance, field.name)
+            except:
+                raise Exception('%s has no attribute %s' % (classs.__name__, field.name))
+            if value != actual_value:
+                raise Exception('Invalid default value %s.%s is %s but should be %s'
+                                % (classs.__name__, field.name, actual_value, value))
             print('%s.%s -> %s' % (classs, field.name, value))
             if not field.name in gpx_field_names:
                 gpx_field_names.append(field.name)
