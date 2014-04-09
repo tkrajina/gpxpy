@@ -1933,10 +1933,6 @@ class AbstractTests:
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
 
-        # Validated  with SAXParser in "make test"
-        with open('validation_gpx11.gpx', 'w') as f:
-            f.write(reparsed_gpx.to_xml())
-
         for gpx in (original_gpx, reparsed_gpx):
             for dom in (original_dom, reparsed_dom):
                 self.assertEquals(gpx.version, '1.1')
@@ -2286,6 +2282,28 @@ class AbstractTests:
 
                 self.assertEquals(1, len(gpx.tracks[0].segments[0].points[0].extensions))
                 self.assertEquals('true', gpx.tracks[0].segments[0].points[0].extensions['last'])
+
+        # Validated  with SAXParser in "make test"
+
+        # Clear extensions because those should be declared in the <gpx> but 
+        # gpxpy don't have support for this (yet):
+        reparsed_gpx.extensions = {}
+        reparsed_gpx.metadata_extensions = {}
+        for waypoint in reparsed_gpx.waypoints:
+            waypoint.extensions = {}
+        for route in reparsed_gpx.routes:
+            route.extensions = {}
+            for point in route.points:
+                point.extensions = {}
+        for track in reparsed_gpx.tracks:
+            track.extensions = {}
+            for segment in track.segments:
+                segment.extensions = {}
+                for point in segment.points:
+                    point.extensions = {}
+
+        with open('validation_gpx11.gpx', 'w') as f:
+            f.write(reparsed_gpx.to_xml())
 
     def test_10_to_11_conversion(self):
         """
