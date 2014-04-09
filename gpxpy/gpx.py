@@ -88,8 +88,6 @@ GPX_11_POINT_FIELDS = [
             mod_gpxfield.GPXField('link_text', tag='text'),
             mod_gpxfield.GPXField('link_type', tag='type'),
         '/link',
-        mod_gpxfield.GPXField('url'),
-        mod_gpxfield.GPXField('url_name', 'urlname'),
         mod_gpxfield.GPXField('symbol', 'sym'),
         mod_gpxfield.GPXField('type'),
         mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),

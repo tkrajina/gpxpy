@@ -2048,12 +2048,6 @@ class AbstractTests:
                 self.assertEquals(gpx.waypoints[0].link_type, 'link type3')
                 self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/link/type').firstChild.nodeValue, 'link type3')
 
-                self.assertEquals(gpx.waypoints[0].url, 'example url')
-                self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/url').firstChild.nodeValue, 'example url')
-
-                self.assertEquals(gpx.waypoints[0].url_name, 'example urlname')
-                self.assertEquals(get_dom_node(dom, 'gpx/wpt[0]/urlname').firstChild.nodeValue, 'example urlname')
-
                 self.assertEquals(gpx.waypoints[1].latitude, 13.4)
                 self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lat'].value, '13.4')
 
@@ -2647,6 +2641,7 @@ class AbstractTests:
 
             self.assertTrue(gpx.tracks[0].segments[0].points[0].dgps_id is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].dgps_id, gpx.tracks[0].segments[0].points[0].dgps_id)
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
