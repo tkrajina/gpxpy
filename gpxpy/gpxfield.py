@@ -380,7 +380,7 @@ def gpx_check_slots_and_default_values(classs):
     slots.sort()
 
     if attributes != slots:
-        raise Exception('Attributes for%s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
+        raise Exception('Attributes for %s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
 
     for field in fields:
         if not isinstance(field, str):

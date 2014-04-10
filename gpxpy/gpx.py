@@ -60,8 +60,8 @@ GPX_10_POINT_FIELDS = [
         mod_gpxfield.GPXField('comment', 'cmt'),
         mod_gpxfield.GPXField('description', 'desc'),
         mod_gpxfield.GPXField('source', 'src'),
-        mod_gpxfield.GPXField('url'),
-        mod_gpxfield.GPXField('url_name', 'urlname'),
+        mod_gpxfield.GPXField('link', 'url'),
+        mod_gpxfield.GPXField('link_text', 'urlname'),
         mod_gpxfield.GPXField('symbol', 'sym'),
         mod_gpxfield.GPXField('type'),
         mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps',)),
@@ -175,10 +175,11 @@ class GPXWaypoint(mod_geo.Location):
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
                  'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'url', 'url_name', 'symbol', 'type', 
-                 'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
-                 'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
-                 'dgps_id', 'link', 'link_text', 'link_type', 'extensions')
+                 'description', 'source', 'link', 'link_text', 'symbol', 
+                 'type', 'type_of_gpx_fix', 'satellites', 
+                 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
                  name=None, description=None, symbol=None, type=None,
@@ -196,8 +197,9 @@ class GPXWaypoint(mod_geo.Location):
         self.comment = comment
         self.description = description
         self.source = None
-        self.url = None
-        self.url_name = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
         self.symbol = symbol
         self.type = type
         self.type_of_gpx_fix = None
@@ -207,9 +209,6 @@ class GPXWaypoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.link = None
-        self.link_text = None
-        self.link_type = None
         self.extensions = None
 
     def __str__(self):
@@ -240,10 +239,11 @@ class GPXRoutePoint(mod_geo.Location):
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
                  'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'url', 'url_name', 'symbol', 'type', 
-                 'type_of_gpx_fix', 'satellites', 'horizontal_dilution', 
-                 'vertical_dilution', 'position_dilution', 'age_of_dgps_data', 
-                 'dgps_id', 'link', 'link_text', 'link_type', 'extensions')
+                 'description', 'source', 'link', 'link_text', 'symbol', 
+                 'type', 'type_of_gpx_fix', 'satellites', 
+                 'horizontal_dilution', 'vertical_dilution', 
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
                  description=None, symbol=None, type=None, comment=None,
@@ -261,8 +261,8 @@ class GPXRoutePoint(mod_geo.Location):
         self.comment = comment
         self.description = description
         self.source = None
-        self.url = None
-        self.url_name = None
+        self.link = None
+        self.link_text = None
         self.symbol = symbol
         self.type = type
         self.type_of_gpx_fix = None
@@ -272,8 +272,6 @@ class GPXRoutePoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.link = None
-        self.link_text = None
         self.link_type = None
         self.extensions = None
 
@@ -299,8 +297,8 @@ class GPXRoute:
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('url_name', 'urlname'),
+            mod_gpxfield.GPXField('link', 'url'),
+            mod_gpxfield.GPXField('link_text', 'urlname'),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
@@ -320,21 +318,19 @@ class GPXRoute:
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'url', 
-                 'url_name', 'number', 'points', 'link', 'link_text', 
-                 'link_type', 'type', 'extensions')
+    __slots__ = ('name', 'comment', 'description', 'source', 'link', 
+                 'link_text', 'number', 'points', 'link_type', 'type', 
+                 'extensions')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = name
         self.comment = None
         self.description = description
         self.source = None
-        self.url = None
-        self.url_name = None
-        self.number = number
-        self.points = []
         self.link = None
         self.link_text = None
+        self.number = number
+        self.points = []
         self.link_type = None
         self.type = None
         self.extensions = None
@@ -400,11 +396,11 @@ class GPXTrackPoint(mod_geo.Location):
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course', 
                  'speed', 'magnetic_variation', 'geoid_height', 'name', 
-                 'comment', 'description', 'source', 'url', 'url_name', 
+                 'comment', 'description', 'source', 'link', 'link_text', 
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites', 
                  'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 'link', 
-                 'link_text', 'link_type', 'extensions')
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+                 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -422,8 +418,9 @@ class GPXTrackPoint(mod_geo.Location):
         self.comment = comment
         self.description = None
         self.source = None
-        self.url = None
-        self.url_name = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
         self.symbol = symbol
         self.type = None
         self.type_of_gpx_fix = None
@@ -433,9 +430,6 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.link = None
-        self.link_text = None
-        self.link_type = None
         self.extensions = None
 
     def __repr__(self):
@@ -1044,8 +1038,8 @@ class GPXTrack:
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('url_name', 'urlname'),
+            mod_gpxfield.GPXField('link', 'url'),
+            mod_gpxfield.GPXField('link_text', 'urlname'),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
@@ -1065,21 +1059,19 @@ class GPXTrack:
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'url', 
-                 'url_name', 'number', 'segments', 'link', 'link_text', 
-                 'link_type', 'type', 'extensions')
+    __slots__ = ('name', 'comment', 'description', 'source', 'link', 
+                 'link_text', 'number', 'segments', 'link_type', 'type', 
+                 'extensions')
 
     def __init__(self, name=None, description=None, number=None):
         self.name = None
         self.comment = None
         self.description = None
         self.source = None
-        self.url = None
-        self.url_name = None
-        self.number = None
-        self.segments = []
         self.link = None
         self.link_text = None
+        self.number = None
+        self.segments = []
         self.link_type = None
         self.type = None
         self.extensions = None
@@ -1410,8 +1402,8 @@ class GPX:
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('author'),
             mod_gpxfield.GPXField('email'),
-            mod_gpxfield.GPXField('url'),
-            mod_gpxfield.GPXField('url_name', 'urlname'),
+            mod_gpxfield.GPXField('link', 'url'),
+            mod_gpxfield.GPXField('link_text', 'urlname'),
             mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
             mod_gpxfield.GPXField('keywords'),
             mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds),
@@ -1456,12 +1448,11 @@ class GPX:
     ]
 
     __slots__ = ('version', 'creator', 'name', 'description', 'author', 
-                 'email', 'url', 'url_name', 'time', 'keywords', 'bounds', 
+                 'email', 'link', 'link_text', 'time', 'keywords', 'bounds', 
                  'waypoints', 'routes', 'tracks', 'author_name', 
                  'author_link', 'author_link_text', 'author_link_type', 
                  'copyright_author', 'copyright_year', 'copyright_license', 
-                 'link', 'link_text', 'link_type', 'metadata_extensions', 
-                 'extensions')
+                 'link_type', 'metadata_extensions', 'extensions')
 
     def __init__(self):
         self.version = None
@@ -1470,8 +1461,9 @@ class GPX:
         self.description = None
         self.author = None
         self.email = None
-        self.url = None
-        self.url_name = None
+        self.link = None
+        self.link_text = None
+        self.link_type = None
         self.time = None
         self.keywords = None
         self.bounds = None
@@ -1482,9 +1474,6 @@ class GPX:
         self.copyright_author = None
         self.copyright_year = None
         self.copyright_license = None
-        self.link = None
-        self.link_text = None
-        self.link_type = None
         self.metadata_extensions = None
         self.extensions = None
         self.waypoints = []
