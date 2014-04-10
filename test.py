@@ -1658,10 +1658,10 @@ class AbstractTests:
                 self.assertEquals(gpx.description, 'example description')
                 self.assertEquals(get_dom_node(dom, 'gpx/desc').firstChild.nodeValue, 'example description')
 
-                self.assertEquals(gpx.author, 'example author')
+                self.assertEquals(gpx.author_name, 'example author')
                 self.assertEquals(get_dom_node(dom, 'gpx/author').firstChild.nodeValue, 'example author')
 
-                self.assertEquals(gpx.email, 'example@email.com')
+                self.assertEquals(gpx.author_email, 'example@email.com')
                 self.assertEquals(get_dom_node(dom, 'gpx/email').firstChild.nodeValue, 'example@email.com')
 
                 self.assertEquals(gpx.link, 'http://example.url')
@@ -1950,7 +1950,7 @@ class AbstractTests:
                 self.assertEquals(gpx.author_name, 'author name')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/name').firstChild.nodeValue, 'author name')
 
-                self.assertEquals(gpx.email, 'aaa@bbb.com')
+                self.assertEquals(gpx.author_email, 'aaa@bbb.com')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/email').attributes['id'].nodeValue, 'aaa')
                 self.assertEquals(get_dom_node(dom, 'gpx/metadata/author/email').attributes['domain'].nodeValue, 'bbb.com')
 
@@ -2316,8 +2316,10 @@ class AbstractTests:
         original_gpx.description = 'w'
         original_gpx.time = mod_datetime.datetime(2014, 4, 7, 21, 17, 39)
         original_gpx.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
-        # TODO
-        #original_gpx.author = 'a'
+        original_gpx.author_name = '789'
+        original_gpx.author_email = '256@aaa'
+        original_gpx.link = 'http://9890'
+        original_gpx.link_text = '77888'
         original_gpx.keywords = 'kw'
 
         original_waypoint = mod_gpx.GPXWaypoint()
@@ -2437,16 +2439,23 @@ class AbstractTests:
             self.assertTrue(gpx.description is not None)
             self.assertEquals(original_gpx.description, gpx.description)
 
-            """
-            self.assertTrue(gpx.author is not None)
-            self.assertEquals(original_gpx.author, gpx.author)
-            """
-
             self.assertTrue(gpx.keywords is not None)
             self.assertEquals(original_gpx.keywords, gpx.keywords)
 
             self.assertTrue(gpx.time is not None)
             self.assertEquals(original_gpx.time, gpx.time)
+
+            self.assertTrue(gpx.author_name is not None)
+            self.assertEquals(original_gpx.author_name, gpx.author_name)
+
+            self.assertTrue(gpx.author_email is not None)
+            self.assertEquals(original_gpx.author_email, gpx.author_email)
+
+            self.assertTrue(gpx.link is not None)
+            self.assertEquals(original_gpx.link, gpx.link)
+
+            self.assertTrue(gpx.link_text is not None)
+            self.assertEquals(original_gpx.link_text, gpx.link_text)
 
             self.assertTrue(gpx.bounds is not None)
             self.assertEquals(hash(original_gpx.bounds), hash(gpx.bounds))

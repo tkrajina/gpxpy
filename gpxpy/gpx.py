@@ -1400,8 +1400,8 @@ class GPX:
             mod_gpxfield.GPXField('creator', attribute=True),
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('description', 'desc'),
-            mod_gpxfield.GPXField('author'),
-            mod_gpxfield.GPXField('email'),
+            mod_gpxfield.GPXField('author_name', 'author'),
+            mod_gpxfield.GPXField('author_email', 'email'),
             mod_gpxfield.GPXField('link', 'url'),
             mod_gpxfield.GPXField('link_text', 'urlname'),
             mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
@@ -1419,7 +1419,7 @@ class GPX:
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author',
                     mod_gpxfield.GPXField('author_name', 'name'),
-                    mod_gpxfield.GPXEmailField('email'),
+                    mod_gpxfield.GPXEmailField('author_email', 'email'),
                     'link',
                         mod_gpxfield.GPXField('author_link', attribute='href'),
                         mod_gpxfield.GPXField('author_link_text', tag='text'),
@@ -1447,20 +1447,18 @@ class GPX:
             mod_gpxfield.GPXExtensionsField('extensions'),
     ]
 
-    __slots__ = ('version', 'creator', 'name', 'description', 'author', 
-                 'email', 'link', 'link_text', 'time', 'keywords', 'bounds', 
-                 'waypoints', 'routes', 'tracks', 'author_name', 
-                 'author_link', 'author_link_text', 'author_link_type', 
-                 'copyright_author', 'copyright_year', 'copyright_license', 
-                 'link_type', 'metadata_extensions', 'extensions')
+    __slots__ = ('version', 'creator', 'name', 'description', 'author_name', 
+                 'author_email', 'link', 'link_text', 'time', 'keywords', 
+                 'bounds', 'waypoints', 'routes', 'tracks', 'author_link', 
+                 'author_link_text', 'author_link_type', 'copyright_author', 
+                 'copyright_year', 'copyright_license', 'link_type', 
+                 'metadata_extensions', 'extensions')
 
     def __init__(self):
         self.version = None
         self.creator = None
         self.name = None
         self.description = None
-        self.author = None
-        self.email = None
         self.link = None
         self.link_text = None
         self.link_type = None
@@ -1468,6 +1466,7 @@ class GPX:
         self.keywords = None
         self.bounds = None
         self.author_name = None
+        self.author_email = None
         self.author_link = None
         self.author_link_text = None
         self.author_link_type = None
