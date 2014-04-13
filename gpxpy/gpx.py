@@ -1072,7 +1072,7 @@ class GPXTrackSegment:
         if len(elevations) == 0:
             return MinimumMaximum(None, None)
 
-        return MinimumMaximum(max(elevations), min(elevations))
+        return MinimumMaximum(min(elevations), max(elevations))
 
     def get_location_at(self, time):
         """
