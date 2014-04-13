@@ -2669,6 +2669,33 @@ class AbstractTests:
             self.assertTrue(gpx.tracks[0].segments[0].points[0].dgps_id is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].dgps_id, gpx.tracks[0].segments[0].points[0].dgps_id)
 
+    def test_min_max(self):
+        gpx = mod_gpx.GPX()
+        
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=100))
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=200))
+
+        # Check for segment:
+        elevation_min, elevation_max = segment.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for gpx:
+        elevation_min, elevation_max = track.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for gpx:
+        elevation_min, elevation_max = gpx.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
