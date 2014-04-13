@@ -574,14 +574,19 @@ class GPXTrackPoint(mod_geo.Location):
 
 
 class GPXTrackSegment:
-    gpx_10_fields = gpx_11_fields = [
+    gpx_10_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
+    gpx_11_fields = [
+            mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
+            mod_gpxfield.GPXExtensionsField('extensions'),
+    ]
 
-    __slots__ = ('points', )
+    __slots__ = ('points', 'extensions', )
 
     def __init__(self, points=None):
         self.points = points if points else []
+        self.extensions = None
 
     def simplify(self, max_distance=None):
         """
