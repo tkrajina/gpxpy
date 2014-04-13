@@ -2686,7 +2686,7 @@ class AbstractTests:
         self.assertEquals(100, elevation_min)
         self.assertEquals(200, elevation_max)
 
-        # Check for gpx:
+        # Check for track:
         elevation_min, elevation_max = track.get_elevation_extremes()
         self.assertEquals(100, elevation_min)
         self.assertEquals(200, elevation_max)
