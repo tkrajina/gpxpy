@@ -45,3 +45,5 @@ nosetests.xml
 
 # PyCharm
 .idea
+
+pyenv/*
