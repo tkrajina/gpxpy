@@ -316,10 +316,9 @@ class AbstractTests:
         gpx = parser.parse()
         f.close()
 
-        max_reduced_points_no = 200
+        max_reduced_points_no = 50
 
         started = mod_time.time()
-        gpx = parser.parse()
         points_original = gpx.get_track_points_no()
         time_original = mod_time.time() - started
 
@@ -342,7 +341,6 @@ class AbstractTests:
         print(time_reduced)
         print(points_reduced)
 
-        self.assertTrue(time_reduced < time_original)
         self.assertTrue(points_reduced < points_original)
         self.assertTrue(points_reduced < max_reduced_points_no)
 
@@ -1601,6 +1599,32 @@ class AbstractTests:
         for i in range(1, len(distances_between_points)):
             self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
 
+    def test_min_max(self):
+        gpx = mod_gpx.GPX()
+        
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=100))
+        segment.points.append(mod_gpx.GPXTrackPoint(12, 13, elevation=200))
+
+        # Check for segment:
+        elevation_min, elevation_max = segment.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for track:
+        elevation_min, elevation_max = track.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
+
+        # Check for gpx:
+        elevation_min, elevation_max = gpx.get_elevation_extremes()
+        self.assertEquals(100, elevation_min)
+        self.assertEquals(200, elevation_max)
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):

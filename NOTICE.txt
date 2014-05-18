@@ -25,3 +25,7 @@ Python3 compatibility from Robert Smallshire  (https://github.com/rob-smallshire
 __repr__, pep8, better docs, timedelta fix from Bryce Jasmer (https://github.com/bj1)
 
 ===============================================================================
+
+Better docs by George Titsworth (https://github.com/titsworth)
+
+===============================================================================
