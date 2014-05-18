@@ -59,6 +59,13 @@ Usage
 
     print 'Created GPX:', gpx.to_xml()
 
+GPX Version:
+------------
+
+gpx.py can parse and generate GPX 1.0 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
+
+An experimental version with GPX 1.1 is available in the **gpx-1.1** branch.
+
 XML parsing
 -----------
 
@@ -108,11 +115,6 @@ Example usage:
       Total downhill: 1087.7812703m
       Started: 2013-06-01 06:46:53
       Ended: 2013-06-01 10:23:45
-
-GPX Version:
-------------
-
-gpx.py can parse and generate GPX 1.0 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
 
 See also
 --------
