@@ -395,7 +395,7 @@ def gpx_check_slots_and_default_values(classs):
             if value != actual_value:
                 raise Exception('Invalid default value %s.%s is %s but should be %s'
                                 % (classs.__name__, field.name, actual_value, value))
-            print('%s.%s -> %s' % (classs, field.name, value))
+            #print('%s.%s -> %s' % (classs, field.name, value))
             if not field.name in gpx_field_names:
                 gpx_field_names.append(field.name)
 

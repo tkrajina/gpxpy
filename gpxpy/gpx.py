@@ -2589,5 +2589,5 @@ class GPX:
 for var_name in dir():
     var_value = vars()[var_name]
     if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
-        print('Check/fill %s' % var_value)
+        #print('Check/fill %s' % var_value)
         mod_gpxfield.gpx_check_slots_and_default_values(var_value)

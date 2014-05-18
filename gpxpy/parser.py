@@ -214,6 +214,4 @@ class GPXParser:
 
         version = self.xml_parser.get_node_attribute(node, 'version')
 
-        print(version)
-
         mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
