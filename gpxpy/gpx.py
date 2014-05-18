@@ -561,7 +561,7 @@ class GPXTrackPoint(mod_geo.Location):
         if not length:
             length = self.distance_2d(track_point)
 
-        if not seconds or not length:
+        if not seconds or length is None:
             return None
 
         return length / float(seconds)
