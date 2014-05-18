@@ -93,7 +93,8 @@ class LXMLParser:
     """
 
     def __init__(self, xml):
-        assert mod_etree
+        if not mod_etree:
+            raise Exception('Cannot use LXMLParser without lxml installed')
 
         if mod_utils.PYTHON_VERSION[0] == '3':
             # In python 3 all strings are unicode and for some reason lxml
