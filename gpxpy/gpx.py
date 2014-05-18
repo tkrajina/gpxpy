@@ -154,6 +154,9 @@ class GPXBounds:
         self.min_longitude = min_longitude
         self.max_longitude = max_longitude
 
+    def __iter__(self):
+        return (self.min_latitude, self.max_latitude, self.min_longitude, self.max_longitude,).__iter__()
+
     def __hash__(self):
         return mod_utils.hash_object(self, self.__slots__)
 
