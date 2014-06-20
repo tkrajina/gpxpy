@@ -15,31 +15,15 @@
 # limitations under the License.
 
 import inspect as mod_inspect
-import datetime as mod_datetime
-
+import isodate
 from . import utils as mod_utils
+
 
 
 class GPXFieldTypeConverter:
     def __init__(self, from_string, to_string):
         self.from_string = from_string
         self.to_string = to_string
-
-
-def parse_time(string):
-    from . import gpx as mod_gpx
-    if not string:
-        return None
-    if 'T' in string:
-        string = string.replace('T', ' ')
-    if 'Z' in string:
-        string = string.replace('Z', '')
-    for date_format in mod_gpx.DATE_FORMATS:
-        try:
-            return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError as e:
-            pass
-    raise GPXException('Invalid time: %s' % string)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -61,22 +45,10 @@ class IntConverter:
 
 class TimeConverter:
     def from_string(self, string):
-        from . import gpx as mod_gpx
-        if not string:
-            return None
-        if 'T' in string:
-            string = string.replace('T', ' ')
-        if 'Z' in string:
-            string = string.replace('Z', '')
-        for date_format in mod_gpx.DATE_FORMATS:
-            try:
-                return mod_datetime.datetime.strptime(string, date_format)
-            except ValueError as e:
-                pass
-        return None
+        return isodate.parse_datetime(string)
+
     def to_string(self, time):
-        from . import gpx as mod_gpx
-        return time.strftime(mod_gpx.DATE_FORMAT) if time else None
+        return isodate.datetime_isoformat(time) if time else None
 
 
 INT_TYPE = IntConverter()

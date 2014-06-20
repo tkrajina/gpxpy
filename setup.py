@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import distutils.core as mod_distutilscore
+from setuptools import setup
 
-mod_distutilscore.setup(
+setup(
     name='gpxpy',
     version='0.9.8',
     description='GPX file parser and GPS track manipulation library',
@@ -25,6 +25,7 @@ mod_distutilscore.setup(
     author_email='tkrajina@gmail.com',
     url='http://www.trackprofiler.com/gpxpy/index.html',
     packages=['gpxpy',],
+    install_requires=['lxml', 'isodate'],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
