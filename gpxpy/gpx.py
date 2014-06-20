@@ -30,9 +30,6 @@ from . import utils as mod_utils
 from . import geo as mod_geo
 from . import gpxfield as mod_gpxfield
 
-# GPX date format to be used when writing the GPX output:
-DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
-
 # Used in smoothing, sum must be 1:
 SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 

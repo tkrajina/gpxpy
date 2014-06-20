@@ -45,11 +45,7 @@ class IntConverter:
 
 class TimeConverter:
     def from_string(self, string):
-        #try:
         return isodate.parse_datetime(string)
-        #except:
-        #    # silently fail on error
-        #    return
 
     def to_string(self, time):
         return isodate.datetime_isoformat(time) if time else None
