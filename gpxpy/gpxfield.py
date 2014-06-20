@@ -26,22 +26,6 @@ class GPXFieldTypeConverter:
         self.to_string = to_string
 
 
-def parse_time(string):
-    from . import gpx as mod_gpx
-    if not string:
-        return None
-    if 'T' in string:
-        string = string.replace('T', ' ')
-    if 'Z' in string:
-        string = string.replace('Z', '')
-    for date_format in mod_gpx.DATE_FORMATS:
-        try:
-            return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError as e:
-            pass
-    raise GPXException('Invalid time: %s' % string)
-
-
 # ----------------------------------------------------------------------------------------------------
 # Type converters used to convert from/to the string in the XML:
 # ----------------------------------------------------------------------------------------------------

@@ -1510,6 +1510,7 @@ class AbstractTests:
         self.assertEquals(seconds, 60 * 60 * 24 + 60)
 
     def test_parse_time(self):
+        tc = mod_gpxfield.TimeConverter()
         timestamps = [
             '2001-10-26T21:32:52',
             #'2001-10-26T21:32:52+0200',
@@ -1529,7 +1530,11 @@ class AbstractTests:
             timestamps.append(t)
         for timestamp in timestamps:
             print('Parsing: %s' % timestamp)
-            self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
+            self.assertTrue(tc.from_string(timestamp) is not None)
+
+        # FIXME: Check that the values returned are actually those that are
+        # expected, not that the parse was successful.  These tests are
+        # incomplete.
 
     def test_get_location_at(self):
         gpx = mod_gpx.GPX()
