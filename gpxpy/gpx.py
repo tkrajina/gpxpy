@@ -2329,10 +2329,8 @@ class GPX:
 
     def add_missing_times(self):
         def _add(interval, start, end, distances_ratios):
-            assert start
-            assert end
-            assert start.time is not None
-            assert end.time is not None
+            if (not start) or (not end) or (not start.time) or (not end.time):
+                return
             assert interval
             assert len(interval) == len(distances_ratios)
 
