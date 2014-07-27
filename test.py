@@ -1635,5 +1635,40 @@ class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
         return 'minidom'
 
+class MiscTests(mod_unittest.TestCase):
+    def test_join_gpx_xml_files(self):
+        import gpxpy.join
+
+        files = [
+                'test_files/cerknicko-jezero.gpx',
+                'test_files/first_and_last_elevation.gpx',
+                'test_files/korita-zbevnica.gpx',
+                'test_files/Mojstrovka.gpx',
+        ]
+
+        rtes = 0
+        wpts = 0
+        trcks = 0
+        points = 0
+
+        xmls = []
+        for file_name in files:
+            with open(file_name) as f:
+                contents = f.read()
+                gpx = mod_gpxpy.parse(contents)
+                wpts += len(gpx.waypoints)
+                rtes += len(gpx.routes)
+                trcks += len(gpx.tracks)
+                points += gpx.get_points_no()
+                xmls.append(contents)
+
+        result_xml = gpxpy.join.join_gpxs(xmls)
+        result_gpx = mod_gpxpy.parse(result_xml)
+
+        self.assertEquals(rtes, len(result_gpx.routes))
+        self.assertEquals(wpts, len(result_gpx.waypoints))
+        self.assertEquals(trcks, len(result_gpx.tracks))
+        self.assertEquals(points, result_gpx.get_points_no())
+
 if __name__ == '__main__':
     mod_unittest.main()
