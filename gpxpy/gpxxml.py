@@ -16,8 +16,6 @@ def split_gpxs(xml):
                 gpx_track_nodes.append(child_node)
                 gpx_node.removeChild(child_node)
 
-    import ipdb;ipdb.set_trace()
-
     for gpx_track_node in gpx_track_nodes:
         gpx_node.appendChild(gpx_track_node)
         yield dom.toxml()

@@ -1637,7 +1637,7 @@ class MinidomTests(LxmlTests, AbstractTests):
 
 class MiscTests(mod_unittest.TestCase):
     def test_join_gpx_xml_files(self):
-        import gpxpy.join
+        import gpxpy.gpxxml
 
         files = [
                 'test_files/cerknicko-jezero.gpx',
@@ -1662,7 +1662,7 @@ class MiscTests(mod_unittest.TestCase):
                 points += gpx.get_points_no()
                 xmls.append(contents)
 
-        result_xml = gpxpy.join.join_gpxs(xmls)
+        result_xml = gpxpy.gpxxml.join_gpxs(xmls)
         result_gpx = mod_gpxpy.parse(result_xml)
 
         self.assertEquals(rtes, len(result_gpx.routes))
