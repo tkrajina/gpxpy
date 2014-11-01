@@ -128,9 +128,13 @@ class LXMLParser:
         return children[0]
 
     def get_node_name(self, node):
-        if '}' in node.tag:
-            return node.tag.split('}')[1]
-        return node.tag
+        if callable(node.tag):
+            tag = str(node.tag())
+        else:
+            tag = str(node.tag)
+        if '}' in tag:
+            return tag.split('}')[1]
+        return tag
 
     def get_children(self, node=None):
         if node is None:

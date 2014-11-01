@@ -1577,6 +1577,9 @@ class AbstractTests:
         self.assertTrue(cca(location.latitude, location_2.latitude))
         self.assertTrue(cca(location.longitude, location_2.longitude))
 
+    def test_delta_add_and_move(self):
+        self.assertTrue(mod_gpxpy.parse(open('test_files/gpx-with-node-with-comments.gpx')))
+
     def __test_location_delta(self, location, distance):
         angles = [ x * 15 for x in range(int(360 / 15)) ]
         print(angles)
