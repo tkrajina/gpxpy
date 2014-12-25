@@ -33,18 +33,18 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     """
     length_2d = gpx_part.length_2d()
     length_3d = gpx_part.length_3d()
-    print('%sLength 2D: %s' % (indentation, length_2d / 1000.))
-    print('%sLength 3D: %s' % (indentation, length_3d / 1000.))
+    print('{}Length 2D: {:.3f}km'.format(indentation, length_2d / 1000.))
+    print('{}Length 3D: {:.3f}km'.format(indentation, length_3d / 1000.))
 
     moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx_part.get_moving_data()
     print('%sMoving time: %s' % (indentation, format_time(moving_time)))
     print('%sStopped time: %s' % (indentation, format_time(stopped_time)))
     #print('%sStopped distance: %sm' % stopped_distance)
-    print('%sMax speed: %sm/s = %skm/h' % (indentation, max_speed, max_speed * 60. ** 2 / 1000. if max_speed else 0))
+    print('{}Max speed: {:.2f}m/s = {:.2f}km/h'.format(indentation, max_speed if max_speed else 0, max_speed * 60. ** 2 / 1000. if max_speed else 0))
 
     uphill, downhill = gpx_part.get_uphill_downhill()
-    print('%sTotal uphill: %sm' % (indentation, uphill))
-    print('%sTotal downhill: %sm' % (indentation, downhill))
+    print('{}Total uphill: {:.2f}m'.format(indentation, uphill))
+    print('{}Total downhill: {:.2f}m'.format(indentation, downhill))
 
     start_time, end_time = gpx_part.get_time_bounds()
     print('%sStarted: %s' % (indentation, start_time))
@@ -60,7 +60,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
             distance = point.distance_2d(previous_point)
             distances.append(distance)
         previous_point = point
-    print('%sAvg distance between points: %sm' % (indentation, sum(distances) / len(list(gpx_part.walk()))))
+    print('{}Avg distance between points: {:.2f}m'.format(indentation, sum(distances) / len(list(gpx_part.walk()))))
 
     print('')
 
