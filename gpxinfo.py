@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+"""
+Command line utility to extract basic statistics from a gpx file
+"""
+
 import pdb
 
 import sys as mod_sys
@@ -11,7 +15,7 @@ import gpxpy as mod_gpxpy
 #mod_logging.basicConfig(level=mod_logging.DEBUG,
 #                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-gpx_files = mod_sys.argv[1:]
+
 
 
 def format_time(time_s):
@@ -56,12 +60,12 @@ def print_gpx_part_info(gpx_part, indentation='    '):
             distance = point.distance_2d(previous_point)
             distances.append(distance)
         previous_point = point
-    print('%sAvg distance between points: %sm' % (indentation, sum(distances) / len(list(gpx.walk()))))
+    print('%sAvg distance between points: %sm' % (indentation, sum(distances) / len(list(gpx_part.walk()))))
 
     print('')
 
 
-def print_gpx_info(gpx):
+def print_gpx_info(gpx, gpx_file):
     print('File: %s' % gpx_file)
 
     if gpx.name:
@@ -80,15 +84,19 @@ def print_gpx_info(gpx):
             print('    Track #%s, Segment #%s' % (track_no, segment_no))
             print_gpx_part_info(segment, indentation='        ')
 
-if not gpx_files:
-    print('No GPX files given')
-    mod_sys.exit(1)
-
-for gpx_file in gpx_files:
-    try:
-        gpx = mod_gpxpy.parse(open(gpx_file))
-        print_gpx_info(gpx)
-    except Exception as e:
-        mod_logging.exception(e)
-        print('Error processing %s' % gpx_file)
+def run(gpx_files):
+    if not gpx_files:
+        print('No GPX files given')
         mod_sys.exit(1)
+
+    for gpx_file in gpx_files:
+        try:
+            gpx = mod_gpxpy.parse(open(gpx_file))
+            print_gpx_info(gpx, gpx_file)
+        except Exception as e:
+            mod_logging.exception(e)
+            print('Error processing %s' % gpx_file)
+            mod_sys.exit(1)
+
+if __name__ == '__main__':
+    run(mod_sys.argv[1:])
