@@ -30,10 +30,5 @@ mod_distutilscore.setup(
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
     ],
-    # scripts=['gpxinfo']
-    entry_points={
-        "console_scripts": [
-            "gpxinfo = gpxinfo:run",
-        ]
-    },
+    scripts=['gpxinfo']
 )
