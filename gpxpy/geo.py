@@ -138,7 +138,7 @@ def calculate_uphill_downhill(elevations):
     def __filter(n):
         current_ele = elevations[n]
         if current_ele is None:
-            return False
+            return None
         if 0 < n < size - 1:
             previous_ele = elevations[n-1]
             next_ele = elevations[n+1]
@@ -151,7 +151,7 @@ def calculate_uphill_downhill(elevations):
     uphill, downhill = 0., 0.
 
     for n, elevation in enumerate(smoothed_elevations):
-        if n > 0 and elevation is not None and smoothed_elevations is not None:
+        if n > 0 and elevation is not None and smoothed_elevations[n-1] is not None:
             d = elevation - smoothed_elevations[n-1]
             if d > 0:
                 uphill += d
