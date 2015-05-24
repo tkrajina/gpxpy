@@ -936,6 +936,27 @@ class AbstractTests:
         self.assertEqual(uphill, uphill_downhill.uphill)
         self.assertEqual(downhill, uphill_downhill.downhill)
 
+    def test_uphill_downhill_with_missing_values(self):
+        gpx = mod_gpx.GPX()
+
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 1, elevation=100))
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 2, elevation=110))
+        # Point without elevation:
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 3))
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 4, elevation=130))
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 3))
+        segment.points.append(mod_gpx.GPXTrackPoint(1, 2, elevation=90))
+
+        uphill, downhill = gpx.get_uphill_downhill()
+        self.assertEqual(uphill, 30)
+        self.assertEqual(downhill, 40)
+
     def test_named_tuples_values_elevation_extremes(self):
         gpx = self.parse('korita-zbevnica.gpx')
 
@@ -1632,7 +1653,6 @@ class AbstractTests:
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
-
 
 class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
