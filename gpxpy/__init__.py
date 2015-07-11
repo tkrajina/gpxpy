@@ -22,6 +22,8 @@ def parse(xml_or_file, parser=None):
 
     parser may be 'lxml', 'minidom' or None (then it will be automatically
     detected, lxml if possible).
+
+    xml_or_file must be the xml to parse or a file-object with the XML.
     """
 
     from . import gpx as mod_gpx
