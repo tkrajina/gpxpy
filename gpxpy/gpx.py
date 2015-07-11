@@ -856,7 +856,7 @@ class GPXTrack:
 
         return result
 
-    def get_uphill_downhill(self):
+    def get_uphill_downhill(self, smooth=None):
         """
         Calculates the uphill and downhill elevation climbs for the track. 
         If elevation for some points is not found those are simply ignored.
@@ -876,7 +876,7 @@ class GPXTrack:
         downhill = 0
 
         for track_segment in self.segments:
-            current_uphill, current_downhill = track_segment.get_uphill_downhill()
+            current_uphill, current_downhill = track_segment.get_uphill_downhill(smooth=smooth)
 
             uphill += current_uphill
             downhill += current_downhill
@@ -1483,7 +1483,7 @@ class GPXTrackSegment:
 
         return mod_utils.total_seconds(last.time - first.time)
 
-    def get_uphill_downhill(self):
+    def get_uphill_downhill(self, smooth=None):
         """
         Calculates the uphill and downhill elevation climbs for the track
         segment. If elevation for some points is not found those are simply
@@ -1501,7 +1501,7 @@ class GPXTrackSegment:
             return UphillDownhill(0, 0)
 
         elevations = list(map(lambda point: point.elevation, self.points))
-        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
+        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations, smooth=smooth)
 
         return UphillDownhill(uphill, downhill)
 
@@ -2116,7 +2116,7 @@ class GPX:
 
         return result
 
-    def get_uphill_downhill(self):
+    def get_uphill_downhill(self, smooth=None):
         """
         Calculates the uphill and downhill elevation climbs for the gpx file. 
         If elevation for some points is not found those are simply ignored.
@@ -2136,7 +2136,7 @@ class GPX:
         downhill = 0
 
         for track in self.tracks:
-            current_uphill, current_downhill = track.get_uphill_downhill()
+            current_uphill, current_downhill = track.get_uphill_downhill(smooth=smooth)
 
             uphill += current_uphill
             downhill += current_downhill

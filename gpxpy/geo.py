@@ -129,7 +129,7 @@ def calculate_max_speed(speeds_and_distances):
     return speeds[index]
 
 
-def calculate_uphill_downhill(elevations):
+def calculate_uphill_downhill(elevations, smooth=None):
     if not elevations:
         return 0, 0
 
@@ -146,13 +146,14 @@ def calculate_uphill_downhill(elevations):
                 return previous_ele*.3 + current_ele*.4 + next_ele*.3
         return current_ele
 
-    smoothed_elevations = list(map(__filter, range(size)))
+    if smooth:
+        elevations = list(map(__filter, range(size)))
 
     uphill, downhill = 0., 0.
 
-    for n, elevation in enumerate(smoothed_elevations):
-        if n > 0 and elevation is not None and smoothed_elevations is not None:
-            d = elevation - smoothed_elevations[n-1]
+    for n, elevation in enumerate(elevations):
+        if n > 0 and elevation is not None and elevations is not None:
+            d = elevation - elevations[n-1]
             if d > 0:
                 uphill += d
             else:
