@@ -24,7 +24,7 @@ mod_distutilscore.setup(
     author='Tomo Krajina',
     author_email='tkrajina@gmail.com',
     url='http://www.trackprofiler.com/gpxpy/index.html',
-    packages=['gpxpy',],
+    packages=['gpxpy', ],
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
