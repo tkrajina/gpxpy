@@ -99,7 +99,7 @@ def hash_list_or_tuple(iteration):
     return result
 
 
-def hash_object(obj, *attributes):
+def hash_object(obj, attributes):
     result = 19
 
     for attribute in attributes:
