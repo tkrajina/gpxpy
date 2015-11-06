@@ -72,10 +72,10 @@ def print_gpx_info(gpx, gpx_file):
         print('  GPX name: %s' % gpx.name)
     if gpx.description:
         print('  GPX description: %s' % gpx.description)
-    if gpx.author:
-        print('  Author: %s' % gpx.author)
-    if gpx.email:
-        print('  Email: %s' % gpx.email)
+    if gpx.author_name:
+        print('  Author: %s' % gpx.author_name)
+    if gpx.author_email:
+        print('  Email: %s' % gpx.author_email)
 
     print_gpx_part_info(gpx)
 
