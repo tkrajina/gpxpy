@@ -104,7 +104,7 @@ GPX_11_POINT_FIELDS = [
 # Note that this is not true for GPX1.1
 GPX_TRACK_POINT_FIELDS = GPX_10_POINT_FIELDS[:4] \
         + [ \
-                mod_gpxfield.GPXField('course', type=mod_gpxfield.INT_TYPE), \
+                mod_gpxfield.GPXField('course', type=mod_gpxfield.FLOAT_TYPE), \
                 mod_gpxfield.GPXField('speed', type=mod_gpxfield.FLOAT_TYPE) \
           ] \
         + GPX_10_POINT_FIELDS[4:]
