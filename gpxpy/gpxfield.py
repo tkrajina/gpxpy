@@ -162,7 +162,7 @@ class GPXField(AbstractGPXField):
                 value = self.type_converter.to_string(value)
             if isinstance(self.tag, list) or isinstance(self.tag, tuple):
                 raise Exception('Not yet implemented')
-            return mod_utils.to_xml(self.tag, content=value)
+            return mod_utils.to_xml(self.tag, content=value, escape=True)
 
 
 class GPXComplexField(AbstractGPXField):

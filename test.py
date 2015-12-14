@@ -2308,6 +2308,16 @@ class AbstractTests:
         with open('validation_gpx11.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
+    def test_xml_chars_encode_decode(self):
+        gpx = mod_gpxpy.gpx.GPX()
+        gpx.name = "Test<a>jkljkl</gpx>"
+
+        print(gpx.to_xml())
+
+        gpx_2 = mod_gpxpy.parse(gpx.to_xml())
+
+        self.assertTrue('<name>Test&lt;a&gt;jkljkl&lt;/gpx&gt;</name>' in gpx_2.to_xml())
+
     def test_10_to_11_conversion(self):
         """
         This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0 
