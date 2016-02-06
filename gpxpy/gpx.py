@@ -956,14 +956,26 @@ class GPXTrackSegment:
                 track_point.elevation += delta
 
     def add_missing_data(self, get_data_function, add_missing_function):
+        """
+        Calculate missing data.
+
+        Parameters
+        ----------
+        get_data_function : object
+            Returns the data from point
+        add_missing_function : void
+            Function with the following arguments: array with points with missing data, the point before them (with data),
+            the point after them (with data), and distance ratios between points in the interval (the sum of distances ratios
+            will be 1)
+        """
         if not get_data_function:
             raise GPXException('Invalid get_data_function: %s' % get_data_function)
         if not add_missing_function:
             raise GPXException('Invalid add_missing_function: %s' % add_missing_function)
 
-        # Points between two points *without* data:
+        # Points (*without* data) between two points (*with* data):
         interval = []
-        # Points before and after the interval *with* data:
+        # Point (*with* data) before and after the interval:
         start_point = None
 
         previous_point = None
