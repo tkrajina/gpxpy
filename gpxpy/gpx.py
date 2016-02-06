@@ -2513,6 +2513,24 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.time,
                               add_missing_function=_add)
 
+    def add_missing_speeds(self):
+        def _add(interval, start, end, distances_ratios):
+            if (not start) or (not end) or (not start.time) or (not end.time):
+                return
+            assert interval
+            assert len(interval) == len(distances_ratios)
+
+            speed_before = interval[0].speed_between(start)
+            speed_after = interval[-1].speed_between(end)
+
+            speed = (speed_before + speed_after) / 2.
+
+            for point in interval:
+                point.speed = speed
+
+        self.add_missing_data(get_data_function=lambda point: point.speed,
+                              add_missing_function=_add)
+
     def move(self, location_delta):
         """
         Moves each point in the gpx file (routes, waypoints, tracks).

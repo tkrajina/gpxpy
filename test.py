@@ -1357,6 +1357,20 @@ class AbstractTests:
 
         self.assertEquals(314, gpx.tracks[0].segments[0].points[2].elevation)
 
+    def test_add_missing_times(self):
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(mod_gpx.GPXTrack())
+
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
+
+        gpx.add_missing_speeds()
+
+        # TODO
+
     def test_add_missing_elevations(self):
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
