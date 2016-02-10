@@ -1357,19 +1357,28 @@ class AbstractTests:
 
         self.assertEquals(314, gpx.tracks[0].segments[0].points[2].elevation)
 
-    def test_add_missing_times(self):
+    def test_add_missing_speeds(self):
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
-                                                                      time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0,
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 12, 0),
+                                                                      speed=0))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0.00899, # 1 km/h over 1 km
                                                                       time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
-
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0.02697, # 2 km/h over 2 km
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 14, 0)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0.03596, # 3 km/h over 1 km
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 14, 20)))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0.06293, # 9 km/h over 3 km
+                                                                      time=mod_datetime.datetime(2013, 1, 2, 14, 40),
+                                                                      speed=0))
         gpx.add_missing_speeds()
 
-        # TODO
+        self.assertTrue(abs(3000./(2*3600) - gpx.tracks[0].segments[0].points[1].speed) < 0.01)
+        self.assertTrue(abs(3000./(80*60) - gpx.tracks[0].segments[0].points[2].speed) < 0.01)
+        self.assertTrue(abs(4000./(40*60) - gpx.tracks[0].segments[0].points[3].speed) < 0.01)
 
     def test_add_missing_elevations(self):
         gpx = mod_gpx.GPX()
@@ -1848,7 +1857,7 @@ class AbstractTests:
 
                 self.assertEquals(gpx.routes[0].number, 7)
                 self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
-            
+
                 self.assertEquals(len(gpx.routes[0].points), 3)
                 self.assertEquals(len(gpx.routes[1].points), 2)
 
@@ -2117,7 +2126,7 @@ class AbstractTests:
 
                 self.assertEquals(gpx.routes[0].number, 7)
                 self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
-            
+
                 self.assertEquals(len(gpx.routes[0].points), 3)
                 self.assertEquals(len(gpx.routes[1].points), 2)
 
@@ -2302,7 +2311,7 @@ class AbstractTests:
 
         # Validated  with SAXParser in "make test"
 
-        # Clear extensions because those should be declared in the <gpx> but 
+        # Clear extensions because those should be declared in the <gpx> but
         # gpxpy don't have support for this (yet):
         reparsed_gpx.extensions = {}
         reparsed_gpx.metadata_extensions = {}
@@ -2334,7 +2343,7 @@ class AbstractTests:
 
     def test_10_to_11_conversion(self):
         """
-        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0 
+        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
         will preserver all fields common for both versions.
         """
         original_gpx = mod_gpx.GPX()
@@ -2615,7 +2624,7 @@ class AbstractTests:
 
             self.assertTrue(gpx.routes[0].points[0].position_dilution is not None)
             self.assertEquals(original_gpx.routes[0].points[0].position_dilution, gpx.routes[0].points[0].position_dilution)
-        
+
             self.assertTrue(gpx.routes[0].points[0].age_of_dgps_data is not None)
             self.assertEquals(original_gpx.routes[0].points[0].age_of_dgps_data, gpx.routes[0].points[0].age_of_dgps_data)
 
@@ -2689,7 +2698,7 @@ class AbstractTests:
 
             self.assertTrue(gpx.tracks[0].segments[0].points[0].position_dilution is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].position_dilution, gpx.tracks[0].segments[0].points[0].position_dilution)
-        
+
             self.assertTrue(gpx.tracks[0].segments[0].points[0].age_of_dgps_data is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].age_of_dgps_data, gpx.tracks[0].segments[0].points[0].age_of_dgps_data)
 
@@ -2698,7 +2707,7 @@ class AbstractTests:
 
     def test_min_max(self):
         gpx = mod_gpx.GPX()
-        
+
         track = mod_gpx.GPXTrack()
         gpx.tracks.append(track)
 
