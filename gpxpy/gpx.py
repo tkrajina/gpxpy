@@ -540,6 +540,27 @@ class GPXTrackPoint(mod_geo.Location):
 
         return mod_utils.total_seconds(delta)
 
+    def distance_to(self, track_point):
+        """
+        Compute the distance between specified point and this point.
+
+        The distances uses :obj:`~.distance_3d` if possible and falls back
+        to :obj:`~.distance_2d`.
+
+        Parameters
+        ----------
+        track_point : GPXTrackPoint
+
+        Returns
+        ----------
+        distance : float
+            Distance returned in meters
+        """
+        length = self.distance_3d(track_point)
+        if not length:
+            length = self.distance_2d(track_point)
+        return length
+
     def speed_between(self, track_point):
         """
         Compute the speed between specified point and this point.
@@ -560,9 +581,7 @@ class GPXTrackPoint(mod_geo.Location):
             return None
 
         seconds = self.time_difference(track_point)
-        length = self.distance_3d(track_point)
-        if not length:
-            length = self.distance_2d(track_point)
+        length = self.distance_to(track_point)
 
         if not seconds or length is None:
             return None
@@ -2514,19 +2533,36 @@ class GPX:
                               add_missing_function=_add)
 
     def add_missing_speeds(self):
+        """
+        The missing speeds are added to a segment.
+
+        The weighted harmonic mean is used to approximate the speed at
+        a :obj:'~.GPXTrackPoint'.
+        For this to work the speed of the first and last track point in a
+        segment needs to be known.
+        """
         def _add(interval, start, end, distances_ratios):
             if (not start) or (not end) or (not start.time) or (not end.time):
                 return
             assert interval
             assert len(interval) == len(distances_ratios)
 
-            speed_before = interval[0].speed_between(start)
-            speed_after = interval[-1].speed_between(end)
+            time_dist_before = (interval[0].time_difference(start),
+                                interval[0].distance_to(start))
+            time_dist_after = (interval[-1].time_difference(end),
+                               interval[-1].distance_to(end))
 
-            speed = (speed_before + speed_after) / 2.
+            # Assemble list of times and distance to neighboring points
+            times_dists = [(interval[i].time_difference(interval[i+1]),
+                            interval[i].distance_to(interval[i+1]))
+                            for i in range(len(interval) - 1)]
+            times_dists.insert(0, time_dist_before)
+            times_dists.append(time_dist_after)
 
-            for point in interval:
-                point.speed = speed
+            for i, point in enumerate(interval):
+                time_left, dist_left = times_dists[i]
+                time_right, dist_right = times_dists[i+1]
+                point.speed = float(dist_left + dist_right) / (time_left + time_right)
 
         self.add_missing_data(get_data_function=lambda point: point.speed,
                               add_missing_function=_add)
