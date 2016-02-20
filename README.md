@@ -5,6 +5,8 @@ This is a simple python library for parsing and manipulating GPX files. GPX is a
 
 You can see it in action on [my online GPS track editor and organizer](http://www.trackprofiler.com).
 
+There is also a Golang port of gpxpy: [gpxgo](http://github.com/tkrajina/gpxgo).
+
 Usage
 -----
 
