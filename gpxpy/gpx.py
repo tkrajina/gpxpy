@@ -540,27 +540,6 @@ class GPXTrackPoint(mod_geo.Location):
 
         return mod_utils.total_seconds(delta)
 
-    def distance_to(self, track_point):
-        """
-        Compute the distance between specified point and this point.
-
-        The distances uses :obj:`~.distance_3d` if possible and falls back
-        to :obj:`~.distance_2d`.
-
-        Parameters
-        ----------
-        track_point : GPXTrackPoint
-
-        Returns
-        ----------
-        distance : float
-            Distance returned in meters
-        """
-        length = self.distance_3d(track_point)
-        if not length:
-            length = self.distance_2d(track_point)
-        return length
-
     def speed_between(self, track_point):
         """
         Compute the speed between specified point and this point.
@@ -581,7 +560,7 @@ class GPXTrackPoint(mod_geo.Location):
             return None
 
         seconds = self.time_difference(track_point)
-        length = self.distance_to(track_point)
+        length = self.distance_3d(track_point)
 
         if not seconds or length is None:
             return None
@@ -2548,13 +2527,13 @@ class GPX:
             assert len(interval) == len(distances_ratios)
 
             time_dist_before = (interval[0].time_difference(start),
-                                interval[0].distance_to(start))
+                                interval[0].distance_3d(start))
             time_dist_after = (interval[-1].time_difference(end),
-                               interval[-1].distance_to(end))
+                               interval[-1].distance_3d(end))
 
             # Assemble list of times and distance to neighboring points
             times_dists = [(interval[i].time_difference(interval[i+1]),
-                            interval[i].distance_to(interval[i+1]))
+                            interval[i].distance_3d(interval[i+1]))
                             for i in range(len(interval) - 1)]
             times_dists.insert(0, time_dist_before)
             times_dists.append(time_dist_after)
