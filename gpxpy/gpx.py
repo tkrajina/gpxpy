@@ -2513,6 +2513,41 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.time,
                               add_missing_function=_add)
 
+    def add_missing_speeds(self):
+        """
+        The missing speeds are added to a segment.
+
+        The weighted harmonic mean is used to approximate the speed at
+        a :obj:'~.GPXTrackPoint'.
+        For this to work the speed of the first and last track point in a
+        segment needs to be known.
+        """
+        def _add(interval, start, end, distances_ratios):
+            if (not start) or (not end) or (not start.time) or (not end.time):
+                return
+            assert interval
+            assert len(interval) == len(distances_ratios)
+
+            time_dist_before = (interval[0].time_difference(start),
+                                interval[0].distance_3d(start))
+            time_dist_after = (interval[-1].time_difference(end),
+                               interval[-1].distance_3d(end))
+
+            # Assemble list of times and distance to neighboring points
+            times_dists = [(interval[i].time_difference(interval[i+1]),
+                            interval[i].distance_3d(interval[i+1]))
+                            for i in range(len(interval) - 1)]
+            times_dists.insert(0, time_dist_before)
+            times_dists.append(time_dist_after)
+
+            for i, point in enumerate(interval):
+                time_left, dist_left = times_dists[i]
+                time_right, dist_right = times_dists[i+1]
+                point.speed = float(dist_left + dist_right) / (time_left + time_right)
+
+        self.add_missing_data(get_data_function=lambda point: point.speed,
+                              add_missing_function=_add)
+
     def move(self, location_delta):
         """
         Moves each point in the gpx file (routes, waypoints, tracks).
