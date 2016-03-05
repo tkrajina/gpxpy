@@ -2006,7 +2006,8 @@ class GPX:
             Positive time delta will adjust times into the future
             Negative time delta will adjust times into the past
         """
-        self.time += delta
+        if self.time:
+            self.time += delta
         for track in self.tracks:
             track.adjust_time(delta)
 
