@@ -1857,7 +1857,7 @@ class AbstractTests:
 
                 self.assertEquals(gpx.routes[0].number, 7)
                 self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
-            
+
                 self.assertEquals(len(gpx.routes[0].points), 3)
                 self.assertEquals(len(gpx.routes[1].points), 2)
 
@@ -2126,7 +2126,7 @@ class AbstractTests:
 
                 self.assertEquals(gpx.routes[0].number, 7)
                 self.assertEquals(get_dom_node(dom, 'gpx/rte[0]/number').firstChild.nodeValue, '7')
-            
+
                 self.assertEquals(len(gpx.routes[0].points), 3)
                 self.assertEquals(len(gpx.routes[1].points), 2)
 
@@ -2311,7 +2311,7 @@ class AbstractTests:
 
         # Validated  with SAXParser in "make test"
 
-        # Clear extensions because those should be declared in the <gpx> but 
+        # Clear extensions because those should be declared in the <gpx> but
         # gpxpy don't have support for this (yet):
         reparsed_gpx.extensions = {}
         reparsed_gpx.metadata_extensions = {}
@@ -2343,7 +2343,7 @@ class AbstractTests:
 
     def test_10_to_11_conversion(self):
         """
-        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0 
+        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
         will preserver all fields common for both versions.
         """
         original_gpx = mod_gpx.GPX()
@@ -2624,7 +2624,7 @@ class AbstractTests:
 
             self.assertTrue(gpx.routes[0].points[0].position_dilution is not None)
             self.assertEquals(original_gpx.routes[0].points[0].position_dilution, gpx.routes[0].points[0].position_dilution)
-        
+
             self.assertTrue(gpx.routes[0].points[0].age_of_dgps_data is not None)
             self.assertEquals(original_gpx.routes[0].points[0].age_of_dgps_data, gpx.routes[0].points[0].age_of_dgps_data)
 
@@ -2698,7 +2698,7 @@ class AbstractTests:
 
             self.assertTrue(gpx.tracks[0].segments[0].points[0].position_dilution is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].position_dilution, gpx.tracks[0].segments[0].points[0].position_dilution)
-        
+
             self.assertTrue(gpx.tracks[0].segments[0].points[0].age_of_dgps_data is not None)
             self.assertEquals(original_gpx.tracks[0].segments[0].points[0].age_of_dgps_data, gpx.tracks[0].segments[0].points[0].age_of_dgps_data)
 
@@ -2707,7 +2707,7 @@ class AbstractTests:
 
     def test_min_max(self):
         gpx = mod_gpx.GPX()
-        
+
         track = mod_gpx.GPXTrack()
         gpx.tracks.append(track)
 

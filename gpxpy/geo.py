@@ -347,7 +347,7 @@ class LocationDelta:
         """
         Version 1:
             Distance (in meters).
-            angle_from_north *clockwise*. 
+            angle_from_north *clockwise*.
             ...must be given
         Version 2:
             latitude_diff and longitude_diff
