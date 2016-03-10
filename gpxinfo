@@ -53,14 +53,15 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     points_no = len(list(gpx_part.walk(only_points=True)))
     print('%sPoints: %s' % (indentation, points_no))
 
-    distances = []
-    previous_point = None
-    for point in gpx_part.walk(only_points=True):
-        if previous_point:
-            distance = point.distance_2d(previous_point)
-            distances.append(distance)
-        previous_point = point
-    print('{}Avg distance between points: {:.2f}m'.format(indentation, sum(distances) / len(list(gpx_part.walk()))))
+    if points_no > 0:
+        distances = []
+        previous_point = None
+        for point in gpx_part.walk(only_points=True):
+            if previous_point:
+                distance = point.distance_2d(previous_point)
+                distances.append(distance)
+            previous_point = point
+        print('{}Avg distance between points: {:.2f}m'.format(indentation, sum(distances) / len(list(gpx_part.walk()))))
 
     print('')
 
