@@ -176,12 +176,12 @@ class GPXWaypoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
-    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
-                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'symbol', 
-                 'type', 'type_of_gpx_fix', 'satellites', 
-                 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time',
+                 'magnetic_variation', 'geoid_height', 'name', 'comment',
+                 'description', 'source', 'link', 'link_text', 'symbol',
+                 'type', 'type_of_gpx_fix', 'satellites',
+                 'horizontal_dilution', 'vertical_dilution',
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None,
@@ -240,12 +240,12 @@ class GPXRoutePoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
-    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 
-                 'magnetic_variation', 'geoid_height', 'name', 'comment', 
-                 'description', 'source', 'link', 'link_text', 'symbol', 
-                 'type', 'type_of_gpx_fix', 'satellites', 
-                 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time',
+                 'magnetic_variation', 'geoid_height', 'name', 'comment',
+                 'description', 'source', 'link', 'link_text', 'symbol',
+                 'type', 'type_of_gpx_fix', 'satellites',
+                 'horizontal_dilution', 'vertical_dilution',
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, name=None,
@@ -321,8 +321,8 @@ class GPXRoute:
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'link', 
-                 'link_text', 'number', 'points', 'link_type', 'type', 
+    __slots__ = ('name', 'comment', 'description', 'source', 'link',
+                 'link_text', 'number', 'points', 'link_type', 'type',
                  'extensions')
 
     def __init__(self, name=None, description=None, number=None):
@@ -344,9 +344,9 @@ class GPXRoute:
             point.remove_elevation()
 
     def length(self):
-        """ 
-        Computes length (2-dimensional) of route. 
-         
+        """
+        Computes length (2-dimensional) of route.
+
         Returns:
         -----------
         length: float
@@ -398,7 +398,7 @@ class GPXRoute:
         ------
         point: GPXRoutePoint
             A point in the GPXRoute
-        point_no: int 
+        point_no: int
             Not included in yield if only_points is true
         """
         for point_no, point in enumerate(self.points):
@@ -447,12 +447,12 @@ class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
-    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course', 
-                 'speed', 'magnetic_variation', 'geoid_height', 'name', 
-                 'comment', 'description', 'source', 'link', 'link_text', 
-                 'symbol', 'type', 'type_of_gpx_fix', 'satellites', 
-                 'horizontal_dilution', 'vertical_dilution', 
-                 'position_dilution', 'age_of_dgps_data', 'dgps_id', 
+    __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course',
+                 'speed', 'magnetic_variation', 'geoid_height', 'name',
+                 'comment', 'description', 'source', 'link', 'link_text',
+                 'symbol', 'type', 'type_of_gpx_fix', 'satellites',
+                 'horizontal_dilution', 'vertical_dilution',
+                 'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
@@ -656,7 +656,7 @@ class GPXTrackSegment:
             track_point.remove_elevation()
 
     def length_2d(self):
-        """ 
+        """
         Computes 2-dimensional length (meters) of segment (only latitude and
         longitude, no elevation).
 
@@ -668,8 +668,8 @@ class GPXTrackSegment:
         return mod_geo.length_2d(self.points)
 
     def length_3d(self):
-        """ 
-        Computes 3-dimensional length of segment (latitude, longitude, and 
+        """
+        Computes 3-dimensional length of segment (latitude, longitude, and
         elevation).
 
         Returns
@@ -686,7 +686,7 @@ class GPXTrackSegment:
         Parameters
         ----------
         location_delta: LocationDelta object
-            Delta (distance/angle or lat/lon offset to apply each point in the 
+            Delta (distance/angle or lat/lon offset to apply each point in the
             segment
         """
         for track_point in self.points:
@@ -705,7 +705,7 @@ class GPXTrackSegment:
         ------
         point: GPXTrackPoint
             A point in the sement
-        point_no: int 
+        point_no: int
             Not included in yield if only_points is true
         """
         for point_no, point in enumerate(self.points):
@@ -728,9 +728,9 @@ class GPXTrackSegment:
         return len(self.points)
 
     def split(self, point_no):
-        """ 
-        Splits the segment into two parts. If one of the split segments is 
-        empty it will not be added in the result. The segments will be split 
+        """
+        Splits the segment into two parts. If one of the split segments is
+        empty it will not be added in the result. The segments will be split
         in place.
 
         Parameters
@@ -758,12 +758,12 @@ class GPXTrackSegment:
 
     def get_moving_data(self, stopped_speed_threshold=None):
         """
-        Return a tuple of (moving_time, stopped_time, moving_distance, 
-        stopped_distance, max_speed) that may be used for detecting the time 
-        stopped, and max speed. Not that those values are not absolutely true, 
+        Return a tuple of (moving_time, stopped_time, moving_distance,
+        stopped_distance, max_speed) that may be used for detecting the time
+        stopped, and max speed. Not that those values are not absolutely true,
         because the "stopped" or "moving" information aren't saved in the segment.
 
-        Because of errors in the GPS recording, it may be good to calculate 
+        Because of errors in the GPS recording, it may be good to calculate
         them on a reduced and smoothed version of the track.
 
         Parameters
@@ -867,7 +867,7 @@ class GPXTrackSegment:
 
         Returns
         ----------
-        bounds : Bounds named tuple 
+        bounds : Bounds named tuple
             min_latitude : float
                 Minimum latitude of segment in decimal degrees [-90, 90]
             max_latitude : float
@@ -897,7 +897,7 @@ class GPXTrackSegment:
     def get_speed(self, point_no):
         """
         Computes the speed at the specified point index.
- 
+
         Parameters
         ----------
         point_no : integer
@@ -905,7 +905,7 @@ class GPXTrackSegment:
 
         Returns
         ----------
-        speed : float 
+        speed : float
             Speed returned in m/s
         """
         point = self.points[point_no]
@@ -1020,7 +1020,7 @@ class GPXTrackSegment:
     def get_duration(self):
         """
         Calculates duration or track segment
-        
+
         Returns
         -------
         duration: float
@@ -1071,7 +1071,7 @@ class GPXTrackSegment:
         return UphillDownhill(uphill, downhill)
 
     def get_elevation_extremes(self):
-        """ 
+        """
         Calculate elevation extremes of track segment
 
         Returns
@@ -1096,9 +1096,9 @@ class GPXTrackSegment:
 
     def get_location_at(self, time):
         """
-        Gets approx. location at given time. Note that, at the moment this 
+        Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
-        be a mod_geo.Location instance with approximated latitude, longitude 
+        be a mod_geo.Location instance with approximated latitude, longitude
         and elevation!
         """
         if not self.points:
@@ -1262,7 +1262,7 @@ class GPXTrackSegment:
         """
         Returns if points in this segment contains timestamps.
 
-        The first point, the last point, and 75% of the points must have times 
+        The first point, the last point, and 75% of the points must have times
         for this method to return true.
         """
         if not self.points:
@@ -1281,7 +1281,7 @@ class GPXTrackSegment:
         """
         Returns if points in this segment contains elevation.
 
-        The first point, the last point, and at least 75% of the points must 
+        The first point, the last point, and at least 75% of the points must
         have elevation for this method to return true.
         """
         if not self.points:
@@ -1333,8 +1333,8 @@ class GPXTrack:
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'link', 
-                 'link_text', 'number', 'segments', 'link_type', 'type', 
+    __slots__ = ('name', 'comment', 'description', 'source', 'link',
+                 'link_text', 'number', 'segments', 'link_type', 'type',
                  'extensions')
 
     def __init__(self, name=None, description=None, number=None):
@@ -1359,7 +1359,7 @@ class GPXTrack:
 
     def reduce_points(self, min_distance):
         """
-        Reduces the number of points in the track. Segment points will be 
+        Reduces the number of points in the track. Segment points will be
         updated in place.
 
         Parameters
@@ -1404,7 +1404,7 @@ class GPXTrack:
         self.segments = result
 
     def length_2d(self):
-        """ 
+        """
         Computes 2-dimensional length (meters) of track (only latitude and
         longitude, no elevation). This is the sum of the 2D length of all
         segments.
@@ -1451,7 +1451,7 @@ class GPXTrack:
 
         Returns
         ----------
-        bounds : Bounds named tuple 
+        bounds : Bounds named tuple
             min_latitude : float
                 Minimum latitude of track in decimal degrees [-90, 90]
             max_latitude : float
@@ -1522,7 +1522,7 @@ class GPXTrack:
         return result
 
     def length_3d(self):
-        """ 
+        """
         Computes 3-dimensional length of track (latitude, longitude, and
         elevation). This is the sum of the 3D length of all segments.
 
@@ -1539,9 +1539,9 @@ class GPXTrack:
         return length
 
     def split(self, track_segment_no, track_point_no):
-        """ 
-        Splits one of the segments in the track in two parts. If one of the 
-        split segments is empty it will not be added in the result. The 
+        """
+        Splits one of the segments in the track in two parts. If one of the
+        split segments is empty it will not be added in the result. The
         segments will be split in place.
 
         Parameters
@@ -1565,7 +1565,7 @@ class GPXTrack:
         self.segments = new_segments
 
     def join(self, track_segment_no, track_segment_no_2=None):
-        """ 
+        """
         Joins two segments of this track. The segments will be split in place.
 
         Parameters
@@ -1573,8 +1573,8 @@ class GPXTrack:
         track_segment_no : integer
             The index of the first segment to join
         track_segment_no_2 : integer
-            The index of second segment to join. If track_segment_no_2 is not 
-            provided,the join will be with the next segment after 
+            The index of second segment to join. If track_segment_no_2 is not
+            provided,the join will be with the next segment after
             track_segment_no.
         """
         if not track_segment_no_2:
@@ -1600,12 +1600,12 @@ class GPXTrack:
 
     def get_moving_data(self, stopped_speed_threshold=None):
         """
-        Return a tuple of (moving_time, stopped_time, moving_distance, 
-        stopped_distance, max_speed) that may be used for detecting the time 
-        stopped, and max speed. Not that those values are not absolutely true, 
+        Return a tuple of (moving_time, stopped_time, moving_distance,
+        stopped_distance, max_speed) that may be used for detecting the time
+        stopped, and max speed. Not that those values are not absolutely true,
         because the "stopped" or "moving" information aren't saved in the track.
 
-        Because of errors in the GPS recording, it may be good to calculate 
+        Because of errors in the GPS recording, it may be good to calculate
         them on a reduced and smoothed version of the track.
 
         Parameters
@@ -1671,7 +1671,7 @@ class GPXTrack:
         Parameters
         ----------
         location_delta: LocationDelta object
-            Delta (distance/angle or lat/lon offset to apply each point in each 
+            Delta (distance/angle or lat/lon offset to apply each point in each
             segment of the track
         """
         for track_segment in self.segments:
@@ -1680,7 +1680,7 @@ class GPXTrack:
     def get_duration(self):
         """
         Calculates duration or track
-        
+
         Returns
         -------
         duration: float
@@ -1701,7 +1701,7 @@ class GPXTrack:
 
     def get_uphill_downhill(self):
         """
-        Calculates the uphill and downhill elevation climbs for the track. 
+        Calculates the uphill and downhill elevation climbs for the track.
         If elevation for some points is not found those are simply ignored.
 
         Returns
@@ -1728,9 +1728,9 @@ class GPXTrack:
 
     def get_location_at(self, time):
         """
-        Gets approx. location at given time. Note that, at the moment this 
+        Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
-        be a mod_geo.Location instance with approximated latitude, longitude 
+        be a mod_geo.Location instance with approximated latitude, longitude
         and elevation!
         """
         result = []
@@ -1742,7 +1742,7 @@ class GPXTrack:
         return result
 
     def get_elevation_extremes(self):
-        """ 
+        """
         Calculate elevation extremes of track
 
         Returns
@@ -1919,11 +1919,11 @@ class GPX:
             mod_gpxfield.GPXExtensionsField('extensions'),
     ]
 
-    __slots__ = ('version', 'creator', 'name', 'description', 'author_name', 
-                 'author_email', 'link', 'link_text', 'time', 'keywords', 
-                 'bounds', 'waypoints', 'routes', 'tracks', 'author_link', 
-                 'author_link_text', 'author_link_type', 'copyright_author', 
-                 'copyright_year', 'copyright_license', 'link_type', 
+    __slots__ = ('version', 'creator', 'name', 'description', 'author_name',
+                 'author_email', 'link', 'link_text', 'time', 'keywords',
+                 'bounds', 'waypoints', 'routes', 'tracks', 'author_link',
+                 'author_link_text', 'author_link_type', 'copyright_author',
+                 'copyright_year', 'copyright_license', 'link_type',
                  'metadata_extensions', 'extensions')
 
     def __init__(self):
@@ -1997,7 +1997,7 @@ class GPX:
 
     def adjust_time(self, delta):
         """
-        Adjusts the time of all points in all of the segments of all tracks by 
+        Adjusts the time of all points in all of the segments of all tracks by
         the specified delta.
 
         Parameters
@@ -2058,7 +2058,7 @@ class GPX:
 
         Returns
         ----------
-        bounds : Bounds named tuple 
+        bounds : Bounds named tuple
             min_latitude : float
                 Minimum latitude of track in decimal degrees [-90, 90]
             max_latitude : float
@@ -2102,7 +2102,7 @@ class GPX:
 
     def refresh_bounds(self):
         """
-        Compute bounds and reload min_latitude, max_latitude, min_longitude 
+        Compute bounds and reload min_latitude, max_latitude, min_longitude
         and max_longitude properties of this object
         """
 
@@ -2170,9 +2170,9 @@ class GPX:
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
 
     def split(self, track_no, track_segment_no, track_point_no):
-        """ 
-        Splits one of the segments of a track in two parts. If one of the 
-        split segments is empty it will not be added in the result. The 
+        """
+        Splits one of the segments of a track in two parts. If one of the
+        split segments is empty it will not be added in the result. The
         segments will be split in place.
 
         Parameters
@@ -2189,8 +2189,8 @@ class GPX:
         track.split(track_segment_no=track_segment_no, track_point_no=track_point_no)
 
     def length_2d(self):
-        """ 
-        Computes 2-dimensional length of the GPX file (only latitude and 
+        """
+        Computes 2-dimensional length of the GPX file (only latitude and
         longitude, no elevation). This is the sum of 3D length of all segments
         in all tracks.
 
@@ -2207,8 +2207,8 @@ class GPX:
         return result
 
     def length_3d(self):
-        """ 
-        Computes 3-dimensional length of the GPX file (latitude, longitude, and 
+        """
+        Computes 3-dimensional length of the GPX file (latitude, longitude, and
         elevation). This is the sum of 3D length of all segments in all tracks.
 
         Returns
@@ -2266,7 +2266,7 @@ class GPX:
     def get_duration(self):
         """
         Calculates duration of GPX file
-        
+
         Returns
         -------
         duration: float
@@ -2287,7 +2287,7 @@ class GPX:
 
     def get_uphill_downhill(self):
         """
-        Calculates the uphill and downhill elevation climbs for the gpx file. 
+        Calculates the uphill and downhill elevation climbs for the gpx file.
         If elevation for some points is not found those are simply ignored.
 
         Returns
@@ -2314,9 +2314,9 @@ class GPX:
 
     def get_location_at(self, time):
         """
-        Gets approx. location at given time. Note that, at the moment this 
+        Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
-        be a mod_geo.Location instance with approximated latitude, longitude 
+        be a mod_geo.Location instance with approximated latitude, longitude
         and elevation!
         """
         result = []
@@ -2328,7 +2328,7 @@ class GPX:
         return result
 
     def get_elevation_extremes(self):
-        """ 
+        """
         Calculate elevation extremes of GPX file
 
         Returns
