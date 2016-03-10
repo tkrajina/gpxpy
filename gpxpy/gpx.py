@@ -1338,13 +1338,13 @@ class GPXTrack:
                  'extensions')
 
     def __init__(self, name=None, description=None, number=None):
-        self.name = None
+        self.name = name
         self.comment = None
-        self.description = None
+        self.description = description
         self.source = None
         self.link = None
         self.link_text = None
-        self.number = None
+        self.number = number
         self.segments = []
         self.link_type = None
         self.type = None
