@@ -2732,6 +2732,20 @@ class AbstractTests:
         self.assertEquals(100, elevation_min)
         self.assertEquals(200, elevation_max)
 
+    def test_distance_between_points_near_0_longitude(self):
+        """ Make sure that the distance function works properly when points have longitudes on opposite sides of the 0-longitude meridian """
+        distance = mod_geo.distance(latitude_1=0, longitude_1=0.1, elevation_1=0, latitude_2=0, longitude_2=-0.1, elevation_2=0, haversine=True)
+        print(distance)
+        self.assertTrue(distance < 230000)
+        distance = mod_geo.distance(latitude_1=0, longitude_1=0.1, elevation_1=0, latitude_2=0, longitude_2=-0.1, elevation_2=0, haversine=False)
+        print(distance)
+        self.assertTrue(distance < 230000)
+        distance = mod_geo.distance(latitude_1=0, longitude_1=0.1, elevation_1=0, latitude_2=0, longitude_2=360-0.1, elevation_2=0, haversine=True)
+        print(distance)
+        self.assertTrue(distance < 230000)
+        distance = mod_geo.distance(latitude_1=0, longitude_1=0.1, elevation_1=0, latitude_2=0, longitude_2=360-0.1, elevation_2=0, haversine=False)
+        print(distance)
+        self.assertTrue(distance < 230000)
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
