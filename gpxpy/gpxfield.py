@@ -356,10 +356,10 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
 
 def gpx_check_slots_and_default_values(classs):
     """
-    Will fill the default values for this class. Instances will inherit those 
+    Will fill the default values for this class. Instances will inherit those
     values so we don't need to fill default values for every instance.
 
-    This method will also fill the attribute gpx_field_names with a list of 
+    This method will also fill the attribute gpx_field_names with a list of
     gpx field names. This can be used
     """
     fields = classs.gpx_10_fields + classs.gpx_11_fields
