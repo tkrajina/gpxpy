@@ -26,7 +26,6 @@ def parse(xml_or_file, parser=None):
     xml_or_file must be the xml to parse or a file-object with the XML.
     """
 
-    from . import gpx as mod_gpx
     from . import parser as mod_parser
 
     parser = mod_parser.GPXParser(xml_or_file, parser=parser)

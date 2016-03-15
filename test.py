@@ -30,8 +30,6 @@ Run single test with:
 
 from __future__ import print_function
 
-import pdb
-
 import logging as mod_logging
 import os as mod_os
 import time as mod_time
@@ -124,7 +122,7 @@ def get_dom_node(dom, path):
 
         try:
             result = candidates[n]
-        except Exception as e:
+        except Exception:
             raise Exception('Can\'t fint %sth child of %s' % (n, path_part))
 
     return result
@@ -312,7 +310,7 @@ class AbstractTests:
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
 
-    def test_unicode(self):
+    def test_unicode_name(self):
         gpx = self.parse('unicode.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
@@ -343,6 +341,8 @@ class AbstractTests:
         gpx = self.parse('Mojstrovka.gpx')
 
         # %Y-%m-%dT%H:%M:%SZ'
+
+        # TODO complete this test
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
@@ -450,7 +450,6 @@ class AbstractTests:
         for point, track_no, segment_no, point_no in gpx.walk():
             if point_no > 0:
                 previous_point = gpx.tracks[track_no].segments[segment_no].points[point_no - 1]
-                d = point.distance_3d(previous_point)
                 if point.distance_3d(previous_point) < min_distance_after_reduce:
                     min_distance_after_reduce = point.distance_3d(previous_point)
 
@@ -1045,7 +1044,7 @@ class AbstractTests:
         self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
         self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
 
-    def test_walk_gpx_points(self):
+    def test_walk_gpx_points2(self):
         gpx = self.parse('korita-zbevnica.gpx')
         track = gpx.tracks[1]
 
@@ -1115,7 +1114,7 @@ class AbstractTests:
         self.assertTrue(angle_radians < mod_math.pi / 4)
         self.assertTrue(angle_degrees < 45)
 
-    def test_angle_2(self):
+    def test_angle_3(self):
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
@@ -1128,7 +1127,7 @@ class AbstractTests:
         self.assertTrue(angle_radians > mod_math.pi / 4)
         self.assertTrue(angle_degrees > 45)
 
-    def test_angle_3(self):
+    def test_angle_4(self):
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
@@ -1289,7 +1288,7 @@ class AbstractTests:
 
         # Shouldn't be called because all points have elevation
         def _add_missing_function(interval, start_point, end_point, ratios):
-            raise Error()
+            raise Exception()
 
         gpx.add_missing_data(get_data_function=lambda point: point.elevation,
                              add_missing_function=_add_missing_function)
@@ -1631,15 +1630,14 @@ class AbstractTests:
         self.assertTrue(cca(location.latitude, location_2.latitude))
         self.assertTrue(cca(location.longitude, location_2.longitude))
 
-    def test_delta_add_and_move(self):
+    def test_parse_gpx_with_node_with_comments(self):
         self.assertTrue(mod_gpxpy.parse(open('test_files/gpx-with-node-with-comments.gpx')))
 
     def __test_location_delta(self, location, distance):
         angles = [ x * 15 for x in range(int(360 / 15)) ]
         print(angles)
 
-        distance_from_previous_location = None
-        previous_location               = None
+        previous_location = None
 
         distances_between_points = []
 
