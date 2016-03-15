@@ -1,7 +1,7 @@
 gpxpy -- GPX file parser
 ========================
 
-This is a simple python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
+This is a simple Python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
 
 You can see it in action on [my online GPS track editor and organizer](http://www.trackprofiler.com).
 
