@@ -1,7 +1,7 @@
 gpxpy -- GPX file parser
 ========================
 
-This is a simple python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
+This is a simple Python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
 
 You can see it in action on [my online GPS track editor and organizer](http://www.trackprofiler.com).
 
@@ -10,56 +10,58 @@ There is also a Golang port of gpxpy: [gpxgo](http://github.com/tkrajina/gpxgo).
 Usage
 -----
 
-    import gpxpy
-    import gpxpy.gpx
+```python
+import gpxpy
+import gpxpy.gpx
 
-    # Parsing an existing file:
-    # -------------------------
+# Parsing an existing file:
+# -------------------------
 
-    gpx_file = open('test_files/cerknicko-jezero.gpx', 'r')
+gpx_file = open('test_files/cerknicko-jezero.gpx', 'r')
 
-    gpx = gpxpy.parse(gpx_file)
+gpx = gpxpy.parse(gpx_file)
 
-    for track in gpx.tracks:
-        for segment in track.segments:
-            for point in segment.points:
-                print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
-
-    for waypoint in gpx.waypoints:
-        print 'waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude)
-        
-    for route in gpx.routes:
-        print 'Route:'
-        for point in route.points:
+for track in gpx.tracks:
+    for segment in track.segments:
+        for point in segment.points:
             print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
 
-    # There are many more utility methods and functions:
-    # You can manipulate/add/remove tracks, segments, points, waypoints and routes and
-    # get the GPX XML file from the resulting object:
+for waypoint in gpx.waypoints:
+    print 'waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude)
+    
+for route in gpx.routes:
+    print 'Route:'
+    for point in route.points:
+        print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
 
-    print 'GPX:', gpx.to_xml()
+# There are many more utility methods and functions:
+# You can manipulate/add/remove tracks, segments, points, waypoints and routes and
+# get the GPX XML file from the resulting object:
 
-    # Creating a new file:
-    # --------------------
+print 'GPX:', gpx.to_xml()
 
-    gpx = gpxpy.gpx.GPX()
+# Creating a new file:
+# --------------------
 
-    # Create first track in our GPX:
-    gpx_track = gpxpy.gpx.GPXTrack()
-    gpx.tracks.append(gpx_track)
+gpx = gpxpy.gpx.GPX()
 
-    # Create first segment in our GPX track:
-    gpx_segment = gpxpy.gpx.GPXTrackSegment()
-    gpx_track.segments.append(gpx_segment)
+# Create first track in our GPX:
+gpx_track = gpxpy.gpx.GPXTrack()
+gpx.tracks.append(gpx_track)
 
-    # Create points:
-    gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1234, 5.1234, elevation=1234))
-    gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1235, 5.1235, elevation=1235))
-    gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1236, 5.1236, elevation=1236))
+# Create first segment in our GPX track:
+gpx_segment = gpxpy.gpx.GPXTrackSegment()
+gpx_track.segments.append(gpx_segment)
 
-    # You can add routes and waypoints, too...
+# Create points:
+gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1234, 5.1234, elevation=1234))
+gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1235, 5.1235, elevation=1235))
+gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1236, 5.1236, elevation=1236))
 
-    print 'Created GPX:', gpx.to_xml()
+# You can add routes and waypoints, too...
+
+print 'Created GPX:', gpx.to_xml()
+```
 
 GPX Version:
 ------------
@@ -78,7 +80,7 @@ Note that lxml is 2-3 times faster so, if you can choose -- use it :)
 Pull requests
 -------------
 
-OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with python 2.6+ and python 3+.
+OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.6+ and Python 3+.
 
 Run all tests with:
 
