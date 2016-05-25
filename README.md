@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/tkrajina/gpxpy.svg)](https://travis-ci.org/tkrajina/gpxpy)
+
 gpxpy -- GPX file parser
 ========================
 
