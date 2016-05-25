@@ -134,7 +134,7 @@ class GPXField(AbstractGPXField):
         if result is None:
             if self.mandatory:
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('%s is mandatory in %s' % (self.name, self.tag))
+                raise mod_gpx.GPXException('%s is mandatory in %s (got %s)' % (self.name, self.tag, result))
             return None
 
         if self.type_converter:
@@ -152,7 +152,7 @@ class GPXField(AbstractGPXField):
         return result
 
     def to_xml(self, value, version):
-        if not value:
+        if value is None:
             return ''
 
         if self.attribute:
@@ -262,7 +262,7 @@ class GPXExtensionsField(AbstractGPXField):
         return result
 
     def to_xml(self, value, version):
-        if value is None or not value:
+        if value is None:
             return ''
 
         result = '\n<' + self.tag + '>'
@@ -305,7 +305,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
                 body += ' ' + gpx_field.to_xml(value, version)
-            elif value:
+            elif value is not None:
                 if tag_open:
                     body += '>'
                     tag_open = False
