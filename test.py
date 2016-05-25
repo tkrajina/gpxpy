@@ -2751,6 +2751,35 @@ class AbstractTests:
         print(distance)
         self.assertTrue(distance < 230000)
 
+    def test_zero_latlng(self):
+        gpx = mod_gpx.GPX()
+
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(0, 0, elevation=0))
+        xml = gpx.to_xml()
+        print(xml)
+
+        self.assertEquals(1, len(gpx.tracks))
+        self.assertEquals(1, len(gpx.tracks[0].segments))
+        self.assertEquals(1, len(gpx.tracks[0].segments[0].points))
+        self.assertEquals(0, gpx.tracks[0].segments[0].points[0].latitude)
+        self.assertEquals(0, gpx.tracks[0].segments[0].points[0].longitude)
+        self.assertEquals(0, gpx.tracks[0].segments[0].points[0].elevation)
+
+        gpx2 = mod_gpxpy.parse(xml)
+
+        self.assertEquals(1, len(gpx2.tracks))
+        self.assertEquals(1, len(gpx2.tracks[0].segments))
+        self.assertEquals(1, len(gpx2.tracks[0].segments[0].points))
+        self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].latitude)
+        self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].longitude)
+        self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].elevation)
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
