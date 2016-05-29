@@ -215,6 +215,7 @@ class GPXParser:
 
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
+
         if version is None:
             version = self.xml_parser.get_node_attribute(node, 'version')
 
