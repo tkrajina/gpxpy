@@ -172,7 +172,7 @@ class GPXParser:
         self.xml = mod_utils.make_str(text)
         self.gpx = mod_gpx.GPX()
 
-    def parse(self):
+    def parse(self, version = None):
         """
         Parses the XML file and returns a GPX object.
 
@@ -193,7 +193,7 @@ class GPXParser:
             else:
                 raise mod_gpx.GPXException('Invalid parser type: %s' % self.xml_parser_type)
 
-            self.__parse_dom()
+            self.__parse_dom(version)
 
             return self.gpx
         except Exception as e:
@@ -210,12 +210,12 @@ class GPXParser:
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 
-    def __parse_dom(self):
+    def __parse_dom(self, version = None):
         node = self.xml_parser.get_first_child(name='gpx')
 
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
-
-        version = self.xml_parser.get_node_attribute(node, 'version')
+        if version is None:
+            version = self.xml_parser.get_node_attribute(node, 'version')
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
