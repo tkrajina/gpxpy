@@ -2592,10 +2592,6 @@ class GPX:
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 
-    def smooth(self, vertical=True, horizontal=False, remove_extremes=False):
-        for track in self.tracks:
-            track.smooth(vertical, horizontal, remove_extremes)
-
     def has_times(self):
         """ See GPXTrackSegment.has_times() """
         if not self.tracks:
