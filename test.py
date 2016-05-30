@@ -314,10 +314,13 @@ class AbstractTests:
 
     def test_unicode(self):
         gpx = self.parse('unicode.gpx', encoding='utf-8')
-
         name = gpx.waypoints[0].name
-
         self.assertTrue(make_str(name) == 'šđčćž')
+
+    def test_unicode_2(self):
+        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'), parser=self.get_parser_type())
+        gpx = parser.parse()
+        gpx.to_xml()
 
     def test_unicode_bom(self):
         gpx = self.parse('unicode3.gpx')
@@ -1612,11 +1615,6 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[0].points[1].time, None)
         self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
-
-    def test_unicode(self):
-        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'), parser=self.get_parser_type())
-        gpx = parser.parse()
-        gpx.to_xml()
 
     def test_location_delta(self):
         location = mod_geo.Location(-20, -50)
