@@ -65,7 +65,7 @@ class TimeConverter:
     def from_string(self, string):
         try:
             return parse_time(string)
-        except Exception as e:
+        except:
             return None
     def to_string(self, time):
         from . import gpx as mod_gpx
