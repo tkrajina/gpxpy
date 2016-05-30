@@ -151,14 +151,14 @@ class AbstractTests:
     def get_parser_type(self):
         raise Exception('Implement this in subclasses')
 
-    def parse(self, file, encoding=None):
+    def parse(self, file, encoding=None, version = None):
         if PYTHON_VERSION[0] == '3':
             f = open('test_files/%s' % file, encoding=encoding)
         else:
             f = open('test_files/%s' % file)
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
-        gpx = parser.parse()
+        gpx = parser.parse(version)
         f.close()
 
         if not gpx:
@@ -318,6 +318,20 @@ class AbstractTests:
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'šđčćž')
+
+    def test_unicode_bom(self):
+        gpx = self.parse('unicode3.gpx')
+
+        name = gpx.waypoints[0].name
+
+        self.assertTrue(make_str(name) == 'test')
+
+    def test_force_version(self):
+        gpx = self.parse('unicode3.gpx', version = '1.1')
+
+        security = gpx.waypoints[0].extensions['security']
+
+        self.assertTrue(make_str(security) == 'Open')
 
     def test_nearest_location_1(self):
         gpx = self.parse('korita-zbevnica.gpx')
