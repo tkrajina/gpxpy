@@ -914,9 +914,9 @@ class AbstractTests:
 
         gpx2 = self.reparse(gpx)
 
-        self.assertEquals(gpx.tracks[0].segments[0].points[0].name, 'aaa')
-        self.assertEquals(gpx.tracks[0].segments[0].points[0].comment, 'ccc')
-        self.assertEquals(gpx.tracks[0].segments[0].points[0].symbol, 'sss')
+        self.assertEquals(gpx2.tracks[0].segments[0].points[0].name, 'aaa')
+        self.assertEquals(gpx2.tracks[0].segments[0].points[0].comment, 'ccc')
+        self.assertEquals(gpx2.tracks[0].segments[0].points[0].symbol, 'sss')
 
     def test_get_bounds_and_refresh_bounds(self):
         gpx = mod_gpx.GPX()
