@@ -176,6 +176,9 @@ class GPXParser:
         """
         Parses the XML file and returns a GPX object.
 
+        version may be '1.0', '1.1' or None (then it will be read from the gpx
+        xml node if possible, if not then version 1.0 will be used).
+
         It will throw GPXXMLSyntaxException if the XML file is invalid or
         GPXException if the XML file is valid but something is wrong with the
         GPX data.
