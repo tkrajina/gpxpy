@@ -17,7 +17,8 @@
 <type>link type2</type></link>
 <time>2013-01-01T12:00:00Z</time>
 <keywords>example keywords</keywords>
-<bounds minlat="1.2" maxlat="5.6" minlon="3.4" maxlon="7.8"></bounds></metadata>
+<bounds minlat="1.2" maxlat="5.6" minlon="3.4" maxlon="7.8"></bounds>
+<extensions></extensions></metadata>
 <wpt lat="12.3" lon="45.6">
 <ele>75.1</ele>
 <time>2013-01-02T02:03:00Z</time>
@@ -38,9 +39,11 @@
 <vdop>7.0</vdop>
 <pdop>8.0</pdop>
 <ageofdgpsdata>9.0</ageofdgpsdata>
-<dgpsid>45</dgpsid></wpt>
+<dgpsid>45</dgpsid>
+<extensions></extensions></wpt>
 <wpt lat="13.4" lon="46.7">
-<link ></link></wpt>
+<link ></link>
+<extensions></extensions></wpt>
 <rte>
 <name>example name</name>
 <cmt>example cmt</cmt>
@@ -51,6 +54,7 @@
 <type>link type3</type></link>
 <number>7</number>
 <type>rte type</type>
+<extensions></extensions>
 <rtept lat="10.0" lon="20.0">
 <ele>75.1</ele>
 <time>2013-01-02T02:03:03Z</time>
@@ -71,19 +75,25 @@
 <vdop>8.0</vdop>
 <pdop>9.0</pdop>
 <ageofdgpsdata>10.0</ageofdgpsdata>
-<dgpsid>99</dgpsid></rtept>
+<dgpsid>99</dgpsid>
+<extensions></extensions></rtept>
 <rtept lat="11.0" lon="21.0">
-<link ></link></rtept>
+<link ></link>
+<extensions></extensions></rtept>
 <rtept lat="12.0" lon="22.0">
-<link ></link></rtept></rte>
+<link ></link>
+<extensions></extensions></rtept></rte>
 <rte>
 <name>second route</name>
 <desc>example desc 2</desc>
 <link ></link>
+<extensions></extensions>
 <rtept lat="13.0" lon="23.0">
-<link ></link></rtept>
+<link ></link>
+<extensions></extensions></rtept>
 <rtept lat="14.0" lon="24.0">
-<link ></link></rtept></rte>
+<link ></link>
+<extensions></extensions></rtept></rte>
 <trk>
 <name>example name t</name>
 <cmt>example cmt t</cmt>
@@ -94,6 +104,7 @@
 <type>trk link type</type></link>
 <number>1</number>
 <type>t</type>
+<extensions></extensions>
 <trkseg>
 <trkpt lat="10.1" lon="-20.2">
 <ele>11.1</ele>
@@ -115,7 +126,12 @@
 <vdop>102.0</vdop>
 <pdop>103.0</pdop>
 <ageofdgpsdata>104.0</ageofdgpsdata>
-<dgpsid>99</dgpsid></trkpt></trkseg>
-<trkseg></trkseg></trk>
+<dgpsid>99</dgpsid>
+<extensions></extensions></trkpt>
+<extensions></extensions></trkseg>
+<trkseg>
+<extensions></extensions></trkseg></trk>
 <trk>
-<link ></link></trk></gpx>
+<link ></link>
+<extensions></extensions></trk>
+<extensions></extensions></gpx>
