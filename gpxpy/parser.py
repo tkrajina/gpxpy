@@ -16,11 +16,7 @@
 
 from __future__ import print_function
 
-import pdb
-
-import re as mod_re
 import logging as mod_logging
-import datetime as mod_datetime
 import xml.dom.minidom as mod_minidom
 
 try:

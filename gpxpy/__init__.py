@@ -29,7 +29,6 @@ def parse(xml_or_file, parser=None, version = None):
     xml node if possible, if not then version 1.0 will be used).
     """
 
-    from . import gpx as mod_gpx
     from . import parser as mod_parser
 
     parser = mod_parser.GPXParser(xml_or_file, parser=parser)

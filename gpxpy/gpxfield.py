@@ -37,9 +37,9 @@ def parse_time(string):
     for date_format in mod_gpx.DATE_FORMATS:
         try:
             return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError as e:
+        except ValueError:
             pass
-    raise GPXException('Invalid time: %s' % string)
+    raise mod_gpx.GPXException('Invalid time: %s' % string)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ class TimeConverter:
         for date_format in mod_gpx.DATE_FORMATS:
             try:
                 return mod_datetime.datetime.strptime(string, date_format)
-            except ValueError as e:
+            except ValueError:
                 pass
         return None
     def to_string(self, time):
@@ -110,7 +110,8 @@ class GPXField(AbstractGPXField):
         AbstractGPXField.__init__(self)
         self.name = name
         if tag and attribute:
-            raise GPXException('Only tag *or* attribute may be given!')
+            from . import gpx as mod_gpx
+            raise mod_gpx.GPXException('Only tag *or* attribute may be given!')
         if attribute:
             self.tag = None
             self.attribute = name if attribute is True else attribute
