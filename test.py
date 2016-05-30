@@ -358,8 +358,8 @@ class AbstractTests:
         gpx = self.parse('Mojstrovka.gpx')
 
         # %Y-%m-%dT%H:%M:%SZ'
-
-        # TODO complete this test
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 1614.678000)
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52))
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')

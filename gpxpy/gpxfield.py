@@ -34,6 +34,8 @@ def parse_time(string):
         string = string.replace('T', ' ')
     if 'Z' in string:
         string = string.replace('Z', '')
+    if '.' in string:
+        string = string.split('.')[0]
     for date_format in mod_gpx.DATE_FORMATS:
         try:
             return mod_datetime.datetime.strptime(string, date_format)
@@ -61,19 +63,10 @@ class IntConverter:
 
 class TimeConverter:
     def from_string(self, string):
-        from . import gpx as mod_gpx
-        if not string:
+        try:
+            return parse_time(string)
+        except Exception as e:
             return None
-        if 'T' in string:
-            string = string.replace('T', ' ')
-        if 'Z' in string:
-            string = string.replace('Z', '')
-        for date_format in mod_gpx.DATE_FORMATS:
-            try:
-                return mod_datetime.datetime.strptime(string, date_format)
-            except ValueError:
-                pass
-        return None
     def to_string(self, time):
         from . import gpx as mod_gpx
         return time.strftime(mod_gpx.DATE_FORMAT) if time else None
