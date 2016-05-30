@@ -323,14 +323,14 @@ class AbstractTests:
         gpx.to_xml()
 
     def test_unicode_bom(self):
-        gpx = self.parse('unicode3.gpx')
+        gpx = self.parse('unicode_with_bom.gpx')
 
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'test')
 
     def test_force_version(self):
-        gpx = self.parse('unicode3.gpx', version = '1.1')
+        gpx = self.parse('unicode_with_bom.gpx', version = '1.1')
 
         security = gpx.waypoints[0].extensions['security']
 
