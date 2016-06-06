@@ -165,6 +165,8 @@ class GPXParser:
 
     def init(self, xml_or_file):
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
+        if text[:3] == "\xEF\xBB\xBF": #Remove utf-8 Byte Order Mark (BOM) if present
+            text = text[3:]
         self.xml = mod_utils.make_str(text)
         self.gpx = mod_gpx.GPX()
 
