@@ -256,7 +256,7 @@ class GPXExtensionsField(AbstractGPXField):
         return result
 
     def to_xml(self, value, version):
-        if value is None:
+        if not value:
             return ''
 
         result = '\n<' + self.tag + '>'
