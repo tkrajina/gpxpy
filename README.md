@@ -1,8 +1,7 @@
 [![Build Status](https://api.travis-ci.org/tkrajina/gpxpy.svg)](https://travis-ci.org/tkrajina/gpxpy)
 [![Coverage Status](https://coveralls.io/repos/github/tkrajina/gpxpy/badge.svg?branch=master)](https://coveralls.io/github/tkrajina/gpxpy?branch=master)
 
-gpxpy -- GPX file parser
-========================
+# gpxpy -- GPX file parser
 
 This is a simple Python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
 
@@ -10,8 +9,9 @@ You can see it in action on [my online GPS track editor and organizer](http://ww
 
 There is also a Golang port of gpxpy: [gpxgo](http://github.com/tkrajina/gpxgo).
 
-Usage
------
+See also [srtm.py](https://github.com/tkrajina/srtm.py) if your track lacks elevation data.
+
+## Usage
 
 ```python
 import gpxpy
@@ -66,15 +66,17 @@ gpx_segment.points.append(gpxpy.gpx.GPXTrackPoint(2.1236, 5.1236, elevation=1236
 print 'Created GPX:', gpx.to_xml()
 ```
 
-GPX Version:
-------------
+## GPX Version:
 
 gpx.py can parse and generate GPX 1.0 and 1.1 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
 
 WARNING: The only part of the GPX standard which is not completely implemented are GPX extensions. The API for GPX extensions will change in future versions!!!
 
-XML parsing
------------
+Be aware that the gpxpy object model *is not 100% equivalent* with the underlying GPX XML file schema. That's because the library object model works with both GPX 1.0 and 1.1.
+
+For example, the GPX 1.0 specified a `speed` attribute for every track point, but that was removed in GPX 1.1. If you parse GPX 1.0 and serialize back with `gpx.to_xml()` everything will work fine. But if you have a GPX 1.1 object, changes in the `speed` attribute will be lost after `gpx.to_xml()`. If you want to force using 1.0, you can `gpx.to_xml(version="1.0")`. Another possibility is to use `extensions` to save the speed in GPX 1.1.
+
+## XML parsing
 
 If lxml is available, then it will be used for XML parsing.
 Otherwise minidom is used.
@@ -82,8 +84,7 @@ Note that lxml is 2-3 times faster so, if you can choose -- use it :)
 
 The GPX version is automatically determined when parsing by reading the version attribute in the gpx node. If this attribute is not present then the version is assumed to be 1.0. A specific version can be forced by setting the `version` parameter in the parse function. Possible values for the 'version' parameter are `1.0`, `1.1` and `None`.
 
-Pull requests
--------------
+## Pull requests
 
 OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.6+ and Python 3+.
 
@@ -107,8 +108,7 @@ Run a single test with:
     $ python -m unittest test.LxmlTests.test_method
     $ python3 -m unittest test.LxmlTests.test_method
 
-GPXInfo
--------
+## GPXInfo
 
 The repository contain a little command line utility to extract basic statistics from a file.
 Example usage:
@@ -125,13 +125,7 @@ Example usage:
       Started: 2013-06-01 06:46:53
       Ended: 2013-06-01 10:23:45
 
-See also
---------
-
-See also [srtm.py](https://github.com/tkrajina/srtm.py) if your track lacks elevation data.
-
-License
--------
+## License
 
 GPX.py is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
