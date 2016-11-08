@@ -13,7 +13,7 @@ check-all-commited:
 	    git status; \
 	    exit 1; \
 	fi
-pypi-upload: test check-all-commited
+pypi-upload: check-all-commited test 
 	python setup.py register
 	python setup.py sdist upload --sign
 ctags:
