@@ -21,7 +21,7 @@ check-all-commited:
 	fi
 pypi-upload: test check-all-commited
 	python setup.py register
-	python setup.py sdist upload
+	python setup.py sdist upload --sign
 ctags:
 	ctags -R .
 clean:
