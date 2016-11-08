@@ -182,7 +182,7 @@ class AbstractTests:
 
     def test_simple_parse_function(self):
         # Must not throw any exception:
-        mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx'), parser=self.get_parser_type())
+        mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx', encoding='utf-8'), parser=self.get_parser_type())
 
     def test_simple_parse_function_invalid_xml(self):
         try:
@@ -321,14 +321,14 @@ class AbstractTests:
         gpx.to_xml()
 
     def test_unicode_bom(self):
-        gpx = self.parse('unicode_with_bom.gpx')
+        gpx = self.parse('unicode_with_bom.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'test')
 
     def test_force_version(self):
-        gpx = self.parse('unicode_with_bom.gpx', version = '1.1')
+        gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
 
         security = gpx.waypoints[0].extensions['security']
 
@@ -1496,15 +1496,15 @@ class AbstractTests:
     def test_simplify(self):
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
 
             length_2d_original = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
 
@@ -1614,6 +1614,11 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[0].points[1].time, None)
         self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
+
+    def test_unicode(self):
+        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx', encoding='utf-8'), parser=self.get_parser_type())
+        gpx = parser.parse()
+        gpx.to_xml()
 
     def test_location_delta(self):
         location = mod_geo.Location(-20, -50)
