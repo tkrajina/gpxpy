@@ -260,8 +260,9 @@ class GPXExtensionsField(AbstractGPXField):
             return ''
 
         result = '\n<' + self.tag + '>'
-        for ext_key, ext_value in value.items():
-            result += mod_utils.to_xml(ext_key, content=ext_value)
+        if hasattr(value, 'items'):
+            for ext_key, ext_value in value.items():
+                result += mod_utils.to_xml(ext_key, content=ext_value)
         result += '</' + self.tag + '>'
 
         return result
