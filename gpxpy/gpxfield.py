@@ -37,8 +37,7 @@ def parse_time(string):
     if '.' in string:
         string = string.split('.')[0]
     if len(string) > 19:
-        # take off the timezone part
-        # offset = string[19:].replace(':', '')
+        # remove the timezone part
         string = string[0:18]
     for date_format in mod_gpx.DATE_FORMATS:
         try:
