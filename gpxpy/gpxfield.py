@@ -46,7 +46,7 @@ def parse_time(string):
         p = '^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).*$'
         s = re.findall(p, string)
         if len(s) > 0:
-            string = '{}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}' \
+            string = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
                 .format(*[int(x) for x in s[0]])
     for date_format in mod_gpx.DATE_FORMATS:
         try:
