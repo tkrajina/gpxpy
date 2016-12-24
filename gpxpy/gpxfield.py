@@ -282,7 +282,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
     if tag:
         body = '\n<' + tag
         if custom_attributes:
-            for key, value in custom_attributes.items():
+            for key, value in custom_attributes:
                 body += ' %s="%s"' % (key, mod_utils.make_str(value))
 
     for gpx_field in fields:
