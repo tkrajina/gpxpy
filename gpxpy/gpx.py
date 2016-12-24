@@ -2582,11 +2582,11 @@ class GPX:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
         v = version.replace('.', '/')
-        xml_attributes = {
-                'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-                'xmlns': 'http://www.topografix.com/GPX/%s' % v,
-                'xsi:schemaLocation': 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v)
-        }
+        xml_attributes = mod_collections.OrderedDict([
+                ('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'),
+                ('xmlns', 'http://www.topografix.com/GPX/%s' % v),
+                ('xsi:schemaLocation', 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v))
+        ])
 
         content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes)
 
