@@ -4,14 +4,8 @@ test: test-py2 test-py3
 	echo 'OK'
 test-py3:
 	python3 -m unittest test
-	SAXCount -v=always -n -s -f validation_gpx10.gpx
-	SAXCount -v=always -n -s -f validation_gpx11.gpx
-	rm validation_gpx*gpx
 test-py2:
 	python -m unittest test
-	SAXCount -v=always -n -s -f validation_gpx10.gpx
-	SAXCount -v=always -n -s -f validation_gpx11.gpx
-	rm validation_gpx*gpx
 check-all-commited:
 	if [ -n "$(GIT_PORCELAIN_STATUS)" ]; \
 	then \
@@ -19,7 +13,7 @@ check-all-commited:
 	    git status; \
 	    exit 1; \
 	fi
-pypi-upload: test check-all-commited
+pypi-upload: check-all-commited test 
 	python setup.py register
 	python setup.py sdist upload --sign
 ctags:

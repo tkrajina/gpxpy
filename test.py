@@ -33,6 +33,7 @@ from __future__ import print_function
 import logging as mod_logging
 import os as mod_os
 import time as mod_time
+import codecs as mod_codecs
 import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
@@ -100,6 +101,14 @@ def equals(object1, object2, ignore=None):
     return True
 
 
+def custom_open(filename, encoding=None):
+    if PYTHON_VERSION[0] == '3':
+        return open(filename, encoding=encoding)
+    elif encoding == 'utf-8':
+        mod_codecs.open(filename, encoding='utf-7')
+    return open(filename)
+
+
 def cca(number1, number2):
     return 1 - number1 / number2 < 0.999
 
@@ -150,10 +159,7 @@ class AbstractTests:
         raise Exception('Implement this in subclasses')
 
     def parse(self, file, encoding=None, version = None):
-        if PYTHON_VERSION[0] == '3':
-            f = open('test_files/%s' % file, encoding=encoding)
-        else:
-            f = open('test_files/%s' % file)
+        f = custom_open('test_files/%s' % file, encoding=encoding)
 
         parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
         gpx = parser.parse(version)
@@ -182,7 +188,7 @@ class AbstractTests:
 
     def test_simple_parse_function(self):
         # Must not throw any exception:
-        mod_gpxpy.parse(open('test_files/korita-zbevnica.gpx'), parser=self.get_parser_type())
+        mod_gpxpy.parse(custom_open('test_files/korita-zbevnica.gpx', encoding='utf-8'), parser=self.get_parser_type())
 
     def test_simple_parse_function_invalid_xml(self):
         try:
@@ -316,19 +322,19 @@ class AbstractTests:
         self.assertTrue(make_str(name) == 'šđčćž')
 
     def test_unicode_2(self):
-        parser = mod_parser.GPXParser(open('test_files/unicode2.gpx'), parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'), parser=self.get_parser_type())
         gpx = parser.parse()
         gpx.to_xml()
 
     def test_unicode_bom(self):
-        gpx = self.parse('unicode_with_bom.gpx')
+        gpx = self.parse('unicode_with_bom.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'test')
 
     def test_force_version(self):
-        gpx = self.parse('unicode_with_bom.gpx', version = '1.1')
+        gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
 
         security = gpx.waypoints[0].extensions['security']
 
@@ -1496,15 +1502,15 @@ class AbstractTests:
     def test_simplify(self):
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
 
             length_2d_original = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(open('test_files/%s' % gpx_file), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
 
@@ -1614,6 +1620,11 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[0].points[1].time, None)
         self.assertEquals(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
+
+    def test_unicode(self):
+        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'), parser=self.get_parser_type())
+        gpx = parser.parse()
+        gpx.to_xml()
 
     def test_location_delta(self):
         location = mod_geo.Location(-20, -50)
@@ -2789,6 +2800,27 @@ class AbstractTests:
         self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].latitude)
         self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].longitude)
         self.assertEquals(0, gpx2.tracks[0].segments[0].points[0].elevation)
+
+    def test_remove_timezone_from_timestamp(self):
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk>\n'
+        xml += '<trkseg>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z+01:00</time></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
+
+    def test_timestamp_with_single_digits(self):
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk>\n'
+        xml += '<trkseg>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18Z-02:00</time></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
+
 
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):

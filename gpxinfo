@@ -1,7 +1,7 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 """
-Command line utility to extract basic statistics from a gpx file
+Command line utility to extract basic statistics from gpx file(s)
 """
 
 import pdb
@@ -9,6 +9,7 @@ import pdb
 import sys as mod_sys
 import logging as mod_logging
 import math as mod_math
+import argparse as mod_argparse
 
 import gpxpy as mod_gpxpy
 
@@ -21,10 +22,12 @@ import gpxpy as mod_gpxpy
 def format_time(time_s):
     if not time_s:
         return 'n/a'
-    minutes = mod_math.floor(time_s / 60.)
-    hours = mod_math.floor(minutes / 60.)
-
-    return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
+    elif args.seconds:
+        return str(int(time_s))
+    else:
+        minutes = mod_math.floor(time_s / 60.)
+        hours = mod_math.floor(minutes / 60.)
+        return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
 
 
 def print_gpx_part_info(gpx_part, indentation='    '):
@@ -99,5 +102,14 @@ def run(gpx_files):
             print('Error processing %s' % gpx_file)
             mod_sys.exit(1)
 
+
+def make_parser():
+    parser = mod_argparse.ArgumentParser(usage='%(prog)s [-s] [file ...]',
+        description='Command line utility to extract basic statistics from gpx file(s)')
+    parser.add_argument('-s', '--seconds', action='store_true',
+                        help='print times as N seconds, rather than HH:MM:SS')
+    return parser
+
 if __name__ == '__main__':
-    run(mod_sys.argv[1:])
+    args, gpx_files = make_parser().parse_known_args()
+    run(gpx_files)
