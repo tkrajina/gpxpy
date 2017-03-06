@@ -575,7 +575,7 @@ class AbstractTests:
         track.join(0)
         self.assertTrue(len(track.segments) == 1)
 
-        # Check that this splitted and joined track is the same as the original one:
+        # Check that this split and joined track is the same as the original one:
         self.assertTrue(equals(track, original_track))
 
     def test_remove_point_from_segment(self):
@@ -1206,7 +1206,7 @@ class AbstractTests:
         mod_logging.debug('max_speed = %s', max_speed_with_equal_speeds)
         self.assertTrue(max_speed_with_equal_speeds > 0)
 
-        # When we add to few extreemes, they should be ignored:
+        # When we add too few extremes, they should be ignored:
         for i in range(10):
             segment_2.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
             tmp_longitude += 0.7
@@ -1215,7 +1215,7 @@ class AbstractTests:
 
         self.assertTrue(abs(max_speed_with_extreemes - max_speed_with_equal_speeds) < 0.001)
 
-        # But if there are many extreemes (they are no more extreemes):
+        # But if there are many extremes (they are no more extremes):
         for i in range(100):
             # Sometimes add on start, sometimes on end:
             if i % 2 == 0:
@@ -1516,7 +1516,7 @@ class AbstractTests:
 
             print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_50)
 
-            # When simplifying the resulting disnatce should alway be less than the original:
+            # When simplifying the resulting distance should alway be less than the original:
             self.assertTrue(length_2d_original >= length_2d_after_distance_10)
             self.assertTrue(length_2d_original >= length_2d_after_distance_50)
 
@@ -1630,7 +1630,7 @@ class AbstractTests:
         location = mod_geo.Location(-20, -50)
 
         location_2 = location + mod_geo.LocationDelta(angle=45, distance=100)
-        self.assertTrue(cca(location_2.latitude  - location.latitude, location_2.longitude - location.longitude))
+        self.assertTrue(cca(location_2.latitude - location.latitude, location_2.longitude - location.longitude))
 
     def test_location_equator_delta_distance_111120(self):
         self.__test_location_delta(mod_geo.Location(0, 13), 111120)
@@ -1691,7 +1691,7 @@ class AbstractTests:
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
-        # Validated  with SAXParser in "make test"
+        # Validated with SAXParser in "make test"
         with open('validation_gpx10.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
@@ -2334,7 +2334,7 @@ class AbstractTests:
                 self.assertEquals(1, len(gpx.tracks[0].segments[0].points[0].extensions))
                 self.assertEquals('true', gpx.tracks[0].segments[0].points[0].extensions['last'])
 
-        # Validated  with SAXParser in "make test"
+        # Validated with SAXParser in "make test"
 
         # Clear extensions because those should be declared in the <gpx> but
         # gpxpy don't have support for this (yet):

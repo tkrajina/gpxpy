@@ -379,4 +379,4 @@ class LocationDelta:
         return location.latitude + lat_diff, location.longitude + lon_diff
 
     def move_by_lat_lon_diff(self, location):
-        return location.latitude  + self.latitude_diff, location.longitude + self.longitude_diff
+        return location.latitude + self.latitude_diff, location.longitude + self.longitude_diff
