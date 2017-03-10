@@ -1,0 +1,3 @@
+include README.md LICENSE.txt NOTICE.txt
+include test.py
+recursive-include test_files *.gpx

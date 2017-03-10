@@ -1692,7 +1692,7 @@ class AbstractTests:
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
         # Validated  with SAXParser in "make test"
-        with open('validation_gpx10.gpx', 'w') as f:
+        with open('test_files/validation_gpx10.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
@@ -2353,7 +2353,7 @@ class AbstractTests:
                 for point in segment.points:
                     point.extensions = {}
 
-        with open('validation_gpx11.gpx', 'w') as f:
+        with open('test_files/validation_gpx11.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
     def test_xml_chars_encode_decode(self):
