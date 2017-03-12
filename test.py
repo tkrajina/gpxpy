@@ -338,7 +338,7 @@ class AbstractTests:
 
         name = gpx.waypoints[0].name
 
-        self.assertTrue(make_str(name) == 'bom noencoding \xc5\x91')
+        self.assertTrue(make_str(name) == 'bom noencoding ő')
 
     def test_force_version(self):
         gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
