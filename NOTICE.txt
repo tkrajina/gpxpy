@@ -2,7 +2,7 @@ GPX.py
 Copyright 2010-2012 Tomo Krajina
 
 This product includes software developed by
-Tomo Krajina (http://www.puzz.info).
+Tomo Krajina (https://tkrajina.blogspot.com/).
 
 ===============================================================================
 

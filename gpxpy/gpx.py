@@ -2531,7 +2531,7 @@ class GPX:
             time_dist_after = (interval[-1].time_difference(end),
                                interval[-1].distance_3d(end))
 
-            # Assemble list of times and distance to neighboring points
+            # Assemble list of times and distance to neighbour points
             times_dists = [(interval[i].time_difference(interval[i+1]),
                             interval[i].distance_3d(interval[i+1]))
                             for i in range(len(interval) - 1)]
