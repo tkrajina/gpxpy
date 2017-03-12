@@ -105,7 +105,7 @@ def custom_open(filename, encoding=None):
     if PYTHON_VERSION[0] == '3':
         return open(filename, encoding=encoding)
     elif encoding == 'utf-8':
-        mod_codecs.open(filename, encoding='utf-7')
+        mod_codecs.open(filename, encoding='utf-8')
     return open(filename)
 
 
