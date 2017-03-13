@@ -158,6 +158,31 @@ class GPXBounds:
     def __hash__(self):
         return mod_utils.hash_object(self, self.__slots__)
 
+    def get_nearest_location(self, location):
+        """
+        Compute the nearest location inside this rectangle to a given location.
+        Return value will be input location if it is inside the rectangle
+        """
+        near_loc = mod_geo.Location(location.latitude, location.longitude)
+        if location.latitude < self.min_latitude:
+            near_loc.latitude = self.min_latitude
+        elif location.latitude > self.max_latitude:
+            near_loc.latitude = self.max_latitude
+            
+        if location.longitude < self.min_longitude:
+            near_loc.longitude = self.min_longitude
+        elif location.longitude > self.max_longitude:
+            near_loc.longitude = self.max_longitude
+            
+        return near_loc
+
+    def distance_2d(self, location):
+        """
+        Compute the minimum distance from this rectangle to a given location.
+        Return value will be 0. if the location is inside the rectangle
+        """
+        return location.distance_2d(self.get_nearest_location(location))
+
 
 class GPXXMLSyntaxException(GPXException):
     """
