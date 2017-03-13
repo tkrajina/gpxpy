@@ -1,0 +1,6 @@
+1.0 and 1.1 field name ambiguities:
+    - url/urlame vs <link>...
+    - author, author_name, name
+    + gpx extensions and metadata extensions
+    - Check generated GPX filex with SAXParser as part of "make test" task
+    - position_dilution -> positional_dilution
