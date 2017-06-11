@@ -109,7 +109,9 @@ def hash_object(obj, attributes):
 
 
 def make_str(s):
-    """ Convert a str or unicode object into a str type. """
+    """ Convert a str or unicode or float object into a str type. """
+    if isinstance(s, float):
+        return '{:f}'.format(s)
     if PYTHON_VERSION[0] == '2':
         if isinstance(s, unicode):
             return s.encode("utf-8")
