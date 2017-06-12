@@ -2822,6 +2822,16 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
 
 
+    def test_small_floats(self):
+        """GPX 1/1 does not allow scientific notation but that is what gpxpy writes right now."""
+        f = open('test_files/track-with-small-floats.gpx', 'r')
+
+        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+
+        gpx = parser.parse()
+        xml = gpx.to_xml()
+        self.assertNotIn('e-', xml)
+
 class LxmlTests(mod_unittest.TestCase, AbstractTests):
     def get_parser_type(self):
         return 'lxml'
