@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Track with small values for floats: scientific notation is illegal -->
 <gpx
-  version="1.0"
-  creator="GPSBabel - http://www.gpsbabel.org"
+  version="1.1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns="http://www.topografix.com/GPX/1/0"
-  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
-<time>2011-07-05T04:11:41Z</time>
-<bounds minlat="45.479033517" minlon="13.507589780" maxlat="45.485465008" maxlon="13.520498463"/>
+  creator="Wolfgang Rohdewald"
+  xmlns="http://www.topografix.com/GPX/1/1"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
 <trk>
   <name>Untitled Path</name>
 <trkseg>
