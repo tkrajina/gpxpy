@@ -262,7 +262,6 @@ class GPXExtensionsField(AbstractGPXField):
         if children is None:
             return result
 
-
         for child in children:
             if parser.get_node_name(child) == "TrackPointExtension":
                 grandchildren = parser.get_children(child)
