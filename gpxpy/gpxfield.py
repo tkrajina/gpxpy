@@ -171,6 +171,10 @@ class GPXField(AbstractGPXField):
             return mod_utils.to_xml(self.tag, content=value, escape=True)
 
 
+class TPXField(GPXField):
+    pass
+
+
 class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None, is_list=None):
         AbstractGPXField.__init__(self, is_list=is_list)
@@ -263,15 +267,7 @@ class GPXExtensionsField(AbstractGPXField):
             return result
 
         for child in children:
-            if parser.get_node_name(child) == "TrackPointExtension":
-                grandchildren = parser.get_children(child)
-                result[parser.get_node_name(child)] = {"text": parser.get_node_data(child)}
-
-                if grandchildren is not None:
-                    for grandchild in grandchildren:
-                        result[parser.get_node_name(child)][parser.get_node_name(grandchild)] = parser.get_node_data(grandchild)
-            else:
-                result[parser.get_node_name(child)] = parser.get_node_data(child)
+            result[parser.get_node_name(child)] = parser.get_node_data(child)
 
         return result
 
