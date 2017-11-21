@@ -21,7 +21,7 @@ install:
  - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
  - if [ "$TRAVIS_PYTHON_VERSION" == "3.3" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
  - if [ "$TRAVIS_PYTHON_VERSION" == "3.4" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then pip install lxml; fi
+ - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then pip install lxml==3.6; fi
  - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then pip install lxml; fi
 
  # Coveralls 4.0 doesn't support Python 3.2
