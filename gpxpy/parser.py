@@ -52,7 +52,7 @@ class XMLParser:
             return children[0]
 
         for tmp_node in children:
-            if tmp_node.nodeName == name:
+            if tmp_node.localName == name:
                 return tmp_node
 
         return None
