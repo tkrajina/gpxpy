@@ -2831,7 +2831,7 @@ class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
         return 'minidom'
 
-class ATrackPointExtensionTest(mod_unittest.TestCase):
+class TrackPointExtensionTest(mod_unittest.TestCase):
     def test_heartrate(self):
         import gpxpy.gpxxml
 
@@ -2841,7 +2841,7 @@ class ATrackPointExtensionTest(mod_unittest.TestCase):
             assert gpx.tracks[0].segments[0].points[0].extensions.TrackPointExtension.atemp == 15.0
             assert gpx.tracks[0].segments[0].points[0].extensions.TrackPointExtension.hr == 113
             assert gpx.tracks[0].segments[0].points[2].extensions.TrackPointExtension.cad == 21
-            wout=open("validation_Extensions.gpx","w")
+            wout = open("validation_Extensions.gpx", "w")
             wout.write(gpx.to_xml())
 
 
