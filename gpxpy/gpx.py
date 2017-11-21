@@ -441,16 +441,29 @@ class GPXRoute:
         return 'GPXRoute(%s)' % representation
 
 
+class GPXTrackPointExtension:
+    gpx_10_fields = []
+    gpx_11_fields = [
+        mod_gpxfield.GPXField('atemp', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('cad', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('depth', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('hr', type=mod_gpxfield.FLOAT_TYPE),
+        mod_gpxfield.GPXField('wtemp', type=mod_gpxfield.FLOAT_TYPE)
+    ]
+    __slots__ = ('atemp', 'cad', 'depth', 'hr', 'wtemp')
+
+    def __init__(self, atemp=None, cad=None, depth=None, hr=None, wtemp=None):
+        self.atemp = atemp
+        self.cad = cad
+        self.depth = depth
+        self.hr = hr
+        self.wtemp = wtemp
+
+
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS[0:-1]+['extensions',
-                                               'ns3:TrackPointExtension',
-                                               mod_gpxfield.GPXField('atemp', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('cad', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('depth', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('hr', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('wtemp', type=mod_gpxfield.FLOAT_TYPE),
-                                               '/ns3:TrackPointExtension',
+                                               mod_gpxfield.GPXComplexField("extensions", GPXTrackPointExtension, "TrackPointExtension"),
                                                '/extensions']
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course',
@@ -459,7 +472,7 @@ class GPXTrackPoint(mod_geo.Location):
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'atemp', 'cad', 'depth', 'hr', 'wtemp')
+                 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -489,11 +502,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.atemp = None
-        self.cad = None
-        self.depth = None
-        self.hr = None
-        self.wtemp = None
+        self.extensions = None
 
 
     def __repr__(self):
