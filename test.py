@@ -2831,18 +2831,6 @@ class MinidomTests(LxmlTests, AbstractTests):
     def get_parser_type(self):
         return 'minidom'
 
-class TrackPointExtensionTest(mod_unittest.TestCase):
-    def test_heartrate(self):
-        import gpxpy.gpxxml
-
-        with open("test_files/garmin_tpx.gpx") as f:
-            contents = f.read()
-            gpx = mod_gpxpy.parse(contents)
-            assert gpx.tracks[0].segments[0].points[0].extensions['TrackPointExtension']['atemp'] == "15.0"
-            assert gpx.tracks[0].segments[0].points[0].extensions['TrackPointExtension']['hr'] == '113'
-            assert gpx.tracks[0].segments[0].points[2].extensions['TrackPointExtension']['cad'] == '21'
-
-
 class MiscTests(mod_unittest.TestCase):
     def test_join_gpx_xml_files(self):
         import gpxpy.gpxxml
