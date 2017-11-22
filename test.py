@@ -2331,7 +2331,8 @@ class AbstractTests:
                 self.assertEquals(gpx.tracks[0].segments[0].points[0].dgps_id, '99')
                 self.assertEquals(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
-                self.assertEquals(123.0, gpx.tracks[0].segments[0].points[0].extensions.hr)
+                self.assertEquals(1, len(gpx.tracks[0].segments[0].points[0].extensions))
+                self.assertEquals('true', gpx.tracks[0].segments[0].points[0].extensions['last'])
 
         # Validated with SAXParser in "make test"
 
@@ -2350,7 +2351,7 @@ class AbstractTests:
             for segment in track.segments:
                 segment.extensions = {}
                 for point in segment.points:
-                    point.extensions = mod_gpx.GPXTrackPointExtension()
+                    point.extensions = {}
 
         with open('validation_gpx11.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
@@ -2837,9 +2838,9 @@ class ATrackPointExtensionTest(mod_unittest.TestCase):
         with open("test_files/garmin_tpx.gpx") as f:
             contents = f.read()
             gpx = mod_gpxpy.parse(contents)
-            assert gpx.tracks[0].segments[0].points[0].extensions.atemp == 15.0
-            assert gpx.tracks[0].segments[0].points[0].extensions.hr == 113
-            assert gpx.tracks[0].segments[0].points[2].extensions.cad == 21
+            assert gpx.tracks[0].segments[0].points[0].atemp == 15.0
+            assert gpx.tracks[0].segments[0].points[0].hr == 113
+            assert gpx.tracks[0].segments[0].points[2].cad == 21
             wout=open("validation_Extensions.gpx","w")
             wout.write(gpx.to_xml())
 
