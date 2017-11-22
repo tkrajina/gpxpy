@@ -171,6 +171,10 @@ class GPXField(AbstractGPXField):
             return mod_utils.to_xml(self.tag, content=value, escape=True)
 
 
+class TPXField(GPXField):
+    pass
+
+
 class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None, is_list=None):
         AbstractGPXField.__init__(self, is_list=is_list)
