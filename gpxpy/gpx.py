@@ -459,28 +459,12 @@ class GPXTrackPointExtension:
         self.hr = hr
         self.wtemp = wtemp
 
-class GPXTPX:
-    gpx_10_fields = []
-    gpx_11_fields = [mod_gpxfield.GPXComplexField("TrackPointExtension", GPXTrackPointExtension, "TrackPointExtension"),
-                     mod_gpxfield.GPXField('hr', type=mod_gpxfield.INT_TYPE),
-                     mod_gpxfield.GPXField('cadence', type=mod_gpxfield.INT_TYPE),
-                     mod_gpxfield.GPXField('temp', type=mod_gpxfield.FLOAT_TYPE),
-                     mod_gpxfield.GPXField('distance', type=mod_gpxfield.FLOAT_TYPE),
-                     mod_gpxfield.GPXField('sensor', type=mod_gpxfield.FLOAT_TYPE),
-                     ]
-    __slots__ = ('TrackPointExtension','hr', 'cadence', 'temp', 'distance', 'sensor')
-    def __init__(self, TrackPointExtension=None,hr=None, cadence=None, temp=None, distance=None, sensor=None):
-        self.TrackPointExtension=None
-        self.hr= hr
-        self.cadence = cadence
-        self.distance = distance
-        self.sensor = sensor
-        self.temp = temp
-
 
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
-    gpx_11_fields = GPX_11_POINT_FIELDS[0:-1]+[mod_gpxfield.GPXComplexField("extensions", GPXTPX, "extensions"),]
+    gpx_11_fields = GPX_11_POINT_FIELDS[0:-1]+['extensions',
+                                               mod_gpxfield.GPXComplexField("extensions", GPXTrackPointExtension, "TrackPointExtension"),
+                                               '/extensions']
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course',
                  'speed', 'magnetic_variation', 'geoid_height', 'name',

@@ -1,8 +1,4 @@
-<gpx version="1.1" creator="..." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns="http://www.topografix.com/GPX/1/1"
-xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
-xmlns:ns3="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
-xmlns:gpxdata="http://www.cluetrust.com/XML/GPXDATA/1/0" >
+<gpx version="1.1" creator="..." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
     <metadata>
         <name>example name</name>
         <desc>example description</desc>
@@ -156,11 +152,7 @@ xmlns:gpxdata="http://www.cluetrust.com/XML/GPXDATA/1/0" >
                 <ageofdgpsdata>104</ageofdgpsdata>
                 <dgpsid>99</dgpsid>
                 <extensions>
-                    <ns3:TrackPointExtension>
-                    <ns3:hr>123</ns3:hr>
-                    </ns3:TrackPointExtension>
-                    <gpxdata:hr>161</gpxdata:hr>
-                    <gpxdata:cadence>96</gpxdata:cadence>
+                    <last>true</last>
                 </extensions>
             </trkpt>
         </trkseg>
