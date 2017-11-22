@@ -443,15 +443,7 @@ class GPXRoute:
 
 class GPXTrackPoint(mod_geo.Location):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
-    gpx_11_fields = GPX_11_POINT_FIELDS[0:-1]+['extensions',
-                                               'ns3:TrackPointExtension',
-                                               mod_gpxfield.GPXField('atemp', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('cad', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('depth', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('hr', type=mod_gpxfield.FLOAT_TYPE),
-                                               mod_gpxfield.GPXField('wtemp', type=mod_gpxfield.FLOAT_TYPE),
-                                               '/ns3:TrackPointExtension',
-                                               '/extensions']
+    gpx_11_fields = GPX_11_POINT_FIELDS
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course',
                  'speed', 'magnetic_variation', 'geoid_height', 'name',
@@ -459,7 +451,7 @@ class GPXTrackPoint(mod_geo.Location):
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'atemp', 'cad', 'depth', 'hr', 'wtemp')
+                 'link_type', 'extensions')
 
     def __init__(self, latitude=None, longitude=None, elevation=None, time=None, symbol=None, comment=None,
                  horizontal_dilution=None, vertical_dilution=None, position_dilution=None, speed=None,
@@ -489,12 +481,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.atemp = None
-        self.cad = None
-        self.depth = None
-        self.hr = None
-        self.wtemp = None
-
+        self.extensions = None
 
     def __repr__(self):
         representation = '%s, %s' % (self.latitude, self.longitude)
