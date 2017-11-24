@@ -3,6 +3,15 @@
 import datetime as mod_datetime
 import re as mod_re
 
+# GPX date format(s) used for parsing. The T between date and time and Z after
+# time are allowed, too:
+DATE_FORMATS = [
+    '%Y-%m-%d %H:%M:%S',
+    '%Y-%m-%d %H:%M:%S.%f',
+    #'%Y-%m-%d %H:%M:%S%z',
+    #'%Y-%m-%d %H:%M:%S.%f%z',
+]
+
 def parse_time(string):
     from . import gpx as mod_gpx
     if not string:
@@ -30,5 +39,3 @@ def parse_time(string):
         except ValueError:
             pass
     raise mod_gpx.GPXException('Invalid time: %s' % string)
-
-

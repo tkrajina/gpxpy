@@ -28,6 +28,7 @@ except:
 from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
+from . import timestamps as mod_timestamps
 
 
 class XMLParser:
@@ -38,6 +39,7 @@ class XMLParser:
     def __init__(self, xml):
         self.xml = xml
         self.dom = mod_minidom.parseString(xml)
+        self.date_parsers = [mod_timestamps.parse_time]
 
     def get_first_child(self, node=None, name=None):
         # TODO: Remove find_first_node from utils!

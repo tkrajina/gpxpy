@@ -30,23 +30,23 @@ class GPXFieldTypeConverter:
 
 class FloatConverter:
     def __init__(self):
-        self.from_string = lambda string : None if string is None else float(string.strip())
-        self.to_string =   lambda flt    : str(flt)
+        self.from_string = lambda string, parser : None if string is None else float(string.strip())
+        self.to_string =   lambda flt, parser    : str(flt)
 
 
 class IntConverter:
     def __init__(self):
-        self.from_string = lambda string : None if string is None else int(string.strip())
-        self.to_string =   lambda flt    : str(flt)
+        self.from_string = lambda string, parser : None if string is None else int(string.strip())
+        self.to_string =   lambda flt, parser    : str(flt)
 
 
 class TimeConverter:
-    def from_string(self, string):
+    def from_string(self, string, parser):
         try:
             return parse_time(string)
         except:
             return None
-    def to_string(self, time):
+    def to_string(self, time, parser):
         from . import gpx as mod_gpx
         return time.strftime(mod_gpx.DATE_FORMAT) if time else None
 
@@ -112,7 +112,7 @@ class GPXField(AbstractGPXField):
 
         if self.type_converter:
             try:
-                result = self.type_converter.from_string(result)
+                result = self.type_converter.from_string(result, parser)
             except Exception as e:
                 from . import gpx as mod_gpx
                 raise mod_gpx.GPXException('Invalid value for <%s>... %s (%s)' % (self.tag, result, e))
@@ -124,7 +124,7 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version):
+    def to_xml(self, parser, value, version):
         if value is None:
             return ''
 
@@ -132,7 +132,7 @@ class GPXField(AbstractGPXField):
             return '%s="%s"' % (self.attribute, mod_utils.make_str(value))
         else:
             if self.type_converter:
-                value = self.type_converter.to_string(value)
+                value = self.type_converter.to_string(value, parser)
             if isinstance(self.tag, list) or isinstance(self.tag, tuple):
                 raise Exception('Not yet implemented')
             return mod_utils.to_xml(self.tag, content=value, escape=True)
