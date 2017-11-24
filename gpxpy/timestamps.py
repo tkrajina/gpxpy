@@ -33,7 +33,7 @@ def parse_time(string):
         if len(s) > 0:
             string = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
                 .format(*[int(x) for x in s[0]])
-    for date_format in mod_gpx.DATE_FORMATS:
+    for date_format in DATE_FORMATS:
         try:
             return mod_datetime.datetime.strptime(string, date_format)
         except ValueError:

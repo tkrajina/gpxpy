@@ -39,7 +39,7 @@ class XMLParser:
     def __init__(self, xml):
         self.xml = xml
         self.dom = mod_minidom.parseString(xml)
-        self.date_parsers = [mod_timestamps.parse_time]
+        self.time_parsers = None
 
     def get_first_child(self, node=None, name=None):
         # TODO: Remove find_first_node from utils!
@@ -164,6 +164,7 @@ class GPXParser:
         self.gpx = mod_gpx.GPX()
         self.xml_parser_type = parser
         self.xml_parser = None
+        self.time_parsers = [mod_timestamps.parse_time]
 
     def init(self, xml_or_file):
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
@@ -196,6 +197,7 @@ class GPXParser:
             else:
                 raise mod_gpx.GPXException('Invalid parser type: %s' % self.xml_parser_type)
 
+            self.xml_parser.time_parsers = [mod_timestamps.parse_time]
             self.__parse_dom(version)
 
             return self.gpx

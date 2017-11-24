@@ -42,10 +42,11 @@ class IntConverter:
 
 class TimeConverter:
     def from_string(self, string, parser):
-        try:
-            return parse_time(string)
-        except:
-            return None
+        for p in parser.time_parsers:
+            res = p(string)
+            if res:
+                return res
+        return None
     def to_string(self, time, parser):
         from . import gpx as mod_gpx
         return time.strftime(mod_gpx.DATE_FORMAT) if time else None
