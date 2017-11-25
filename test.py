@@ -2812,6 +2812,23 @@ class AbstractTests:
         gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
         self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
 
+    def test_parse_without_timestamps(self):
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk>\n'
+        xml += '<trkseg>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z+01:00</time></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+
+        parser = mod_parser.GPXParser(xml, parser=self.get_parser_type())
+        parser.from_xml_params.timestamp_parsers = []
+        gpx = parser.parse(xml)
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, None)
+
+        parser = mod_parser.GPXParser(xml, parser=self.get_parser_type())
+        gpx = parser.parse(xml)
+        self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
+
     def test_timestamp_with_single_digits(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
