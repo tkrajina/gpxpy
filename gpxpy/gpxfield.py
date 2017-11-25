@@ -17,38 +17,57 @@
 import inspect as mod_inspect
 
 from . import utils as mod_utils
+from . import timestamps as mod_timestamps
 
-class GPXFieldTypeConverter:
-    def __init__(self, from_string, to_string):
-        self.from_string = from_string
-        self.to_string = to_string
 
 # ----------------------------------------------------------------------------------------------------
 # Type converters used to convert from/to the string in the XML:
 # ----------------------------------------------------------------------------------------------------
 
 
+class ToXmlParams:
+    def __init__(self):
+        self.timestamp_format = mod_timestamps.DATE_FORMAT
+
+
+class FromXmlParams:
+    def __init__(self):
+        self.timestamp_parsers = [mod_timestamps.parse_time]
+
+
+# ----------------------------------------------------------------------------------------------------
+# Type converters used to convert from/to the string in the XML:
+# ----------------------------------------------------------------------------------------------------
+
+
+class GPXFieldTypeConverter:
+    def __init__(self, from_string, to_string):
+        self.from_string = from_string
+        self.to_string = to_string
+
+
 class FloatConverter:
     def __init__(self):
-        self.from_string = lambda string : None if string is None else float(string.strip())
-        self.to_string =   lambda flt    : str(flt)
+        self.from_string = lambda string, from_xml_params : None if string is None else float(string.strip())
+        self.to_string =   lambda flt, to_xml_params      : str(flt)
 
 
 class IntConverter:
     def __init__(self):
-        self.from_string = lambda string : None if string is None else int(string.strip())
-        self.to_string =   lambda flt    : str(flt)
+        self.from_string = lambda string, from_xml_params : None if string is None else int(string.strip())
+        self.to_string =   lambda flt, to_xml_params      : str(flt)
 
 
 class TimeConverter:
-    def from_string(self, string):
-        try:
-            return parse_time(string)
-        except:
-            return None
-    def to_string(self, time):
+    def from_string(self, string, from_xml_params):
+        for parser_func in from_xml_params.timestamp_parsers:
+            res = parser_func(string)
+            if res:
+                return res
+        return None
+    def to_string(self, time, to_xml_params):
         from . import gpx as mod_gpx
-        return time.strftime(mod_gpx.DATE_FORMAT) if time else None
+        return time.strftime(to_xml_params.timestamp_format) if time else None
 
 
 INT_TYPE = IntConverter()
@@ -67,10 +86,10 @@ class AbstractGPXField:
         self.is_list = is_list
         self.attribute = False
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, parser, node, version, from_xml_params):
         raise Exception('Not implemented')
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, to_xml_params):
         raise Exception('Not implemented')
 
 
@@ -97,7 +116,7 @@ class GPXField(AbstractGPXField):
         self.possible = possible
         self.mandatory = mandatory
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, parser, node, version, from_xml_params):
         if self.attribute:
             result = parser.get_node_attribute(node, self.attribute)
         else:
@@ -112,7 +131,7 @@ class GPXField(AbstractGPXField):
 
         if self.type_converter:
             try:
-                result = self.type_converter.from_string(result)
+                result = self.type_converter.from_string(result, from_xml_params)
             except Exception as e:
                 from . import gpx as mod_gpx
                 raise mod_gpx.GPXException('Invalid value for <%s>... %s (%s)' % (self.tag, result, e))
@@ -124,7 +143,7 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, to_xml_params):
         if value is None:
             return ''
 
@@ -132,7 +151,7 @@ class GPXField(AbstractGPXField):
             return '%s="%s"' % (self.attribute, mod_utils.make_str(value))
         else:
             if self.type_converter:
-                value = self.type_converter.to_string(value)
+                value = self.type_converter.to_string(value, to_xml_params)
             if isinstance(self.tag, list) or isinstance(self.tag, tuple):
                 raise Exception('Not yet implemented')
             return mod_utils.to_xml(self.tag, content=value, escape=True)
@@ -145,27 +164,27 @@ class GPXComplexField(AbstractGPXField):
         self.tag = tag or name
         self.classs = classs
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, parser, node, version, from_xml_params):
         if self.is_list:
             result = []
             for child_node in parser.get_children(node):
                 if parser.get_node_name(child_node) == self.tag:
-                    result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
+                    result.append(gpx_fields_from_xml(self.classs, parser, child_node, version, from_xml_params))
             return result
         else:
             field_node = parser.get_first_child(node, self.tag)
             if field_node is None:
                 return None
-            return gpx_fields_from_xml(self.classs, parser, field_node, version)
+            return gpx_fields_from_xml(self.classs, parser, field_node, version, from_xml_params)
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, to_xml_params):
         if self.is_list:
             result = ''
             for obj in value:
-                result += gpx_fields_to_xml(obj, self.tag, version)
+                result += gpx_fields_to_xml(obj, self.tag, version, to_xml_params)
             return result
         else:
-            return gpx_fields_to_xml(value, self.tag, version)
+            return gpx_fields_to_xml(value, self.tag, version, to_xml_params)
 
 
 class GPXEmailField(AbstractGPXField):
@@ -178,7 +197,7 @@ class GPXEmailField(AbstractGPXField):
         self.name = name
         self.tag = tag or name
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, parser, node, version, from_xml_params):
         email_node = parser.get_first_child(node, self.tag)
 
         if email_node is None:
@@ -189,7 +208,7 @@ class GPXEmailField(AbstractGPXField):
 
         return '%s@%s' % (email_id, email_domain)
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, to_xml_params):
         if not value:
             return ''
 
@@ -214,7 +233,7 @@ class GPXExtensionsField(AbstractGPXField):
         self.is_list = False
         self.tag = tag or 'extensions'
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, parser, node, version, from_xml_params):
         result = {}
 
         if node is None:
@@ -234,7 +253,7 @@ class GPXExtensionsField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, to_xml_params):
         if not value:
             return ''
 
@@ -251,7 +270,7 @@ class GPXExtensionsField(AbstractGPXField):
 # ----------------------------------------------------------------------------------------------------
 
 
-def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
+def gpx_fields_to_xml(instance, tag, version, to_xml_params, custom_attributes=None):
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
@@ -277,12 +296,12 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
         else:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body += ' ' + gpx_field.to_xml(value, version)
+                body += ' ' + gpx_field.to_xml(value, version, to_xml_params)
             elif value is not None:
                 if tag_open:
                     body += '>'
                     tag_open = False
-                xml_value = gpx_field.to_xml(value, version)
+                xml_value = gpx_field.to_xml(value, version, to_xml_params)
                 if xml_value:
                     body += xml_value
 
@@ -294,7 +313,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
     return body
 
 
-def gpx_fields_from_xml(class_or_instance, parser, node, version):
+def gpx_fields_from_xml(class_or_instance, parser, node, version, from_xml_params):
     if mod_inspect.isclass(class_or_instance):
         result = class_or_instance()
     else:
@@ -318,10 +337,10 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
                     node_path.append(parser.get_first_child(current_node, gpx_field))
         else:
             if current_node is not None:
-                value = gpx_field.from_xml(parser, current_node, version)
+                value = gpx_field.from_xml(parser, current_node, version, from_xml_params)
                 setattr(result, gpx_field.name, value)
             elif gpx_field.attribute:
-                value = gpx_field.from_xml(parser, node, version)
+                value = gpx_field.from_xml(parser, node, version, from_xml_params)
                 setattr(result, gpx_field.name, value)
 
     return result

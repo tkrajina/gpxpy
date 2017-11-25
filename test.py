@@ -51,6 +51,7 @@ import gpxpy.gpx as mod_gpx
 import gpxpy.gpxfield as mod_gpxfield
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
+import gpxpy.timestamps as mod_timestamps
 
 from gpxpy.utils import make_str
 
@@ -1578,7 +1579,7 @@ class AbstractTests:
             timestamps.append(t)
         for timestamp in timestamps:
             print('Parsing: %s' % timestamp)
-            self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
+            self.assertTrue(mod_timestamps.parse_time(timestamp) is not None)
 
     def test_get_location_at(self):
         gpx = mod_gpx.GPX()

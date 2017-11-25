@@ -2577,7 +2577,9 @@ class GPX:
                 ('xsi:schemaLocation', 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v))
         )
 
-        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes)
+        # In the future, to_xml_params my become an optional parameter to this function
+        to_xml_params = mod_gpxfield.ToXmlParams()
+        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, to_xml_params, custom_attributes=xml_attributes)
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 

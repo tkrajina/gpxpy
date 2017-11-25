@@ -162,6 +162,7 @@ class GPXParser:
         self.gpx = mod_gpx.GPX()
         self.xml_parser_type = parser
         self.xml_parser = None
+        self.from_xml_params = mod_gpxfield.FromXmlParams()
 
     def init(self, xml_or_file):
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
@@ -220,4 +221,4 @@ class GPXParser:
         if version is None:
             version = self.xml_parser.get_node_attribute(node, 'version')
 
-        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
+        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version, self.from_xml_params)
