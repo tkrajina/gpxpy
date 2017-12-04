@@ -5,7 +5,7 @@ sudo: false
 
 # Those without lxml wheels first because building lxml is slow
 python:
- - 3.6
+ - 3.5
  - 2.7
 
 install:
