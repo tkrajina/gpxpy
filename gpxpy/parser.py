@@ -20,10 +20,13 @@ import logging as mod_logging
 import xml.dom.minidom as mod_minidom
 
 try:
-    import lxml.etree as mod_etree
+    import xml.etree.cElementTree as mod_etree
 except:
-    mod_etree = None
-    pass # LXML not available
+    try:
+        import xml.etree.ElementTree as mod_etree
+    except:
+        mod_etree = None
+        pass # LXML not available
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
@@ -104,7 +107,7 @@ class LXMLParser:
 
         self.dom = mod_etree.XML(self.xml)
         # get the namespace
-        self.ns = self.dom.nsmap.get(None)
+        # self.ns = self.dom.nsmap.get(None)
 
     def get_first_child(self, node=None, name=None):
         if node is None:
