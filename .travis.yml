@@ -21,12 +21,11 @@ install:
 # Check whether to install lxml
  - if [ "$XMLPARSER" == "LXML" ]; then
      case "$TRAVIS_PYTHON_VERSION" in
-       "3.2"|"3.5"|"3.6")
+       "2.7"|"3.3"|"3.4"|"3.5"|"3.6")
          pip install lxml
          ;;
-       "2.6"|"2.7"|"3.3"|"3.4")
-         wget -q -P /tmp "https://github.com/obspy/wheelhouse/raw/master/lxml-3.4.0-cp${TRAVIS_PYTHON_VERSION//.}-none-linux_x86_64.whl"
-         pip install lxml --use-wheel --no-index --find-links=/tmp lxml
+       "2.6"|"3.2")
+         pip install lxml==3.6
          ;;
      esac
    fi
