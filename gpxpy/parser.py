@@ -98,7 +98,8 @@ class GPXParser:
         Initialize new GPXParser instance.
 
         Arguments:
-            xml_or_file: string or file object containing the gpx formatted xml
+            xml_or_file: string or file object containing the gpx
+                formatted xml
             
         """
         self.init(xml_or_file)
@@ -110,11 +111,12 @@ class GPXParser:
         Store the XML and remove utf-8 Byte Order Mark if present.
 
         Args:
-            xml_or_file: string or file object containing the gpx formatted xml
+            xml_or_file: string or file object containing the gpx
+                formatted xml
             
         """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
-        if text[:3] == "\xEF\xBB\xBF": #Remove utf-8 Byte Order Mark (BOM) if present
+        if text[:3] == "\xEF\xBB\xBF": #Remove utf-8 BOM
             text = text[3:]
         self.xml = mod_utils.make_str(text)
 
