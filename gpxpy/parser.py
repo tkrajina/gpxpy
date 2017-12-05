@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import logging as mod_logging
 
 try:
@@ -31,15 +29,12 @@ from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
 
-class LXMLParser:
+class XMLParser:
     """
     Used when lxml is available.
     """
 
     def __init__(self, xml):
-        if not mod_etree:
-            raise Exception('Cannot use LXMLParser without lxml installed')
-
         if mod_utils.PYTHON_VERSION[0] == '3':
             # In python 3 all strings are unicode and for some reason lxml
             # don't like unicode strings with XMLs declared as UTF-8:
@@ -126,12 +121,12 @@ class GPXParser:
         GPX data.
         """
         try:
-            self.xml_parser = LXMLParser(self.xml)
+            self.xml_parser = XMLParser(self.xml)
             self.__parse_dom(version)
 
             return self.gpx
         except Exception as e:
-            # The exception here can be a lxml or minidom exception.
+            # The exception here can be a lxml or ElementTree exception.
             mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
             mod_logging.exception(e)
 
@@ -140,7 +135,7 @@ class GPXParser:
             # here is GPXXMLSyntaxException (instead of simply throwing the
             # original minidom or lxml exception e).
             #
-            # But, if the user need the original exception (lxml or minidom)
+            # But, if the user need the original exception (lxml or ElementTree)
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
 

@@ -18,14 +18,11 @@
 Run all tests with:
     $ python -m unittest test
 
-Run minidom parser tests with:
-    $ python -m unittest test.MinidomTests
-
-Run lxml parser tests with:
-    $ python -m unittest test.LxmlTests
+Run lxml parser test with:
+    $ python -m unittest test.LxmlTest
 
 Run single test with:
-    $ python -m unittest test.LxmlTests.test_method
+    $ python -m unittest test.GPXTests.test_method
 """
 
 from __future__ import print_function
