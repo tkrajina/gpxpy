@@ -20,6 +20,7 @@ env:
 install:
 # Check whether to install lxml
  - if [ "$XMLPARSER" == "LXML" ]; then
+     # Pin versions 2.6 and 3.2 to lxml 3.6 (end of support)
      case "$TRAVIS_PYTHON_VERSION" in
        "2.7"|"3.3"|"3.4"|"3.5"|"3.6")
          pip install lxml
@@ -48,9 +49,9 @@ after_success:
 
 after_script:
  - coverage report
- - pip install pyflakes pep8
+ - pip install pyflakes pycodestyle
  - pyflakes . | tee >(wc -l)
- - pep8 --statistics --count .
+ - pycodestyle --statistics --count .
 
 matrix:
   fast_finish: true
