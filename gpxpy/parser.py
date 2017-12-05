@@ -17,76 +17,18 @@
 from __future__ import print_function
 
 import logging as mod_logging
-import xml.dom.minidom as mod_minidom
 
 try:
-    import xml.etree.cElementTree as mod_etree
+    import lxml.etree as mod_etree
 except:
     try:
-        import xml.etree.ElementTree as mod_etree
+        import xml.etree.cElementTree as mod_etree
     except:
-        mod_etree = None
-        pass # LXML not available
+        import xml.etree.ElementTree as mod_etree
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
-
-
-class XMLParser:
-    """
-    Used when lxml is not available. Uses standard minidom.
-    """
-
-    def __init__(self, xml):
-        self.xml = xml
-        self.dom = mod_minidom.parseString(xml)
-
-    def get_first_child(self, node=None, name=None):
-        # TODO: Remove find_first_node from utils!
-        if not node:
-            node = self.dom
-
-        children = node.childNodes
-        if not children:
-            return None
-
-        if not name:
-            return children[0]
-
-        for tmp_node in children:
-            if tmp_node.nodeName == name:
-                return tmp_node
-
-        return None
-
-    def get_node_name(self, node):
-        if not node:
-            return None
-        return node.nodeName
-
-    def get_children(self, node=None):
-        if not node:
-            node = self.dom
-
-        return list(filter(lambda node : node.nodeType == node.ELEMENT_NODE, node.childNodes))
-
-    def get_node_data(self, node):
-        if node is None:
-            return None
-
-        child_nodes = node.childNodes
-        if not child_nodes or len(child_nodes) == 0:
-            return None
-
-        return child_nodes[0].nodeValue
-
-    def get_node_attribute(self, node, attribute):
-        if (not hasattr(node, 'attributes')) or (not node.attributes):
-            return None
-        if attribute in node.attributes.keys():
-            return node.attributes[attribute].nodeValue
-        return None
 
 
 class LXMLParser:
@@ -156,14 +98,13 @@ class LXMLParser:
 
 
 class GPXParser:
-    def __init__(self, xml_or_file=None, parser=None):
+    def __init__(self, xml_or_file=None):
         """
         Parser may be lxml of minidom. If you set to None then lxml will be used if installed
         otherwise minidom.
         """
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
-        self.xml_parser_type = parser
         self.xml_parser = None
 
     def init(self, xml_or_file):
@@ -185,18 +126,7 @@ class GPXParser:
         GPX data.
         """
         try:
-            if self.xml_parser_type is None:
-                if mod_etree:
-                    self.xml_parser = LXMLParser(self.xml)
-                else:
-                    self.xml_parser = XMLParser(self.xml)
-            elif self.xml_parser_type == 'lxml':
-                self.xml_parser = LXMLParser(self.xml)
-            elif self.xml_parser_type == 'minidom':
-                self.xml_parser = XMLParser(self.xml)
-            else:
-                raise mod_gpx.GPXException('Invalid parser type: %s' % self.xml_parser_type)
-
+            self.xml_parser = LXMLParser(self.xml)
             self.__parse_dom(version)
 
             return self.gpx

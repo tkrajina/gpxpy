@@ -142,7 +142,7 @@ def pretty_print_xml(xml):
     print(dom.toprettyxml())
 
 
-class AbstractTests:
+class GPXTests(mod_unittest.TestCase):
     """
     Add tests here.
 
@@ -155,13 +155,10 @@ class AbstractTests:
     ...with python-lxml and without python-lxml installed.
     """
 
-    def get_parser_type(self):
-        raise Exception('Implement this in subclasses')
-
     def parse(self, file, encoding=None, version = None):
         f = custom_open('test_files/%s' % file, encoding=encoding)
 
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse(version)
         f.close()
 
@@ -173,7 +170,7 @@ class AbstractTests:
     def reparse(self, gpx):
         xml = gpx.to_xml()
 
-        parser = mod_parser.GPXParser(xml, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(xml)
         gpx = parser.parse()
 
         if not gpx:
@@ -181,18 +178,13 @@ class AbstractTests:
 
         return gpx
 
-    def test_parse_with_all_parser_types(self):
-        self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx')))
-        self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser='minidom'))
-        #self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser='lxml'))
-
     def test_simple_parse_function(self):
         # Must not throw any exception:
-        mod_gpxpy.parse(custom_open('test_files/korita-zbevnica.gpx', encoding='utf-8'), parser=self.get_parser_type())
+        mod_gpxpy.parse(custom_open('test_files/korita-zbevnica.gpx', encoding='utf-8'))
 
     def test_simple_parse_function_invalid_xml(self):
         try:
-            mod_gpxpy.parse('<gpx></gpx', parser=self.get_parser_type())
+            mod_gpxpy.parse('<gpx></gpx')
             self.fail()
         except mod_gpx.GPXException as e:
             self.assertTrue(('unclosed token: line 1, column 5' in str(e)) or ('expected \'>\'' in str(e)))
@@ -322,7 +314,7 @@ class AbstractTests:
         self.assertTrue(make_str(name) == 'šđčćž')
 
     def test_unicode_2(self):
-        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'), parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'))
         gpx = parser.parse()
         gpx.to_xml()
 
@@ -369,7 +361,7 @@ class AbstractTests:
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -388,7 +380,7 @@ class AbstractTests:
             result = result.encode('utf-8')
 
         started = mod_time.time()
-        parser = mod_parser.GPXParser(result, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(result)
         parser.parse()
         time_reduced = mod_time.time() - started
 
@@ -421,7 +413,7 @@ class AbstractTests:
 
     def test_clone_and_hash(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -431,7 +423,7 @@ class AbstractTests:
 
     def test_clone_and_smooth(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -457,7 +449,7 @@ class AbstractTests:
         self.assertTrue(gpx.length_2d() > cloned_gpx.length_2d())
 
     def test_reduce_by_min_distance(self):
-        gpx = mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'))
 
         min_distance_before_reduce = 1000000
         for point, track_no, segment_no, point_no in gpx.walk():
@@ -482,7 +474,7 @@ class AbstractTests:
 
     def test_moving_stopped_times(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -518,7 +510,7 @@ class AbstractTests:
 
     def test_split_on_impossible_index(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -532,7 +524,7 @@ class AbstractTests:
 
     def test_split(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -558,7 +550,7 @@ class AbstractTests:
 
     def test_split_and_join(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -580,7 +572,7 @@ class AbstractTests:
 
     def test_remove_point_from_segment(self):
         f = open('test_files/cerknicko-jezero.gpx')
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         f.close()
 
@@ -632,7 +624,7 @@ class AbstractTests:
     def test_horizontal_smooth_remove_extremes(self):
         f = open('test_files/track-with-extremes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
 
         gpx = parser.parse()
 
@@ -648,7 +640,7 @@ class AbstractTests:
     def test_vertical_smooth_remove_extremes(self):
         f = open('test_files/track-with-extremes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
 
         gpx = parser.parse()
 
@@ -664,7 +656,7 @@ class AbstractTests:
     def test_horizontal_and_vertical_smooth_remove_extremes(self):
         f = open('test_files/track-with-extremes.gpx', 'r')
 
-        parser = mod_parser.GPXParser(f, parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(f)
 
         gpx = parser.parse()
 
@@ -1044,7 +1036,7 @@ class AbstractTests:
         self.assertTrue(gpx.length_2d() != gpx.length_3d())
 
     def test_walk_route_points(self):
-        gpx = mod_gpxpy.parse(open('test_files/route.gpx'), parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(open('test_files/route.gpx'))
 
         for point in gpx.routes[0].walk(only_points=True):
             self.assertTrue(point)
@@ -1232,7 +1224,7 @@ class AbstractTests:
 
     def test_track_with_elevation_zero(self):
         with open('test_files/cerknicko-jezero-with-elevations-zero.gpx') as f:
-            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(f)
 
             minimum, maximum = gpx.get_elevation_extremes()
             self.assertEqual(minimum, 0)
@@ -1244,7 +1236,7 @@ class AbstractTests:
 
     def test_track_without_elevation(self):
         with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
-            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(f)
 
             minimum, maximum = gpx.get_elevation_extremes()
             self.assertEqual(minimum, None)
@@ -1256,12 +1248,12 @@ class AbstractTests:
 
     def test_has_elevation_false(self):
         with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
-            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(f)
             self.assertFalse(gpx.has_elevations())
 
     def test_has_elevation_true(self):
         with open('test_files/cerknicko-jezero.gpx') as f:
-            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(f)
             self.assertFalse(gpx.has_elevations())
 
     def test_track_with_some_points_are_without_elevations(self):
@@ -1292,7 +1284,7 @@ class AbstractTests:
 
     def test_track_with_empty_segment(self):
         with open('test_files/track-with-empty-segment.gpx') as f:
-            gpx = mod_gpxpy.parse(f, parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(f)
             self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude)
             self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude)
 
@@ -1481,7 +1473,7 @@ class AbstractTests:
         xml += '<trkpt lat="35.7914309254" lon="-5.83378314972"></trkpt>\n'
         xml += '<trkpt lat="35.791014" lon="-5.833826"><time>2014-02-02T10:25:30Z</time><ele>18</ele></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
-        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(xml)
 
         gpx.add_missing_times()
 
@@ -1502,15 +1494,15 @@ class AbstractTests:
     def test_simplify(self):
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'))
 
             length_2d_original = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'))
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'), parser=self.get_parser_type())
+            gpx = mod_gpxpy.parse(custom_open('test_files/%s' % gpx_file, encoding='utf-8'))
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
 
@@ -1543,7 +1535,7 @@ class AbstractTests:
 
     def test_nan_elevation(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
-        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(xml)
 
         self.assertTrue(mod_math.isnan(gpx.tracks[0].segments[0].points[0].elevation))
         self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation))
@@ -1622,7 +1614,7 @@ class AbstractTests:
         self.assertEquals(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
 
     def test_unicode(self):
-        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'), parser=self.get_parser_type())
+        parser = mod_parser.GPXParser(custom_open('test_files/unicode2.gpx', encoding='utf-8'))
         gpx = parser.parse()
         gpx.to_xml()
 
@@ -1683,10 +1675,10 @@ class AbstractTests:
         with open('test_files/gpx1.0_with_all_fields.gpx') as f:
             xml = f.read()
 
-        original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        original_gpx = mod_gpxpy.parse(xml)
 
         # Serialize and parse again to be sure that all is preserved:
-        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml(), parser=self.get_parser_type())
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml())
 
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
@@ -1976,10 +1968,10 @@ class AbstractTests:
         with open('test_files/gpx1.1_with_all_fields.gpx') as f:
             xml = f.read()
 
-        original_gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        original_gpx = mod_gpxpy.parse(xml)
 
         # Serialize and parse again to be sure that all is preserved:
-        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'), parser=self.get_parser_type())
+        reparsed_gpx = mod_gpxpy.parse(original_gpx.to_xml('1.1'))
 
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml('1.1'))
@@ -2808,7 +2800,7 @@ class AbstractTests:
         xml += '<trkseg>\n'
         xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z+01:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
-        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(xml)
         self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
 
     def test_timestamp_with_single_digits(self):
@@ -2818,18 +2810,15 @@ class AbstractTests:
         xml += '<trkseg>\n'
         xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18Z-02:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
-        gpx = mod_gpxpy.parse(xml, parser=self.get_parser_type())
+        gpx = mod_gpxpy.parse(xml)
         self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
 
 
-class LxmlTests(mod_unittest.TestCase, AbstractTests):
-    def get_parser_type(self):
-        return 'lxml'
-
-
-class MinidomTests(LxmlTests, AbstractTests):
-    def get_parser_type(self):
-        return 'minidom'
+class LxmlTest(mod_unittest.TestCase):
+    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
+    def test_checklxml(self):
+        self.assertIn('lxml.etree._Element', str(mod_parser.LXMLParser('<_/>').dom.__class__))
+#"$XMLPARSER" == "LXML"
 
 class MiscTests(mod_unittest.TestCase):
     def test_join_gpx_xml_files(self):
