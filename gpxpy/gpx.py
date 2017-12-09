@@ -2188,7 +2188,7 @@ class GPX:
     def length_2d(self):
         """
         Computes 2-dimensional length of the GPX file (only latitude and
-        longitude, no elevation). This is the sum of 3D length of all segments
+        longitude, no elevation). This is the sum of 2D length of all segments
         in all tracks.
 
         Returns
