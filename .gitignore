@@ -47,3 +47,5 @@ nosetests.xml
 .idea
 
 pyenv/*
+/validation_gpx11.gpx
+/validation_gpx10.gpx
