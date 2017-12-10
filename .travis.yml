@@ -40,7 +40,6 @@ install:
 
 
 script:
- - python -m unittest test
  - coverage run --source=gpxpy ./test.py
 
 after_success:

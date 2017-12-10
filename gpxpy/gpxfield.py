@@ -133,7 +133,7 @@ class GPXField(AbstractGPXField):
     def from_xml(self, parser, node, version):
         if self.attribute:
             if node is not None:
-                result = node.attrib.get(self.attribute)
+                result = node.get(self.attribute)
             else:
                 result = None
         else:
@@ -218,12 +218,13 @@ class GPXEmailField(AbstractGPXField):
 
     def from_xml(self, parser, node, version):
         email_node = parser.get_first_child(node, self.tag)
+        
 
         if email_node is None:
             return None
 
-        email_id = email_node.attrib.get('id')
-        email_domain = email_node.attrib.get('domain')
+        email_id = email_node.get('id')
+        email_domain = email_node.get('domain')
 
         return '%s@%s' % (email_id, email_domain)
 

@@ -46,25 +46,21 @@ class XMLParser:
         # get the namespace
         # self.ns = self.dom.nsmap.get(None)
 
-    def get_first_child(self, node=None, name=None):
-        if node is None:
-            if name:
-                if self.get_node_name(self.dom) == name:
-                    return self.dom
-            return self.dom
+    def get_first_child(self, node, name):
+##        if node is None:
+##            return self.dom
 
         children = node.getchildren()
 
         if not children:
             return None
 
-        if name:
-            for node in children:
-                if self.get_node_name(node) == name:
-                    return node
-            return None
 
-        return children[0]
+        for node in children:
+            if self.get_node_name(node) == name:
+                return node
+        return None
+
 
     def get_node_name(self, node):
         if callable(node.tag):
@@ -139,7 +135,7 @@ class GPXParser:
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
         
-        node = self.xml_parser.get_first_child(name='gpx')
+        node = self.xml_parser.dom
 
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
