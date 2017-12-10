@@ -75,21 +75,6 @@ class XMLParser:
             return tag.split('}')[1]
         return tag
 
-    def get_children(self, node=None):
-        if node is None:
-            node = self.dom
-        return node.getchildren()
-
-    def get_node_data(self, node):
-        if node is None:
-            return None
-
-        return node.text
-
-    def get_node_attribute(self, node, attribute):
-        if node is None:
-            return None
-        return node.attrib.get(attribute)
 
 
 class GPXParser:
@@ -160,7 +145,7 @@ class GPXParser:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
         if version is None:
-            version = self.xml_parser.get_node_attribute(node, 'version')
+            version = node.attrib.get('version')
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
         return self.gpx

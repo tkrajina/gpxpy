@@ -132,11 +132,16 @@ class GPXField(AbstractGPXField):
 
     def from_xml(self, parser, node, version):
         if self.attribute:
-            result = parser.get_node_attribute(node, self.attribute)
+            if node is not None:
+                result = node.attrib.get(self.attribute)
+            else:
+                result = None
         else:
             __node = parser.get_first_child(node, self.tag)
-            result = parser.get_node_data(__node)
-
+            if __node is not None:
+                result = __node.text
+            else:
+                result = None
         if result is None:
             if self.mandatory:
                 from . import gpx as mod_gpx
@@ -181,7 +186,7 @@ class GPXComplexField(AbstractGPXField):
     def from_xml(self, parser, node, version):
         if self.is_list:
             result = []
-            for child_node in parser.get_children(node):
+            for child_node in node.getchildren():
                 if parser.get_node_name(child_node) == self.tag:
                     result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
             return result
@@ -217,8 +222,8 @@ class GPXEmailField(AbstractGPXField):
         if email_node is None:
             return None
 
-        email_id = parser.get_node_attribute(email_node, 'id')
-        email_domain = parser.get_node_attribute(email_node, 'domain')
+        email_id = email_node.attrib.get('id')
+        email_domain = email_node.attrib.get('domain')
 
         return '%s@%s' % (email_id, email_domain)
 
@@ -258,12 +263,15 @@ class GPXExtensionsField(AbstractGPXField):
         if extensions_node is None:
             return result
 
-        children = parser.get_children(extensions_node)
+        children = extensions_node.getchildren()
         if children is None:
             return result
 
         for child in children:
-            result[parser.get_node_name(child)] = parser.get_node_data(child)
+            if child is not None:
+                result[parser.get_node_name(child)] = child.text
+            else:
+                result[parser.get_node_name(child)] = None
 
         return result
 
