@@ -21,14 +21,6 @@ import re
 from . import utils as mod_utils
 
 
-def first_child(node, pattern):
-    # TODO Remove. getchildren() is deprecated and unpythonic
-    for node in node.getchildren():
-        if node.tag == pattern:
-            return node
-    return None
-
-
 class GPXFieldTypeConverter:
     def __init__(self, from_string, to_string):
         self.from_string = from_string
@@ -145,7 +137,7 @@ class GPXField(AbstractGPXField):
             else:
                 result = None
         else:
-            __node = first_child(node, self.tag)
+            __node = node.find(self.tag)
             if __node is not None:
                 result = __node.text
             else:
@@ -199,7 +191,7 @@ class GPXComplexField(AbstractGPXField):
                     result.append(gpx_fields_from_xml(self.classs, child_node, version))
             return result
         else:
-            field_node = first_child(node, self.tag)
+            field_node = node.find(self.tag)
             if field_node is None:
                 return None
             return gpx_fields_from_xml(self.classs, field_node, version)
@@ -227,7 +219,7 @@ class GPXEmailField(AbstractGPXField):
         self.tag = tag or name
 
     def from_xml(self, node, version):
-        email_node = first_child(node, self.tag)
+        email_node = node.find(self.tag)
 
         email_id = email_node.get('id')
         email_domain = email_node.get('domain')
@@ -264,7 +256,7 @@ class GPXExtensionsField(AbstractGPXField):
     def from_xml(self, node, version):
         result = {}
 
-        extensions_node = first_child(node, self.tag)
+        extensions_node = node.find(self.tag)
 
         if extensions_node is None:
             return result
@@ -355,7 +347,7 @@ def gpx_fields_from_xml(class_or_instance, node, version):
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(first_child(current_node, gpx_field))
+                    node_path.append(current_node.find(gpx_field))
         else:
             if current_node is not None:
                 value = gpx_field.from_xml(current_node, version)

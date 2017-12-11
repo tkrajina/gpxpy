@@ -76,6 +76,7 @@ class GPXParser:
 
         """
         # Remove default namespace to simplify processing later
+        # Should be rewritten to process namespaces correctly
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
 
         try:
