@@ -2816,7 +2816,8 @@ class LxmlTest(mod_unittest.TestCase):
     def test_checklxml(self):
         newparser = mod_parser.GPXParser('<_/>')
         newparser.parse()
-        self.assertIn('lxml.etree._Element', str(newparser.root.__class__))
+        # the xml string is converted to bytes if python 3 & lxml won't work on lxml & python 2
+        self.assertIn('bytes', str(newparser.xml.__class__))
 
 
 class MiscTests(mod_unittest.TestCase):

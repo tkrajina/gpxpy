@@ -19,7 +19,14 @@ import datetime as mod_datetime
 import re
 
 from . import utils as mod_utils
-from . import parser as mod_parser
+
+
+def first_child(node, pattern):
+    for node in node.getchildren():
+        if node.tag == pattern:
+            return node
+    return None
+
 
 class GPXFieldTypeConverter:
     def __init__(self, from_string, to_string):
@@ -100,7 +107,7 @@ class AbstractGPXField:
         self.is_list = is_list
         self.attribute = False
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, node, version):
         raise Exception('Not implemented')
 
     def to_xml(self, value, version):
@@ -130,14 +137,14 @@ class GPXField(AbstractGPXField):
         self.possible = possible
         self.mandatory = mandatory
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, node, version):
         if self.attribute:
             if node is not None:
                 result = node.get(self.attribute)
             else:
                 result = None
         else:
-            __node = mod_parser.GPXParser.first_child(node, self.tag)
+            __node = first_child(node, self.tag)
             if __node is not None:
                 result = __node.text
             else:
@@ -183,18 +190,18 @@ class GPXComplexField(AbstractGPXField):
         self.tag = tag or name
         self.classs = classs
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, node, version):
         if self.is_list:
             result = []
             for child_node in node.getchildren():
-                if mod_parser.GPXParser.strip_namespace(child_node.tag) == self.tag:
-                    result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
+                if child_node.tag == self.tag:
+                    result.append(gpx_fields_from_xml(self.classs, child_node, version))
             return result
         else:
-            field_node = mod_parser.GPXParser.first_child(node, self.tag)
+            field_node = first_child(node, self.tag)
             if field_node is None:
                 return None
-            return gpx_fields_from_xml(self.classs, parser, field_node, version)
+            return gpx_fields_from_xml(self.classs, field_node, version)
 
     def to_xml(self, value, version):
         if self.is_list:
@@ -216,8 +223,8 @@ class GPXEmailField(AbstractGPXField):
         self.name = name
         self.tag = tag or name
 
-    def from_xml(self, parser, node, version):
-        email_node = mod_parser.GPXParser.first_child(node, self.tag)
+    def from_xml(self, node, version):
+        email_node = first_child(node, self.tag)
         
 
         if email_node is None:
@@ -253,13 +260,13 @@ class GPXExtensionsField(AbstractGPXField):
         self.is_list = False
         self.tag = tag or 'extensions'
 
-    def from_xml(self, parser, node, version):
+    def from_xml(self, node, version):
         result = {}
 
         if node is None:
             return result
 
-        extensions_node = mod_parser.GPXParser.first_child(node, self.tag)
+        extensions_node = first_child(node, self.tag)
 
         if extensions_node is None:
             return result
@@ -271,7 +278,7 @@ class GPXExtensionsField(AbstractGPXField):
 ##        for child in children:
 
         for child in extensions_node.getchildren():
-            result[mod_parser.GPXParser.strip_namespace(child.tag)] = child.text
+            result[child.tag] = child.text
 ##            if child is not None:
 ##                result[parser.get_node_name(child)] = child.text
 ##            else:
@@ -339,7 +346,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
     return body
 
 
-def gpx_fields_from_xml(class_or_instance, parser, node, version):
+def gpx_fields_from_xml(class_or_instance, node, version):
     if mod_inspect.isclass(class_or_instance):
         result = class_or_instance()
     else:
@@ -360,13 +367,13 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(mod_parser.GPXParser.first_child(current_node, gpx_field))
+                    node_path.append(first_child(current_node, gpx_field))
         else:
             if current_node is not None:
-                value = gpx_field.from_xml(parser, current_node, version)
+                value = gpx_field.from_xml(current_node, version)
                 setattr(result, gpx_field.name, value)
             elif gpx_field.attribute:
-                value = gpx_field.from_xml(parser, node, version)
+                value = gpx_field.from_xml(node, version)
                 setattr(result, gpx_field.name, value)
 
     return result
