@@ -18,7 +18,7 @@ import logging as mod_logging
 import re as mod_re
 
 try:
-    import lxml.etree as mod_etree
+    import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
 except:
     try:
         import xml.etree.cElementTree as mod_etree
@@ -75,13 +75,15 @@ class GPXParser:
             GPXException: XML is valid but GPX data contains errors
 
         """
-        # remove default namespace
+        # Remove default namespace to simplify processing later
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
 
         try:
-            if "lxml" in str(mod_etree):
+            if GPXParser.__library() == "LXML":
+                # lxml does not like unicode strings when it's expecting
+                # UTF-8. Also, XML comments result in a callable .tag().
+                # Strip them out to avoid handling them later.
                 if mod_utils.PYTHON_VERSION[0] == '3':
-                    # Python 3 strings are unicode and lxml fails
                     self.xml = self.xml.encode('utf-8')
                 root = mod_etree.XML(self.xml,
                                      mod_etree.XMLParser(remove_comments=True))
@@ -112,3 +114,15 @@ class GPXParser:
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
         return self.gpx
+
+    @staticmethod
+    def __library():
+        """
+        Return the underlying ETree.
+
+        Provided for convenient unittests.
+        """
+
+        if "lxml" in str(mod_etree):
+            return "LXML"
+        return "STDLIB"

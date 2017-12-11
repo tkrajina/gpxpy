@@ -2814,10 +2814,7 @@ class GPXTests(mod_unittest.TestCase):
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
     def test_checklxml(self):
-        newparser = mod_parser.GPXParser('<_/>')
-        newparser.parse()
-        # the xml string is converted to bytes if python 3 & lxml won't work on lxml & python 2
-        self.assertIn('bytes', str(newparser.xml.__class__))
+        self.assertEqual('LXML', mod_parser.GPXParser._GPXParser__library())
 
 
 class MiscTests(mod_unittest.TestCase):
