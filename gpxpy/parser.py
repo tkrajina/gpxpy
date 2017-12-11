@@ -29,51 +29,21 @@ from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
 
-class XMLParser:
-    """
-    Used when lxml is available.
-    """
+class GPXParser:
+    
+    @staticmethod
+    def strip_namespace(tag):
+        strippedtag = mod_etree.QName(tag).localname
+        return strippedtag
 
-    def __init__(self, xml):
-        if mod_utils.PYTHON_VERSION[0] == '3':
-            # In python 3 all strings are unicode and for some reason lxml
-            # don't like unicode strings with XMLs declared as UTF-8:
-            self.xml = xml.encode('utf-8')
-        else:
-            self.xml = xml
-
-        self.dom = mod_etree.XML(self.xml)
-        # get the namespace
-        # self.ns = self.dom.nsmap.get(None)
-
-    def get_first_child(self, node, name):
-##        if node is None:
-##            return self.dom
-
-        children = node.getchildren()
-
-        if not children:
-            return None
-
-
-        for node in children:
-            if self.get_node_name(node) == name:
+    @staticmethod
+    def first_child(node, pattern):
+        for node in node.getchildren():
+            if GPXParser.strip_namespace(node.tag) == pattern:
                 return node
         return None
 
-
-    def get_node_name(self, node):
-        if callable(node.tag):
-            tag = str(node.tag())
-        else:
-            tag = str(node.tag)
-        if '}' in tag:
-            return tag.split('}')[1]
-        return tag
-
-
-
-class GPXParser:
+    
     def __init__(self, xml_or_file=None):
         """
         Initialize new GPXParser instance.
@@ -118,8 +88,15 @@ class GPXParser:
             GPXException: XML is valid but GPX data contains errors
             
         """
+
+        if mod_utils.PYTHON_VERSION[0] == '3':
+            # In python 3 all strings are unicode and for some reason lxml
+            # don't like unicode strings with XMLs declared as UTF-8:
+            self.xml = self.xml.encode('utf-8')
+            
         try:
-            self.xml_parser = XMLParser(self.xml)
+            #self.xml_parser = XMLParser(self.xml)
+            node = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
@@ -135,7 +112,7 @@ class GPXParser:
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
         
-        node = self.xml_parser.dom
+        # node = self.xml_parser.dom
 
         if node is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')

@@ -19,7 +19,7 @@ import datetime as mod_datetime
 import re
 
 from . import utils as mod_utils
-
+from . import parser as mod_parser
 
 class GPXFieldTypeConverter:
     def __init__(self, from_string, to_string):
@@ -137,7 +137,7 @@ class GPXField(AbstractGPXField):
             else:
                 result = None
         else:
-            __node = parser.get_first_child(node, self.tag)
+            __node = mod_parser.GPXParser.first_child(node, self.tag)
             if __node is not None:
                 result = __node.text
             else:
@@ -187,11 +187,11 @@ class GPXComplexField(AbstractGPXField):
         if self.is_list:
             result = []
             for child_node in node.getchildren():
-                if parser.get_node_name(child_node) == self.tag:
+                if mod_parser.GPXParser.strip_namespace(child_node.tag) == self.tag:
                     result.append(gpx_fields_from_xml(self.classs, parser, child_node, version))
             return result
         else:
-            field_node = parser.get_first_child(node, self.tag)
+            field_node = mod_parser.GPXParser.first_child(node, self.tag)
             if field_node is None:
                 return None
             return gpx_fields_from_xml(self.classs, parser, field_node, version)
@@ -217,7 +217,7 @@ class GPXEmailField(AbstractGPXField):
         self.tag = tag or name
 
     def from_xml(self, parser, node, version):
-        email_node = parser.get_first_child(node, self.tag)
+        email_node = mod_parser.GPXParser.first_child(node, self.tag)
         
 
         if email_node is None:
@@ -259,20 +259,23 @@ class GPXExtensionsField(AbstractGPXField):
         if node is None:
             return result
 
-        extensions_node = parser.get_first_child(node, self.tag)
+        extensions_node = mod_parser.GPXParser.first_child(node, self.tag)
 
         if extensions_node is None:
             return result
 
-        children = extensions_node.getchildren()
-        if children is None:
-            return result
+##        children = extensions_node.getchildren()
+##        if children is None:
+##            return result
+##
+##        for child in children:
 
-        for child in children:
-            if child is not None:
-                result[parser.get_node_name(child)] = child.text
-            else:
-                result[parser.get_node_name(child)] = None
+        for child in extensions_node.getchildren():
+            result[mod_parser.GPXParser.strip_namespace(child.tag)] = child.text
+##            if child is not None:
+##                result[parser.get_node_name(child)] = child.text
+##            else:
+##                result[parser.get_node_name(child)] = None
 
         return result
 
@@ -357,7 +360,7 @@ def gpx_fields_from_xml(class_or_instance, parser, node, version):
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(parser.get_first_child(current_node, gpx_field))
+                    node_path.append(mod_parser.GPXParser.first_child(current_node, gpx_field))
         else:
             if current_node is not None:
                 value = gpx_field.from_xml(parser, current_node, version)
