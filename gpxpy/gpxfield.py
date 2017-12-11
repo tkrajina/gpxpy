@@ -120,7 +120,7 @@ class GPXField(AbstractGPXField):
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, tag=None, attribute=None, type=None, possible=None, mandatory=None):
-        super().__init__()
+        AbstractGPXField.__init__(self)
         self.name = name
         if tag and attribute:
             from . import gpx as mod_gpx
@@ -186,7 +186,7 @@ class GPXField(AbstractGPXField):
 
 class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None, is_list=None):
-        super().__init__(is_list=is_list)
+        AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
         self.tag = tag or name
         self.classs = classs
@@ -220,7 +220,7 @@ class GPXEmailField(AbstractGPXField):
     """
     def __init__(self, name, tag=None):
         #Call super().__init__?
-        super().__init__(is_list=False)
+        AbstractGPXField.__init__(self, is_list=False)
         #self.attribute = False
         #self.is_list = False
         self.name = name
@@ -255,7 +255,7 @@ class GPXExtensionsField(AbstractGPXField):
     """
     def __init__(self, name, tag=None):
         # Call super().__init__?
-        super().__init__(is_list=False)
+        AbstractGPXField.__init__(self, is_list=False)
         #self.attribute = False
         self.name = name
         #self.is_list = False
