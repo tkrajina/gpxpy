@@ -22,6 +22,7 @@ from . import utils as mod_utils
 
 
 def first_child(node, pattern):
+    # TODO Remove. getchildren() is deprecated and unpythonic
     for node in node.getchildren():
         if node.tag == pattern:
             return node
@@ -119,7 +120,7 @@ class GPXField(AbstractGPXField):
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
     def __init__(self, name, tag=None, attribute=None, type=None, possible=None, mandatory=None):
-        AbstractGPXField.__init__(self)
+        super().__init__()
         self.name = name
         if tag and attribute:
             from . import gpx as mod_gpx
@@ -185,7 +186,7 @@ class GPXField(AbstractGPXField):
 
 class GPXComplexField(AbstractGPXField):
     def __init__(self, name, classs, tag=None, is_list=None):
-        AbstractGPXField.__init__(self, is_list=is_list)
+        super().__init__(is_list=is_list)
         self.name = name
         self.tag = tag or name
         self.classs = classs
@@ -218,8 +219,10 @@ class GPXEmailField(AbstractGPXField):
     Converts GPX1.1 email tag group from/to string.
     """
     def __init__(self, name, tag=None):
-        self.attribute = False
-        self.is_list = False
+        #Call super().__init__?
+        super().__init__(is_list=False)
+        #self.attribute = False
+        #self.is_list = False
         self.name = name
         self.tag = tag or name
 
@@ -251,9 +254,11 @@ class GPXExtensionsField(AbstractGPXField):
     GPX1.1 extensions <extensions>...</extensions> key-value type.
     """
     def __init__(self, name, tag=None):
-        self.attribute = False
+        # Call super().__init__?
+        super().__init__(is_list=False)
+        #self.attribute = False
         self.name = name
-        self.is_list = False
+        #self.is_list = False
         self.tag = tag or 'extensions'
 
     def from_xml(self, node, version):
@@ -292,41 +297,41 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
         fields = instance.gpx_11_fields
 
     tag_open = bool(tag)
-    body = ''
+    body = []
     if tag:
-        body = '\n<' + tag
+        body.append('\n<' + tag)
         if custom_attributes:
             for key, value in custom_attributes:
-                body += ' %s="%s"' % (key, mod_utils.make_str(value))
+                body.append(' %s="%s"' % (key, mod_utils.make_str(value)))
 
     for gpx_field in fields:
         if isinstance(gpx_field, str):
             if tag_open:
-                body += '>'
+                body.append('>')
                 tag_open = False
             if gpx_field[0] == '/':
-                body += '<%s>' % gpx_field
+                body.append('<%s>' % gpx_field)
             else:
-                body += '\n<%s' % gpx_field
+                body.append('\n<%s' % gpx_field)
                 tag_open = True
         else:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body += ' ' + gpx_field.to_xml(value, version)
+                body.append(' ' + gpx_field.to_xml(value, version))
             elif value is not None:
                 if tag_open:
-                    body += '>'
+                    body.append('>')
                     tag_open = False
                 xml_value = gpx_field.to_xml(value, version)
                 if xml_value:
-                    body += xml_value
+                    body.append(xml_value)
 
     if tag:
         if tag_open:
-            body += '>'
-        body += '</' + tag + '>'
+            body.append('>')
+        body.append('</' + tag + '>')
 
-    return body
+    return ''.join(body)
 
 
 def gpx_fields_from_xml(class_or_instance, node, version):
