@@ -33,8 +33,11 @@ class GPXParser:
     
     @staticmethod
     def strip_namespace(tag):
-        strippedtag = mod_etree.QName(tag).localname
-        return strippedtag
+        if '}' in tag:
+            return tag.split('}')[1]
+        return tag
+##        strippedtag = mod_etree.QName(tag).localname
+##        return strippedtag
 
     @staticmethod
     def first_child(node, pattern):
@@ -42,6 +45,7 @@ class GPXParser:
             if GPXParser.strip_namespace(node.tag) == pattern:
                 return node
         return None
+
 
     
     def __init__(self, xml_or_file=None):
@@ -93,10 +97,13 @@ class GPXParser:
             # In python 3 all strings are unicode and for some reason lxml
             # don't like unicode strings with XMLs declared as UTF-8:
             self.xml = self.xml.encode('utf-8')
-            
+
         try:
             #self.xml_parser = XMLParser(self.xml)
-            node = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
+            if "lxml" in str(mod_etree):
+                root = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
+            else:
+                root = mod_etree.XML(self.xml)
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
@@ -114,12 +121,12 @@ class GPXParser:
         
         # node = self.xml_parser.dom
 
-        if node is None:
+        if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
         if version is None:
-            version = node.attrib.get('version')
+            version = root.attrib.get('version')
 
-        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
+        mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, root, version)
         return self.gpx
 
