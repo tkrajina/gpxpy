@@ -198,10 +198,10 @@ class GPXComplexField(AbstractGPXField):
 
     def to_xml(self, value, version):
         if self.is_list:
-            result = ''
+            result = []
             for obj in value:
-                result += gpx_fields_to_xml(obj, self.tag, version)
-            return result
+                result.append(gpx_fields_to_xml(obj, self.tag, version))
+            return ''.join(result)
         else:
             return gpx_fields_to_xml(value, self.tag, version)
 
@@ -224,7 +224,7 @@ class GPXEmailField(AbstractGPXField):
         email_id = email_node.get('id')
         email_domain = email_node.get('domain')
 
-        return '%s@%s' % (email_id, email_domain)
+        return '{}@{}'.format(email_id, email_domain)
 
     def to_xml(self, value, version):
         if not value:
@@ -238,7 +238,7 @@ class GPXEmailField(AbstractGPXField):
             email_id = value
             email_domain = 'unknown'
 
-        return '\n<%s id="%s" domain="%s" />' % (self.tag, email_id, email_domain)
+        return '\n<{} id="{}" domain="{}" />'.format(self.tag, email_id, email_domain)
 
 
 class GPXExtensionsField(AbstractGPXField):
@@ -294,7 +294,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
         body.append('\n<' + tag)
         if custom_attributes:
             for key, value in custom_attributes:
-                body.append(' %s="%s"' % (key, mod_utils.make_str(value)))
+                body.append(' {}="{}"'.format(key, mod_utils.make_str(value)))
 
     for gpx_field in fields:
         if isinstance(gpx_field, str):
@@ -302,9 +302,9 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
                 body.append('>')
                 tag_open = False
             if gpx_field[0] == '/':
-                body.append('<%s>' % gpx_field)
+                body.append('<{}>'.format(gpx_field))
             else:
-                body.append('\n<%s' % gpx_field)
+                body.append('\n<{}'.format(gpx_field))
                 tag_open = True
         else:
             value = getattr(instance, gpx_field.name)
