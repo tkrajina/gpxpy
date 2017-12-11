@@ -31,7 +31,7 @@ from . import gpxfield as mod_gpxfield
 
 
 class GPXParser:
-    
+
     def __init__(self, xml_or_file=None):
         """
         Initialize new GPXParser instance.
@@ -39,7 +39,7 @@ class GPXParser:
         Arguments:
             xml_or_file: string or file object containing the gpx
                 formatted xml
-            
+
         """
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
@@ -51,39 +51,40 @@ class GPXParser:
         Args:
             xml_or_file: string or file object containing the gpx
                 formatted xml
-            
+
         """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
-        if text[:3] == "\xEF\xBB\xBF": #Remove utf-8 BOM
+        if text[:3] == "\xEF\xBB\xBF":  # Remove utf-8 BOM
             text = text[3:]
         self.xml = mod_utils.make_str(text)
 
-    def parse(self, version = None):
+    def parse(self, version=None):
         """
         Parse the XML and return a GPX object.
 
         Args:
             version: str or None indicating the GPX Schema to use.
                 Options are '1.0', '1.1' and None. When version is None
-                the version is read from the file or falls back on 1.0. 
-            
+                the version is read from the file or falls back on 1.0.
+
         Returns:
             A GPX object loaded from the xml
 
         Raises:
             GPXXMLSyntaxException: XML file is invalid
             GPXException: XML is valid but GPX data contains errors
-            
+
         """
         # remove default namespace
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
-        
+
         try:
             if "lxml" in str(mod_etree):
                 if mod_utils.PYTHON_VERSION[0] == '3':
                     # Python 3 strings are unicode and lxml fails
                     self.xml = self.xml.encode('utf-8')
-                root = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
+                root = mod_etree.XML(self.xml,
+                                     mod_etree.XMLParser(remove_comments=True))
             else:
                 root = mod_etree.XML(self.xml)
 
@@ -97,11 +98,11 @@ class GPXParser:
             # here is GPXXMLSyntaxException (instead of simply throwing the
             # original ElementTree or lxml exception e).
             #
-            # But, if the user needs the original exception (lxml or ElementTree)
-            # it is available with GPXXMLSyntaxException.original_exception:
-            raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
-        
-        # node = self.xml_parser.dom
+            # But, if the user needs the original exception (lxml or
+            # ElementTree) it is available with
+            # GPXXMLSyntaxException.original_exception:
+            raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s'
+                                                % str(e), e)
 
         if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
@@ -111,4 +112,3 @@ class GPXParser:
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
         return self.gpx
-

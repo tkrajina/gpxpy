@@ -225,10 +225,6 @@ class GPXEmailField(AbstractGPXField):
 
     def from_xml(self, node, version):
         email_node = first_child(node, self.tag)
-        
-
-        if email_node is None:
-            return None
 
         email_id = email_node.get('id')
         email_domain = email_node.get('domain')
@@ -263,26 +259,13 @@ class GPXExtensionsField(AbstractGPXField):
     def from_xml(self, node, version):
         result = {}
 
-        if node is None:
-            return result
-
         extensions_node = first_child(node, self.tag)
 
         if extensions_node is None:
             return result
 
-##        children = extensions_node.getchildren()
-##        if children is None:
-##            return result
-##
-##        for child in children:
-
         for child in extensions_node.getchildren():
             result[child.tag] = child.text
-##            if child is not None:
-##                result[parser.get_node_name(child)] = child.text
-##            else:
-##                result[parser.get_node_name(child)] = None
 
         return result
 
@@ -379,53 +362,56 @@ def gpx_fields_from_xml(class_or_instance, node, version):
     return result
 
 
-def gpx_check_slots_and_default_values(classs):
-    """
-    Will fill the default values for this class. Instances will inherit those
-    values so we don't need to fill default values for every instance.
 
-    This method will also fill the attribute gpx_field_names with a list of
-    gpx field names. This can be used
-    """
-    fields = classs.gpx_10_fields + classs.gpx_11_fields
+## What is all this for? seems to do nothing of consequence
 
-    gpx_field_names = []
-
-    instance = classs()
-
-    try:
-        attributes = list(filter(lambda x : x[0] != '_', dir(instance)))
-        attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
-        attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
-    except Exception as e:
-        raise Exception('Error reading attributes for %s: %s' % (classs.__name__, e))
-
-    attributes.sort()
-    slots = list(classs.__slots__)
-    slots.sort()
-
-    if attributes != slots:
-        raise Exception('Attributes for %s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
-
-    for field in fields:
-        if not isinstance(field, str):
-            if field.is_list:
-                value = []
-            else:
-                value = None
-            try:
-                actual_value = getattr(instance, field.name)
-            except:
-                raise Exception('%s has no attribute %s' % (classs.__name__, field.name))
-            if value != actual_value:
-                raise Exception('Invalid default value %s.%s is %s but should be %s'
-                                % (classs.__name__, field.name, actual_value, value))
-            #print('%s.%s -> %s' % (classs, field.name, value))
-            if not field.name in gpx_field_names:
-                gpx_field_names.append(field.name)
-
-    gpx_field_names = tuple(gpx_field_names)
-    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
-        try: slots = classs.__slots__
-        except Exception as e: slots = '[Unknown:%s]' % e
-        raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))
+##def gpx_check_slots_and_default_values(classs):
+##    """
+##    Will fill the default values for this class. Instances will inherit those
+##    values so we don't need to fill default values for every instance.
+##
+##    This method will also fill the attribute gpx_field_names with a list of
+##    gpx field names. This can be used
+##    """
+##    fields = classs.gpx_10_fields + classs.gpx_11_fields
+##    print(fields)
+##    gpx_field_names = []
+##
+##    instance = classs()
+##
+##    try:
+##        attributes = list(filter(lambda x : x[0] != '_', dir(instance)))
+##        attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
+##        attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
+##    except Exception as e:
+##        raise Exception('Error reading attributes for %s: %s' % (classs.__name__, e))
+##
+##    attributes.sort()
+##    slots = list(classs.__slots__)
+##    slots.sort()
+##
+##    if attributes != slots:
+##        raise Exception('Attributes for %s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
+##
+##    for field in fields:
+##        if not isinstance(field, str):
+##            if field.is_list:
+##                value = []
+##            else:
+##                value = None
+##            try:
+##                actual_value = getattr(instance, field.name)
+##            except:
+##                raise Exception('%s has no attribute %s' % (classs.__name__, field.name))
+##            if value != actual_value:
+##                raise Exception('Invalid default value %s.%s is %s but should be %s'
+##                                % (classs.__name__, field.name, actual_value, value))
+##            #print('%s.%s -> %s' % (classs, field.name, value))
+##            if not field.name in gpx_field_names:
+##                gpx_field_names.append(field.name)
+##
+##    gpx_field_names = tuple(gpx_field_names)
+##    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
+##        try: slots = classs.__slots__
+##        except Exception as e: slots = '[Unknown:%s]' % e
+##        raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))

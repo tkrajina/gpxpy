@@ -2628,9 +2628,11 @@ class GPX:
     def clone(self):
         return mod_copy.deepcopy(self)
 
-# Add attributes and fill default values (lists or None) for all GPX elements:
-for var_name in dir():
-    var_value = vars()[var_name]
-    if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
-        #print('Check/fill %s' % var_value)
-        mod_gpxfield.gpx_check_slots_and_default_values(var_value)
+## Temporarily removing this. Everything runs fine without it.
+
+### Add attributes and fill default values (lists or None) for all GPX elements:
+##for var_name in dir():
+##    var_value = vars()[var_name]
+##    if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
+##        #print('Check/fill %s' % var_value)
+##        mod_gpxfield.gpx_check_slots_and_default_values(var_value)
