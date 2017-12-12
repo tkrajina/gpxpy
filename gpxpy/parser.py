@@ -78,7 +78,7 @@ class GPXParser:
         """
         # Build prefix map for reserialization and extension handlings
         for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
-            prefix, URI = namespace[6:].split('=', maxsplit=1)
+            prefix, _, URI = namespace[6:].partition('=')
             prefix = prefix.lstrip(':')
             if prefix == '':
                 prefix = 'defaultns'  #alias default for easier handling
