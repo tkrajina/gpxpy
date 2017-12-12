@@ -2567,7 +2567,7 @@ class GPX:
         self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(version.replace('.', '/'))
         schemalocs = 'http://www.topografix.com/GPX/{0} http://www.topografix.com/GPX/{0}/gpx.xsd'
         xml_attributes = {'xsi:schemaLocation':
-                          schemaloc.format(version.replace('.', '/'))}
+                          schemalocs.format(version.replace('.', '/'))}
 
         content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap)
 
