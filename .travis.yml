@@ -5,23 +5,17 @@ sudo: false
 
 # Those without lxml wheels first because building lxml is slow
 python:
- - 3.5
  - 3.2
  - 2.7
- - 2.6
- - 3.4
  - 3.3
+ - 3.4
+ - 3.5
  - 3.6
 
 env:
 - XMLPARSER=LXML
 - XMLPARSER=STDLIB
 
-# ElementTree in 2.6 does not handle namespaces
-matrix:
-  exclude:
-  - python: "2.6"
-    env: XMLPARSER=STDLIB
 
 install:
 # Check whether to install lxml
@@ -31,7 +25,7 @@ install:
        "2.7"|"3.3"|"3.4"|"3.5"|"3.6")
          pip install lxml
          ;;
-       "2.6"|"3.2")
+       "3.2")
          pip install lxml==3.6
          ;;
      esac
