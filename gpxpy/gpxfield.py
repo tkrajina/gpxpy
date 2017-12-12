@@ -53,7 +53,7 @@ def parse_time(string):
             return mod_datetime.datetime.strptime(string, date_format)
         except ValueError:
             pass
-    raise mod_gpx.GPXException('Invalid time: %s' % string)
+    raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -134,8 +134,6 @@ class GPXField(AbstractGPXField):
         if self.attribute:
             if node is not None:
                 result = node.get(self.attribute)
-            else:
-                result = None
         else:
             __node = node.find(self.tag)
             if __node is not None:
@@ -145,7 +143,7 @@ class GPXField(AbstractGPXField):
         if result is None:
             if self.mandatory:
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('%s is mandatory in %s (got %s)' % (self.name, self.tag, result))
+                raise mod_gpx.GPXException('{0} is mandatory in {1} (got {2})'.format(self.name, self.tag, result))
             return None
 
         if self.type_converter:
@@ -153,12 +151,12 @@ class GPXField(AbstractGPXField):
                 result = self.type_converter.from_string(result)
             except Exception as e:
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('Invalid value for <%s>... %s (%s)' % (self.tag, result, e))
+                raise mod_gpx.GPXException('Invalid value for <{0}>... {1} ({2})'.format(self.tag, result, e))
 
         if self.possible:
             if not (result in self.possible):
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('Invalid value "%s", possible: %s' % (result, self.possible))
+                raise mod_gpx.GPXException('Invalid value "{0}", possible: {1}'.format(result, self.possible))
 
         return result
 
@@ -167,13 +165,10 @@ class GPXField(AbstractGPXField):
             return ''
 
         if self.attribute:
-            return '%s="%s"' % (self.attribute, mod_utils.make_str(value))
-        else:
-            if self.type_converter:
-                value = self.type_converter.to_string(value)
-            if isinstance(self.tag, list) or isinstance(self.tag, tuple):
-                raise Exception('Not yet implemented')
-            return mod_utils.to_xml(self.tag, content=value, escape=True)
+            return '{0}="{1}"'.format(self.attribute, mod_utils.make_str(value))
+        elif self.type_converter:
+            value = self.type_converter.to_string(value)
+        return mod_utils.to_xml(self.tag, content=value, escape=True)
 
 
 class GPXComplexField(AbstractGPXField):
@@ -186,9 +181,9 @@ class GPXComplexField(AbstractGPXField):
     def from_xml(self, node, version):
         if self.is_list:
             result = []
-            for child_node in node.getchildren():
-                if child_node.tag == self.tag:
-                    result.append(gpx_fields_from_xml(self.classs, child_node, version))
+            for child in node:
+                if child.tag == self.tag:
+                    result.append(gpx_fields_from_xml(self.classs, child, version))
             return result
         else:
             field_node = node.find(self.tag)
@@ -219,6 +214,16 @@ class GPXEmailField(AbstractGPXField):
         self.tag = tag or name
 
     def from_xml(self, node, version):
+        """
+        Extract email address.
+
+        Args:
+            node: ETree node with child node containing self.tag
+            version: str of the gpx output version "1.0" or "1.1"
+
+        Returns:
+            A string containing the email address.
+        """
         email_node = node.find(self.tag)
 
         email_id = email_node.get('id')
@@ -227,6 +232,17 @@ class GPXEmailField(AbstractGPXField):
         return '{0}@{1}'.format(email_id, email_domain)
 
     def to_xml(self, value, version):
+        """
+        Write email address to XML
+
+        Args:
+            value: str representing an email address
+            version: str of the gpx output version "1.0" or "1.1"
+
+        Returns:
+            None if value is empty or str of XML representation of the
+            address. Representation starts with a \n.
+        """
         if not value:
             return ''
 
@@ -254,15 +270,19 @@ class GPXExtensionsField(AbstractGPXField):
         self.tag = tag or 'extensions'
 
     def from_xml(self, node, version):
-        result = {}
-
+        result = []
         extensions_node = node.find(self.tag)
 
         if extensions_node is None:
             return result
 
-        for child in extensions_node.getchildren():
-            result[child.tag] = child.text
+##        print(extensions_node)
+##        print(extensions_node.tag)
+##        for kid in extensions_node.getchildren():
+##            print(kid.tag)
+##        input()
+        for child in extensions_node:
+            result.append(child)
 
         return result
 
@@ -270,12 +290,12 @@ class GPXExtensionsField(AbstractGPXField):
         if not value:
             return ''
 
-        result = '\n<' + self.tag + '>'
+        result = ['\n<' + self.tag + '>']
         for ext_key, ext_value in value.items():
-            result += mod_utils.to_xml(ext_key, content=ext_value)
-        result += '</' + self.tag + '>'
+            result.append(mod_utils.to_xml(ext_key, content=ext_value))
+        result.append('</' + self.tag + '>')
 
-        return result
+        return ''.join(result)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -357,58 +377,3 @@ def gpx_fields_from_xml(class_or_instance, node, version):
                 setattr(result, gpx_field.name, value)
 
     return result
-
-
-
-## What is all this for? seems to do nothing of consequence
-
-##def gpx_check_slots_and_default_values(classs):
-##    """
-##    Will fill the default values for this class. Instances will inherit those
-##    values so we don't need to fill default values for every instance.
-##
-##    This method will also fill the attribute gpx_field_names with a list of
-##    gpx field names. This can be used
-##    """
-##    fields = classs.gpx_10_fields + classs.gpx_11_fields
-##    print(fields)
-##    gpx_field_names = []
-##
-##    instance = classs()
-##
-##    try:
-##        attributes = list(filter(lambda x : x[0] != '_', dir(instance)))
-##        attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
-##        attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
-##    except Exception as e:
-##        raise Exception('Error reading attributes for %s: %s' % (classs.__name__, e))
-##
-##    attributes.sort()
-##    slots = list(classs.__slots__)
-##    slots.sort()
-##
-##    if attributes != slots:
-##        raise Exception('Attributes for %s is\n%s but should be\n%s' % (classs.__name__, attributes, slots))
-##
-##    for field in fields:
-##        if not isinstance(field, str):
-##            if field.is_list:
-##                value = []
-##            else:
-##                value = None
-##            try:
-##                actual_value = getattr(instance, field.name)
-##            except:
-##                raise Exception('%s has no attribute %s' % (classs.__name__, field.name))
-##            if value != actual_value:
-##                raise Exception('Invalid default value %s.%s is %s but should be %s'
-##                                % (classs.__name__, field.name, actual_value, value))
-##            #print('%s.%s -> %s' % (classs, field.name, value))
-##            if not field.name in gpx_field_names:
-##                gpx_field_names.append(field.name)
-##
-##    gpx_field_names = tuple(gpx_field_names)
-##    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
-##        try: slots = classs.__slots__
-##        except Exception as e: slots = '[Unknown:%s]' % e
-##        raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))

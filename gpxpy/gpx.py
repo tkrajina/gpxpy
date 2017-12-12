@@ -1921,7 +1921,7 @@ class GPX:
                  'bounds', 'waypoints', 'routes', 'tracks', 'author_link',
                  'author_link_text', 'author_link_type', 'copyright_author',
                  'copyright_year', 'copyright_license', 'link_type',
-                 'metadata_extensions', 'extensions')
+                 'metadata_extensions', 'extensions', 'nsmap')
 
     def __init__(self):
         self.version = None
@@ -1947,6 +1947,7 @@ class GPX:
         self.waypoints = []
         self.routes = []
         self.tracks = []
+        self.nsmap = {}
 
     def simplify(self, max_distance=None):
         """

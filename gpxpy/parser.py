@@ -18,7 +18,8 @@ import logging as mod_logging
 import re as mod_re
 
 try:
-    import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
+    import xml.etree.cElementTree as mod_etree
+    #import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
 except:
     try:
         import xml.etree.cElementTree as mod_etree
@@ -77,8 +78,19 @@ class GPXParser:
         """
         # Remove default namespace to simplify processing later
         # Should be rewritten to process namespaces correctly
+        namespaces = {}
+        for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
+            prefix, URI = namespace[6:].split('=')
+            prefix = prefix.lstrip(':')
+            if prefix == '' and GPXParser.__library() == "LXML":
+                prefix = None
+            mod_etree.register_namespace(prefix, URI.strip('"'))
+            namespaces[prefix.lstrip(':')] = URI.strip('"')
+        print(namespaces)
+        self.gpx.nsmap = namespaces
+        
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
-
+        
         try:
             if GPXParser.__library() == "LXML":
                 # lxml does not like unicode strings when it's expecting
@@ -88,6 +100,7 @@ class GPXParser:
                     self.xml = self.xml.encode('utf-8')
                 root = mod_etree.XML(self.xml,
                                      mod_etree.XMLParser(remove_comments=True))
+                print(root.nsmap)
             else:
                 root = mod_etree.XML(self.xml)
 
@@ -106,7 +119,10 @@ class GPXParser:
             # GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s'
                                                 % str(e), e)
-
+        mod_etree.dump(root)
+        print(root.tag)
+        for kid in root:
+            print(kid.tag)
         if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
@@ -127,3 +143,13 @@ class GPXParser:
         if "lxml" in str(mod_etree):
             return "LXML"
         return "STDLIB"
+
+    @staticmethod
+    def _to_xml(node):
+        """
+        Wrap the etree.tostring() method
+        """
+        print(mod_etree.tostring(node))
+        input()
+        return(mode_etree.tostring(node))
+        
