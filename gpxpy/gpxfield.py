@@ -348,7 +348,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None
                 if prefix != 'defaultns':
                     body.append(' xmlns:{0}="{1}"'.format(prefix, URI))
         if custom_attributes:
-            for key, value in custom_attributes:
+            for key, value in custom_attributes.items():
                 body.append(' {0}="{1}"'.format(key, mod_utils.make_str(value)))
 
     for gpx_field in fields:

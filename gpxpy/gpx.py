@@ -2563,13 +2563,11 @@ class GPX:
         if not self.creator:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
-        v = version.replace('.', '/')
         self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
         self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(version.replace('.', '/'))
-        schemaloc = 'http://www.topografix.com/GPX/{0} http://www.topografix.com/GPX/{0}/gpx.xsd'
-        ver = version.replace('.', '/')
-        schemaloc = schemaloc.format(ver)
-        xml_attributes = {('xsi:schemaLocation', schemaloc)}
+        schemalocs = 'http://www.topografix.com/GPX/{0} http://www.topografix.com/GPX/{0}/gpx.xsd'
+        xml_attributes = {'xsi:schemaLocation':
+                          schemaloc.format(version.replace('.', '/'))}
 
         content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap)
 
