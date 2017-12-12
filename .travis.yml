@@ -17,6 +17,12 @@ env:
 - XMLPARSER=LXML
 - XMLPARSER=STDLIB
 
+# ElementTree in 2.6 does not handle namespaces
+matrix:
+  exclude:
+  - python: "2.6"
+    env: XMLPARSER=STDLIB
+
 install:
 # Check whether to install lxml
 # Pin versions 2.6 and 3.2 to lxml 3.6 (end of support)
