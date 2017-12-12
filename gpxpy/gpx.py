@@ -155,9 +155,6 @@ class GPXBounds:
     def __iter__(self):
         return (self.min_latitude, self.max_latitude, self.min_longitude, self.max_longitude,).__iter__()
 
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
-
 
 class GPXXMLSyntaxException(GPXException):
     """
@@ -230,9 +227,6 @@ class GPXWaypoint(mod_geo.Location):
         """
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
 
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
-
 
 class GPXRoutePoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
@@ -287,9 +281,6 @@ class GPXRoutePoint(mod_geo.Location):
             if value is not None:
                 representation += ', %s=%s' % (attribute, repr(value))
         return 'GPXRoutePoint(%s)' % representation
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXRoute:
@@ -427,9 +418,6 @@ class GPXRoute:
         """
         for route_point in self.points:
             route_point.move(location_delta)
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''
@@ -569,9 +557,6 @@ class GPXTrackPoint(mod_geo.Location):
 
     def __str__(self):
         return '[trkpt:%s,%s@%s@%s]' % (self.latitude, self.longitude, self.elevation, self.time)
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
 
 class GPXTrackSegment:
@@ -1293,8 +1278,6 @@ class GPXTrackSegment:
 
         return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
 
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         return 'GPXTrackSegment(points=[%s])' % ('...' if self.points else '')
@@ -1850,8 +1833,6 @@ class GPXTrack:
     def clone(self):
         return mod_copy.deepcopy(self)
 
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''
@@ -2583,13 +2564,13 @@ class GPX:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
         v = version.replace('.', '/')
-        xml_attributes = (
-                ('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance'),
-                ('xmlns', 'http://www.topografix.com/GPX/%s' % v),
-                ('xsi:schemaLocation', 'http://www.topografix.com/GPX/%s http://www.topografix.com/GPX/%s/gpx.xsd' % (v, v))
-        )
+        self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(version.replace('.', '/'))
+        xml_attributes = {
+                ('xsi:schemaLocation', 'http://www.topografix.com/GPX/{0} http://www.topografix.com/GPX/{0}/gpx.xsd'.format(version.replace('.', '/')))
+        }
 
-        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes)
+        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap)
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 
@@ -2614,9 +2595,6 @@ class GPX:
             result = result and track.has_elevations()
 
         return result
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, self.__slots__)
 
     def __repr__(self):
         representation = ''

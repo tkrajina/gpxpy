@@ -1,10 +1,9 @@
-<gpx version="1.1" creator="..." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+<gpx version="1.1" creator="..." xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" xmlns:ext="https://github.com/tkrajina/gpxpy">
     <metadata>
         <name>example name</name>
         <desc>example description</desc>
         <author>
             <name>author name</name>
-            <name>example author</name>
             <email id="aaa" domain="bbb.com" />
             <link href="http://link">
                 <text>link text</text>
@@ -24,9 +23,9 @@
         <keywords>example keywords</keywords>
         <bounds minlat="1.2" minlon="3.4" maxlat="5.6" maxlon="7.8" />
         <extensions>
-            <aaa>bbb</aaa>
-            <bbb>ccc</bbb>
-            <ccc>ddd</ccc>
+            <ext:aaa>bbb</ext:aaa>
+            <ext:bbb>ccc</ext:bbb>
+            <ext:ccc>ddd</ext:ccc>
         </extensions>
     </metadata>
     <wpt lat="12.3" lon="45.6">
@@ -42,8 +41,6 @@
             <text>link text3</text>
             <type>link type3</type>
         </link>
-        <url>example url</url>
-        <urlname>example urlname</urlname>
         <sym>example sym</sym>
         <type>example type</type>
         <fix>2d</fix>
@@ -54,8 +51,8 @@
         <ageofdgpsdata>9</ageofdgpsdata>
         <dgpsid>45</dgpsid>
         <extensions>
-            <aaa>bbb</aaa>
-            <ccc>ddd</ccc>
+            <ext:aaa>bbb</ext:aaa>
+            <ext:ccc>ddd</ext:ccc>
         </extensions>
     </wpt>
     <wpt lat="13.4" lon="46.7">
@@ -72,8 +69,8 @@
         <number>7</number>
         <type>rte type</type>
         <extensions>
-            <rtee1>1</rtee1>
-            <rtee2>2</rtee2>
+            <ext:rtee1>1</ext:rtee1>
+            <ext:rtee2>2</ext:rtee2>
         </extensions>
         <rtept lat="10" lon="20">
             <ele>75.1</ele>
@@ -98,7 +95,7 @@
             <ageofdgpsdata>10</ageofdgpsdata>
             <dgpsid>99</dgpsid>
             <extensions>
-                <rteepte>rtept</rteepte>
+                <ext:rteepte>rtept</ext:rteepte>
             </extensions>
         </rtept>
         <rtept lat="11" lon="21">
@@ -126,7 +123,7 @@
         <number>1</number>
         <type>t</type>
         <extensions>
-            <a1>2</a1>
+            <ext:a1>2</ext:a1>
         </extensions>
         <trkseg>
             <trkpt lat="10.1" lon="-20.2">
@@ -152,7 +149,7 @@
                 <ageofdgpsdata>104</ageofdgpsdata>
                 <dgpsid>99</dgpsid>
                 <extensions>
-                    <last>true</last>
+                    <ext:last>true</ext:last>
                 </extensions>
             </trkpt>
         </trkseg>
@@ -162,6 +159,6 @@
     <trk>
     </trk>
     <extensions>
-        <gpxext>...</gpxext>
+        <ext:gpxext>...</ext:gpxext>
     </extensions>
 </gpx>

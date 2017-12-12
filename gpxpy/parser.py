@@ -18,8 +18,8 @@ import logging as mod_logging
 import re as mod_re
 
 try:
-    import xml.etree.cElementTree as mod_etree
-    #import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
+    #import xml.etree.cElementTree as mod_etree
+    import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
 except:
     try:
         import xml.etree.cElementTree as mod_etree
@@ -77,7 +77,6 @@ class GPXParser:
 
         """
         # Build prefix map for reserialization and extension handlings
-        # Remove default namespace to simplify processing later
         for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
             prefix, URI = namespace[6:].split('=', maxsplit=1)
             prefix = prefix.lstrip(':')
@@ -86,10 +85,10 @@ class GPXParser:
             else:
                 mod_etree.register_namespace(prefix, URI.strip('"'))
             self.gpx.nsmap[prefix] = URI.strip('"')
-        self.gpx.nsmap = namespaces
-        
+
+        # Remove default namespace to simplify processing later        
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
-         
+
         try:
             if GPXParser.__library() == "LXML":
                 # lxml does not like unicode strings when it's expecting
@@ -99,7 +98,6 @@ class GPXParser:
                     self.xml = self.xml.encode('utf-8')
                 root = mod_etree.XML(self.xml,
                                      mod_etree.XMLParser(remove_comments=True))
-                print(root.nsmap)
             else:
                 root = mod_etree.XML(self.xml)
 
@@ -118,23 +116,11 @@ class GPXParser:
             # GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s'
                                                 % str(e), e)
-        mod_etree.dump(root)
-        print()
-        print(root.tag)
-        for kid in root:
-            print(kid.tag)
-
-        print()
-        print(root.find('defaultns:wpt', namespaces))
-        print()
-        print(root[0][0][0].tag)
-        print(root[0][0].find("ext:aaa", namespaces))
-        
         if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
         if version is None:
-            version = root.attrib.get('version')
+            version = root.get('version')
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
         return self.gpx
@@ -151,12 +137,12 @@ class GPXParser:
             return "LXML"
         return "STDLIB"
 
-    @staticmethod
-    def _to_xml(node):
-        """
-        Wrap the etree.tostring() method
-        """
-        print(mod_etree.tostring(node))
-        input()
-        return(mode_etree.tostring(node))
-        
+##    @staticmethod
+##    def _to_xml(node):
+##        """
+##        Wrap the etree.tostring() method
+##        """
+##        print(mod_etree.tostring(node))
+##        input()
+##        return(mode_etree.tostring(node))
+##        

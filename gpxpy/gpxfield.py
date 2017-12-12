@@ -103,7 +103,7 @@ class AbstractGPXField:
     def from_xml(self, node, version):
         raise Exception('Not implemented')
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, nsmap):
         raise Exception('Not implemented')
 
 
@@ -160,7 +160,7 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, nsmap=None):
         if value is None:
             return ''
 
@@ -191,11 +191,11 @@ class GPXComplexField(AbstractGPXField):
                 return None
             return gpx_fields_from_xml(self.classs, field_node, version)
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, nsmap=None):
         if self.is_list:
             result = []
             for obj in value:
-                result.append(gpx_fields_to_xml(obj, self.tag, version))
+                result.append(gpx_fields_to_xml(obj, self.tag, version, nsmap=nsmap))
             return ''.join(result)
         else:
             return gpx_fields_to_xml(value, self.tag, version)
@@ -231,7 +231,7 @@ class GPXEmailField(AbstractGPXField):
 
         return '{0}@{1}'.format(email_id, email_domain)
 
-    def to_xml(self, value, version):
+    def to_xml(self, value, version, nsmap=None):
         """
         Write email address to XML
 
@@ -275,27 +275,57 @@ class GPXExtensionsField(AbstractGPXField):
 
         if extensions_node is None:
             return result
-
-##        print(extensions_node)
-##        print(extensions_node.tag)
-##        for kid in extensions_node.getchildren():
-##            print(kid.tag)
-##        input()
+        
+        ## change to deepcopy
         for child in extensions_node:
             result.append(child)
 
         return result
 
-    def to_xml(self, value, version):
-        if not value:
-            return ''
-
-        result = ['\n<' + self.tag + '>']
-        for ext_key, ext_value in value.items():
-            result.append(mod_utils.to_xml(ext_key, content=ext_value))
-        result.append('</' + self.tag + '>')
-
+    def ETree_to_xml(self, node, nsmap=None):
+        
+        result = []
+        prefixedname = node.tag
+        if nsmap is not None:
+            uri, _, localname = node.tag.partition("}")
+            uri = uri.lstrip("{")
+            for prefix, namespace in nsmap.items():
+                #print(k + ', ' + v)
+                if uri == namespace:
+                    prefixedname = prefix + ':' + localname
+                    break
+        result.append('\n<' + prefixedname + '>')
+        result.append(node.text.strip())
+        #sub elem here
+        for child in node:
+            result.append(self.ETree_to_xml(child, nsmap))
+        tail = node.tail
+        if tail is not None:
+            tail = tail.strip()
+        else:
+            tail = ''
+        result.append('</' + prefixedname + '>' + tail)
         return ''.join(result)
+
+    def to_xml(self, value, version, nsmap=None):
+        """
+        Serialize list of ETree
+        """
+        if not value or version != "1.1":
+            return ''
+        result = []
+        result.append('\n<' + self.tag + '>')
+        for extension in value:
+            result.append(self.ETree_to_xml(extension, nsmap))
+##        result = ['\n<' + self.tag + '>']
+##        for ext_key, ext_value in value.items():
+##            result.append(mod_utils.to_xml(ext_key, content=ext_value))
+##        result.append('</' + self.tag + '>')
+        result.append('</' + self.tag + '>')
+        return ''.join(result)
+    
+
+        
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -303,7 +333,7 @@ class GPXExtensionsField(AbstractGPXField):
 # ----------------------------------------------------------------------------------------------------
 
 
-def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
+def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None):
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
@@ -312,6 +342,11 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
     body = []
     if tag:
         body.append('\n<' + tag)
+        if tag == 'gpx':  # write nsmap in root node
+            body.append(' xmlns="{0}"'.format(nsmap['defaultns']))
+            for prefix, URI in nsmap.items():
+                if prefix != 'defaultns':
+                    body.append(' xmlns:{0}="{1}"'.format(prefix, URI))
         if custom_attributes:
             for key, value in custom_attributes:
                 body.append(' {0}="{1}"'.format(key, mod_utils.make_str(value)))
@@ -329,12 +364,12 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None):
         else:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body.append(' ' + gpx_field.to_xml(value, version))
+                body.append(' ' + gpx_field.to_xml(value, version, nsmap))
             elif value is not None:
                 if tag_open:
                     body.append('>')
                     tag_open = False
-                xml_value = gpx_field.to_xml(value, version)
+                xml_value = gpx_field.to_xml(value, version, nsmap)
                 if xml_value:
                     body.append(xml_value)
 
