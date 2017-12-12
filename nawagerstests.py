@@ -191,9 +191,9 @@ class GPXTests(mod_unittest.TestCase):
 
         gpx = mod_gpxpy.parse(xml)
         print(gpx)
-##        for extension in gpx.waypoints[0].extensions:
-##            print(extension)
-##            mod_etree.dump(extension)
+        for extension in gpx.waypoints[0].extensions:
+            print(extension)
+            mod_etree.dump(extension)
 
 
 

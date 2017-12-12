@@ -76,21 +76,20 @@ class GPXParser:
             GPXException: XML is valid but GPX data contains errors
 
         """
+        # Build prefix map for reserialization and extension handlings
         # Remove default namespace to simplify processing later
-        # Should be rewritten to process namespaces correctly
-        namespaces = {}
         for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
-            prefix, URI = namespace[6:].split('=')
+            prefix, URI = namespace[6:].split('=', maxsplit=1)
             prefix = prefix.lstrip(':')
-            if prefix == '' and GPXParser.__library() == "LXML":
-                prefix = None
-            mod_etree.register_namespace(prefix, URI.strip('"'))
-            namespaces[prefix.lstrip(':')] = URI.strip('"')
-        print(namespaces)
+            if prefix == '':
+                prefix = 'defaultns'  #alias default for easier handling
+            else:
+                mod_etree.register_namespace(prefix, URI.strip('"'))
+            self.gpx.nsmap[prefix] = URI.strip('"')
         self.gpx.nsmap = namespaces
         
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
-        
+         
         try:
             if GPXParser.__library() == "LXML":
                 # lxml does not like unicode strings when it's expecting
@@ -120,9 +119,17 @@ class GPXParser:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s'
                                                 % str(e), e)
         mod_etree.dump(root)
+        print()
         print(root.tag)
         for kid in root:
             print(kid.tag)
+
+        print()
+        print(root.find('defaultns:wpt', namespaces))
+        print()
+        print(root[0][0][0].tag)
+        print(root[0][0].find("ext:aaa", namespaces))
+        
         if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
