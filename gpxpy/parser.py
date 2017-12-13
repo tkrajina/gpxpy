@@ -18,12 +18,11 @@ import logging as mod_logging
 import re as mod_re
 
 try:
-    #import xml.etree.cElementTree as mod_etree
     import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
-except:
+except ImportError:
     try:
         import xml.etree.cElementTree as mod_etree
-    except:
+    except ImportError:
         import xml.etree.ElementTree as mod_etree
 
 from . import gpx as mod_gpx
@@ -32,6 +31,19 @@ from . import gpxfield as mod_gpxfield
 
 
 class GPXParser:
+    """
+    Parse the XML and provide new GPX instance.
+
+    Methods:
+        __init__: initialize new instance
+        init: format XML
+        parse: parse XML, build tree, build GPX
+
+    Attributes:
+        gpx: GPX instance of the most recently parsed XML
+        xml: string containing the XML text
+
+    """
 
     def __init__(self, xml_or_file=None):
         """
@@ -54,8 +66,12 @@ class GPXParser:
                 formatted xml
 
         """
-        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
-        if text[:3] == "\xEF\xBB\xBF":  # Remove utf-8 BOM
+        # If it's a file, read, else do nothing
+        text = (xml_or_file.read() if hasattr(xml_or_file, 'read')
+                else xml_or_file)
+
+        # Remove utf-8 BOM
+        if text[:3] == "\xEF\xBB\xBF":
             text = text[3:]
         self.xml = mod_utils.make_str(text)
 
@@ -81,14 +97,16 @@ class GPXParser:
             prefix, _, URI = namespace[6:].partition('=')
             prefix = prefix.lstrip(':')
             if prefix == '':
-                prefix = 'defaultns'  #alias default for easier handling
+                prefix = 'defaultns'  # alias default for easier handling
             else:
                 mod_etree.register_namespace(prefix, URI.strip('"'))
             self.gpx.nsmap[prefix] = URI.strip('"')
 
-        # Remove default namespace to simplify processing later        
+        # Remove default namespace to simplify processing later
+        # TODO: change regex to accept ' also
         self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
 
+        # Build tree
         try:
             if GPXParser.__library() == "LXML":
                 # lxml does not like unicode strings when it's expecting
@@ -103,7 +121,7 @@ class GPXParser:
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
-            mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
+            mod_logging.debug('Error in:\n{0}\n-----------\n'.format(self.xml))
             mod_logging.exception(e)
 
             # The library should work in the same way regardless of the
@@ -132,17 +150,6 @@ class GPXParser:
 
         Provided for convenient unittests.
         """
-
         if "lxml" in str(mod_etree):
             return "LXML"
         return "STDLIB"
-
-##    @staticmethod
-##    def _to_xml(node):
-##        """
-##        Wrap the etree.tostring() method
-##        """
-##        print(mod_etree.tostring(node))
-##        input()
-##        return(mode_etree.tostring(node))
-##        

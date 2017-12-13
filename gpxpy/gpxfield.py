@@ -282,46 +282,76 @@ class GPXExtensionsField(AbstractGPXField):
 
         return result
 
-    def ETree_to_xml(self, node, nsmap=None):
-        
-        result = []
-        prefixedname = node.tag
+    def _resolve_prefix(self, qname, nsmap):
         if nsmap is not None:
-            uri, _, localname = node.tag.partition("}")
+            uri, _, localname = qname.partition("}")
             uri = uri.lstrip("{")
+            qname = uri + ':' + localname
             for prefix, namespace in nsmap.items():
-                #print(k + ', ' + v)
                 if uri == namespace:
-                    prefixedname = prefix + ':' + localname
+                    qname = prefix + ':' + localname
                     break
-        result.append('\n<' + prefixedname + '>')
-        result.append(node.text.strip())
-        #sub elem here
+        return qname
+
+    def _ETree_to_xml(self, node, nsmap=None, prettyprint=True, indent=''):
+        """
+        Serialize ETree element and all subelements.
+
+        
+        """
+        if not prettyprint:
+            indent = ''
+
+        # Build element tag and text
+        result = []
+        prefixedname = self._resolve_prefix(node.tag, nsmap)
+        result.append('\n' + indent + '<' + prefixedname)
+        for attrib, value in node.attrib.items():
+            attrib = self._resolve_prefix(attrib, nsmap)
+            result.append(' {0}="{1}"'.format(attrib, value))
+        result.append('>' + node.text.strip())
+
+        # Build subelement nodes
         for child in node:
-            result.append(self.ETree_to_xml(child, nsmap))
+            result.append(self._ETree_to_xml(child, nsmap, prettyprint=prettyprint, indent=indent+'  '))
+
+        # Add tail and close tag
         tail = node.tail
         if tail is not None:
             tail = tail.strip()
         else:
             tail = ''
-        result.append('</' + prefixedname + '>' + tail)
+        result.append('\n' + indent + '</' + prefixedname + '>' + tail)
+        
         return ''.join(result)
 
-    def to_xml(self, value, version, nsmap=None):
+    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
         """
-        Serialize list of ETree
+        Serialize list of ETree.
+
+        Creates a string of all the ETrees in the list. The prefixes are
+        resolved through the nsmap for easier to read XML.
+
+        Args:
+            value: list of ETrees with the extension data
+            version: string of GPX version, must be 1.1
+            nsmap: dict of prefixes and URIs
+            prettyprint: boolean, when true, indent line
+            indent: string prepended to tag, usually 2 spaces per level
+
+        Returns:
+            string with all the prefixed tags and data for each node
+            as XML.
         """
+        if not prettyprint:
+            indent = ''
         if not value or version != "1.1":
             return ''
         result = []
-        result.append('\n<' + self.tag + '>')
+        result.append('\n' + indent + '<' + self.tag + '>')
         for extension in value:
-            result.append(self.ETree_to_xml(extension, nsmap))
-##        result = ['\n<' + self.tag + '>']
-##        for ext_key, ext_value in value.items():
-##            result.append(mod_utils.to_xml(ext_key, content=ext_value))
-##        result.append('</' + self.tag + '>')
-        result.append('</' + self.tag + '>')
+            result.append(self._ETree_to_xml(extension, nsmap, prettyprint=prettyprint, indent=indent+'  '))
+        result.append('\n' + indent + '</' + self.tag + '>')
         return ''.join(result)
     
 

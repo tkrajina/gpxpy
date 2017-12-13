@@ -74,39 +74,6 @@ def total_seconds(timedelta):
         return None
     return (timedelta.days * 86400) + timedelta.seconds
 
-# Hash utilities:
-
-##
-##def __hash(obj):
-##    result = 0
-##
-##    if obj is None:
-##        return result
-##    elif isinstance(obj, dict):
-##        raise RuntimeError('__hash_single_object for dict not yet implemented')
-##    elif isinstance(obj, list) or isinstance(obj, tuple):
-##        return hash_list_or_tuple(obj)
-##
-##    return hash(obj)
-##
-##
-##def hash_list_or_tuple(iteration):
-##    result = 17
-##
-##    for obj in iteration:
-##        result = result * 31 + __hash(obj)
-##
-##    return result
-##
-##
-##def hash_object(obj, attributes):
-##    result = 19
-##
-##    for attribute in attributes:
-##        result = result * 31 + __hash(getattr(obj, attribute))
-##
-##    return result
-
 
 def make_str(s):
     """ Convert a str or unicode object into a str type. """

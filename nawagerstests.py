@@ -190,13 +190,7 @@ class GPXTests(mod_unittest.TestCase):
             xml = f.read()
 
         gpx = mod_gpxpy.parse(xml)
-        print(gpx)
-        for extension in gpx.waypoints[0].extensions:
-            print(extension)
-            mod_etree.dump(extension)
-
-
-
+        print(gpx.to_xml('1.1'))
     
     @mod_unittest.skipIf(True, "Because I said")
     def test_gpx_11_fields(self):
