@@ -16,7 +16,7 @@
 
 import inspect as mod_inspect
 import datetime as mod_datetime
-import re
+import re as mod_re
 
 from . import utils as mod_utils
 
@@ -44,7 +44,7 @@ def parse_time(string):
     if len(string) < 19:
         # string has some single digits
         p = '^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).*$'
-        s = re.findall(p, string)
+        s = mod_re.findall(p, string)
         if len(s) > 0:
             string = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
                 .format(*[int(x) for x in s[0]])
@@ -160,10 +160,11 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version, nsmap=None):
+    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
         if value is None:
             return ''
-
+        if not prettyprint:
+            indent = ''
         if self.attribute:
             return '{0}="{1}"'.format(self.attribute, mod_utils.make_str(value))
         elif self.type_converter:
@@ -191,14 +192,16 @@ class GPXComplexField(AbstractGPXField):
                 return None
             return gpx_fields_from_xml(self.classs, field_node, version)
 
-    def to_xml(self, value, version, nsmap=None):
+    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
+        if not prettyprint:
+            indent = ''
         if self.is_list:
             result = []
             for obj in value:
-                result.append(gpx_fields_to_xml(obj, self.tag, version, nsmap=nsmap))
+                result.append(gpx_fields_to_xml(obj, self.tag, version, nsmap=nsmap, prettyprint=prettyprint, indent=indent))
             return ''.join(result)
         else:
-            return gpx_fields_to_xml(value, self.tag, version)
+            return gpx_fields_to_xml(value, self.tag, version, prettyprint=prettyprint, indent=indent)
 
 
 class GPXEmailField(AbstractGPXField):
@@ -231,7 +234,7 @@ class GPXEmailField(AbstractGPXField):
 
         return '{0}@{1}'.format(email_id, email_domain)
 
-    def to_xml(self, value, version, nsmap=None):
+    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
         """
         Write email address to XML
 
@@ -246,6 +249,9 @@ class GPXEmailField(AbstractGPXField):
         if not value:
             return ''
 
+        if not prettyprint:
+            indent = ''
+            
         if '@' in value:
             pos = value.find('@')
             email_id = value[:pos]
@@ -254,7 +260,7 @@ class GPXEmailField(AbstractGPXField):
             email_id = value
             email_domain = 'unknown'
 
-        return '\n<{0} id="{1}" domain="{2}" />'.format(self.tag, email_id, email_domain)
+        return '\n<' + indent + '{0} id="{1}" domain="{2}" />'.format(self.tag, email_id, email_domain)
 
 
 class GPXExtensionsField(AbstractGPXField):
@@ -297,6 +303,19 @@ class GPXExtensionsField(AbstractGPXField):
         """
         Serialize ETree element and all subelements.
 
+        Creates a string of the ETree and all children. The prefixes are
+        resolved through the nsmap for easier to read XML.
+
+        Args:
+            node: ETree with the extension data
+            version: string of GPX version, must be 1.1
+            nsmap: dict of prefixes and URIs
+            prettyprint: boolean, when true, indent line
+            indent: string prepended to tag, usually 2 spaces per level
+
+        Returns:
+            string with all the prefixed tags and data for the node
+            and its children as XML.
         
         """
         if not prettyprint:
@@ -321,7 +340,9 @@ class GPXExtensionsField(AbstractGPXField):
             tail = tail.strip()
         else:
             tail = ''
-        result.append('\n' + indent + '</' + prefixedname + '>' + tail)
+        if len(node) > 0:
+            result.append('\n' + indent)
+        result.append('</' + prefixedname + '>' + tail)
         
         return ''.join(result)
 
@@ -363,7 +384,7 @@ class GPXExtensionsField(AbstractGPXField):
 # ----------------------------------------------------------------------------------------------------
 
 
-def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None):
+def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None, prettyprint=True, indent=''):
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
@@ -380,18 +401,32 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None
         if custom_attributes:
             for key, value in custom_attributes.items():
                 body.append(' {0}="{1}"'.format(key, mod_utils.make_str(value)))
-
+    suppressuntil = ''
     for gpx_field in fields:
         if isinstance(gpx_field, str):
-            if tag_open:
-                body.append('>')
-                tag_open = False
-            if gpx_field[0] == '/':
-                body.append('<{0}>'.format(gpx_field))
+            # strings indicate tags with subelements
+            if suppressuntil:
+                if suppressuntil == gpx_field:
+                    suppressuntil = ''
             else:
-                body.append('\n<{0}'.format(gpx_field))
-                tag_open = True
-        else:
+                if ':' in gpx_field:
+                    dependents = gpx_field.split(':')
+                    gpx_field = dependents.pop(0)
+                    suppressuntil = '/' + gpx_field
+                    for dep in dependents:
+                        if getattr(instance, dep.lstrip('@')):
+                            suppressuntil = ''
+                            break
+                if not suppressuntil:
+                    if tag_open:
+                        body.append('>')
+                        tag_open = False
+                    if gpx_field[0] == '/':
+                        body.append('<{0}>'.format(gpx_field))
+                    else:
+                        body.append('\n<{0}'.format(gpx_field))
+                        tag_open = True
+        elif not suppressuntil:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
                 body.append(' ' + gpx_field.to_xml(value, version, nsmap))
@@ -426,6 +461,7 @@ def gpx_fields_from_xml(class_or_instance, node, version):
     for gpx_field in fields:
         current_node = node_path[-1]
         if isinstance (gpx_field, str):
+            gpx_field = gpx_field.partition(':')[0]
             if gpx_field.startswith('/'):
                 node_path.pop()
             else:

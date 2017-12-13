@@ -71,6 +71,7 @@ GPX_10_POINT_FIELDS = [
         mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
 ]
 GPX_11_POINT_FIELDS = [
+        # See GPX for description of text fields
         mod_gpxfield.GPXField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
         mod_gpxfield.GPXField('longitude', attribute='lon', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
         mod_gpxfield.GPXField('elevation', 'ele', type=mod_gpxfield.FLOAT_TYPE),
@@ -81,7 +82,7 @@ GPX_11_POINT_FIELDS = [
         mod_gpxfield.GPXField('comment', 'cmt'),
         mod_gpxfield.GPXField('description', 'desc'),
         mod_gpxfield.GPXField('source', 'src'),
-        'link',
+        'link:@link',
             mod_gpxfield.GPXField('link', attribute='href'),
             mod_gpxfield.GPXField('link_text', tag='text'),
             mod_gpxfield.GPXField('link_type', tag='type'),
@@ -295,11 +296,12 @@ class GPXRoute:
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
     gpx_11_fields = [
+            # See GPX for description of text fields
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            'link',
+            'link:@link',
                 mod_gpxfield.GPXField('link', attribute='href'),
                 mod_gpxfield.GPXField('link_text', tag='text'),
                 mod_gpxfield.GPXField('link_type', tag='type'),
@@ -1298,11 +1300,12 @@ class GPXTrack:
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
     gpx_11_fields = [
+            # See GPX for text field description
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            'link',
+            'link:@link',
                 mod_gpxfield.GPXField('link', attribute='href'),
                 mod_gpxfield.GPXField('link_text', tag='text'),
                 mod_gpxfield.GPXField('link_type', tag='type'),
@@ -1861,27 +1864,35 @@ class GPX:
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
     ]
+    # Text fields serialize as empty container tags, dependents are
+    # are listed after as 'tag:dep1:dep2:dep3'. If no dependents are
+    # listed, it will always serialize. The container is closed with
+    # '/tag'. Required dependents are preceded by an @. If a required
+    # dependent is empty, nothing in the container will serialize. The
+    # format is 'tag:@dep2'. No optional dependents need to be listed.
+    # Extensions not yet supported
     gpx_11_fields = [
             mod_gpxfield.GPXField('version', attribute=True),
             mod_gpxfield.GPXField('creator', attribute=True),
-            'metadata',
+            'metadata:name:description:author_name:author_email:author_link:copyright_author:copyright_year:copyright_license:link:time:keywords:bounds',
+            #'metadata:author_link',
                 mod_gpxfield.GPXField('name', 'name'),
                 mod_gpxfield.GPXField('description', 'desc'),
-                'author',
+                'author:author_name:author_email:author_link',
                     mod_gpxfield.GPXField('author_name', 'name'),
                     mod_gpxfield.GPXEmailField('author_email', 'email'),
-                    'link',
+                    'link:@author_link',
                         mod_gpxfield.GPXField('author_link', attribute='href'),
                         mod_gpxfield.GPXField('author_link_text', tag='text'),
                         mod_gpxfield.GPXField('author_link_type', tag='type'),
                     '/link',
                 '/author',
-                'copyright',
+                'copyright:copyright_author:copyright_year:copyright_license',
                     mod_gpxfield.GPXField('copyright_author', attribute='author'),
                     mod_gpxfield.GPXField('copyright_year', tag='year'),
                     mod_gpxfield.GPXField('copyright_license', tag='license'),
                 '/copyright',
-                'link',
+                'link:@link',
                     mod_gpxfield.GPXField('link', attribute='href'),
                     mod_gpxfield.GPXField('link_text', tag='text'),
                     mod_gpxfield.GPXField('link_type', tag='type'),
