@@ -2564,7 +2564,7 @@ class GPX:
             if self.version:
                 version = self.version
             else:
-                version = '1.0'
+                version = '1.1'
 
         if version != '1.0' and version != '1.1':
             raise GPXException('Invalid version %s' % version)

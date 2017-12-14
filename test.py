@@ -2917,6 +2917,48 @@ class GPXTests(mod_unittest.TestCase):
         print("Reading Track Point Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].segments[0].points[0].extensions[0], root))
 
+    def test_no_10_extensions(self):
+        namespace = '{gpx.py}'
+        nsmap = {'ext' : namespace[1:-1]}
+        root = mod_etree.Element(namespace + 'tag')
+        root.text = 'text'
+        root.tail = 'tail'
+        
+        gpx = mod_gpx.GPX()
+        gpx.nsmap = nsmap
+
+        print("Inserting Waypoint Extension")
+        gpx.waypoints.append(mod_gpx.GPXWaypoint())
+        gpx.waypoints[0].latitude = 5
+        gpx.waypoints[0].longitude = 10
+        gpx.waypoints[0].extensions.append(root)
+
+        print("Inserting Metadata Extension")
+        gpx.metadata_extensions.append(root)
+
+        print("Inserting GPX Extension")
+        gpx.extensions.append(root)
+
+        print("Inserting Route Extension")
+        gpx.routes.append(mod_gpx.GPXRoute())
+        gpx.routes[0].extensions.append(root)
+        
+        print("Inserting Track Extension")
+        gpx.tracks.append(mod_gpx.GPXTrack())
+        gpx.tracks[0].extensions.append(root)
+
+        print("Inserting Track Segment Extension")
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        gpx.tracks[0].segments[0].extensions.append(root)
+
+
+        print("Inserting Track Point Extension")
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
+        gpx.tracks[0].segments[0].points[0].extensions.append(root)
+
+        xml = gpx.to_xml('1.0')
+        self.assertFalse('extension' in xml)
+
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")

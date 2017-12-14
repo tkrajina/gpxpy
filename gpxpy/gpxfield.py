@@ -234,10 +234,11 @@ class GPXEmailField(AbstractGPXField):
             A string containing the email address.
         """
         email_node = node.find(self.tag)
+        if email_node is None:
+            return ''
 
         email_id = email_node.get('id')
         email_domain = email_node.get('domain')
-
         return '{0}@{1}'.format(email_id, email_domain)
 
     def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
