@@ -96,7 +96,7 @@ GPX_11_POINT_FIELDS = [
         mod_gpxfield.GPXField('position_dilution', 'pdop', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('age_of_dgps_data', 'ageofdgpsdata', type=mod_gpxfield.FLOAT_TYPE),
         mod_gpxfield.GPXField('dgps_id', 'dgpsid'),
-        mod_gpxfield.GPXExtensionsField('extensions'),
+        mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
 ]
 
 # GPX1.0 track points have two more fields after time
@@ -208,7 +208,7 @@ class GPXWaypoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.extensions = None
+        self.extensions = []
 
     def __str__(self):
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -269,7 +269,7 @@ class GPXRoutePoint(mod_geo.Location):
         self.age_of_dgps_data = None
         self.dgps_id = None
         self.link_type = None
-        self.extensions = None
+        self.extensions = []
 
     def __str__(self):
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -308,7 +308,7 @@ class GPXRoute:
             '/link',
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
-            mod_gpxfield.GPXExtensionsField('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
 
@@ -327,7 +327,7 @@ class GPXRoute:
         self.points = []
         self.link_type = None
         self.type = None
-        self.extensions = None
+        self.extensions = []
 
     def remove_elevation(self):
         """ Removes elevation data from route """
@@ -471,7 +471,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.position_dilution = position_dilution
         self.age_of_dgps_data = None
         self.dgps_id = None
-        self.extensions = None
+        self.extensions = []
 
     def __repr__(self):
         representation = '%s, %s' % (self.latitude, self.longitude)
@@ -567,14 +567,14 @@ class GPXTrackSegment:
     ]
     gpx_11_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
-            mod_gpxfield.GPXExtensionsField('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
     ]
 
     __slots__ = ('points', 'extensions', )
 
     def __init__(self, points=None):
         self.points = points if points else []
-        self.extensions = None
+        self.extensions = []
 
     def simplify(self, max_distance=None):
         """
@@ -1312,7 +1312,7 @@ class GPXTrack:
             '/link',
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
-            mod_gpxfield.GPXExtensionsField('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
 
@@ -1331,7 +1331,7 @@ class GPXTrack:
         self.segments = []
         self.link_type = None
         self.type = None
-        self.extensions = None
+        self.extensions = []
 
     def simplify(self, max_distance=None):
         """
@@ -1904,7 +1904,7 @@ class GPX:
             mod_gpxfield.GPXComplexField('waypoints', classs=GPXWaypoint, tag='wpt', is_list=True),
             mod_gpxfield.GPXComplexField('routes', classs=GPXRoute, tag='rte', is_list=True),
             mod_gpxfield.GPXComplexField('tracks', classs=GPXTrack, tag='trk', is_list=True),
-            mod_gpxfield.GPXExtensionsField('extensions'),
+            mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
     ]
 
     __slots__ = ('version', 'creator', 'name', 'description', 'author_name',
@@ -1933,8 +1933,8 @@ class GPX:
         self.copyright_author = None
         self.copyright_year = None
         self.copyright_license = None
-        self.metadata_extensions = None
-        self.extensions = None
+        self.metadata_extensions = []
+        self.extensions = []
         self.waypoints = []
         self.routes = []
         self.tracks = []
@@ -2616,11 +2616,9 @@ class GPX:
     def clone(self):
         return mod_copy.deepcopy(self)
 
-## Temporarily removing this. Everything runs fine without it.
-
-### Add attributes and fill default values (lists or None) for all GPX elements:
-##for var_name in dir():
-##    var_value = vars()[var_name]
-##    if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
-##        #print('Check/fill %s' % var_value)
-##        mod_gpxfield.gpx_check_slots_and_default_values(var_value)
+# Add attributes and fill default values (lists or None) for all GPX elements:
+for var_name in dir():
+    var_value = vars()[var_name]
+    if hasattr(var_value, 'gpx_10_fields') or hasattr(var_value, 'gpx_11_fields'):
+        #print('Check/fill %s' % var_value)
+        mod_gpxfield.gpx_check_slots_and_default_values(var_value)
