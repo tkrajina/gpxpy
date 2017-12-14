@@ -2850,7 +2850,7 @@ class GPXTests(mod_unittest.TestCase):
         subnode1.text = 'eee'
         subnode1.tail = ''
         subnode1.attrib[namespace+'lll'] = 'mmm'
-        subnode1.attrib[namespace+'nnn'] = 'ooo'}
+        subnode1.attrib[namespace+'nnn'] = 'ooo'
 
         subnode2 = mod_etree.SubElement(subnode1, namespace + 'fff')
         subnode2.text = 'ggg'
