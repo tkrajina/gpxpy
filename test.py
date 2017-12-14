@@ -2811,7 +2811,7 @@ class GPXTests(mod_unittest.TestCase):
         root1 = mod_etree.Element(namespace + 'aaa')
         root1.text = 'bbb'
         root1.tail = 'hhh'
-        root1.attrib = {namespace+'jjj':'kkk'}
+        root1.attrib[namespace+'jjj'] = 'kkk'
 
         root2 = mod_etree.Element(namespace + 'ccc')
         root2.text = ''
@@ -2820,7 +2820,8 @@ class GPXTests(mod_unittest.TestCase):
         subnode1 = mod_etree.SubElement(root2, namespace + 'ddd')
         subnode1.text = 'eee'
         subnode1.tail = ''
-        subnode1.attrib = {namespace+'lll':'mmm', namespace+'nnn':'ooo'}
+        subnode1.attrib[namespace+'lll'] = 'mmm'
+        subnode1.attrib[namespace+'nnn'] = 'ooo'
 
         subnode2 = mod_etree.SubElement(subnode1, namespace + 'fff')
         subnode2.text = 'ggg'
@@ -2848,7 +2849,8 @@ class GPXTests(mod_unittest.TestCase):
         subnode1 = mod_etree.SubElement(root, namespace + 'ddd')
         subnode1.text = 'eee'
         subnode1.tail = ''
-        subnode1.attrib = {namespace+'lll':'mmm', namespace+'nnn':'ooo'}
+        subnode1.attrib[namespace+'lll'] = 'mmm'
+        subnode1.attrib[namespace+'nnn'] = 'ooo'}
 
         subnode2 = mod_etree.SubElement(subnode1, namespace + 'fff')
         subnode2.text = 'ggg'
