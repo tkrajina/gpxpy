@@ -1875,7 +1875,6 @@ class GPX:
             mod_gpxfield.GPXField('version', attribute=True),
             mod_gpxfield.GPXField('creator', attribute=True),
             'metadata:name:description:author_name:author_email:author_link:copyright_author:copyright_year:copyright_license:link:time:keywords:bounds',
-            #'metadata:author_link',
                 mod_gpxfield.GPXField('name', 'name'),
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author:author_name:author_email:author_link',
@@ -2557,7 +2556,7 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
-    def to_xml(self, version=None):
+    def to_xml(self, version=None, prettyprint=True):
         """
         FIXME: Note, this method will change self.version
         """
@@ -2580,7 +2579,7 @@ class GPX:
         xml_attributes = {'xsi:schemaLocation':
                           schemalocs.format(version.replace('.', '/'))}
 
-        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap)
+        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap, prettyprint=prettyprint)
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 

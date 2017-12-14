@@ -21,26 +21,29 @@ import xml.sax.saxutils as mod_saxutils
 PYTHON_VERSION = mod_sys.version.split(' ')[0]
 
 
-def to_xml(tag, attributes=None, content=None, default=None, escape=False):
+def to_xml(tag, attributes=None, content=None, default=None, escape=False, prettyprint=True, indent=''):
+    if not prettyprint:
+        indent = ''
     attributes = attributes or {}
-    result = '\n<%s' % tag
+    result = []
+    result.append('\n' + indent + '<{0}'.format(tag))
 
     if content is None and default:
         content = default
 
     if attributes:
         for attribute in attributes.keys():
-            result += make_str(' %s="%s"' % (attribute, attributes[attribute]))
+            result.append(make_str(' %s="%s"' % (attribute, attributes[attribute])))
 
     if content is None:
-        result += '/>'
+        result.append('/>')
     else:
         if escape:
-            result += make_str('>%s</%s>' % (mod_saxutils.escape(content), tag))
+            result.append(make_str('>%s</%s>' % (mod_saxutils.escape(content), tag)))
         else:
-            result += make_str('>%s</%s>' % (content, tag))
+            result.append(make_str('>%s</%s>' % (content, tag)))
 
-    result = make_str(result)
+    result = make_str(''.join(result))
 
     return result
 

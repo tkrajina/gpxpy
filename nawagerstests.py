@@ -190,7 +190,12 @@ class GPXTests(mod_unittest.TestCase):
             xml = f.read()
 
         gpx = mod_gpxpy.parse(xml)
-        print(gpx.to_xml('1.1'))
+        print(gpx.to_xml('1.1', prettyprint=False))
+
+        with open('test_files/gpx1.1_with_all_fields.gpx') as f:
+            xml = f.read()
+        gpx = mod_gpxpy.parse(xml)
+        print(gpx.to_xml('1.1', prettyprint=False))
     
     @mod_unittest.skipIf(True, "Because I said")
     def test_gpx_11_fields(self):

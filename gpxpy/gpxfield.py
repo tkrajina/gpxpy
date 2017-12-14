@@ -169,7 +169,7 @@ class GPXField(AbstractGPXField):
             return '{0}="{1}"'.format(self.attribute, mod_utils.make_str(value))
         elif self.type_converter:
             value = self.type_converter.to_string(value)
-        return mod_utils.to_xml(self.tag, content=value, escape=True)
+        return mod_utils.to_xml(self.tag, content=value, escape=True, prettyprint=prettyprint, indent=indent)
 
 
 class GPXComplexField(AbstractGPXField):
@@ -260,7 +260,7 @@ class GPXEmailField(AbstractGPXField):
             email_id = value
             email_domain = 'unknown'
 
-        return '\n<' + indent + '{0} id="{1}" domain="{2}" />'.format(self.tag, email_id, email_domain)
+        return '\n' + indent + '<{0} id="{1}" domain="{2}" />'.format(self.tag, email_id, email_domain)
 
 
 class GPXExtensionsField(AbstractGPXField):
@@ -385,6 +385,8 @@ class GPXExtensionsField(AbstractGPXField):
 
 
 def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None, prettyprint=True, indent=''):
+    if not prettyprint:
+        indent = ''
     fields = instance.gpx_10_fields
     if version == '1.1':
         fields = instance.gpx_11_fields
@@ -392,7 +394,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None
     tag_open = bool(tag)
     body = []
     if tag:
-        body.append('\n<' + tag)
+        body.append('\n' + indent + '<' + tag)
         if tag == 'gpx':  # write nsmap in root node
             body.append(' xmlns="{0}"'.format(nsmap['defaultns']))
             for prefix, URI in nsmap.items():
@@ -422,26 +424,30 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None, nsmap=None
                         body.append('>')
                         tag_open = False
                     if gpx_field[0] == '/':
-                        body.append('<{0}>'.format(gpx_field))
+                        body.append('\n' + indent + '<{0}>'.format(gpx_field))
+                        if prettyprint and len(indent) > 1:
+                            indent = indent[:-2]
                     else:
-                        body.append('\n<{0}'.format(gpx_field))
+                        if prettyprint:
+                            indent += '  '
+                        body.append('\n' + indent + '<{0}'.format(gpx_field))
                         tag_open = True
         elif not suppressuntil:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body.append(' ' + gpx_field.to_xml(value, version, nsmap))
+                body.append(' ' + gpx_field.to_xml(value, version, nsmap, prettyprint=prettyprint, indent=indent + '  '))
             elif value is not None:
                 if tag_open:
                     body.append('>')
                     tag_open = False
-                xml_value = gpx_field.to_xml(value, version, nsmap)
+                xml_value = gpx_field.to_xml(value, version, nsmap, prettyprint=prettyprint, indent=indent + '  ')
                 if xml_value:
                     body.append(xml_value)
 
     if tag:
         if tag_open:
             body.append('>')
-        body.append('</' + tag + '>')
+        body.append('\n' + indent + '</' + tag + '>')
 
     return ''.join(body)
 
