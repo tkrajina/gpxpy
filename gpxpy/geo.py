@@ -19,6 +19,8 @@ import math as mod_math
 
 from . import utils as mod_utils
 
+log = mod_logging.getLogger(__name__)
+
 # Generic geo related function and class(es)
 
 # One degree in meters:
@@ -101,7 +103,7 @@ def calculate_max_speed(speeds_and_distances):
     size = float(len(speeds_and_distances))
 
     if size < 20:
-        mod_logging.debug('Segment too small to compute speed, size=%s', size)
+        log.debug('Segment too small to compute speed, size=%s', size)
         return None
 
     distances = list(map(lambda x: x[1], speeds_and_distances))
