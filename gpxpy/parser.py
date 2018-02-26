@@ -28,6 +28,7 @@ from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
+log = mod_logging.getLogger(__name__)
 
 class XMLParser:
     """
@@ -142,8 +143,8 @@ class GPXParser:
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
-            mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
-            mod_logging.exception(e)
+            log.debug('Error in:\n%s\n-----------\n' % self.xml)
+            log.exception(e)
 
             # The library should work in the same way regardless of the
             # underlying XML parser that's why the exception thrown
