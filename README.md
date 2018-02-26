@@ -110,7 +110,7 @@ Run a single test with:
 
 ## GPXInfo
 
-The repository contain a little command line utility to extract basic statistics from a file.
+The repository contains a little command line utility to extract basic statistics from a file.
 Example usage:
 
     $ gpxinfo voznjica.gpx 

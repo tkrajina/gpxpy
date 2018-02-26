@@ -2188,7 +2188,7 @@ class GPX:
     def length_2d(self):
         """
         Computes 2-dimensional length of the GPX file (only latitude and
-        longitude, no elevation). This is the sum of 3D length of all segments
+        longitude, no elevation). This is the sum of 2D length of all segments
         in all tracks.
 
         Returns
@@ -2531,7 +2531,7 @@ class GPX:
             time_dist_after = (interval[-1].time_difference(end),
                                interval[-1].distance_3d(end))
 
-            # Assemble list of times and distance to neighboring points
+            # Assemble list of times and distance to neighbour points
             times_dists = [(interval[i].time_difference(interval[i+1]),
                             interval[i].distance_3d(interval[i+1]))
                             for i in range(len(interval) - 1)]
