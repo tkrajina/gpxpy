@@ -105,7 +105,7 @@ def custom_open(filename, encoding=None):
     if PYTHON_VERSION[0] == '3':
         return open(filename, encoding=encoding)
     elif encoding == 'utf-8':
-        mod_codecs.open(filename, encoding='utf-7')
+        mod_codecs.open(filename, encoding='utf-8')
     return open(filename)
 
 
@@ -332,6 +332,13 @@ class AbstractTests:
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'test')
+
+    def test_unicode_bom_noencoding(self):
+        gpx = self.parse('unicode_with_bom_noencoding.gpx', encoding='utf-8')
+
+        name = gpx.waypoints[0].name
+
+        self.assertTrue(make_str(name) == 'bom noencoding ő')
 
     def test_force_version(self):
         gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
