@@ -13,10 +13,9 @@ import argparse as mod_argparse
 
 import gpxpy as mod_gpxpy
 
-#mod_logging.basicConfig(level=mod_logging.DEBUG,
-#                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-
+KM_TO_MILES = 0.621371
+M_TO_FEET = 3.28084
 
 
 def format_time(time_s):
@@ -30,24 +29,47 @@ def format_time(time_s):
         return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
 
 
+def format_long_length(length):
+    if args.miles:
+        return '{:.3f}miles'.format(length / 1000. * KM_TO_MILES)
+    else:
+        return '{:.3f}km'.format(length / 1000.)
+
+
+def format_short_length(length):
+    if args.miles:
+        return '{:.2f}ft'.format(length * M_TO_FEET)
+    else:
+        return '{:.2f}m'.format(length)
+
+
+def format_speed(speed):
+    if not speed:
+        speed = 0
+    if args.miles:
+        return '{:.2f}mph'.format(speed * KM_TO_MILES * 3600. / 1000.)
+    else:
+        return '{:.2f}m/s = {:.2f}km/h'.format(speed, speed * 3600. / 1000.)
+
+
 def print_gpx_part_info(gpx_part, indentation='    '):
     """
     gpx_part may be a track or segment.
     """
     length_2d = gpx_part.length_2d()
     length_3d = gpx_part.length_3d()
-    print('{}Length 2D: {:.3f}km'.format(indentation, length_2d / 1000.))
-    print('{}Length 3D: {:.3f}km'.format(indentation, length_3d / 1000.))
+    print('%sLength 2D: %s' % (indentation, format_long_length(length_2d)))
+    print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
 
     moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx_part.get_moving_data()
     print('%sMoving time: %s' % (indentation, format_time(moving_time)))
     print('%sStopped time: %s' % (indentation, format_time(stopped_time)))
-    #print('%sStopped distance: %sm' % stopped_distance)
-    print('{}Max speed: {:.2f}m/s = {:.2f}km/h'.format(indentation, max_speed if max_speed else 0, max_speed * 60. ** 2 / 1000. if max_speed else 0))
+    #print('%sStopped distance: %s' % (indentation, format_short_length(stopped_distance)))
+    print('%sMax speed: %s' % (indentation, format_speed(max_speed)))
 
     uphill, downhill = gpx_part.get_uphill_downhill()
-    print('{}Total uphill: {:.2f}m'.format(indentation, uphill))
-    print('{}Total downhill: {:.2f}m'.format(indentation, downhill))
+    print('%sTotal uphill: %s' % (indentation, format_short_length(uphill)))
+    print('%sTotal downhill: %s' % (indentation, format_short_length(downhill)))
 
     start_time, end_time = gpx_part.get_time_bounds()
     print('%sStarted: %s' % (indentation, start_time))
@@ -64,7 +86,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
                 distance = point.distance_2d(previous_point)
                 distances.append(distance)
             previous_point = point
-        print('{}Avg distance between points: {:.2f}m'.format(indentation, sum(distances) / len(list(gpx_part.walk()))))
+        print('%sAvg distance between points: %s' % (indentation, format_short_length(sum(distances) / len(list(gpx_part.walk())))))
 
     print('')
 
@@ -88,6 +110,7 @@ def print_gpx_info(gpx, gpx_file):
             print('    Track #%s, Segment #%s' % (track_no, segment_no))
             print_gpx_part_info(segment, indentation='        ')
 
+
 def run(gpx_files):
     if not gpx_files:
         print('No GPX files given')
@@ -104,12 +127,19 @@ def run(gpx_files):
 
 
 def make_parser():
-    parser = mod_argparse.ArgumentParser(usage='%(prog)s [-s] [file ...]',
+    parser = mod_argparse.ArgumentParser(usage='%(prog)s [-s] [-m] [-d] [file ...]',
         description='Command line utility to extract basic statistics from gpx file(s)')
     parser.add_argument('-s', '--seconds', action='store_true',
                         help='print times as N seconds, rather than HH:MM:SS')
+    parser.add_argument('-m', '--miles', action='store_true',
+                        help='print distances and speeds using miles and feet')
+    parser.add_argument('-d', '--debug', action='store_true',
+                        help='show detailed logging')
     return parser
 
 if __name__ == '__main__':
     args, gpx_files = make_parser().parse_known_args()
+    if args.debug:
+        mod_logging.basicConfig(level=mod_logging.DEBUG,
+                                format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
     run(gpx_files)
