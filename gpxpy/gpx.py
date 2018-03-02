@@ -914,7 +914,7 @@ class GPXTrackSegment:
 
         if 0 < point_no < len(self.points):
             previous_point = self.points[point_no - 1]
-        if 0 < point_no < len(self.points) - 1:
+        if 0 <= point_no < len(self.points) - 1:
             next_point = self.points[point_no + 1]
 
         #log.debug('previous: %s' % previous_point)
