@@ -115,7 +115,7 @@ def make_str(s):
         if not 'e' in result:
             return result
         # scientific notation is illegal in GPX 1/1
-        return '{:f}'.format(s).rstrip('0').rstrip('.')
+        return format(s, '.10f').rstrip('0.')
     if PYTHON_VERSION[0] == '2':
         if isinstance(s, unicode):
             return s.encode("utf-8")
