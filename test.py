@@ -181,6 +181,11 @@ class AbstractTests:
 
         return gpx
 
+    def test_a_garmin_track_with_tpx_with_all_parser_types(self):
+        #self.assertTrue(mod_gpxpy.parse(open('test_files/garmin_gpxtpx.gpx')))
+        ggpx = mod_gpxpy.parse(open('test_files/garmin_gpxtpx.gpx'))
+        print(ggpx)
+
     def test_parse_with_all_parser_types(self):
         self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx')))
         self.assertTrue(mod_gpxpy.parse(open('test_files/cerknicko-jezero.gpx'), parser='minidom'))

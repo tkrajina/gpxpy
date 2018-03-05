@@ -16,6 +16,7 @@
 
 import inspect as mod_inspect
 import datetime as mod_datetime
+import sys as mod_sys
 import re
 
 from . import utils as mod_utils
@@ -263,7 +264,10 @@ class GPXExtensionsField(AbstractGPXField):
             return result
 
         for child in children:
-            result[parser.get_node_name(child)] = parser.get_node_data(child)
+            if hasattr(child, 'tag') and child.tag in extension_fields:
+                result[child.tag] = extension_fields[child.tag].from_xml(parser, child, version)
+            else:
+                result[parser.get_node_name(child)] = parser.get_node_data(child)
 
         return result
 
@@ -273,10 +277,51 @@ class GPXExtensionsField(AbstractGPXField):
 
         result = '\n<' + self.tag + '>'
         for ext_key, ext_value in value.items():
-            result += mod_utils.to_xml(ext_key, content=ext_value)
+            if ext_key in extension_fields:
+                result += extension_fields[ext_key].to_xml(ext_value, version)
+            else:
+                result += mod_utils.to_xml(ext_key, content=ext_value)
         result += '</' + self.tag + '>'
 
         return result
+
+
+class Extensionfield_Garmin_GPXTPX(GPXExtensionsField):
+    extension_ns = '{http://www.garmin.com/xmlschemas/TrackPointExtension/v1}'
+    tags = ["TrackPointExtension"]
+    valid_children = {"depth", "wtemp", "atemp", "hr", "cad"}
+
+    def __init__(self, name, tag=None):
+        self.attribute = False
+        self.name = name
+        self.is_list = False
+        self.tag = tag or 'extensions'
+
+    def from_xml(self, parser, node, version):
+        result = {}
+
+        assert node.tag.startswith(self.extension_ns), "Can only parse {} namespace".format(self.extension_ns)
+
+        children = parser.get_children(node)
+
+        if children:
+            for child in children:
+                if parser.get_node_name(child) in self.valid_children:
+                    result[parser.get_node_name(child)] = parser.get_node_data(child)
+                else:
+                    raise ValueError("unexpeced node name {} namepace {}, expected {}".format(
+                        parser.get_node_name(child), self.extension_ns, self.valid_children))
+
+        return result
+
+    def to_xml(self, value, version):
+        result = '<gpxtpx:{tag} xmlns:gpxtpx="{ns}">'.format(tag=self.tag, ns=self.extension_ns[1:-1])
+        for key in value:
+            result += '<gpxtpx:{key}>{value}</gpxtpx:{tag}>'.format(key=key, value=value[key])
+        result += '<gpxtpx:' + self.tag + '>'
+
+        return result
+
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -410,3 +455,17 @@ def gpx_check_slots_and_default_values(classs):
         try: slots = classs.__slots__
         except Exception as e: slots = '[Unknown:%s]' % e
         raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))
+
+
+def get_extension_fields():
+    '''
+    fetch all classes, if they have an extension_ns attribute, they are extension fields.
+    In this case add an instance for each valid tag to the dictionary.
+    :return: a dict of {"{namespace}tag": ExtensionFieldClass(tag)}
+    '''
+    clsmembers = mod_inspect.getmembers(mod_sys.modules[__name__], mod_inspect.isclass)
+    extensionfields = [c[1] for c in clsmembers if hasattr(c[1], 'extension_ns')]
+    return {e.extension_ns + tag: e(e.extension_ns + tag, e.extension_ns + tag) for e in extensionfields for tag in e.tags}
+
+
+extension_fields = get_extension_fields()
