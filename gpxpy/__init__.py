@@ -15,7 +15,7 @@
 # limitations under the License.
 
 
-def parse(xml_or_file, parser=None, version = None):
+def parse(xml_or_file, version = None):
     """
     Parse xml (string) or file object. This is just an wrapper for
     GPXParser.parse() function.
@@ -31,6 +31,6 @@ def parse(xml_or_file, parser=None, version = None):
 
     from . import parser as mod_parser
 
-    parser = mod_parser.GPXParser(xml_or_file, parser=parser)
+    parser = mod_parser.GPXParser(xml_or_file)
 
     return parser.parse(version)
