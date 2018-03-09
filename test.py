@@ -142,14 +142,6 @@ def pretty_print_xml(xml):
 class GPXTests(mod_unittest.TestCase):
     """
     Add tests here.
-
-    Tests will be run twice (once with Lxml and once with Minidom Parser).
-
-    If you run 'make test' then all tests will be run with python2 and python3
-
-    To be even more sure that everything works as expected -- try...
-        python -m unittest test.MinidomTests
-    ...with python-lxml and without python-lxml installed.
     """
 
     def parse(self, file, encoding=None, version = None):
@@ -2817,14 +2809,6 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         self.assertEquals(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
 
-
-class LxmlTest(mod_unittest.TestCase):
-    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
-    def test_checklxml(self):
-        self.assertIn('lxml.etree._Element', str(mod_parser.XMLParser('<_/>').dom.__class__))
-
-
-class MiscTests(mod_unittest.TestCase):
     def test_join_gpx_xml_files(self):
         import gpxpy.gpxxml
 
@@ -2858,6 +2842,12 @@ class MiscTests(mod_unittest.TestCase):
         self.assertEquals(wpts, len(result_gpx.waypoints))
         self.assertEquals(trcks, len(result_gpx.tracks))
         self.assertEquals(points, result_gpx.get_points_no())
+
+
+class LxmlTest(mod_unittest.TestCase):
+    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
+    def test_checklxml(self):
+        self.assertIn('lxml.etree._Element', str(mod_parser.XMLParser('<_/>').dom.__class__))
 
 if __name__ == '__main__':
     mod_unittest.main()
