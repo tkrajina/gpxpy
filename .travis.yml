@@ -11,18 +11,26 @@ python:
  - 2.6
  - 3.4
  - 3.3
+ - 3.6
+
+env:
+- XMLPARSER=LXML
+- XMLPARSER=STDLIB
 
 install:
- - if [ "$TRAVIS_PYTHON_VERSION" == "2.6" ]; then wget -q -P /tmp "https://github.com/obspy/wheelhouse/raw/master/lxml-3.4.0-cp26-none-linux_x86_64.whl"; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then wget -q -P /tmp "https://github.com/obspy/wheelhouse/raw/master/lxml-3.4.0-cp27-none-linux_x86_64.whl"; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.3" ]; then wget -q -P /tmp "https://github.com/obspy/wheelhouse/raw/master/lxml-3.4.0-cp33-cp33m-linux_x86_64.whl"; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.4" ]; then wget -q -P /tmp "https://github.com/obspy/wheelhouse/raw/master/lxml-3.4.0-cp34-cp34m-linux_x86_64.whl"; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "2.6" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "2.7" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.3" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.4" ]; then pip install --use-wheel --no-index --find-links=/tmp lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then pip install lxml; fi
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.5" ]; then pip install lxml; fi
+# Check whether to install lxml
+# Pin versions 2.6 and 3.2 to lxml 3.6 (end of support)
+ - if [ "$XMLPARSER" == "LXML" ]; then
+     case "$TRAVIS_PYTHON_VERSION" in
+       "2.7"|"3.3"|"3.4"|"3.5"|"3.6")
+         pip install lxml
+         ;;
+       "2.6"|"3.2")
+         pip install lxml==3.6
+         ;;
+     esac
+   fi
+
 
  # Coveralls 4.0 doesn't support Python 3.2
  - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
@@ -41,9 +49,9 @@ after_success:
 
 after_script:
  - coverage report
- - pip install pyflakes pep8
+ - pip install pyflakes pycodestyle
  - pyflakes . | tee >(wc -l)
- - pep8 --statistics --count .
+ - pycodestyle --statistics --count .
 
 matrix:
   fast_finish: true

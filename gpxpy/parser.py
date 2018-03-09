@@ -14,87 +14,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import print_function
-
 import logging as mod_logging
-import xml.dom.minidom as mod_minidom
 
 try:
     import lxml.etree as mod_etree
 except:
-    mod_etree = None
-    pass # LXML not available
+    try:
+        import xml.etree.cElementTree as mod_etree
+    except:
+        import xml.etree.ElementTree as mod_etree
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
+log = mod_logging.getLogger(__name__)
 
 class XMLParser:
-    """
-    Used when lxml is not available. Uses standard minidom.
-    """
-
-    def __init__(self, xml):
-        self.xml = xml
-        self.dom = mod_minidom.parseString(xml)
-
-    def get_first_child(self, node=None, name=None):
-        # TODO: Remove find_first_node from utils!
-        if not node:
-            node = self.dom
-
-        children = node.childNodes
-        if not children:
-            return None
-
-        if not name:
-            return children[0]
-
-        for tmp_node in children:
-            if tmp_node.nodeName == name:
-                return tmp_node
-
-        return None
-
-    def get_node_name(self, node):
-        if not node:
-            return None
-        return node.nodeName
-
-    def get_children(self, node=None):
-        if not node:
-            node = self.dom
-
-        return list(filter(lambda node : node.nodeType == node.ELEMENT_NODE, node.childNodes))
-
-    def get_node_data(self, node):
-        if node is None:
-            return None
-
-        child_nodes = node.childNodes
-        if not child_nodes or len(child_nodes) == 0:
-            return None
-
-        return child_nodes[0].nodeValue
-
-    def get_node_attribute(self, node, attribute):
-        if (not hasattr(node, 'attributes')) or (not node.attributes):
-            return None
-        if attribute in node.attributes.keys():
-            return node.attributes[attribute].nodeValue
-        return None
-
-
-class LXMLParser:
     """
     Used when lxml is available.
     """
 
     def __init__(self, xml):
-        if not mod_etree:
-            raise Exception('Cannot use LXMLParser without lxml installed')
-
         if mod_utils.PYTHON_VERSION[0] == '3':
             # In python 3 all strings are unicode and for some reason lxml
             # don't like unicode strings with XMLs declared as UTF-8:
@@ -104,7 +45,7 @@ class LXMLParser:
 
         self.dom = mod_etree.XML(self.xml)
         # get the namespace
-        self.ns = self.dom.nsmap.get(None)
+        # self.ns = self.dom.nsmap.get(None)
 
     def get_first_child(self, node=None, name=None):
         if node is None:
@@ -153,65 +94,65 @@ class LXMLParser:
 
 
 class GPXParser:
-    def __init__(self, xml_or_file=None, parser=None):
+    def __init__(self, xml_or_file=None):
         """
-        Parser may be lxml of minidom. If you set to None then lxml will be used if installed
-        otherwise minidom.
+        Initialize new GPXParser instance.
+
+        Arguments:
+            xml_or_file: string or file object containing the gpx
+                formatted xml
+            
         """
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
-        self.xml_parser_type = parser
         self.xml_parser = None
 
     def init(self, xml_or_file):
+        """
+        Store the XML and remove utf-8 Byte Order Mark if present.
+
+        Args:
+            xml_or_file: string or file object containing the gpx
+                formatted xml
+            
+        """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
-        if text[:3] == "\xEF\xBB\xBF": #Remove utf-8 Byte Order Mark (BOM) if present
-            text = text[3:]
         self.xml = mod_utils.make_str(text)
-        self.gpx = mod_gpx.GPX()
 
     def parse(self, version = None):
         """
-        Parses the XML file and returns a GPX object.
+        Parse the XML and return a GPX object.
 
-        version may be '1.0', '1.1' or None (then it will be read from the gpx
-        xml node if possible, if not then version 1.0 will be used).
+        Args:
+            version: str or None indicating the GPX Schema to use.
+                Options are '1.0', '1.1' and None. When version is None
+                the version is read from the file or falls back on 1.0. 
+            
+        Returns:
+            A GPX object loaded from the xml
 
-        It will throw GPXXMLSyntaxException if the XML file is invalid or
-        GPXException if the XML file is valid but something is wrong with the
-        GPX data.
+        Raises:
+            GPXXMLSyntaxException: XML file is invalid
+            GPXException: XML is valid but GPX data contains errors
+            
         """
         try:
-            if self.xml_parser_type is None:
-                if mod_etree:
-                    self.xml_parser = LXMLParser(self.xml)
-                else:
-                    self.xml_parser = XMLParser(self.xml)
-            elif self.xml_parser_type == 'lxml':
-                self.xml_parser = LXMLParser(self.xml)
-            elif self.xml_parser_type == 'minidom':
-                self.xml_parser = XMLParser(self.xml)
-            else:
-                raise mod_gpx.GPXException('Invalid parser type: %s' % self.xml_parser_type)
+            self.xml_parser = XMLParser(self.xml)
 
-            self.__parse_dom(version)
-
-            return self.gpx
         except Exception as e:
-            # The exception here can be a lxml or minidom exception.
-            mod_logging.debug('Error in:\n%s\n-----------\n' % self.xml)
-            mod_logging.exception(e)
+            # The exception here can be a lxml or ElementTree exception.
+            log.debug('Error in:\n%s\n-----------\n' % self.xml)
+            log.exception(e)
 
             # The library should work in the same way regardless of the
             # underlying XML parser that's why the exception thrown
             # here is GPXXMLSyntaxException (instead of simply throwing the
-            # original minidom or lxml exception e).
+            # original ElementTree or lxml exception e).
             #
-            # But, if the user need the original exception (lxml or minidom)
+            # But, if the user needs the original exception (lxml or ElementTree)
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
-
-    def __parse_dom(self, version = None):
+        
         node = self.xml_parser.get_first_child(name='gpx')
 
         if node is None:
@@ -221,3 +162,5 @@ class GPXParser:
             version = self.xml_parser.get_node_attribute(node, 'version')
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, self.xml_parser, node, version)
+        return self.gpx
+

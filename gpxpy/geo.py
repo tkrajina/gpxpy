@@ -19,6 +19,8 @@ import math as mod_math
 
 from . import utils as mod_utils
 
+log = mod_logging.getLogger(__name__)
+
 # Generic geo related function and class(es)
 
 # One degree in meters:
@@ -101,7 +103,7 @@ def calculate_max_speed(speeds_and_distances):
     size = float(len(speeds_and_distances))
 
     if size < 20:
-        mod_logging.debug('Segment too small to compute speed, size=%s', size)
+        log.debug('Segment too small to compute speed, size=%s', size)
         return None
 
     distances = list(map(lambda x: x[1], speeds_and_distances))
@@ -259,9 +261,12 @@ def simplify_polyline(points, max_distance):
     # cases...
     a, b, c = get_line_equation_coefficients(begin, end)
 
-    tmp_max_distance = -1000000
-    tmp_max_distance_position = None
-    for point_no in range(len(points[1:-1])):
+    # Initialize to safe values
+    tmp_max_distance = 0
+    tmp_max_distance_position = 1
+    
+    # Check distance of all points between begin and end, exclusive
+    for point_no in range(1,len(points)-1):
         point = points[point_no]
         d = abs(a * point.latitude + b * point.longitude + c)
         if d > tmp_max_distance:
@@ -271,11 +276,14 @@ def simplify_polyline(points, max_distance):
     # Now that we have the most distance point, compute its real distance:
     real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
 
+    # If furthest point is less than max_distance, remove all points between begin and end
     if real_max_distance < max_distance:
         return [begin, end]
-
-    return (simplify_polyline(points[:tmp_max_distance_position + 2], max_distance) +
-            simplify_polyline(points[tmp_max_distance_position + 1:], max_distance)[1:])
+    
+    # If furthest point is more than max_distance, use it as anchor and run
+    # function again using (begin to anchor) and (anchor to end), remove extra anchor
+    return (simplify_polyline(points[:tmp_max_distance_position + 1], max_distance) +
+            simplify_polyline(points[tmp_max_distance_position:], max_distance)[1:])
 
 
 class Location:
