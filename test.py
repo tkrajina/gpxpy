@@ -3004,7 +3004,6 @@ class GPXTests(mod_unittest.TestCase):
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
     def test_checklxml(self):
-        self.assertIn('lxml.etree._Element', str(mod_parser.XMLParser('<_/>').dom.__class__))
         self.assertEqual('LXML', mod_parser.GPXParser._GPXParser__library())
 
 if __name__ == '__main__':
