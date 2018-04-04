@@ -101,7 +101,7 @@ class GPXParser:
         Arguments:
             xml_or_file: string or file object containing the gpx
                 formatted xml
-            
+
         """
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
@@ -114,7 +114,7 @@ class GPXParser:
         Args:
             xml_or_file: string or file object containing the gpx
                 formatted xml
-            
+
         """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
         self.xml = mod_utils.make_str(text)
@@ -126,23 +126,22 @@ class GPXParser:
         Args:
             version: str or None indicating the GPX Schema to use.
                 Options are '1.0', '1.1' and None. When version is None
-                the version is read from the file or falls back on 1.0. 
-            
+                the version is read from the file or falls back on 1.0.
+
         Returns:
             A GPX object loaded from the xml
 
         Raises:
             GPXXMLSyntaxException: XML file is invalid
             GPXException: XML is valid but GPX data contains errors
-            
+
         """
         try:
             self.xml_parser = XMLParser(self.xml)
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
-            log.debug('Error in:\n%s\n-----------\n' % self.xml)
-            log.exception(e)
+            log.debug('Error in:\n%s\n-----------\n' % self.xml, exc_info=True)
 
             # The library should work in the same way regardless of the
             # underlying XML parser that's why the exception thrown
@@ -152,7 +151,7 @@ class GPXParser:
             # But, if the user needs the original exception (lxml or ElementTree)
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
-        
+
         node = self.xml_parser.get_first_child(name='gpx')
 
         if node is None:
