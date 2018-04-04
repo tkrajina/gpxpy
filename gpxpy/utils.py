@@ -79,7 +79,13 @@ def total_seconds(timedelta):
 
 
 def make_str(s):
-    """ Convert a str or unicode object into a str type. """
+    """ Convert a str or unicode or float object into a str type. """
+    if isinstance(s, float):
+        result = str(s)
+        if not 'e' in result:
+            return result
+        # scientific notation is illegal in GPX 1/1
+        return format(s, '.10f').rstrip('0.')
     if PYTHON_VERSION[0] == '2':
         if isinstance(s, unicode):
             return s.encode("utf-8")

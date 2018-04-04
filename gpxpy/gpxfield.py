@@ -64,8 +64,8 @@ def parse_time(string):
 
 class FloatConverter:
     def __init__(self):
-        self.from_string = lambda string: None if string is None else float(string.strip())
-        self.to_string = lambda flt: str(flt)
+        self.from_string = lambda string : None if string is None else float(string.strip())
+        self.to_string =   lambda flt    : mod_utils.make_str(flt)
 
 
 class IntConverter:

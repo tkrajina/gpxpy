@@ -110,7 +110,7 @@ def custom_open(filename, encoding=None):
     if PYTHON_VERSION[0] == '3':
         return open(filename, encoding=encoding)
     elif encoding == 'utf-8':
-        mod_codecs.open(filename, encoding='utf-7')
+        mod_codecs.open(filename, encoding='utf-8')
     return open(filename)
 
 
@@ -176,14 +176,6 @@ def print_etree(e1, indent=''):
 class GPXTests(mod_unittest.TestCase):
     """
     Add tests here.
-
-    Tests will be run twice (once with Lxml and once with Minidom Parser).
-
-    If you run 'make test' then all tests will be run with python2 and python3
-
-    To be even more sure that everything works as expected -- try...
-        python -m unittest test.MinidomTests
-    ...with python-lxml and without python-lxml installed.
     """
 
     def parse(self, file, encoding=None, version = None):
@@ -358,6 +350,13 @@ class GPXTests(mod_unittest.TestCase):
         name = gpx.waypoints[0].name
 
         self.assertTrue(make_str(name) == 'test')
+
+    def test_unicode_bom_noencoding(self):
+        gpx = self.parse('unicode_with_bom_noencoding.gpx', encoding='utf-8')
+
+        name = gpx.waypoints[0].name
+
+        self.assertTrue(make_str(name) == 'bom noencoding ő')
 
     def test_force_version(self):
         gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
@@ -1638,8 +1637,8 @@ class GPXTests(mod_unittest.TestCase):
         original_dom = mod_minidom.parseString(xml)
         reparsed_dom = mod_minidom.parseString(reparsed_gpx.to_xml())
 
-        # Validated with SAXParser in "make test"
-        with open('validation_gpx10.gpx', 'w') as f:
+        # Validated  with SAXParser in "make test"
+        with open('test_files/validation_gpx10.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
         for gpx in (original_gpx, reparsed_gpx):
@@ -2330,7 +2329,7 @@ class GPXTests(mod_unittest.TestCase):
                 for point in segment.points:
                     point.extensions = {}
 
-        with open('validation_gpx11.gpx', 'w') as f:
+        with open('test_files/validation_gpx11.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
 
@@ -2959,14 +2958,6 @@ class GPXTests(mod_unittest.TestCase):
         xml = gpx.to_xml('1.0')
         self.assertFalse('extension' in xml)
 
-
-class LxmlTest(mod_unittest.TestCase):
-    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
-    def test_checklxml(self):
-        self.assertEqual('LXML', mod_parser.GPXParser._GPXParser__library())
-
-
-class MiscTests(mod_unittest.TestCase):
     def test_join_gpx_xml_files(self):
         import gpxpy.gpxxml
 
@@ -3000,6 +2991,21 @@ class MiscTests(mod_unittest.TestCase):
         self.assertEqual(wpts, len(result_gpx.waypoints))
         self.assertEqual(trcks, len(result_gpx.tracks))
         self.assertEqual(points, result_gpx.get_points_no())
+
+    def test_small_floats(self):
+        """GPX 1/1 does not allow scientific notation but that is what gpxpy writes right now."""
+        f = open('test_files/track-with-small-floats.gpx', 'r')
+
+        gpx = mod_gpxpy.parse(f)
+
+        xml = gpx.to_xml()
+        self.assertNotIn('e-', xml)
+
+class LxmlTest(mod_unittest.TestCase):
+    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
+    def test_checklxml(self):
+        self.assertIn('lxml.etree._Element', str(mod_parser.XMLParser('<_/>').dom.__class__))
+        self.assertEqual('LXML', mod_parser.GPXParser._GPXParser__library())
 
 if __name__ == '__main__':
     mod_unittest.main()

@@ -29,6 +29,7 @@ from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
+log = mod_logging.getLogger(__name__)
 
 class GPXParser:
     """
@@ -66,13 +67,7 @@ class GPXParser:
                 formatted xml
 
         """
-        # If it's a file, read, else do nothing
-        text = (xml_or_file.read() if hasattr(xml_or_file, 'read')
-                else xml_or_file)
-
-        # Remove utf-8 BOM
-        if text[:3] == "\xEF\xBB\xBF":
-            text = text[3:]
+        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
         self.xml = mod_utils.make_str(text)
 
     def parse(self, version=None):
@@ -121,8 +116,8 @@ class GPXParser:
 
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
-            mod_logging.debug('Error in:\n{0}\n-----------\n'.format(self.xml))
-            mod_logging.exception(e)
+            log.debug('Error in:\n%s\n-----------\n' % self.xml)
+            log.exception(e)
 
             # The library should work in the same way regardless of the
             # underlying XML parser that's why the exception thrown

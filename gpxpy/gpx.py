@@ -28,6 +28,8 @@ from . import utils as mod_utils
 from . import geo as mod_geo
 from . import gpxfield as mod_gpxfield
 
+log = mod_logging.getLogger(__name__)
+
 # GPX date format to be used when writing the GPX output:
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
@@ -899,11 +901,11 @@ class GPXTrackSegment:
 
         if 0 < point_no < len(self.points):
             previous_point = self.points[point_no - 1]
-        if 0 < point_no < len(self.points) - 1:
+        if 0 <= point_no < len(self.points) - 1:
             next_point = self.points[point_no + 1]
 
-        #mod_logging.debug('previous: %s' % previous_point)
-        #mod_logging.debug('next: %s' % next_point)
+        #log.debug('previous: %s' % previous_point)
+        #log.debug('next: %s' % next_point)
 
         speed_1 = point.speed_between(previous_point)
         speed_2 = point.speed_between(next_point)
@@ -930,7 +932,7 @@ class GPXTrackSegment:
         delta : float
             Elevation delta in meters to apply to track
         """
-        mod_logging.debug('delta = %s' % delta)
+        log.debug('delta = %s' % delta)
 
         if not delta:
             return
@@ -1023,11 +1025,11 @@ class GPXTrackSegment:
             last = self.points[-2]
 
         if not last.time or not first.time:
-            mod_logging.debug('Can\'t find time')
+            log.debug('Can\'t find time')
             return None
 
         if last.time < first.time:
-            mod_logging.debug('Not enough time data')
+            log.debug('Not enough time data')
             return None
 
         return mod_utils.total_seconds(last.time - first.time)
@@ -1095,11 +1097,11 @@ class GPXTrackSegment:
         last_time = self.points[-1].time
 
         if not first_time and not last_time:
-            mod_logging.debug('No times for track segment')
+            log.debug('No times for track segment')
             return None
 
         if not first_time <= time <= last_time:
-            mod_logging.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
+            log.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
             return None
 
         for point in self.points:
@@ -1982,7 +1984,7 @@ class GPX:
             track.reduce_points(min_distance)
 
         # TODO
-        mod_logging.debug('Track reduced to %s points' % self.get_track_points_no())
+        log.debug('Track reduced to %s points' % self.get_track_points_no())
 
     def adjust_time(self, delta):
         """
@@ -2180,7 +2182,7 @@ class GPX:
     def length_2d(self):
         """
         Computes 2-dimensional length of the GPX file (only latitude and
-        longitude, no elevation). This is the sum of 3D length of all segments
+        longitude, no elevation). This is the sum of 2D length of all segments
         in all tracks.
 
         Returns
