@@ -2958,6 +2958,13 @@ class GPXTests(mod_unittest.TestCase):
         xml = gpx.to_xml('1.0')
         self.assertFalse('extension' in xml)
 
+    def test_extension_without_namespaces(self):
+        f = open('test_files/gpx1.1_with_extensions_without_namespaces.gpx', 'r')
+        gpx = mod_gpxpy.parse(f)
+        self.assertEqual(2, len(gpx.waypoints[0].extensions))
+        self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
+        self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
+
     def test_join_gpx_xml_files(self):
         import gpxpy.gpxxml
 
