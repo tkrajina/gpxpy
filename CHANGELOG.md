@@ -1,5 +1,11 @@
 # Changelog
 
+## v.1.3.0
+
+* Logging exception fix <https://github.com/tkrajina/gpxpy/pull/112>
+* Extension handling <https://github.com/tkrajina/gpxpy/pull/105>
+* simplify polyline <https://github.com/tkrajina/gpxpy/pull/100>
+
 ## v1.2.0
 
 * Remove timezone from timestam string <https://github.com/tkrajina/gpxpy/pull/77>
