@@ -12,13 +12,16 @@ Bug fixes, feature additions, tests, documentation and more can be contributed v
 
 ## Bug fixes, feature additions, etc.
 
-Please send a pull request to the master branch. Please include tests for new features. Tests or documentation without bug fixes or feature additions are welcome too. Feel free to ask questions [via issues](https://github.com/tkrajina/gpxpy/issues/new).
+Please send a pull requests for new features or bugfixes to the `dev` branch. Minor changes or urgent hotfixes can be sent to `master`.
+Please include tests for new features. Tests or documentation without bug fixes or feature additions are welcome too. Feel free to ask questions [via issues](https://github.com/tkrajina/gpxpy/issues/new).
 
 - Fork the gpxpy repository.
 - Create a branch from master.
 - Develop bug fixes, features, tests, etc.
 - Run the test suite on both Python 2.x and 3.x. You can enable [Travis CI](https://travis-ci.org/profile/) on your repo to catch test failures prior to the pull request, and [Coveralls](https://coveralls.io) to see if the changed code is covered by tests.
 - Create a pull request to pull the changes from your branch to the gpxpy master.
+
+If you plan a big refactory, open an inssue for discussion before starting it.
 
 ### Guidelines
 
