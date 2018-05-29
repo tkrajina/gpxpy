@@ -70,11 +70,13 @@ print 'Created GPX:', gpx.to_xml()
 
 gpx.py can parse and generate GPX 1.0 and 1.1 files. Note that the generated file will always be a valid XML document, but it may not be (strictly speaking) a valid GPX document. For example, if you set gpx.email to "my.email AT mail.com" the generated GPX tag won't confirm to the regex pattern. And the file won't be valid. Most applications will ignore such errors, but... Be aware of this!
 
-WARNING: The only part of the GPX standard which is not completely implemented are GPX extensions. The API for GPX extensions will change in future versions!!!
-
 Be aware that the gpxpy object model *is not 100% equivalent* with the underlying GPX XML file schema. That's because the library object model works with both GPX 1.0 and 1.1.
 
 For example, the GPX 1.0 specified a `speed` attribute for every track point, but that was removed in GPX 1.1. If you parse GPX 1.0 and serialize back with `gpx.to_xml()` everything will work fine. But if you have a GPX 1.1 object, changes in the `speed` attribute will be lost after `gpx.to_xml()`. If you want to force using 1.0, you can `gpx.to_xml(version="1.0")`. Another possibility is to use `extensions` to save the speed in GPX 1.1.
+
+## GPX extensions
+
+gpx.py preservers GPX extensions. They are stored as (ElementTree)[https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree] DOM objects. Extensions are part of GPX 1.1., and will be ignored when serializing a GPX object in a GPX 1.0 file.
 
 ## XML parsing
 
