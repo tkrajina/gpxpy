@@ -455,8 +455,9 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None,
                 if prefix != 'defaultns':
                     body.append(' xmlns:{0}="{1}"'.format(prefix, URI))
         if custom_attributes:
-            for key, value in custom_attributes.items():
-                body.append(' {0}="{1}"'.format(key, mod_utils.make_str(value)))
+            # Make sure to_xml() always return attributes in the same order:
+            for key in sorted(custom_attributes.keys()):
+                body.append(' {0}="{1}"'.format(key, mod_utils.make_str(custom_attributes[key])))
     suppressuntil = ''
     for gpx_field in fields:
         # strings indicate non-data container tags with subelements
