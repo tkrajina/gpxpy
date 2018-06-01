@@ -2965,6 +2965,41 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
 
+    def test_with_ns_namespace(self):
+        gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx creator="Garmin Connect" version="1.1"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/11.xsd"
+          xmlns:ns3="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+          xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns2="http://www.garmin.com/xmlschemas/GpxExtensions/v3">
+          <metadata>
+          </metadata>
+          <trk>
+            <name>Foo Bar</name>
+            <type>running</type>
+            <trkseg>
+              <trkpt lat="51.43788929097354412078857421875" lon="6.617012657225131988525390625">
+                <ele>23.6000003814697265625</ele>
+                <time>2018-02-21T14:30:50.000Z</time>
+                <extensions>
+                  <ns3:TrackPointExtension>
+                    <ns3:hr>125</ns3:hr>
+                    <ns3:cad>75</ns3:cad>
+                  </ns3:TrackPointExtension>
+                </extensions>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>""")
+
+        reparsed = mod_gpxpy.parse(gpx_with_ns.to_xml("1.1"))
+
+        for gpx in [gpx_with_ns, reparsed]:
+            extensions = gpx.tracks[0].segments[0].points[0].extensions
+            self.assertEqual(1, len(extensions))
+            self.assertEqual("125", extensions[0].getchildren()[0].text.strip())
+            self.assertEqual("75", extensions[0].getchildren()[1].text.strip())
+
     def test_join_gpx_xml_files(self):
         import gpxpy.gpxxml
 
