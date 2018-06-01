@@ -94,7 +94,10 @@ class GPXParser:
             if prefix == '':
                 prefix = 'defaultns'  # alias default for easier handling
             else:
-                mod_etree.register_namespace(prefix, URI.strip('"'))
+                if prefix.startswith("ns"):
+                    mod_etree.register_namespace("noglobal_" + prefix, URI.strip('"'))
+                else:
+                    mod_etree.register_namespace(prefix, URI.strip('"'))
             self.gpx.nsmap[prefix] = URI.strip('"')
 
         # Remove default namespace to simplify processing later
