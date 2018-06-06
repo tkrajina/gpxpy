@@ -76,7 +76,7 @@ For example, the GPX 1.0 specified a `speed` attribute for every track point, bu
 
 ## GPX extensions
 
-gpx.py preservers GPX extensions. They are stored as (ElementTree)[https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree] DOM objects. Extensions are part of GPX 1.1., and will be ignored when serializing a GPX object in a GPX 1.0 file.
+gpx.py preservers GPX extensions. They are stored as [ElementTree](https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree) DOM objects. Extensions are part of GPX 1.1., and will be ignored when serializing a GPX object in a GPX 1.0 file.
 
 ## XML parsing
 
