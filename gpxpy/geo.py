@@ -26,7 +26,9 @@ log = mod_logging.getLogger(__name__)
 # One degree in meters:
 ONE_DEGREE = 1000. * 10000.8 / 90.
 
-EARTH_RADIUS = 6371 * 1000
+# latitude/longitude in GPX files is always in WGS84 datum
+# WGS84 defined the Earth semi-major axis with 6378.137 km
+EARTH_RADIUS = 6378.137 * 1000
 
 
 def to_rad(x):
