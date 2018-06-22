@@ -97,18 +97,10 @@ Run all tests with:
 
 Run only minidom parser tests with:
 
-    $ python -m unittest test.MinidomTests
-    $ python3 -m unittest test.MinidomTests
-
-Run only lxml parser tests with:
-
-    $ python -m unittest test.LxmlTests
-    $ python3 -m unittest test.LxmlTests
-
 Run a single test with:
 
-    $ python -m unittest test.LxmlTests.test_method
-    $ python3 -m unittest test.LxmlTests.test_method
+    $ python -m unittest test.GPXTests.test_haversine_and_nonhaversine
+    $ python3 -m unittest test.GPXTests.test_haversine_and_nonhaversine
 
 ## GPXInfo
 
