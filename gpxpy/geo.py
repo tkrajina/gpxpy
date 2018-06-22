@@ -68,9 +68,7 @@ def length(locations=None, _3d=None):
                 d = location.distance_3d(previous_location)
             else:
                 d = location.distance_2d(previous_location)
-            if d != 0 and not d:
-                pass
-            else:
+            if d:
                 length += d
     return length
 
