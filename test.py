@@ -621,6 +621,13 @@ class GPXTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
+    def test_haversine_and_nonhaversine(self):
+        haversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=True)
+        nonhaversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=False)
+
+        self.assertTrue(haversine_dist != nonhaversine_dist)
+        self.assertTrue(abs(haversine_dist - nonhaversine_dist) < 15)
+
     def test_haversine_distance(self):
         loc1 = mod_geo.Location(1, 2)
         loc2 = mod_geo.Location(2, 3)
