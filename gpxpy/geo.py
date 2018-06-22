@@ -28,7 +28,7 @@ log = mod_logging.getLogger(__name__)
 EARTH_RADIUS = 6378.137 * 1000
 
 # One degree in meters:
-ONE_DEGREE = (2*mod_math.pi*6378.137) / 360  # ==> 111.319 km
+ONE_DEGREE = (2*mod_math.pi*EARTH_RADIUS) / 360  # ==> 111.319 km
 
 
 def to_rad(x):
