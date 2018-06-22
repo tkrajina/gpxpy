@@ -2193,7 +2193,7 @@ class GPX:
         result = 0
         for track in self.tracks:
             length = track.length_2d()
-            if length or length == 0:
+            if length:
                 result += length
         return result
 
@@ -2210,7 +2210,7 @@ class GPX:
         result = 0
         for track in self.tracks:
             length = track.length_3d()
-            if length or length == 0:
+            if length:
                 result += length
         return result
 
