@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.1
+
+* Prefix format reserved for internal use <https://github.com/tkrajina/gpxpy/issues/117>
+
 ## v.1.3.0
 
 * Logging exception fix <https://github.com/tkrajina/gpxpy/pull/112>
