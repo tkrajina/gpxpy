@@ -4,6 +4,10 @@
 
 * Fix #123 by using Earth semi-major axis with 6378.137 km (WGS84) <https://github.com/tkrajina/gpxpy/issues/123>
 
+## v1.3.1
+
+* Prefix format reserved for internal use <https://github.com/tkrajina/gpxpy/issues/117>
+
 ## v.1.3.0
 
 * Logging exception fix <https://github.com/tkrajina/gpxpy/pull/112>
