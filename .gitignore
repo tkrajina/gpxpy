@@ -47,6 +47,9 @@ htmlcov/
 # PyCharm
 .idea
 
+# vscode
+.vscode
+
 pyenv/*
 validation_gpx10.gpx
 validation_gpx11.gpx
