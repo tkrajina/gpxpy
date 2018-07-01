@@ -1378,6 +1378,24 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
         self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
 
+    def test_add_missing_elevations_without_ele(self):
+        xml = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx>
+    <trk>
+        <trkseg>
+            <trkpt lat="65.263305" lon="-14.003859"><time>2017-03-06T01:47:34Z</time></trkpt>
+            <trkpt lat="65.263383" lon="-14.003636"><time>2017-03-06T01:47:37Z</time></trkpt>
+            <trkpt lat="65.26368" lon="-14.002705"><ele>0.0</ele><time>2017-03-06T01:47:46Z</time></trkpt>
+        </trkseg>
+    </trk>
+</gpx>"""
+        gpx = mod_gpxpy.parse(xml)
+        gpx.add_missing_elevations()
+
+        self.assertTrue(gpx.tracks[0].segments[0].points[0].elevation == None)
+        self.assertTrue(gpx.tracks[0].segments[0].points[1].elevation == None)
+        self.assertTrue(gpx.tracks[0].segments[0].points[2].elevation == 0.0)
+
     def test_add_missing_times(self):
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())

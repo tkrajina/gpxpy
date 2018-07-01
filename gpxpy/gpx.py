@@ -2475,10 +2475,10 @@ class GPX:
 
     def add_missing_elevations(self):
         def _add(interval, start, end, distances_ratios):
+            if (start.elevation is None) or (end.elevation is None):
+                return
             assert start
             assert end
-            assert start.elevation is not None
-            assert end.elevation is not None
             assert interval
             assert len(interval) == len(distances_ratios)
             for i in range(len(interval)):
