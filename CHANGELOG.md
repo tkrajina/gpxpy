@@ -1,6 +1,6 @@
 # Changelog
 
-## dev
+## v1.3.2
 
 * Fix #123 by using Earth semi-major axis with 6378.137 km (WGS84) <https://github.com/tkrajina/gpxpy/issues/123>
 * No assert error if can't calculate missing elevations <https://github.com/tkrajina/srtm.py/issues/25>
