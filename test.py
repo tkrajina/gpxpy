@@ -3136,6 +3136,17 @@ class GPXTests(mod_unittest.TestCase):
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data(start_time=start_time, end_time=end_time)
 
+    def test_gpx_fill_time_data_raises_when_force_is_false(self):
+        gpx = self.parse('Mojstrovka.gpx')
+
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+        end_time = mod_datetime.datetime(2018, 7, 4, 1, 0, 0)
+
+        gpx.fill_time_data(start_time=start_time, end_time=end_time)
+
+        with self.assertRaises(mod_gpx.GPXException):
+            gpx.fill_time_data(start_time=start_time, end_time=end_time, force=False)
+
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
