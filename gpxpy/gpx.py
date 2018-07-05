@@ -2563,7 +2563,7 @@ class GPX:
         force: bool
             Overwrite current data if the GPX file currently contains time data
         """
-        if not start_time and not time_delta:
+        if not (start_time and end_time) and not (start_time and time_delta) and not (time_delta and end_time):
             raise GPXException('You must provide at least two parameters among start_time, time_step, and end_time')
 
         if self.has_times() and not force:

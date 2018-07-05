@@ -3119,6 +3119,23 @@ class GPXTests(mod_unittest.TestCase):
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
+    def test_gpx_fill_time_data_raises_when_not_enough_parameters(self):
+        gpx = self.parse('cerknicko-jezero.gpx')
+
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+
+        with self.assertRaises(mod_gpx.GPXException):
+            gpx.fill_time_data(start_time=start_time)
+
+    def test_gpx_fill_time_data_raises_when_start_time_after_end_time(self):
+        gpx = self.parse('cerknicko-jezero.gpx')
+
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+        end_time = mod_datetime.datetime(2018, 7, 3, 0, 0, 0)
+
+        with self.assertRaises(mod_gpx.GPXException):
+            gpx.fill_time_data(start_time=start_time, end_time=end_time)
+
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
