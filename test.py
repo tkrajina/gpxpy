@@ -3087,6 +3087,22 @@ class GPXTests(mod_unittest.TestCase):
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
+    def test_gpx_fill_time_data_with_start_time_and_end_time_and_time_delta(self):
+        gpx = self.parse('cerknicko-jezero.gpx')
+
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+        time_delta = mod_datetime.timedelta(seconds=60)
+        end_time = mod_datetime.datetime(2018, 7, 4, 1, 0, 0)
+
+        gpx.fill_time_data(start_time=start_time, time_delta=time_delta, end_time=end_time)
+        time_bounds = gpx.get_time_bounds()
+
+        tolerance = 1.0
+        start_time_diff = total_seconds(time_bounds.start_time - start_time)
+        end_time_diff = total_seconds(time_bounds.end_time - end_time)
+        self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
+        self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
+
     def test_gpx_fill_time_data_with_start_time_and_time_delta(self):
         gpx = self.parse('cerknicko-jezero.gpx')
 

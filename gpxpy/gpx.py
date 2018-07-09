@@ -2571,7 +2571,7 @@ class GPX:
 
         point_no = self.get_points_no()
 
-        if not time_delta:
+        if start_time and end_time:
             if start_time > end_time:
                 raise GPXException('Invalid parameters: end_time must occur after start_time')
             time_delta = (end_time - start_time) / (point_no - 1)
