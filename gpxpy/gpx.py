@@ -2051,7 +2051,7 @@ class GPX:
             Positive time delta will adjust times into the future
             Negative time delta will adjust times into the past
         all : bool
-            Adjust time for waypoints and routes also.
+            When true, also adjusts time for waypoints and routes.
         """
         if self.time:
             self.time += delta
@@ -2073,7 +2073,7 @@ class GPX:
         Parameters
         ----------
         all : bool
-            Remove time for waypoints and routes also.
+            When true, also removes time data for waypoints and routes.
         """
         for track in self.tracks:
             track.remove_time()
