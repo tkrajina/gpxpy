@@ -2540,7 +2540,7 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.speed,
                               add_missing_function=_add)
 
-    def fill_time_data(self, start_time=None, time_delta=None, end_time=None, force=True):
+    def fill_time_data_with_regular_intervals(self, start_time=None, time_delta=None, end_time=None, force=True):
         """
         Fills the time data for all points in the GPX file. At least two of the parameters start_time, time_delta, and
         end_time have to be provided. If the three are provided, time_delta will be ignored and will be recalculated

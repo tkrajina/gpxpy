@@ -3078,7 +3078,7 @@ class GPXTests(mod_unittest.TestCase):
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
         end_time = mod_datetime.datetime(2018, 7, 4, 1, 0, 0)
 
-        gpx.fill_time_data(start_time=start_time, end_time=end_time)
+        gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time)
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
@@ -3094,7 +3094,7 @@ class GPXTests(mod_unittest.TestCase):
         time_delta = mod_datetime.timedelta(seconds=60)
         end_time = mod_datetime.datetime(2018, 7, 4, 1, 0, 0)
 
-        gpx.fill_time_data(start_time=start_time, time_delta=time_delta, end_time=end_time)
+        gpx.fill_time_data_with_regular_intervals(start_time=start_time, time_delta=time_delta, end_time=end_time)
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
@@ -3110,7 +3110,7 @@ class GPXTests(mod_unittest.TestCase):
         time_delta = mod_datetime.timedelta(seconds=1)
         end_time = start_time + (gpx.get_points_no() - 1) * time_delta
 
-        gpx.fill_time_data(start_time=start_time, time_delta=time_delta)
+        gpx.fill_time_data_with_regular_intervals(start_time=start_time, time_delta=time_delta)
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
@@ -3126,7 +3126,7 @@ class GPXTests(mod_unittest.TestCase):
         time_delta = mod_datetime.timedelta(seconds=1)
         start_time = end_time - (gpx.get_points_no() - 1) * time_delta
 
-        gpx.fill_time_data(time_delta=time_delta, end_time=end_time)
+        gpx.fill_time_data_with_regular_intervals(time_delta=time_delta, end_time=end_time)
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
@@ -3141,7 +3141,7 @@ class GPXTests(mod_unittest.TestCase):
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
 
         with self.assertRaises(mod_gpx.GPXException):
-            gpx.fill_time_data(start_time=start_time)
+            gpx.fill_time_data_with_regular_intervals(start_time=start_time)
 
     def test_gpx_fill_time_data_raises_when_start_time_after_end_time(self):
         gpx = self.parse('cerknicko-jezero.gpx')
@@ -3150,7 +3150,7 @@ class GPXTests(mod_unittest.TestCase):
         end_time = mod_datetime.datetime(2018, 7, 3, 0, 0, 0)
 
         with self.assertRaises(mod_gpx.GPXException):
-            gpx.fill_time_data(start_time=start_time, end_time=end_time)
+            gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time)
 
     def test_gpx_fill_time_data_raises_when_force_is_false(self):
         gpx = self.parse('Mojstrovka.gpx')
@@ -3158,10 +3158,10 @@ class GPXTests(mod_unittest.TestCase):
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
         end_time = mod_datetime.datetime(2018, 7, 4, 1, 0, 0)
 
-        gpx.fill_time_data(start_time=start_time, end_time=end_time)
+        gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time)
 
         with self.assertRaises(mod_gpx.GPXException):
-            gpx.fill_time_data(start_time=start_time, end_time=end_time, force=False)
+            gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time, force=False)
 
 
 class LxmlTest(mod_unittest.TestCase):
