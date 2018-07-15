@@ -2540,6 +2540,54 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.speed,
                               add_missing_function=_add)
 
+    def fill_time_data_with_regular_intervals(self, start_time=None, time_delta=None, end_time=None, force=True):
+        """
+        Fills the time data for all points in the GPX file. At least two of the parameters start_time, time_delta, and
+        end_time have to be provided. If the three are provided, time_delta will be ignored and will be recalculated
+        using start_time and end_time.
+
+        The first GPX point will have a time equal to start_time. Then points are assumed to be recorded at regular
+        intervals time_delta.
+
+        If the GPX file currently contains time data, it will be overwritten, unless the force flag is set to False, in
+        which case the function will return a GPXException error.
+
+        Parameters
+        ----------
+        start_time: datetime.datetime object
+            Start time of the GPX file (corresponds to the time of the first point)
+        time_delta: datetime.timedelta object
+            Time interval between two points in the GPX file
+        end_time: datetime.datetime object
+            End time of the GPX file (corresponds to the time of the last point)
+        force: bool
+            Overwrite current data if the GPX file currently contains time data
+        """
+        if not (start_time and end_time) and not (start_time and time_delta) and not (time_delta and end_time):
+            raise GPXException('You must provide at least two parameters among start_time, time_step, and end_time')
+
+        if self.has_times() and not force:
+            raise GPXException('GPX file currently contains time data. Use force=True to overwrite.')
+
+        point_no = self.get_points_no()
+
+        if start_time and end_time:
+            if start_time > end_time:
+                raise GPXException('Invalid parameters: end_time must occur after start_time')
+            time_delta = (end_time - start_time) / (point_no - 1)
+        elif not start_time:
+            start_time = end_time - (point_no - 1) * time_delta
+
+        self.time = start_time
+
+        i = 0
+        for point in self.walk(only_points=True):
+            if i == 0:
+                point.time = start_time
+            else:
+                point.time = start_time + i * time_delta
+            i += 1
+
     def move(self, location_delta):
         """
         Moves each point in the gpx file (routes, waypoints, tracks).
