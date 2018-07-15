@@ -305,7 +305,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertFalse('<ele>' in xml)
 
-    def test_remove_time(self):
+    def test_remove_time_tracks_only(self):
         gpx = self.parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
@@ -315,6 +315,40 @@ class GPXTests(mod_unittest.TestCase):
 
         for point, track_no, segment_no, point_no in gpx.walk():
             self.assertTrue(point.time is None)
+
+    def test_remove_time_all(self):
+        gpx = mod_gpx.GPX()
+
+        t0 = mod_datetime.datetime(2018, 7, 15, 12, 30, 0)
+        t1 = mod_datetime.datetime(2018, 7, 15, 12, 31, 0)
+
+        gpx.tracks.append(mod_gpx.GPXTrack())
+        gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0, time=t0)
+        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1, time=t1)
+        gpx.tracks[0].segments[0].points.append(p0)
+        gpx.tracks[0].segments[0].points.append(p1)
+
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.0, longitude=13.0, time=t0))
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.1, longitude=13.1, time=t1))
+
+        gpx.routes.append(mod_gpx.GPXRoute())
+        p0 = mod_gpx.GPXRoutePoint(latitude=13.0, longitude=13.0, time=t0)
+        p1 = mod_gpx.GPXRoutePoint(latitude=13.1, longitude=13.1, time=t1)
+        gpx.routes[0].points.append(p0)
+        gpx.routes[0].points.append(p1)
+
+        gpx.remove_time(all=True)
+
+        for point, track_no, segment_no, point_no in gpx.walk():
+            self.assertTrue(point.time is None)
+
+        for point in gpx.waypoints:
+            self.assertTrue(point.time is None)
+
+        for route in gpx.routes:
+            for point, _ in route.walk():
+                self.assertTrue(point.time is None)
 
     def test_has_times_false(self):
         gpx = self.parse('cerknicko-without-times.gpx')
@@ -362,7 +396,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
         # TODO: Implement new test. Current gpx is not valid (extensions using default namespace).
         # I don't want to edit this file without easy verification that it has the BOM and is unicode
-        
+
 ##        security = gpx.waypoints[0].extensions['security']
 ##
 ##        self.assertTrue(make_str(security) == 'Open')
@@ -1567,8 +1601,14 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 0))[0], p1)
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 30)), [])
 
-    def test_adjust_time(self):
+    def test_adjust_time_tracks_only(self):
         gpx = mod_gpx.GPX()
+
+        t0 = mod_datetime.datetime(2013, 1, 2, 12, 30, 0)
+        t1 = mod_datetime.datetime(2013, 1, 2, 12, 31, 0)
+        t0_adjusted = t0 + mod_datetime.timedelta(seconds=1)
+        t1_adjusted = t1 + mod_datetime.timedelta(seconds=1)
+
         gpx.tracks.append(mod_gpx.GPXTrack())
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0)
@@ -1577,10 +1617,13 @@ class GPXTests(mod_unittest.TestCase):
         gpx.tracks[0].segments[0].points.append(p1)
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
-        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0, time=mod_datetime.datetime(2013, 1, 2, 12, 30, 0))
-        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1, time=mod_datetime.datetime(2013, 1, 2, 12, 31, 0))
+        p0 = mod_gpx.GPXTrackPoint(latitude=13.0, longitude=13.0, time=t0)
+        p1 = mod_gpx.GPXTrackPoint(latitude=13.1, longitude=13.1, time=t1)
         gpx.tracks[0].segments[1].points.append(p0)
         gpx.tracks[0].segments[1].points.append(p1)
+
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.0, longitude=13.0))
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.1, longitude=13.1, time=t0))
 
         d1 = mod_datetime.timedelta(-1, -1)
         d2 = mod_datetime.timedelta(1, 2)
@@ -1590,8 +1633,46 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, None)
         self.assertEqual(gpx.tracks[0].segments[0].points[1].time, None)
-        self.assertEqual(gpx.tracks[0].segments[1].points[0].time, mod_datetime.datetime(2013, 1, 2, 12, 30, 1))
-        self.assertEqual(gpx.tracks[0].segments[1].points[1].time, mod_datetime.datetime(2013, 1, 2, 12, 31, 1))
+        self.assertEqual(gpx.tracks[0].segments[1].points[0].time, t0_adjusted)
+        self.assertEqual(gpx.tracks[0].segments[1].points[1].time, t1_adjusted)
+        self.assertEqual(gpx.waypoints[0].time, None)
+        self.assertEqual(gpx.waypoints[1].time, t0)
+
+    def test_adjust_time_all(self):
+        gpx = mod_gpx.GPX()
+
+        t0 = mod_datetime.datetime(2018, 7, 15, 12, 30, 0)
+        t1 = mod_datetime.datetime(2018, 7, 15, 12, 31, 0)
+        t0_adjusted = t0 + mod_datetime.timedelta(seconds=1)
+        t1_adjusted = t1 + mod_datetime.timedelta(seconds=1)
+
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.0, longitude=13.0))
+        gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.1, longitude=13.1, time=t0))
+
+        gpx.routes.append(mod_gpx.GPXRoute())
+        p0 = mod_gpx.GPXRoutePoint(latitude=13.0, longitude=13.0)
+        p1 = mod_gpx.GPXRoutePoint(latitude=13.1, longitude=13.1)
+        gpx.routes[0].points.append(p0)
+        gpx.routes[0].points.append(p1)
+
+        gpx.routes.append(mod_gpx.GPXRoute())
+        p0 = mod_gpx.GPXRoutePoint(latitude=13.0, longitude=13.0, time=t0)
+        p1 = mod_gpx.GPXRoutePoint(latitude=13.1, longitude=13.1, time=t1)
+        gpx.routes[1].points.append(p0)
+        gpx.routes[1].points.append(p1)
+
+        d1 = mod_datetime.timedelta(-1, -1)
+        d2 = mod_datetime.timedelta(1, 2)
+        # move back and forward to add a total of 1 second
+        gpx.adjust_time(d1, all=True)
+        gpx.adjust_time(d2, all=True)
+
+        self.assertEqual(gpx.waypoints[0].time, None)
+        self.assertEqual(gpx.waypoints[1].time, t0_adjusted)
+        self.assertEqual(gpx.routes[0].points[0].time, None)
+        self.assertEqual(gpx.routes[0].points[1].time, None)
+        self.assertEqual(gpx.routes[1].points[0].time, t0_adjusted)
+        self.assertEqual(gpx.routes[1].points[1].time, t1_adjusted)
 
     def test_unicode(self):
         with custom_open('test_files/unicode2.gpx', encoding='utf-8') as f:
@@ -2087,7 +2168,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEquals(get_dom_node(dom, 'gpx/wpt[1]').attributes['lon'].value, '46.7')
 
                 self.assertEquals(2, len(gpx.waypoints[0].extensions))
- 
+
                 self.assertTrue(elements_equal(gpx.waypoints[0].extensions[0], aaa))
                 self.assertTrue(elements_equal(gpx.waypoints[0].extensions[1], ccc))
 
@@ -2843,7 +2924,7 @@ class GPXTests(mod_unittest.TestCase):
         root2 = mod_etree.Element(namespace + 'ccc')
         root2.text = ''
         root2.tail = ''
-        
+
         subnode1 = mod_etree.SubElement(root2, namespace + 'ddd')
         subnode1.text = 'eee'
         subnode1.tail = ''
@@ -2853,9 +2934,9 @@ class GPXTests(mod_unittest.TestCase):
         subnode2 = mod_etree.SubElement(subnode1, namespace + 'fff')
         subnode2.text = 'ggg'
         subnode2.tail = 'iii'
-        
+
         gpx = mod_gpxpy.parse(xml)
-        
+
         print("Extension 1")
         print(print_etree(gpx.waypoints[0].extensions[0]))
         print()
@@ -2872,7 +2953,7 @@ class GPXTests(mod_unittest.TestCase):
         root = mod_etree.Element(namespace + 'ccc')
         root.text = ''
         root.tail = ''
-        
+
         subnode1 = mod_etree.SubElement(root, namespace + 'ddd')
         subnode1.text = 'eee'
         subnode1.tail = ''
@@ -2904,7 +2985,7 @@ class GPXTests(mod_unittest.TestCase):
         print("Inserting Route Extension")
         gpx.routes.append(mod_gpx.GPXRoute())
         gpx.routes[0].extensions.append(root)
-        
+
         print("Inserting Track Extension")
         gpx.tracks.append(mod_gpx.GPXTrack())
         gpx.tracks[0].extensions.append(root)
@@ -2928,19 +3009,19 @@ class GPXTests(mod_unittest.TestCase):
 
         print("Reading Metadata Extension")
         self.assertTrue(elements_equal(gpx.metadata_extensions[0], root))
-        
+
         print("Reading GPX Extension")
         self.assertTrue(elements_equal(gpx.extensions[0], root))
-        
+
         print("Reading Route Extension")
         self.assertTrue(elements_equal(gpx.routes[0].extensions[0], root))
-        
+
         print("Reading Track Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].extensions[0], root))
-        
+
         print("Reading Track Segment Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].segments[0].extensions[0], root))
-        
+
         print("Reading Track Point Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].segments[0].points[0].extensions[0], root))
 
@@ -2950,7 +3031,7 @@ class GPXTests(mod_unittest.TestCase):
         root = mod_etree.Element(namespace + 'tag')
         root.text = 'text'
         root.tail = 'tail'
-        
+
         gpx = mod_gpx.GPX()
         gpx.nsmap = nsmap
 
@@ -2969,7 +3050,7 @@ class GPXTests(mod_unittest.TestCase):
         print("Inserting Route Extension")
         gpx.routes.append(mod_gpx.GPXRoute())
         gpx.routes[0].extensions.append(root)
-        
+
         print("Inserting Track Extension")
         gpx.tracks.append(mod_gpx.GPXTrack())
         gpx.tracks[0].extensions.append(root)
