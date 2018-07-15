@@ -224,6 +224,23 @@ class GPXWaypoint(mod_geo.Location):
                 representation += ', %s=%s' % (attribute, repr(value))
         return 'GPXWaypoint(%s)' % representation
 
+    def adjust_time(self, delta):
+        """
+        Adjusts the time of the point by the specified delta
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust time into the future
+            Negative time delta will adjust time into the past
+        """
+        if self.time:
+            self.time += delta
+
+    def remove_time(self):
+        """ Will remove time metadata. """
+        self.time = None
+
     def get_max_dilution_of_precision(self):
         """
         Only care about the max dop for filtering, no need to go into too much detail
@@ -285,6 +302,23 @@ class GPXRoutePoint(mod_geo.Location):
                 representation += ', %s=%s' % (attribute, repr(value))
         return 'GPXRoutePoint(%s)' % representation
 
+    def adjust_time(self, delta):
+        """
+        Adjusts the time of the point by the specified delta
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust time into the future
+            Negative time delta will adjust time into the past
+        """
+        if self.time:
+            self.time += delta
+
+    def remove_time(self):
+        """ Will remove time metadata. """
+        self.time = None
+
 
 class GPXRoute:
     gpx_10_fields = [
@@ -330,6 +364,24 @@ class GPXRoute:
         self.link_type = None
         self.type = None
         self.extensions = []
+
+    def adjust_time(self, delta):
+        """
+        Adjusts the time of the all the points in the route by the specified delta.
+
+        Parameters
+        ----------
+        delta : datetime.timedelta
+            Positive time delta will adjust time into the future
+            Negative time delta will adjust time into the past
+        """
+        for point in self.points:
+            point.adjust_time(delta)
+
+    def remove_time(self):
+        """ Removes time meta data from route. """
+        for point in self.points:
+            point.remove_time()
 
     def remove_elevation(self):
         """ Removes elevation data from route """
@@ -1986,26 +2038,51 @@ class GPX:
         # TODO
         log.debug('Track reduced to %s points' % self.get_track_points_no())
 
-    def adjust_time(self, delta):
+    def adjust_time(self, delta, all=False):
         """
         Adjusts the time of all points in all of the segments of all tracks by
         the specified delta.
+
+        If all=True, waypoints and routes will also be adjusted by the specified delta.
 
         Parameters
         ----------
         delta : datetime.timedelta
             Positive time delta will adjust times into the future
             Negative time delta will adjust times into the past
+        all : bool
+            Adjust time for waypoints and routes also.
         """
         if self.time:
             self.time += delta
         for track in self.tracks:
             track.adjust_time(delta)
 
-    def remove_time(self):
-        """ Removes time data. """
+        if all:
+            for waypoint in self.waypoints:
+                waypoint.adjust_time(delta)
+            for route in self.routes:
+                route.adjust_time(delta)
+
+    def remove_time(self, all=False):
+        """
+        Removes time data of all points in all of the segments of all tracks.
+
+        If all=True, time date will also be removed from waypoints and routes.
+
+        Parameters
+        ----------
+        all : bool
+            Remove time for waypoints and routes also.
+        """
         for track in self.tracks:
             track.remove_time()
+
+        if all:
+            for waypoint in self.waypoints:
+                waypoint.remove_time()
+            for route in self.routes:
+                route.remove_time()
 
     def remove_elevation(self, tracks=True, routes=False, waypoints=False):
         """ Removes elevation data. """
