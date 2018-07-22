@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.3.3
+
+* Added avg time to gpxpnfo
+* gpx.adjust_times for waypoints and routes <https://github.com/tkrajina/gpxpy/pull/129>
+* added gpx.fill_time_data_with_regular_intervals <https://github.com/tkrajina/gpxpy/pull/127>
+
 ## v1.3.2
 
 * Fix #123 by using Earth semi-major axis with 6378.137 km (WGS84) <https://github.com/tkrajina/gpxpy/issues/123>
