@@ -10,6 +10,7 @@ import sys as mod_sys
 import logging as mod_logging
 import math as mod_math
 import argparse as mod_argparse
+import json as mod_json
 
 import gpxpy as mod_gpxpy
 
@@ -56,10 +57,13 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     """
     gpx_part may be a track or segment.
     """
+    json_data = {}
+
     length_2d = gpx_part.length_2d()
     length_3d = gpx_part.length_3d()
     print('%sLength 2D: %s' % (indentation, format_long_length(length_2d)))
     print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
+    json_data["2d"] = length_2d
 
     moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx_part.get_moving_data()
     avg_speed = moving_distance / moving_time
@@ -92,12 +96,15 @@ def print_gpx_part_info(gpx_part, indentation='    '):
 
     print('')
 
+    return json_data
+
 
 def print_gpx_info(gpx, gpx_file):
     print('File: %s' % gpx_file)
 
     if gpx.name:
         print('  GPX name: %s' % gpx.name)
+        json_data["name"] = gpx.name
     if gpx.description:
         print('  GPX description: %s' % gpx.description)
     if gpx.author_name:
@@ -105,13 +112,15 @@ def print_gpx_info(gpx, gpx_file):
     if gpx.author_email:
         print('  Email: %s' % gpx.author_email)
 
-    print_gpx_part_info(gpx)
+    json_data = print_gpx_part_info(gpx)
+    json_data["segments"] = []
 
     for track_no, track in enumerate(gpx.tracks):
         for segment_no, segment in enumerate(track.segments):
             print('    Track #%s, Segment #%s' % (track_no, segment_no))
-            print_gpx_part_info(segment, indentation='        ')
+            json_data["segments"].append(print_gpx_part_info(segment, indentation='        '))
 
+    print mod_json.dumps(json_data)    
 
 def run(gpx_files):
     if not gpx_files:
