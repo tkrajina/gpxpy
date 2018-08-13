@@ -36,6 +36,7 @@ import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
 import sys as mod_sys
+import unittest as mod_unittest
 import xml.dom.minidom as mod_minidom
 
 try:
@@ -45,11 +46,6 @@ except:
         import xml.etree.cElementTree as mod_etree
     except:
         import xml.etree.ElementTree as mod_etree
-
-try:
-    import unittest2 as mod_unittest
-except ImportError:
-    import unittest as mod_unittest
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
