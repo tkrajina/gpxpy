@@ -5,9 +5,7 @@ sudo: false
 
 # Those without lxml wheels first because building lxml is slow
 python:
- - 3.2
  - 2.7
- - 3.3
  - 3.4
  - 3.5
  - 3.6
@@ -19,22 +17,9 @@ env:
 
 install:
 # Check whether to install lxml
-# Pin version 3.2 to lxml 3.6 (end of support)
- - if [ "$XMLPARSER" == "LXML" ]; then
-     case "$TRAVIS_PYTHON_VERSION" in
-       "2.7"|"3.3"|"3.4"|"3.5"|"3.6")
-         pip install lxml
-         ;;
-       "3.2")
-         pip install lxml==3.6
-         ;;
-     esac
-   fi
+ - if [ "$XMLPARSER" == "LXML" ]; then pip install lxml; fi
 
-
- # Coveralls 4.0 doesn't support Python 3.2
- - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
- - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
+ - travis_retry pip install coverage
 
 
 script:
