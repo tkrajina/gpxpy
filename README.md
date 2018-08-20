@@ -88,7 +88,7 @@ The GPX version is automatically determined when parsing by reading the version 
 
 ## Pull requests
 
-OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.6+ and Python 3+.
+OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.7 and Python 3.4+.
 
 Run all tests with:
 
