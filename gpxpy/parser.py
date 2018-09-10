@@ -16,6 +16,7 @@
 
 import logging as mod_logging
 import re as mod_re
+
 try:
     import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
 except ImportError:
@@ -25,8 +26,8 @@ except ImportError:
         import xml.etree.ElementTree as mod_etree
 
 from . import gpx as mod_gpx
-from . import gpxfield as mod_gpxfield
 from . import utils as mod_utils
+from . import gpxfield as mod_gpxfield
 
 log = mod_logging.getLogger(__name__)
 
