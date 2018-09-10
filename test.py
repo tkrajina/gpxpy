@@ -3250,24 +3250,24 @@ class GPXTests(mod_unittest.TestCase):
         gpx.nsmap = {
             'gpxx': 'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
         }
-        gpx.schema_locations = (
-           'http://www.topografix.com/GPX/1/1 '
-           'http://www.topografix.com/GPX/1/1/gpx.xsd '
-           'http://www.garmin.com/xmlschemas/GpxExtensions/v3 '
-           'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd'
-        )
+        gpx.schema_locations = [
+           'http://www.topografix.com/GPX/1/1',
+           'http://www.topografix.com/GPX/1/1/gpx.xsd',
+           'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+           'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+        ]
         with custom_open('test_files/custom_schema_locations.gpx') as f:
             self.assertEquals(gpx.to_xml(), f.read())
 
     def test_parse_custom_schema_locations(self):
         gpx = self.parse('custom_schema_locations.gpx')
         self.assertEquals(
-            (
-                'http://www.topografix.com/GPX/1/1 '
-                'http://www.topografix.com/GPX/1/1/gpx.xsd '
-                'http://www.garmin.com/xmlschemas/GpxExtensions/v3 '
-                'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd'
-            ),
+            [
+                'http://www.topografix.com/GPX/1/1',
+                'http://www.topografix.com/GPX/1/1/gpx.xsd',
+                'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+                'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+            ],
             gpx.schema_locations
         )
 

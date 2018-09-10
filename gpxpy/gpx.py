@@ -1994,7 +1994,7 @@ class GPX:
         self.routes = []
         self.tracks = []
         self.nsmap = {}
-        self.schema_locations = None
+        self.schema_locations = []
 
     def simplify(self, max_distance=None):
         """
@@ -2708,15 +2708,19 @@ class GPX:
         )
 
         if not self.schema_locations:
-            self.schema_locations = (
-                'http://www.topografix.com/GPX/{0} '
-                'http://www.topografix.com/GPX/{0}/gpx.xsd'
-            ).format(version.replace('.', '/'))
+            ver = version.replace('.', '/')
+            self.schema_locations = [
+                'http://www.topografix.com/GPX/{0}'.format(ver),
+                'http://www.topografix.com/GPX/{0}/gpx.xsd'.format(ver),
+            ]
 
         content = mod_gpxfield.gpx_fields_to_xml(
             self, 'gpx', version,
-            custom_attributes={'xsi:schemaLocation': self.schema_locations},
-            nsmap=self.nsmap, prettyprint=prettyprint
+            custom_attributes={
+                'xsi:schemaLocation': ' '.join(self.schema_locations)
+            },
+            nsmap=self.nsmap,
+            prettyprint=prettyprint
         )
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
