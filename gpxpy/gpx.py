@@ -1966,7 +1966,8 @@ class GPX:
                  'bounds', 'waypoints', 'routes', 'tracks', 'author_link',
                  'author_link_text', 'author_link_type', 'copyright_author',
                  'copyright_year', 'copyright_license', 'link_type',
-                 'metadata_extensions', 'extensions', 'nsmap')
+                 'metadata_extensions', 'extensions', 'nsmap',
+                 'schema_locations')
 
     def __init__(self):
         self.version = None
@@ -1993,6 +1994,7 @@ class GPX:
         self.routes = []
         self.tracks = []
         self.nsmap = {}
+        self.schema_locations = None
 
     def simplify(self, max_distance=None):
         """
@@ -2701,12 +2703,21 @@ class GPX:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
         self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
-        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(version.replace('.', '/'))
-        schemalocs = 'http://www.topografix.com/GPX/{0} http://www.topografix.com/GPX/{0}/gpx.xsd'
-        xml_attributes = {'xsi:schemaLocation':
-                          schemalocs.format(version.replace('.', '/'))}
+        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(
+            version.replace('.', '/')
+        )
 
-        content = mod_gpxfield.gpx_fields_to_xml(self, 'gpx', version, custom_attributes=xml_attributes, nsmap=self.nsmap, prettyprint=prettyprint)
+        if not self.schema_locations:
+            self.schema_locations = (
+                'http://www.topografix.com/GPX/{0} '
+                'http://www.topografix.com/GPX/{0}/gpx.xsd'
+            ).format(version.replace('.', '/'))
+
+        content = mod_gpxfield.gpx_fields_to_xml(
+            self, 'gpx', version,
+            custom_attributes={'xsi:schemaLocation': self.schema_locations},
+            nsmap=self.nsmap, prettyprint=prettyprint
+        )
 
         return '<?xml version="1.0" encoding="UTF-8"?>\n' + content.strip()
 

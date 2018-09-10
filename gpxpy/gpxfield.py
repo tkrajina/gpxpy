@@ -451,9 +451,12 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None,
         body.append('\n' + indent + '<' + tag)
         if tag == 'gpx':  # write nsmap in root node
             body.append(' xmlns="{0}"'.format(nsmap['defaultns']))
-            for prefix, URI in nsmap.items():
-                if prefix != 'defaultns':
-                    body.append(' xmlns:{0}="{1}"'.format(prefix, URI))
+            namespaces = set(nsmap.keys())
+            namespaces.remove('defaultns')
+            for prefix in sorted(namespaces):
+                body.append(
+                    ' xmlns:{0}="{1}"'.format(prefix, nsmap[prefix])
+                )
         if custom_attributes:
             # Make sure to_xml() always return attributes in the same order:
             for key in sorted(custom_attributes.keys()):
