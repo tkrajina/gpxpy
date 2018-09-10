@@ -102,7 +102,7 @@ class GPXParser:
         schema_loc = mod_re.search(r'\sxsi:schemaLocation="[^"]+"', self.xml)
         if schema_loc:
             _, _, value = schema_loc.group(0).partition('=')
-            self.gpx.schema_locations = value.strip('"').split(' ')
+            self.gpx.schema_locations = value.strip('"').split()
 
         # Remove default namespace to simplify processing later
         # TODO: change regex to accept ' also
