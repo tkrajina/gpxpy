@@ -2703,15 +2703,19 @@ class GPX:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
         self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+
+        version_path = version.replace('.', '/')
+
         self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(
-            version.replace('.', '/')
+            version_path
         )
 
         if not self.schema_locations:
-            ver = version.replace('.', '/')
             self.schema_locations = [
-                'http://www.topografix.com/GPX/{0}'.format(ver),
-                'http://www.topografix.com/GPX/{0}/gpx.xsd'.format(ver),
+                p.format(version_path) for p in (
+                    'http://www.topografix.com/GPX/{0}',
+                    'http://www.topografix.com/GPX/{0}/gpx.xsd',
+                )
             ]
 
         content = mod_gpxfield.gpx_fields_to_xml(
