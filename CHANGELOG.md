@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.3.4
+
+* Added custom schemaLocation support
+
 ## v1.3.3
 
 * Added avg time to gpxpnfo
