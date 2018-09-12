@@ -17,10 +17,15 @@
 from setuptools import setup
 
 
+with open('README.md') as f:
+    long_description = f.read()
+
 setup(
     name='gpxpy',
     version='1.3.3',
     description='GPX file parser and GPS track manipulation library',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license='Apache License, Version 2.0',
     author='Tomo Krajina',
     author_email='tkrajina@gmail.com',
