@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import distutils.core as mod_distutilscore
+from setuptools import setup
 
-mod_distutilscore.setup(
+
+setup(
     name='gpxpy',
     version='1.3.3',
     description='GPX file parser and GPS track manipulation library',
