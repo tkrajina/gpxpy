@@ -175,7 +175,7 @@ class GPXTests(mod_unittest.TestCase):
     Add tests here.
     """
 
-    def parse(self, file, encoding=None, version = None):
+    def parse(self, file, encoding=None, version=None):
         f = custom_open('test_files/%s' % file, encoding=encoding)
 
         parser = mod_parser.GPXParser(f)
@@ -3239,6 +3239,37 @@ class GPXTests(mod_unittest.TestCase):
 
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time, force=False)
+
+    def test_default_schema_locations(self):
+        gpx = mod_gpx.GPX()
+        with custom_open('test_files/default_schema_locations.gpx') as f:
+            self.assertEquals(gpx.to_xml(), f.read())
+
+    def test_custom_schema_locations(self):
+        gpx = mod_gpx.GPX()
+        gpx.nsmap = {
+            'gpxx': 'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+        }
+        gpx.schema_locations = [
+           'http://www.topografix.com/GPX/1/1',
+           'http://www.topografix.com/GPX/1/1/gpx.xsd',
+           'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+           'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+        ]
+        with custom_open('test_files/custom_schema_locations.gpx') as f:
+            self.assertEquals(gpx.to_xml(), f.read())
+
+    def test_parse_custom_schema_locations(self):
+        gpx = self.parse('custom_schema_locations.gpx')
+        self.assertEquals(
+            [
+                'http://www.topografix.com/GPX/1/1',
+                'http://www.topografix.com/GPX/1/1/gpx.xsd',
+                'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+                'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+            ],
+            gpx.schema_locations
+        )
 
 
 class LxmlTest(mod_unittest.TestCase):
