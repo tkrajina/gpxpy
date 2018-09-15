@@ -3271,6 +3271,17 @@ class GPXTests(mod_unittest.TestCase):
             gpx.schema_locations
         )
 
+    def test_no_track(self):
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:om="http://www.oruxmaps.com/oruxmapsextensions/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="OruxMaps v.6.5.10">
+    <extensions>
+      <om:oruxmapsextensions></om:oruxmapsextensions>
+    </extensions>
+</gpx>"""
+        gpx = mod_gpxpy.parse(xml)
+        self.assertEquals(0, len(gpx.tracks))
+        gpx2 = self.reparse(gpx)
+        self.assertEquals(0, len(gpx2.tracks))
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")

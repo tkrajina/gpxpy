@@ -354,7 +354,10 @@ class GPXExtensionsField(AbstractGPXField):
         for attrib, value in node.attrib.items():
             attrib = self._resolve_prefix(attrib, nsmap)
             result.append(' {0}="{1}"'.format(attrib, value))
-        result.append('>' + node.text.strip())
+        result.append('>')
+        if node.text is not None:
+             result.append(node.text.strip())
+
 
         # Build subelement nodes
         for child in node:
