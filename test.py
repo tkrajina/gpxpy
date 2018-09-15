@@ -3244,6 +3244,20 @@ class GPXTests(mod_unittest.TestCase):
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time, force=False)
 
+    def test_single_quotes_xmlns(self):
+        gpx = mod_gpxpy.parse("""<?xml version='1.0' encoding='UTF-8'?>
+<gpx version='1.1' creator='GPSMID' xmlns='http://www.topografix.com/GPX/1/1'>
+<trk>
+<trkseg>
+<trkpt lat='40.61262' lon='10.592117'><ele>100</ele><time>2018-01-01T09:00:00Z</time>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>""")
+
+        self.assertEquals(1, len(gpx.tracks))
+        self.assertEquals(1, len(gpx.tracks[0].segments))
+        self.assertEquals(1, len(gpx.tracks[0].segments[0].points))
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
