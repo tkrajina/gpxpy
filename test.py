@@ -36,6 +36,7 @@ import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
 import sys as mod_sys
+import unittest as mod_unittest
 import xml.dom.minidom as mod_minidom
 
 try:
@@ -45,11 +46,6 @@ except:
         import xml.etree.cElementTree as mod_etree
     except:
         import xml.etree.ElementTree as mod_etree
-
-try:
-    import unittest2 as mod_unittest
-except ImportError:
-    import unittest as mod_unittest
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
@@ -179,7 +175,7 @@ class GPXTests(mod_unittest.TestCase):
     Add tests here.
     """
 
-    def parse(self, file, encoding=None, version = None):
+    def parse(self, file, encoding=None, version=None):
         f = custom_open('test_files/%s' % file, encoding=encoding)
 
         parser = mod_parser.GPXParser(f)
@@ -3258,6 +3254,49 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEquals(1, len(gpx.tracks))
         self.assertEquals(1, len(gpx.tracks[0].segments))
         self.assertEquals(1, len(gpx.tracks[0].segments[0].points))
+
+    def test_default_schema_locations(self):
+        gpx = mod_gpx.GPX()
+        with custom_open('test_files/default_schema_locations.gpx') as f:
+            self.assertEquals(gpx.to_xml(), f.read())
+
+    def test_custom_schema_locations(self):
+        gpx = mod_gpx.GPX()
+        gpx.nsmap = {
+            'gpxx': 'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+        }
+        gpx.schema_locations = [
+           'http://www.topografix.com/GPX/1/1',
+           'http://www.topografix.com/GPX/1/1/gpx.xsd',
+           'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+           'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+        ]
+        with custom_open('test_files/custom_schema_locations.gpx') as f:
+            self.assertEquals(gpx.to_xml(), f.read())
+
+    def test_parse_custom_schema_locations(self):
+        gpx = self.parse('custom_schema_locations.gpx')
+        self.assertEquals(
+            [
+                'http://www.topografix.com/GPX/1/1',
+                'http://www.topografix.com/GPX/1/1/gpx.xsd',
+                'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+                'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+            ],
+            gpx.schema_locations
+        )
+
+    def test_no_track(self):
+        xml = """<?xml version="1.0" encoding="UTF-8"?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:om="http://www.oruxmaps.com/oruxmapsextensions/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="OruxMaps v.6.5.10">
+    <extensions>
+      <om:oruxmapsextensions></om:oruxmapsextensions>
+    </extensions>
+</gpx>"""
+        gpx = mod_gpxpy.parse(xml)
+        self.assertEquals(0, len(gpx.tracks))
+        gpx2 = self.reparse(gpx)
+        self.assertEquals(0, len(gpx2.tracks))
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")

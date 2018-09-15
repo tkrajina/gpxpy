@@ -27,15 +27,15 @@ gpx = gpxpy.parse(gpx_file)
 for track in gpx.tracks:
     for segment in track.segments:
         for point in segment.points:
-            print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
+            print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
 
 for waypoint in gpx.waypoints:
-    print 'waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude)
-    
+    print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
+
 for route in gpx.routes:
-    print 'Route:'
+    print('Route:')
     for point in route.points:
-        print 'Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation)
+        print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
 
 # There are many more utility methods and functions:
 # You can manipulate/add/remove tracks, segments, points, waypoints and routes and
@@ -72,11 +72,11 @@ gpx.py can parse and generate GPX 1.0 and 1.1 files. Note that the generated fil
 
 Be aware that the gpxpy object model *is not 100% equivalent* with the underlying GPX XML file schema. That's because the library object model works with both GPX 1.0 and 1.1.
 
-For example, the GPX 1.0 specified a `speed` attribute for every track point, but that was removed in GPX 1.1. If you parse GPX 1.0 and serialize back with `gpx.to_xml()` everything will work fine. But if you have a GPX 1.1 object, changes in the `speed` attribute will be lost after `gpx.to_xml()`. If you want to force using 1.0, you can `gpx.to_xml(version="1.0")`. Another possibility is to use `extensions` to save the speed in GPX 1.1.
+For example, GPX 1.0 specified a `speed` attribute for every track point, but that was removed in GPX 1.1. If you parse GPX 1.0 and serialize back with `gpx.to_xml()` everything will work fine. But if you have a GPX 1.1 object, changes in the `speed` attribute will be lost after `gpx.to_xml()`. If you want to force using 1.0, you can `gpx.to_xml(version="1.0")`. Another possibility is to use `extensions` to save the speed in GPX 1.1.
 
 ## GPX extensions
 
-gpx.py preservers GPX extensions. They are stored as [ElementTree](https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree) DOM objects. Extensions are part of GPX 1.1., and will be ignored when serializing a GPX object in a GPX 1.0 file.
+gpx.py preserves GPX extensions. They are stored as [ElementTree](https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree) DOM objects. Extensions are part of GPX 1.1, and will be ignored when serializing a GPX object in a GPX 1.0 file.
 
 ## XML parsing
 
@@ -88,14 +88,12 @@ The GPX version is automatically determined when parsing by reading the version 
 
 ## Pull requests
 
-OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.6+ and Python 3+.
+OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.7 and Python 3.4+.
 
 Run all tests with:
 
     $ python -m unittest test
     $ python3 -m unittest test
-
-Run only minidom parser tests with:
 
 Run a single test with:
 
@@ -107,7 +105,7 @@ Run a single test with:
 The repository contains a little command line utility to extract basic statistics from a file.
 Example usage:
 
-    $ gpxinfo voznjica.gpx 
+    $ gpxinfo voznjica.gpx
     File: voznjica.gpx
       Length 2D: 63.6441229018
       Length 3D: 63.8391428454
