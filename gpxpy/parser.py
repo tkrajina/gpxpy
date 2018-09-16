@@ -106,8 +106,7 @@ class GPXParser:
             self.gpx.schema_locations = value.strip('"').split()
 
         # Remove default namespace to simplify processing later
-        # TODO: change regex to accept ' also
-        self.xml = mod_re.sub(r'\sxmlns="[^"]+"', '', self.xml, count=1)
+        self.xml = mod_re.sub(r"""\sxmlns=(['"])[^'"]+\1""", '', self.xml, count=1)
 
         # Build tree
         try:
