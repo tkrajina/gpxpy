@@ -2,7 +2,11 @@
 
 ## v1.3.4
 
-* Added custom schemaLocation support
+* Added custom schemaLocation support <https://github.com/tkrajina/gpxpy/pull/141>
+* Division by zero in gpxinfo
+* Missing tag(s) during parsing <https://github.com/tkrajina/gpxpy/issues/135>
+* to_xml() fails with an empty extension element <https://github.com/tkrajina/gpxpy/issues/140>
+* Setup.py: update classifiers, add python_requires and long_description <https://github.com/tkrajina/gpxpy/pull/142>
 
 ## v1.3.3
 
