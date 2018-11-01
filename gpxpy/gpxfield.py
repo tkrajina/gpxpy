@@ -28,32 +28,54 @@ class GPXFieldTypeConverter:
         self.to_string = to_string
 
 
+RE_TIMESTAMP = mod_re.compile(
+    r'^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})[T ]([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})'
+    r'(\.[0-9]{1,6})?(Z|[+-−][0-9]{2}:?(?:[0-9]{2})?)$')
+
+
+class SimpleTZ(mod_datetime.tzinfo):
+    def __init__(self, s):
+        self.offset = 0
+        if s and len(s) >= 2:
+            if s[0] in ('−', '-'):
+                mult = -1
+                s = s[1:]
+            else:
+                if s[0] == '+':
+                    s = s[1:]
+                mult = 1
+            hour = int(s[:2]) if s[:2].isdigit() else 0
+            if len(s) >= 4:
+                minute = int(s[-2:]) if s[-2:].isdigit() else 0
+            self.offset = mult * (hour * 60 + minute)
+
+    def utcoffset(self, dt):
+        return mod_datetime.timedelta(minutes=self.offset)
+
+    def dst(self, dt):
+        return mod_datetime.timedelta(0)
+
+    def tzname(self, dt):
+        return '{:02}:{:02}'.format(self.offset // 60, self.offset % 60)
+
+
 def parse_time(string):
     from . import gpx as mod_gpx
     if not string:
         return None
-    if 'T' in string:
-        string = string.replace('T', ' ')
-    if 'Z' in string:
-        string = string.replace('Z', '')
-    if '.' in string:
-        string = string.split('.')[0]
-    if len(string) > 19:
-        # remove the timezone part
-        d = max(string.rfind('+'), string.rfind('-'))
-        string = string[0:d]
-    if len(string) < 19:
-        # string has some single digits
-        p = '^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).*$'
-        s = mod_re.findall(p, string)
-        if len(s) > 0:
-            string = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
-                .format(*[int(x) for x in s[0]])
-    for date_format in mod_gpx.DATE_FORMATS:
-        try:
-            return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError:
-            pass
+    m = RE_TIMESTAMP.match(string)
+    if m:
+        timestamp = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'.format(
+            *[int(m.group(i)) for i in range(1, 7)])
+        if m.group(7):
+            timestamp += m.group(7)
+        tz = SimpleTZ(m.group(8))
+        for date_format in mod_gpx.DATE_FORMATS:
+            try:
+                return mod_datetime.datetime.strptime(
+                    timestamp, date_format).replace(tzinfo=tz)
+            except ValueError:
+                pass
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
 
 
