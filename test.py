@@ -423,7 +423,7 @@ class GPXTests(mod_unittest.TestCase):
 
         # %Y-%m-%dT%H:%M:%SZ'
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 1614.678000)
-        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52))
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207340, tzinfo=mod_gpxfield.SimpleTZ()))
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
@@ -1773,7 +1773,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.link_text, 'example urlname')
                 self.assertEqual(get_dom_node(dom, 'gpx/urlname').firstChild.nodeValue, 'example urlname')
 
-                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
+                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertTrue(get_dom_node(dom, 'gpx/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
 
                 self.assertEqual(gpx.keywords, 'example keywords')
@@ -1798,7 +1798,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.waypoints[0].elevation, 75.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/wpt[0]/ele').firstChild.nodeValue, '75.1')
 
-                self.assertEqual(gpx.waypoints[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3))
+                self.assertEqual(gpx.waypoints[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertEqual(get_dom_node(dom, 'gpx/wpt[0]/time').firstChild.nodeValue, '2013-01-02T02:03:00Z')
 
                 self.assertEqual(gpx.waypoints[0].magnetic_variation, 1.1)
@@ -1859,7 +1859,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.routes[0].points[0].elevation, 75.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ele').firstChild.nodeValue, '75.1')
 
-                self.assertEqual(gpx.routes[0].points[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, 3))
+                self.assertEqual(gpx.routes[0].points[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, 3, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/time').firstChild.nodeValue, '2013-01-02T02:03:03Z')
 
                 self.assertEqual(gpx.routes[0].points[0].magnetic_variation, 1.2)
@@ -1968,7 +1968,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4))
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue in ('2013-01-01T12:00:04Z', '2013-01-01T12:00:04'))
 
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
@@ -2085,6 +2085,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(get_dom_node(dom, 'gpx/metadata/link/type').firstChild.nodeValue, 'link type2')
 
                 self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
+                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertTrue(get_dom_node(dom, 'gpx/metadata/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
 
                 self.assertEqual(gpx.keywords, 'example keywords')
@@ -2128,7 +2129,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.waypoints[0].elevation, 75.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/wpt[0]/ele').firstChild.nodeValue, '75.1')
 
-                self.assertEqual(gpx.waypoints[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3))
+                self.assertEqual(gpx.waypoints[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertEqual(get_dom_node(dom, 'gpx/wpt[0]/time').firstChild.nodeValue, '2013-01-02T02:03:00Z')
 
                 self.assertEqual(gpx.waypoints[0].magnetic_variation, 1.1)
@@ -2237,7 +2238,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.routes[0].points[0].elevation, 75.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ele').firstChild.nodeValue, '75.1')
 
-                self.assertEqual(gpx.routes[0].points[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, 3))
+                self.assertEqual(gpx.routes[0].points[0].time, mod_datetime.datetime(2013, 1, 2, 2, 3, 3, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/time').firstChild.nodeValue, '2013-01-02T02:03:03Z')
 
                 self.assertEqual(gpx.routes[0].points[0].magnetic_variation, 1.2)
@@ -2352,7 +2353,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4))
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue in ('2013-01-01T12:00:04Z', '2013-01-01T12:00:04'))
 
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
@@ -2458,7 +2459,7 @@ class GPXTests(mod_unittest.TestCase):
         original_gpx.creator = 'cr'
         original_gpx.name = 'q'
         original_gpx.description = 'w'
-        original_gpx.time = mod_datetime.datetime(2014, 4, 7, 21, 17, 39)
+        original_gpx.time = mod_datetime.datetime(2014, 4, 7, 21, 17, 39, tzinfo=mod_gpxfield.SimpleTZ())
         original_gpx.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
         original_gpx.author_name = '789'
         original_gpx.author_email = '256@aaa'
@@ -2470,7 +2471,7 @@ class GPXTests(mod_unittest.TestCase):
         original_waypoint.latitude = 12.3
         original_waypoint.longitude = 13.4
         original_waypoint.elevation = 121.89
-        original_waypoint.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 39)
+        original_waypoint.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 39, tzinfo=mod_gpxfield.SimpleTZ())
         original_waypoint.magnetic_variation = 1
         original_waypoint.geoid_height = 1
         original_waypoint.name = 'n'
@@ -2500,7 +2501,7 @@ class GPXTests(mod_unittest.TestCase):
         original_route_points.latitude = 34.5
         original_route_points.longitude = 56.6
         original_route_points.elevation = 1001
-        original_route_points.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 17)
+        original_route_points.time = mod_datetime.datetime(2015, 5, 8, 21, 17, 17, tzinfo=mod_gpxfield.SimpleTZ())
         original_route_points.magnetic_variation = 12
         original_route_points.geoid_height = 13
         original_route_points.name = 'aaaaa'
@@ -2532,7 +2533,7 @@ class GPXTests(mod_unittest.TestCase):
         original_track_point.latitude = 34.6
         original_track_point.longitude = 57.6
         original_track_point.elevation = 1002
-        original_track_point.time = mod_datetime.datetime(2016, 5, 8, 21, 17, 17)
+        original_track_point.time = mod_datetime.datetime(2016, 5, 8, 21, 17, 17, tzinfo=mod_gpxfield.SimpleTZ())
         original_track_point.magnetic_variation = 13
         original_track_point.geoid_height = 14
         original_track_point.name = 'aaaaajkjk'
@@ -2886,25 +2887,25 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(0, gpx2.tracks[0].segments[0].points[0].longitude)
         self.assertEqual(0, gpx2.tracks[0].segments[0].points[0].elevation)
 
-    def test_remove_timezone_from_timestamp(self):
+    def test_timezone_from_timestamp(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
         xml += '<trk>\n'
         xml += '<trkseg>\n'
-        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z+01:00</time></trkpt>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
         gpx = mod_gpxpy.parse(xml)
-        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('01')))
 
     def test_timestamp_with_single_digits(self):
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
         xml += '<trk>\n'
         xml += '<trkseg>\n'
-        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18Z-02:00</time></trkpt>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18-02:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
         gpx = mod_gpxpy.parse(xml)
-        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('-02')))
 
     def test_read_extensions(self):
         """ Test extensions """

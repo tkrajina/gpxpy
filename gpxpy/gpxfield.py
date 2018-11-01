@@ -30,11 +30,11 @@ class GPXFieldTypeConverter:
 
 RE_TIMESTAMP = mod_re.compile(
     r'^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})[T ]([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2})'
-    r'(\.[0-9]{1,6})?(Z|[+-−][0-9]{2}:?(?:[0-9]{2})?)$')
+    r'(\.[0-9]{1,8})?(Z|[+-−][0-9]{2}:?(?:[0-9]{2})?)?$')
 
 
 class SimpleTZ(mod_datetime.tzinfo):
-    def __init__(self, s):
+    def __init__(self, s=None):
         self.offset = 0
         if s and len(s) >= 2:
             if s[0] in ('−', '-'):
@@ -47,6 +47,8 @@ class SimpleTZ(mod_datetime.tzinfo):
             hour = int(s[:2]) if s[:2].isdigit() else 0
             if len(s) >= 4:
                 minute = int(s[-2:]) if s[-2:].isdigit() else 0
+            else:
+                minute = 0
             self.offset = mult * (hour * 60 + minute)
 
     def utcoffset(self, dt):
@@ -58,6 +60,12 @@ class SimpleTZ(mod_datetime.tzinfo):
     def tzname(self, dt):
         return '{:02}:{:02}'.format(self.offset // 60, self.offset % 60)
 
+    def __repr__(self):
+        return 'SimpleTZ("{}")'.format(self.tzname(None))
+
+    def __eq__(self, other):
+        return self.offset == other.offset
+
 
 def parse_time(string):
     from . import gpx as mod_gpx
@@ -68,7 +76,7 @@ def parse_time(string):
         timestamp = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'.format(
             *[int(m.group(i)) for i in range(1, 7)])
         if m.group(7):
-            timestamp += m.group(7)
+            timestamp += m.group(7)[:6]
         tz = SimpleTZ(m.group(8))
         for date_format in mod_gpx.DATE_FORMATS:
             try:
@@ -77,6 +85,20 @@ def parse_time(string):
             except ValueError:
                 pass
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
+
+
+def format_time(time):
+    offset = time.utcoffset()
+    if not offset or offset == 0:
+        tz = 'Z'
+    else:
+        tz = time.strftime('%z')
+    if time.microsecond:
+        ms = time.strftime('.%f')
+    else:
+        ms = ''
+    return ''.join((time.strftime('%Y-%m-%dT%H:%M:%S'), ms, tz))
+
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -104,8 +126,7 @@ class TimeConverter:
             return None
 
     def to_string(self, time):
-        from . import gpx as mod_gpx
-        return time.strftime(mod_gpx.DATE_FORMAT) if time else None
+        return format_time(time) if time else None
 
 
 INT_TYPE = IntConverter()
