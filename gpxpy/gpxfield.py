@@ -58,6 +58,8 @@ class SimpleTZ(mod_datetime.tzinfo):
         return mod_datetime.timedelta(0)
 
     def tzname(self, dt):
+        if self.offset == 0:
+            return 'Z'
         return '{:02}:{:02}'.format(self.offset // 60, self.offset % 60)
 
     def __repr__(self):
