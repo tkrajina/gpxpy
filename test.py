@@ -1561,21 +1561,49 @@ class GPXTests(mod_unittest.TestCase):
         seconds = point_1.time_difference(point_2)
         self.assertEqual(seconds, 60 * 60 * 24 + 60)
 
-    def test_parse_time(self):
-        timestamps = [
-            '2001-10-26T21:32:52',
-            #'2001-10-26T21:32:52+0200',
-            #'2001-10-26T21:32:52+02:00',
-            '2001-10-26T19:32:52Z',
-            #'2001-10-26T19:32:52+00:00',
-            '2001-10-26T21:32:52.12679',
-        ]
-        timestamps_without_tz = list(map(lambda x: x.replace('T', ' ').replace('Z', ''), timestamps))
-        for t in timestamps_without_tz:
-            timestamps.append(t)
+    def test_time_converter(self):
+        # Note that TimeConverter completely ignores the timezone information!
+        timestamps = {
+            '2001-05-26T19:07:52': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T19:07:52Z': [2001, 5, 26, 19, 7, 52, True],
+            '2001-05-26T19:07:52+00:00': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T18:07:52-01:00': [2001, 5, 26, 18, 7, 52, False],
+            '2001-05-26T18:07:52-0100': [2001, 5, 26, 18, 7, 52, False],
+            '2001-05-26T21:07:52+02:00': [2001, 5, 26, 21, 7, 52, False],
+            '2001-05-26T21:07:52+0200': [2001, 5, 26, 21, 7, 52, False],
+            '2001-05-27T04:37:52+0930': [2001, 5, 27, 4, 37, 52, False],
+            '2001-05-26T19:07:52.54321': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T19:07:52.54321Z': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T21:07:52.54321+02:00': [2001, 5, 26, 21, 7, 52, False],
+            '2001-05-26T19:07:52.654321Z': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T19:07:52.7654321Z': [2001, 5, 26, 19, 7, 52, False],
+            # 1 digit tests
+            '2001-5-26T19:07:52': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T19:7:52': [2001, 5, 26, 19, 7, 52, False],
+            # This combination is not supported
+            #'2001-5-3T6:7:8+0200': [2001, 5, 3, 6, 7, 8, False],
+        }
+        tc = mod_gpxfield.TimeConverter()
         for timestamp in timestamps:
             print('Parsing: %s' % timestamp)
-            self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
+            # Note TimeConverter ignores the timezone information
+            # FIXME TimeConverter drops the sub-second information
+            year, month, day, hour, minutes, seconds, loop = timestamps[timestamp]
+            refdt = mod_datetime.datetime(year, month, day, hour, minutes, seconds)
+
+            dt = tc.from_string(timestamp)
+            self.assertTrue(dt is not None)
+            self.assertEqual(dt, refdt)
+
+            dtstr = tc.to_string(dt)
+            if loop:
+                self.assertEqual(dtstr, timestamp)
+            elif (len(timestamp) == 19 and timestamp[10] == 'T') or \
+                 (len(timestamp) > 19 and timestamp[19] in ('-', '+', 'Z')):
+                self.assertTrue(dtstr.startswith(timestamp[:19]))
+            dt2 = tc.from_string(dtstr)
+            self.assertTrue(dt2 is not None)
+            self.assertEqual(dt2, refdt)
 
     def test_get_location_at(self):
         gpx = mod_gpx.GPX()
