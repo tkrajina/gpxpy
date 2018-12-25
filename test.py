@@ -423,7 +423,7 @@ class GPXTests(mod_unittest.TestCase):
 
         # %Y-%m-%dT%H:%M:%SZ'
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 1614.678000)
-        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52))
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207343))
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
@@ -1564,32 +1564,30 @@ class GPXTests(mod_unittest.TestCase):
     def test_time_converter(self):
         # Note that TimeConverter completely ignores the timezone information!
         timestamps = {
-            '2001-05-26T19:07:52': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T19:07:52Z': [2001, 5, 26, 19, 7, 52, True],
-            '2001-05-26T19:07:52+00:00': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T18:07:52-01:00': [2001, 5, 26, 18, 7, 52, False],
-            '2001-05-26T18:07:52-0100': [2001, 5, 26, 18, 7, 52, False],
-            '2001-05-26T21:07:52+02:00': [2001, 5, 26, 21, 7, 52, False],
-            '2001-05-26T21:07:52+0200': [2001, 5, 26, 21, 7, 52, False],
-            '2001-05-27T04:37:52+0930': [2001, 5, 27, 4, 37, 52, False],
-            '2001-05-26T19:07:52.54321': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T19:07:52.54321Z': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T21:07:52.54321+02:00': [2001, 5, 26, 21, 7, 52, False],
-            '2001-05-26T19:07:52.654321Z': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T19:07:52.7654321Z': [2001, 5, 26, 19, 7, 52, False],
+            '2001-05-26T19:07:52': [2001, 5, 26, 19, 7, 52, 0, False],
+            '2001-05-26T19:07:52Z': [2001, 5, 26, 19, 7, 52, 0, True],
+            '2001-05-26T19:07:52+00:00': [2001, 5, 26, 19, 7, 52, 0, False],
+            '2001-05-26T18:07:52-01:00': [2001, 5, 26, 18, 7, 52, 0, False],
+            '2001-05-26T18:07:52-0100': [2001, 5, 26, 18, 7, 52, 0, False],
+            '2001-05-26T21:07:52+02:00': [2001, 5, 26, 21, 7, 52, 0, False],
+            '2001-05-26T21:07:52+0200': [2001, 5, 26, 21, 7, 52, 0, False],
+            '2001-05-27T04:37:52+0930': [2001, 5, 27, 4, 37, 52, 0, False],
+            '2001-05-26T19:07:52.54321': [2001, 5, 26, 19, 7, 52, 543210, False],
+            '2001-05-26T19:07:52.54321Z': [2001, 5, 26, 19, 7, 52, 543210, False],
+            '2001-05-26T21:07:52.54321+02:00': [2001, 5, 26, 21, 7, 52, 543210, False],
+            '2001-05-26T19:07:52.654321Z': [2001, 5, 26, 19, 7, 52, 654321, False],
+            '2001-05-26T19:07:52.7654321Z': [2001, 5, 26, 19, 7, 52, 765432, False],
             # 1 digit tests
-            '2001-5-26T19:07:52': [2001, 5, 26, 19, 7, 52, False],
-            '2001-05-26T19:7:52': [2001, 5, 26, 19, 7, 52, False],
-            # This combination is not supported
-            #'2001-5-3T6:7:8+0200': [2001, 5, 3, 6, 7, 8, False],
+            '2001-5-26T19:07:52': [2001, 5, 26, 19, 7, 52, 0, False],
+            '2001-05-26T19:7:52': [2001, 5, 26, 19, 7, 52, 0, False],
+            '2001-5-3T6:7:8+0200': [2001, 5, 3, 6, 7, 8, 0, False],
         }
         tc = mod_gpxfield.TimeConverter()
         for timestamp in timestamps:
             print('Parsing: %s' % timestamp)
             # Note TimeConverter ignores the timezone information
-            # FIXME TimeConverter drops the sub-second information
-            year, month, day, hour, minutes, seconds, loop = timestamps[timestamp]
-            refdt = mod_datetime.datetime(year, month, day, hour, minutes, seconds)
+            year, month, day, hour, minutes, seconds, micro, loop = timestamps[timestamp]
+            refdt = mod_datetime.datetime(year, month, day, hour, minutes, seconds, micro)
 
             dt = tc.from_string(timestamp)
             self.assertTrue(dt is not None)

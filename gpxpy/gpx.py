@@ -32,15 +32,8 @@ log = mod_logging.getLogger(__name__)
 
 # GPX date format to be used when writing the GPX output:
 DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+DATE_FORMAT_SUBSEC = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-# GPX date format(s) used for parsing. The T between date and time and Z after
-# time are allowed, too:
-DATE_FORMATS = [
-    '%Y-%m-%d %H:%M:%S',
-    '%Y-%m-%d %H:%M:%S.%f',
-    #'%Y-%m-%d %H:%M:%S%z',
-    #'%Y-%m-%d %H:%M:%S.%f%z',
-]
 # Used in smoothing, sum must be 1:
 SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 

@@ -34,26 +34,27 @@ def parse_time(string):
         return None
     if 'T' in string:
         string = string.replace('T', ' ')
-    if 'Z' in string:
-        string = string.replace('Z', '')
-    if '.' in string:
-        string = string.split('.')[0]
-    if len(string) > 19:
-        # remove the timezone part
-        d = max(string.rfind('+'), string.rfind('-'))
-        string = string[0:d]
-    if len(string) < 19:
-        # string has some single digits
-        p = '^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2}) ([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).*$'
-        s = mod_re.findall(p, string)
-        if len(s) > 0:
-            string = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'\
-                .format(*[int(x) for x in s[0]])
-    for date_format in mod_gpx.DATE_FORMATS:
-        try:
-            return mod_datetime.datetime.strptime(string, date_format)
-        except ValueError:
-            pass
+
+    if string.endswith('Z'):
+        string = string[0:-1]
+    # Check the length to not accidentally match the dash after the year
+    elif len(string) >= 14 and (string[-6] == '+' or string[-6] == '-'):
+        string = string[0:-6]
+    elif len(string) >= 14 and (string[-5] == '+' or string[-5] == '-'):
+        string = string[0:-5]
+
+    date_format = '%Y-%m-%d %H:%M:%S'
+    dstart = string.find('.')
+    if dstart != -1:
+        # We must truncate the decimals to microseconds for strptime(). Since
+        # we stripped the timezone information we can just truncate the string
+        string = string[:dstart + 7]
+        date_format += '.%f'
+
+    try:
+        return mod_datetime.datetime.strptime(string, date_format)
+    except ValueError:
+        pass
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
 
 
@@ -83,7 +84,11 @@ class TimeConverter:
 
     def to_string(self, time):
         from . import gpx as mod_gpx
-        return time.strftime(mod_gpx.DATE_FORMAT) if time else None
+        if time is None:
+            return None
+        if time.microsecond == 0:
+            return time.strftime(mod_gpx.DATE_FORMAT)
+        return time.strftime(mod_gpx.DATE_FORMAT_SUBSEC)
 
 
 INT_TYPE = IntConverter()
