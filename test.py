@@ -2891,7 +2891,7 @@ class GPXTests(mod_unittest.TestCase):
         xml += '<gpx>\n'
         xml += '<trk>\n'
         xml += '<trkseg>\n'
-        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18Z+01:00</time></trkpt>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18))
@@ -2901,7 +2901,7 @@ class GPXTests(mod_unittest.TestCase):
         xml += '<gpx>\n'
         xml += '<trk>\n'
         xml += '<trkseg>\n'
-        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18Z-02:00</time></trkpt>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-2-2T2:23:18-02:00</time></trkpt>\n'
         xml += '</trkseg></trk></gpx>\n'
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18))
