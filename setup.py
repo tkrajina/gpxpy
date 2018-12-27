@@ -16,13 +16,14 @@
 
 from setuptools import setup
 
+import gpxpy
 
 with open('README.md') as f:
     long_description = f.read()
 
 setup(
     name='gpxpy',
-    version='1.3.4',
+    version=gpxpy.__version__,
     description='GPX file parser and GPS track manipulation library',
     long_description=long_description,
     long_description_content_type="text/markdown",
