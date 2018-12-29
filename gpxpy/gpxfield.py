@@ -27,6 +27,37 @@ class GPXFieldTypeConverter:
         self.from_string = from_string
         self.to_string = to_string
 
+# Python 2 does not have any implementation of the datetime.TZInfo class.
+# So provide our own. When moving to Python 3 this should no longer be
+# necessary.
+ZERO = mod_datetime.timedelta(0)
+
+class GPXTimeZone(mod_datetime.tzinfo):
+    """Fixed offset in minutes east from UTC."""
+
+    def __init__(self, name):
+        if name == "Z" or name == "UTC":
+            minutes = 0
+            name = "UTC"
+        else:
+            minutes = int(name[1:3]) * 60 + int(name[4:])
+            name = name
+        if name[0] == '-':
+            minutes = -minutes
+        self.__offset = mod_datetime.timedelta(minutes=minutes)
+        self.__name = name
+
+    def utcoffset(self, dt):
+        return self.__offset
+
+    def tzname(self, dt):
+        return self.__name
+
+    def dst(self, dt):
+        return ZERO
+
+    def __deepcopy__(self, memo):
+        return GPXTimeZone(self.__name)
 
 def parse_time(string):
     from . import gpx as mod_gpx
@@ -35,12 +66,18 @@ def parse_time(string):
     if 'T' in string:
         string = string.replace('T', ' ')
 
+    # strptime() fails to parse timezone information (at least on Linux)
+    # so deal with those ourselves
+    timezone = None
     if string.endswith('Z'):
+        timezone = 'Z'
         string = string[0:-1]
     # Check the length to not accidentally match the dash after the year
     elif len(string) >= 14 and (string[-6] == '+' or string[-6] == '-'):
+        timezone = string[-6:]
         string = string[0:-6]
     elif len(string) >= 14 and (string[-5] == '+' or string[-5] == '-'):
+        timezone = string[-5:-2] + ':' + string[-2:]
         string = string[0:-5]
 
     date_format = '%Y-%m-%d %H:%M:%S'
@@ -52,7 +89,10 @@ def parse_time(string):
         date_format += '.%f'
 
     try:
-        return mod_datetime.datetime.strptime(string, date_format)
+        dt = mod_datetime.datetime.strptime(string, date_format)
+        if timezone is not None:
+            dt = dt.replace(tzinfo=GPXTimeZone(timezone))
+        return dt
     except ValueError:
         pass
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
@@ -75,6 +115,8 @@ class IntConverter:
         self.to_string = lambda flt: str(flt)
 
 
+UTC = GPXTimeZone("UTC")
+
 class TimeConverter:
     def from_string(self, string):
         try:
@@ -86,6 +128,8 @@ class TimeConverter:
         from . import gpx as mod_gpx
         if time is None:
             return None
+        if time.tzinfo is not None:
+            time = time.astimezone(UTC)
         if time.microsecond == 0:
             return time.strftime(mod_gpx.DATE_FORMAT)
         return time.strftime(mod_gpx.DATE_FORMAT_SUBSEC)
