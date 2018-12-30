@@ -593,7 +593,7 @@ class GPXTests(mod_unittest.TestCase):
         after = len(track.segments)
 
         self.assertTrue(before + 1 == after)
-        print('Points in first (splitted) part:', len(track.segments[0].points))
+        print('Points in first (split) part:', len(track.segments[0].points))
 
         # From 0 to 10th point == 11 points:
         self.assertTrue(len(track.segments[0].points) == 11)
@@ -1519,7 +1519,7 @@ class GPXTests(mod_unittest.TestCase):
 
             print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_50)
 
-            # When simplifying the resulting distance should alway be less than the original:
+            # When simplifying the resulting distance should always be less than the original:
             self.assertTrue(length_2d_original >= length_2d_after_distance_10)
             self.assertTrue(length_2d_original >= length_2d_after_distance_50)
 
@@ -1527,7 +1527,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(length_2d_after_distance_10 >= length_2d_after_distance_50)
 
             # The resulting distance usually shouldn't be too different from
-            # the orignial (here check for 80% and 70%)
+            # the original (here check for 80% and 70%)
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 
@@ -2451,8 +2451,8 @@ class GPXTests(mod_unittest.TestCase):
 
     def test_10_to_11_conversion(self):
         """
-        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
-        will preserver all fields common for both versions.
+        This test checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
+        will preserve all fields common for both versions.
         """
         original_gpx = mod_gpx.GPX()
         original_gpx.creator = 'cr'

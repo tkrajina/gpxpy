@@ -133,7 +133,7 @@ PointData = mod_collections.namedtuple(
 
 class GPXException(Exception):
     """
-    Exception used for invalid GPX files. Is is used when the XML file is
+    Exception used for invalid GPX files. It is used when the XML file is
     valid but something is wrong with the GPX data.
     """
     pass
@@ -161,7 +161,7 @@ class GPXBounds:
 
 class GPXXMLSyntaxException(GPXException):
     """
-    Exception used when the the XML syntax is invalid.
+    Exception used when the XML syntax is invalid.
 
     The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).
     """
@@ -815,9 +815,9 @@ class GPXTrackSegment:
         ----------
         moving_data : MovingData : named tuple
             moving_time : float
-                time (seconds) of segment in which movement was occuring
+                time (seconds) of segment in which movement was occurring
             stopped_time : float
-                time (seconds) of segment in which no movement was occuring
+                time (seconds) of segment in which no movement was occurring
             stopped_distance : float
                 distance (meters) travelled during stopped times
             moving_distance : float
@@ -855,7 +855,7 @@ class GPXTrackSegment:
                 seconds = mod_utils.total_seconds(timedelta)
                 speed_kmh = 0
                 if seconds > 0:
-                    # TODO: compute treshold in m/s instead this to kmh every time:
+                    # TODO: compute threshold in m/s instead this to kmh every time:
                     speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
@@ -909,11 +909,11 @@ class GPXTrackSegment:
             min_latitude : float
                 Minimum latitude of segment in decimal degrees [-90, 90]
             max_latitude : float
-                Maxium latitude of segment in decimal degrees [-90, 90]
+                Maximum latitude of segment in decimal degrees [-90, 90]
             min_longitude : float
-                Minium longitude of segment in decimal degrees [-180, 180]
+                Minimum longitude of segment in decimal degrees [-180, 180]
             max_longitude : float
-                Maxium longitude of segment in decimal degrees [-180, 180]
+                Maximum longitude of segment in decimal degrees [-180, 180]
         """
         min_lat = None
         max_lat = None
@@ -1492,11 +1492,11 @@ class GPXTrack:
             min_latitude : float
                 Minimum latitude of track in decimal degrees [-90, 90]
             max_latitude : float
-                Maxium latitude of track in decimal degrees [-90, 90]
+                Maximum latitude of track in decimal degrees [-90, 90]
             min_longitude : float
-                Minium longitude of track in decimal degrees [-180, 180]
+                Minimum longitude of track in decimal degrees [-180, 180]
             max_longitude : float
-                Maxium longitude of track in decimal degrees [-180, 180]
+                Maximum longitude of track in decimal degrees [-180, 180]
         """
         min_lat = None
         max_lat = None
@@ -1655,9 +1655,9 @@ class GPXTrack:
         ----------
         moving_data : MovingData : named tuple
             moving_time : float
-                time (seconds) of track in which movement was occuring
+                time (seconds) of track in which movement was occurring
             stopped_time : float
-                time (seconds) of track in which no movement was occuring
+                time (seconds) of track in which no movement was occurring
             stopped_distance : float
                 distance (meters) travelled during stopped times
             moving_distance : float
@@ -2132,11 +2132,11 @@ class GPX:
             min_latitude : float
                 Minimum latitude of track in decimal degrees [-90, 90]
             max_latitude : float
-                Maxium latitude of track in decimal degrees [-90, 90]
+                Maximum latitude of track in decimal degrees [-90, 90]
             min_longitude : float
-                Minium longitude of track in decimal degrees [-180, 180]
+                Minimum longitude of track in decimal degrees [-180, 180]
             max_longitude : float
-                Maxium longitude of track in decimal degrees [-180, 180]
+                Maximum longitude of track in decimal degrees [-180, 180]
         """
         min_lat = None
         max_lat = None
@@ -2462,7 +2462,7 @@ class GPX:
         Returns a list of locations of elements like
         consisting of points where the location may be on the track
 
-        threshold_distance is the the minimum distance from the track
+        threshold_distance is the minimum distance from the track
         so that the point *may* be counted as to be "on the track".
         For example 0.01 means 1% of the track distance.
         """

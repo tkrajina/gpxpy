@@ -6,14 +6,14 @@ test-py3:
 	python3 -m unittest test
 test-py2:
 	python -m unittest test
-check-all-commited:
+check-all-committed:
 	if [ -n "$(GIT_PORCELAIN_STATUS)" ]; \
 	then \
-	    echo 'YOU HAVE UNCOMMITED CHANGES'; \
+	    echo 'YOU HAVE UNCOMMITTED CHANGES'; \
 	    git status; \
 	    exit 1; \
 	fi
-pypi-upload: check-all-commited test 
+pypi-upload: check-all-committed test
 	rm -Rf dist/*
 	python setup.py sdist
 	twine upload dist/*

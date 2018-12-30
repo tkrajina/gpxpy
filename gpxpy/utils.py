@@ -72,7 +72,7 @@ def to_number(s, default=0, nan_value=None):
 
 
 def total_seconds(timedelta):
-    """ Some versions of python dont have timedelta.total_seconds() method. """
+    """ Some versions of python don't have the timedelta.total_seconds() method. """
     if timedelta is None:
         return None
     return (timedelta.days * 86400) + timedelta.seconds
