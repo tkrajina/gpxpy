@@ -2451,8 +2451,8 @@ class GPXTests(mod_unittest.TestCase):
 
     def test_10_to_11_conversion(self):
         """
-        This tests checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
-        will preserver all fields common for both versions.
+        This test checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
+        will preserve all fields common for both versions.
         """
         original_gpx = mod_gpx.GPX()
         original_gpx.creator = 'cr'
