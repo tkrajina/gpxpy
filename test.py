@@ -1519,7 +1519,7 @@ class GPXTests(mod_unittest.TestCase):
 
             print(length_2d_original, length_2d_after_distance_10, length_2d_after_distance_50)
 
-            # When simplifying the resulting distance should alway be less than the original:
+            # When simplifying the resulting distance should always be less than the original:
             self.assertTrue(length_2d_original >= length_2d_after_distance_10)
             self.assertTrue(length_2d_original >= length_2d_after_distance_50)
 
@@ -1527,7 +1527,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(length_2d_after_distance_10 >= length_2d_after_distance_50)
 
             # The resulting distance usually shouldn't be too different from
-            # the orignial (here check for 80% and 70%)
+            # the original (here check for 80% and 70%)
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 

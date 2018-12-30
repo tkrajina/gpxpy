@@ -855,7 +855,7 @@ class GPXTrackSegment:
                 seconds = mod_utils.total_seconds(timedelta)
                 speed_kmh = 0
                 if seconds > 0:
-                    # TODO: compute treshold in m/s instead this to kmh every time:
+                    # TODO: compute threshold in m/s instead this to kmh every time:
                     speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
 
                 #print speed, stopped_speed_threshold
