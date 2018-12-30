@@ -9,7 +9,7 @@ test-py2:
 check-all-commited:
 	if [ -n "$(GIT_PORCELAIN_STATUS)" ]; \
 	then \
-	    echo 'YOU HAVE UNCOMMITED CHANGES'; \
+	    echo 'YOU HAVE UNCOMMITTED CHANGES'; \
 	    git status; \
 	    exit 1; \
 	fi

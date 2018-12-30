@@ -593,7 +593,7 @@ class GPXTests(mod_unittest.TestCase):
         after = len(track.segments)
 
         self.assertTrue(before + 1 == after)
-        print('Points in first (splitted) part:', len(track.segments[0].points))
+        print('Points in first (split) part:', len(track.segments[0].points))
 
         # From 0 to 10th point == 11 points:
         self.assertTrue(len(track.segments[0].points) == 11)
