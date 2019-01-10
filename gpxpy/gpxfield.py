@@ -78,7 +78,7 @@ def parse_time(string):
         timestamp = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'.format(
             *[int(m.group(i)) for i in range(1, 7)])
         if m.group(7):
-            timestamp += m.group(7)[:6]
+            timestamp += m.group(7)[:7]
         tz = SimpleTZ(m.group(8))
         for date_format in mod_gpx.DATE_FORMATS:
             try:

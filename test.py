@@ -423,7 +423,8 @@ class GPXTests(mod_unittest.TestCase):
 
         # %Y-%m-%dT%H:%M:%SZ'
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 1614.678000)
-        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207340, tzinfo=mod_gpxfield.SimpleTZ()))
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207343, tzinfo=mod_gpxfield.SimpleTZ()))
+        self.assertEqual(gpx.tracks[0].segments[0].points[1].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207000, tzinfo=mod_gpxfield.SimpleTZ()))
 
     def test_reduce_gpx_file(self):
         f = open('test_files/Mojstrovka.gpx')
@@ -2084,7 +2085,6 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.link_type, 'link type2')
                 self.assertEqual(get_dom_node(dom, 'gpx/metadata/link/type').firstChild.nodeValue, 'link type2')
 
-                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0))
                 self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=mod_gpxfield.SimpleTZ()))
                 self.assertTrue(get_dom_node(dom, 'gpx/metadata/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
 
