@@ -41,7 +41,7 @@ for route in gpx.routes:
 # You can manipulate/add/remove tracks, segments, points, waypoints and routes and
 # get the GPX XML file from the resulting object:
 
-print 'GPX:', gpx.to_xml()
+print('GPX:', gpx.to_xml())
 
 # Creating a new file:
 # --------------------
