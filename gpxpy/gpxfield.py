@@ -75,17 +75,14 @@ def parse_time(string):
         return None
     m = RE_TIMESTAMP.match(string)
     if m:
-        timestamp = '{0}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}'.format(
-            *[int(m.group(i)) for i in range(1, 7)])
+        dt = [int(m.group(i)) for i in range(1, 7)]
         if m.group(7):
-            timestamp += m.group(7)[:7]
-        tz = SimpleTZ(m.group(8))
-        for date_format in mod_gpx.DATE_FORMATS:
-            try:
-                return mod_datetime.datetime.strptime(
-                    timestamp, date_format).replace(tzinfo=tz)
-            except ValueError:
-                pass
+            f = m.group(7)[1:7]
+            dt.append(int(f + "0" * (6 - len(f))))
+        else:
+            dt.append(0)
+        dt.append(SimpleTZ(m.group(8)))
+        return mod_datetime.datetime(*dt)
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
 
 
