@@ -34,6 +34,8 @@ RE_TIMESTAMP = mod_re.compile(
 
 
 class SimpleTZ(mod_datetime.tzinfo):
+    __slots__ = ('offset',)
+
     def __init__(self, s=None):
         self.offset = 0
         if s and len(s) >= 2:
