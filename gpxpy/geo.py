@@ -100,7 +100,7 @@ def calculate_max_speed(speeds_and_distances):
         # ...
         assert len(speeds_and_distances[-1]) == 2
 
-    size = float(len(speeds_and_distances))
+    size = len(speeds_and_distances)
 
     if size < 20:
         log.debug('Segment too small to compute speed, size=%s', size)
@@ -108,7 +108,7 @@ def calculate_max_speed(speeds_and_distances):
 
     distances = list(map(lambda x: x[1], speeds_and_distances))
     average_distance = sum(distances) / float(size)
-    standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/size)
+    standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/float(size))
 
     # Ignore items where the distance is too big:
     filtered_speeds_and_distances = filter(lambda speed_and_distance: abs(speed_and_distance[1] - average_distance) <= standard_distance_deviation * 1.5, speeds_and_distances)
