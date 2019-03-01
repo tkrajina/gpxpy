@@ -1,11 +1,11 @@
 GIT_PORCELAIN_STATUS=$(shell git status --porcelain)
 
-test: test-py2 test-py3 
+test: test-py2 test-py3
 	echo 'OK'
 test-py3:
-	python3 -m unittest test
+	python3 -m unittest
 test-py2:
-	python -m unittest test
+	python -m unittest
 check-all-committed:
 	if [ -n "$(GIT_PORCELAIN_STATUS)" ]; \
 	then \
