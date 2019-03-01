@@ -2,23 +2,6 @@
 
 import xml.dom.minidom as mod_minidom
 
-def split_gpxs(xml):
-    """
-    Split single tracks from this one, without parsing with gpxpy
-    """
-    dom = mod_minidom.parseString(xml)
-    gpx_node = _find_gpx_node(dom)
-    gpx_track_nodes = []
-    if gpx_node:
-        for child_node in gpx_node.childNodes:
-            if child_node.nodeName == 'trk':
-                gpx_track_nodes.append(child_node)
-                gpx_node.removeChild(child_node)
-
-    for gpx_track_node in gpx_track_nodes:
-        gpx_node.appendChild(gpx_track_node)
-        yield dom.toxml()
-        gpx_node.removeChild(gpx_track_node)
 
 def join_gpxs(xmls):
     """
@@ -58,6 +41,7 @@ def join_gpxs(xmls):
             gpx_node.appendChild(trk_element)
 
     return result.toxml()
+
 
 def _find_gpx_node(dom):
     for gpx_candidate_node in dom.childNodes:

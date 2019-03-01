@@ -58,19 +58,6 @@ def is_numeric(object):
         return False
 
 
-def to_number(s, default=0, nan_value=None):
-    try:
-        result = float(s)
-        if mod_math.isnan(result):
-            return nan_value
-        return result
-    except TypeError:
-        pass
-    except ValueError:
-        pass
-    return default
-
-
 def total_seconds(timedelta):
     """ Some versions of python don't have the timedelta.total_seconds() method. """
     if timedelta is None:
