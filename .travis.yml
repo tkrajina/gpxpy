@@ -29,7 +29,7 @@ install:
 
 
 script:
- - coverage run --source=gpxpy ./test.py
+ - coverage run --source=gpxpy -m unittest
 
 after_success:
  - pip install coveralls
