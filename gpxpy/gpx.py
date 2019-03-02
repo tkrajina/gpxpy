@@ -36,11 +36,10 @@ DATE_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 # GPX date format(s) used for parsing. The T between date and time and Z after
 # time are allowed, too:
 DATE_FORMATS = [
-    '%Y-%m-%d %H:%M:%S',
     '%Y-%m-%d %H:%M:%S.%f',
-    #'%Y-%m-%d %H:%M:%S%z',
-    #'%Y-%m-%d %H:%M:%S.%f%z',
+    '%Y-%m-%d %H:%M:%S',
 ]
+
 # Used in smoothing, sum must be 1:
 SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 
