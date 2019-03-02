@@ -3299,6 +3299,14 @@ class GPXTests(mod_unittest.TestCase):
         gpx2 = self.reparse(gpx)
         self.assertEqual(0, len(gpx2.tracks))
 
+    def test_microsecond(self):
+        xml = '<?xml version="1.0" encoding="UTF-8"?><gpx><trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"><time>1901-12-13T20:45:52.2073437Z</time></trkpt></trkseg></trk></gpx>'
+        gpx = mod_gpxpy.parse(xml)
+        gpx2 = self.reparse(gpx)
+        print(gpx2.to_xml())
+        self.assertEquals(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond)
+        self.assertTrue("<time>1901-12-13T20:45:52.207343" in gpx2.to_xml())
+
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
     def test_checklxml(self):
