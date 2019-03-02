@@ -15,6 +15,8 @@
 # limitations under the License.
 
 
+__version__ = '1.3.4'
+
 def parse(xml_or_file, version = None):
     """
     Parse xml (string) or file object. This is just an wrapper for
