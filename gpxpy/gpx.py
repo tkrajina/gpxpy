@@ -767,9 +767,7 @@ class GPXTrackSegment:
 
     def split(self, point_no):
         """
-        Splits the segment into two parts. If one of the split segments is
-        empty it will not be added in the result. The segments will be split
-        in place.
+        Splits the segment into two parts.
 
         Parameters
         ----------
