@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.3.5
+
+* Rewrite parse_time so it understands time zones and microseconds <https://github.com/tkrajina/gpxpy/pull/152>
+* Package version <https://github.com/tkrajina/gpxpy/pull/157>
+* fix debug message <https://github.com/tkrajina/gpxpy/pull/166>
+* Avoid the deprecated TestCase.assertEquals() API <https://github.com/tkrajina/gpxpy/pull/161>
+* Add brackets for last print statement <https://github.com/tkrajina/gpxpy/pull/151>
+* Add Python 3.7 classifier and test on CI <https://github.com/tkrajina/gpxpy/pull/147>
+* Fixed problems with single quotes in xmlns
+
 ## v1.3.4
 
 * Added custom schemaLocation support <https://github.com/tkrajina/gpxpy/pull/141>
