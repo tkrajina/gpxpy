@@ -31,24 +31,20 @@ EARTH_RADIUS = 6378.137 * 1000
 ONE_DEGREE = (2*mod_math.pi*EARTH_RADIUS) / 360  # ==> 111.319 km
 
 
-def to_rad(x):
-    return x / 180. * mod_math.pi
-
-
 def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
     """
     Haversine distance between two points, expressed in meters.
 
     Implemented from http://www.movable-type.co.uk/scripts/latlong.html
     """
-    d_lat = to_rad(latitude_1 - latitude_2)
-    d_lon = to_rad(longitude_1 - longitude_2)
-    lat1 = to_rad(latitude_1)
-    lat2 = to_rad(latitude_2)
+    d_lon = mod_math.radians(longitude_1 - longitude_2)
+    lat1 = mod_math.radians(latitude_1)
+    lat2 = mod_math.radians(latitude_2)
+    d_lat = lat1 - lat2
 
-    a = mod_math.sin(d_lat/2) * mod_math.sin(d_lat/2) + \
-        mod_math.sin(d_lon/2) * mod_math.sin(d_lon/2) * mod_math.cos(lat1) * mod_math.cos(lat2)
-    c = 2 * mod_math.atan2(mod_math.sqrt(a), mod_math.sqrt(1-a))
+    a = mod_math.pow(mod_math.sin(d_lat/2),2) + \
+        mod_math.pow(mod_math.sin(d_lon/2),2) * mod_math.cos(lat1) * mod_math.cos(lat2)
+    c = 2 * mod_math.asin(mod_math.sqrt(a))
     d = EARTH_RADIUS * c
 
     return d
@@ -178,7 +174,7 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
     if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
-    coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
+    coef = mod_math.cos(mod_math.radians(latitude_1))
     x = latitude_1 - latitude_2
     y = (longitude_1 - longitude_2) * coef
 
@@ -206,7 +202,7 @@ def elevation_angle(location1, location2, radians=False):
     if radians:
         return angle
 
-    return 180 * angle / mod_math.pi
+    return mod_math.degrees(angle)
 
 
 def distance_from_line(point, line_point_1, line_point_2):
@@ -379,9 +375,9 @@ class LocationDelta:
         return self.move_function(location)
 
     def move_by_angle_and_distance(self, location):
-        coef = mod_math.cos(location.latitude / 180. * mod_math.pi)
-        vertical_distance_diff   = mod_math.sin((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
-        horizontal_distance_diff = mod_math.cos((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
+        coef = mod_math.cos(mod_math.radians(location.latitude))
+        vertical_distance_diff   = mod_math.sin(mod_math.radians(90 - self.angle_from_north)) / ONE_DEGREE
+        horizontal_distance_diff = mod_math.cos(mod_math.radians(90 - self.angle_from_north)) / ONE_DEGREE
         lat_diff = self.distance * vertical_distance_diff
         lon_diff = self.distance * horizontal_distance_diff / coef
         return location.latitude + lat_diff, location.longitude + lon_diff
