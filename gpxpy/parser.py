@@ -16,14 +16,16 @@
 
 import logging as mod_logging
 import re as mod_re
+import typing
 
 try:
-    import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
+    # Load LXML or fallback to cET or ET
+    import lxml.etree as mod_etree # type: ignore
 except ImportError:
     try:
-        import xml.etree.cElementTree as mod_etree
+        import xml.etree.cElementTree as mod_etree # type: ignore
     except ImportError:
-        import xml.etree.ElementTree as mod_etree
+        import xml.etree.ElementTree as mod_etree # type: ignore
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
@@ -46,7 +48,7 @@ class GPXParser:
 
     """
 
-    def __init__(self, xml_or_file=None):
+    def __init__(self, xml_or_file: typing.Union[typing.AnyStr, typing.IO[str]]) -> None:
         """
         Initialize new GPXParser instance.
 
@@ -55,10 +57,11 @@ class GPXParser:
                 formatted xml
 
         """
+        self.xml = ""
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
 
-    def init(self, xml_or_file):
+    def init(self, xml_or_file: typing.Union[typing.AnyStr, typing.IO[str]]) -> None:
         """
         Store the XML and remove utf-8 Byte Order Mark if present.
 
@@ -67,10 +70,10 @@ class GPXParser:
                 formatted xml
 
         """
-        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
-        self.xml = mod_utils.make_str(text)
+        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file # type: ignore
+        self.xml = mod_utils.make_str(typing.cast(str, text))
 
-    def parse(self, version=None):
+    def parse(self, version: typing.Optional[str]=None) -> mod_gpx.GPX:
         """
         Parse the XML and return a GPX object.
 
@@ -111,16 +114,9 @@ class GPXParser:
         # Build tree
         try:
             if GPXParser.__library() == "LXML":
-                # lxml does not like unicode strings when it's expecting
-                # UTF-8. Also, XML comments result in a callable .tag().
-                # Strip them out to avoid handling them later.
-                if mod_utils.PYTHON_VERSION[0] >= '3':
-                    self.xml = self.xml.encode('utf-8')
-                root = mod_etree.XML(self.xml,
-                                     mod_etree.XMLParser(remove_comments=True))
+                root = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
             else:
                 root = mod_etree.XML(self.xml)
-
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
             log.debug('Error in:\n%s\n-----------\n' % self.xml, exc_info=True)
@@ -144,7 +140,7 @@ class GPXParser:
         return self.gpx
 
     @staticmethod
-    def __library():
+    def __library() -> str:
         """
         Return the underlying ETree.
 

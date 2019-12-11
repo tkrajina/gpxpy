@@ -21,9 +21,11 @@ import copy as mod_copy
 
 from . import utils as mod_utils
 
+import typing
+
 
 class GPXFieldTypeConverter:
-    def __init__(self, from_string, to_string):
+    def __init__(self, from_string: str, to_string: str) -> None:
         self.from_string = from_string
         self.to_string = to_string
 
@@ -36,7 +38,7 @@ RE_TIMESTAMP = mod_re.compile(
 class SimpleTZ(mod_datetime.tzinfo):
     __slots__ = ('offset',)
 
-    def __init__(self, s=None):
+    def __init__(self, s: str="") -> None:
         self.offset = 0
         if s and len(s) >= 2:
             if s[0] in ('−', '-'):
@@ -53,25 +55,25 @@ class SimpleTZ(mod_datetime.tzinfo):
                 minute = 0
             self.offset = mult * (hour * 60 + minute)
 
-    def utcoffset(self, dt):
+    def utcoffset(self, dt: typing.Optional[mod_datetime.datetime]) -> mod_datetime.timedelta:
         return mod_datetime.timedelta(minutes=self.offset)
 
-    def dst(self, dt):
+    def dst(self, dt: typing.Optional[mod_datetime.datetime]) -> mod_datetime.timedelta:
         return mod_datetime.timedelta(0)
 
-    def tzname(self, dt):
+    def tzname(self, dt: typing.Optional[mod_datetime.datetime]) -> str:
         if self.offset == 0:
             return 'Z'
         return '{:02}:{:02}'.format(self.offset // 60, self.offset % 60)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return 'SimpleTZ("{}")'.format(self.tzname(None))
 
-    def __eq__(self, other):
-        return self.offset == other.offset
+    def __eq__(self, other: typing.Any) -> bool:
+        return self.offset == other.offset # type: ignore
 
 
-def parse_time(string):
+def parse_time(string: str) -> typing.Optional[mod_datetime.datetime]:
     from . import gpx as mod_gpx
     if not string:
         return None
@@ -83,12 +85,12 @@ def parse_time(string):
             dt.append(int(f + "0" * (6 - len(f))))
         else:
             dt.append(0)
-        dt.append(SimpleTZ(m.group(8)))
-        return mod_datetime.datetime(*dt)
+        dt.append(SimpleTZ(m.group(8))) # type: ignore
+        return mod_datetime.datetime(*dt) # type: ignore
     raise mod_gpx.GPXException('Invalid time: {0}'.format(string))
 
 
-def format_time(time):
+def format_time(time: mod_datetime.datetime) -> str:
     offset = time.utcoffset()
     if not offset or offset == 0:
         tz = 'Z'
@@ -108,26 +110,28 @@ def format_time(time):
 
 
 class FloatConverter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.from_string = lambda string : None if string is None else float(string.strip())
         self.to_string =   lambda flt    : mod_utils.make_str(flt)
 
 
 class IntConverter:
-    def __init__(self):
+    def __init__(self) -> None:
         self.from_string = lambda string: None if string is None else int(string.strip())
         self.to_string = lambda flt: str(flt)
 
 
 class TimeConverter:
-    def from_string(self, string):
+    def from_string(self, string: str) -> typing.Optional[mod_datetime.datetime]:
         try:
             return parse_time(string)
         except:
             return None
 
-    def to_string(self, time):
-        return format_time(time) if time else None
+    def to_string(self, time: typing.Optional[mod_datetime.datetime]) -> typing.Optional[str]:
+        if time:
+            return format_time(time) if time else None
+        return None
 
 
 INT_TYPE = IntConverter()
@@ -141,15 +145,15 @@ TIME_TYPE = TimeConverter()
 
 
 class AbstractGPXField:
-    def __init__(self, attribute_field=None, is_list=None):
+    def __init__(self, attribute_field: typing.Optional[str] = None, is_list: typing.Optional[bool]=None) -> None:
         self.attribute_field = attribute_field
         self.is_list = is_list
-        self.attribute = False
+        self.attribute: typing.Optional[str] = None
 
-    def from_xml(self, node, version):
+    def from_xml(self, node: str, version: str) -> typing.Any:
         raise Exception('Not implemented')
 
-    def to_xml(self, value, version, nsmap):
+    def to_xml(self, value: typing.Any, version: str, nsmap: typing.Any) -> typing.Optional[str]:
         raise Exception('Not implemented')
 
 
@@ -157,8 +161,8 @@ class GPXField(AbstractGPXField):
     """
     Used for to (de)serialize fields with simple field<->xml_tag mapping.
     """
-    def __init__(self, name, tag=None, attribute=None, type=None,
-                 possible=None, mandatory=None):
+    def __init__(self, name: typing.Optional[str], tag: typing.Optional[str]=None, attribute: typing.Optional[str]=None, type: typing.Any=None,
+                 possible: typing.Optional[typing.Iterable[str]]=None, mandatory: typing.Optional[bool]=None) -> None:
         AbstractGPXField.__init__(self)
         self.name = name
         if tag and attribute:
@@ -166,7 +170,7 @@ class GPXField(AbstractGPXField):
             raise mod_gpx.GPXException('Only tag *or* attribute may be given!')
         if attribute:
             self.tag = None
-            self.attribute = name if attribute is True else attribute
+            self.attribute = attribute
         elif tag:
             self.tag = name if tag is True else tag
             self.attribute = None
@@ -177,7 +181,7 @@ class GPXField(AbstractGPXField):
         self.possible = possible
         self.mandatory = mandatory
 
-    def from_xml(self, node, version):
+    def from_xml(self, node: typing.Any, version: str) -> typing.Any:
         if self.attribute:
             if node is not None:
                 result = node.get(self.attribute)
@@ -207,7 +211,7 @@ class GPXField(AbstractGPXField):
 
         return result
 
-    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
+    def to_xml(self, value: typing.Any, version: str, nsmap: typing.Any=None, prettyprint: bool=True, indent: str='') -> typing.Optional[str]:
         if value is None:
             return ''
         if not prettyprint:
@@ -216,18 +220,20 @@ class GPXField(AbstractGPXField):
             return '{0}="{1}"'.format(self.attribute, mod_utils.make_str(value))
         elif self.type_converter:
             value = self.type_converter.to_string(value)
-        return mod_utils.to_xml(self.tag, content=value, escape=True,
-                                prettyprint=prettyprint, indent=indent)
+        if self.tag:
+            return mod_utils.to_xml(self.tag, content=value, escape=True,
+                                    prettyprint=prettyprint, indent=indent)
+        return ''
 
 
 class GPXComplexField(AbstractGPXField):
-    def __init__(self, name, classs, tag=None, is_list=None):
+    def __init__(self, name: str, classs: typing.Any, tag: typing.Optional[str]=None, is_list: bool=False) -> None:
         AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
         self.tag = tag or name
         self.classs = classs
 
-    def from_xml(self, node, version):
+    def from_xml(self, node: typing.Any, version: str) -> typing.Any:
         if self.is_list:
             result = []
             for child in node:
@@ -241,7 +247,7 @@ class GPXComplexField(AbstractGPXField):
                 return None
             return gpx_fields_from_xml(self.classs, field_node, version)
 
-    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
+    def to_xml(self, value: typing.Any, version: str, nsmap: typing.Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
         if not prettyprint:
             indent = ''
         if self.is_list:
@@ -261,12 +267,12 @@ class GPXEmailField(AbstractGPXField):
     """
     Converts GPX1.1 email tag group from/to string.
     """
-    def __init__(self, name, tag=None):
+    def __init__(self, name: str, tag: typing.Optional[str]=None):
         AbstractGPXField.__init__(self, is_list=False)
         self.name = name
         self.tag = tag or name
 
-    def from_xml(self, node, version):
+    def from_xml(self, node: typing.Any, version: str) -> typing.Any:
         """
         Extract email address.
 
@@ -285,7 +291,7 @@ class GPXEmailField(AbstractGPXField):
         email_domain = email_node.get('domain')
         return '{0}@{1}'.format(email_id, email_domain)
 
-    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
+    def to_xml(self, value: typing.Any, version: str, nsmap: typing.Optional[typing.Dict[str, str]]=None, prettyprint: bool=True, indent: str='') -> str:
         """
         Write email address to XML
 
@@ -320,12 +326,12 @@ class GPXExtensionsField(AbstractGPXField):
     """
     GPX1.1 extensions <extensions>...</extensions> key-value type.
     """
-    def __init__(self, name, tag=None, is_list=True):
+    def __init__(self, name: str, tag: typing.Optional[str]=None, is_list: bool=True) -> None:
         AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
         self.tag = tag or 'extensions'
 
-    def from_xml(self, node, version):
+    def from_xml(self, node: typing.Any, version: str) -> typing.Any:
         """
         Build a list of extension Elements.
 
@@ -336,7 +342,7 @@ class GPXExtensionsField(AbstractGPXField):
         Returns:
             a list of Element objects
         """
-        result = []
+        result: typing.Any = []
         extensions_node = node.find(self.tag)
         if extensions_node is None:
             return result
@@ -344,7 +350,7 @@ class GPXExtensionsField(AbstractGPXField):
             result.append(mod_copy.deepcopy(child))
         return result
 
-    def _resolve_prefix(self, qname, nsmap):
+    def _resolve_prefix(self, qname: str, nsmap: typing.Dict[str, str]) -> str:
         """
         Convert a tag from Clark notation into prefix notation.
 
@@ -369,7 +375,7 @@ class GPXExtensionsField(AbstractGPXField):
                     break
         return qname
 
-    def _ETree_to_xml(self, node, nsmap=None, prettyprint=True, indent=''):
+    def _ETree_to_xml(self, node: typing.Any, nsmap: typing.Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
         """
         Serialize ETree element and all subelements.
 
@@ -421,7 +427,7 @@ class GPXExtensionsField(AbstractGPXField):
 
         return ''.join(result)
 
-    def to_xml(self, value, version, nsmap=None, prettyprint=True, indent=''):
+    def to_xml(self, value: typing.Any, version: str, nsmap: typing.Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
         """
         Serialize list of ETree.
 
@@ -457,7 +463,7 @@ class GPXExtensionsField(AbstractGPXField):
 # Utility methods:
 # ----------------------------------------------------------------------------------------------------
 
-def _check_dependents(gpx_object, fieldname):
+def _check_dependents(gpx_object: typing.Any, fieldname: str) -> typing.Tuple[str, str]:
     """
     Check for data in subelements.
 
@@ -484,8 +490,8 @@ def _check_dependents(gpx_object, fieldname):
         return '/' + field, field # No child has data
     return '', fieldname # No children
 
-def gpx_fields_to_xml(instance, tag, version, custom_attributes=None,
-                      nsmap=None, prettyprint=True, indent=''):
+def gpx_fields_to_xml(instance: typing.Any, tag: str, version: str, custom_attributes: typing.Dict[str, str]={},
+                      nsmap: typing.Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
     if not prettyprint:
         indent = ''
     fields = instance.gpx_10_fields
@@ -556,7 +562,7 @@ def gpx_fields_to_xml(instance, tag, version, custom_attributes=None,
     return ''.join(body)
 
 
-def gpx_fields_from_xml(class_or_instance, node, version):
+def gpx_fields_from_xml(class_or_instance: typing.Any, node: str, version: str) -> typing.Any:
     if mod_inspect.isclass(class_or_instance):
         result = class_or_instance()
     else:
@@ -566,7 +572,7 @@ def gpx_fields_from_xml(class_or_instance, node, version):
     if version == '1.1':
         fields = result.gpx_11_fields
 
-    node_path = [node]
+    node_path: typing.List[typing.Union[str, int]] = [node]
 
     for gpx_field in fields:
         current_node = node_path[-1]
@@ -578,7 +584,7 @@ def gpx_fields_from_xml(class_or_instance, node, version):
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(current_node.find(gpx_field))
+                    node_path.append(current_node.find(gpx_field)) # type: ignore
         else:
             if current_node is not None:
                 value = gpx_field.from_xml(current_node, version)
@@ -589,16 +595,16 @@ def gpx_fields_from_xml(class_or_instance, node, version):
 
     return result
 
-def gpx_check_slots_and_default_values(classs):
+def gpx_check_slots_and_default_values(classs: typing.Callable[[], typing.Any]) -> None:
     """
     Will fill the default values for this class. Instances will inherit those
     values so we don't need to fill default values for every instance.
     This method will also fill the attribute gpx_field_names with a list of
     gpx field names. This can be used
     """
-    fields = classs.gpx_10_fields + classs.gpx_11_fields
+    fields = classs.gpx_10_fields + classs.gpx_11_fields # type: ignore
 
-    gpx_field_names = []
+    gpx_field_names: typing.List[str] = []
 
     instance = classs()
 
@@ -618,22 +624,21 @@ def gpx_check_slots_and_default_values(classs):
 
     for field in fields:
         if not isinstance(field, str):
+            value: typing.Any = None
             if field.is_list:
                 value = []
-            else:
-                value = None
             try:
                 actual_value = getattr(instance, field.name)
             except:
                 raise Exception('%s has no attribute %s' % (classs.__name__, field.name))
-            if value != actual_value:
+            if field.name != "latitude" and field.name != "longitude" and value != actual_value:
                 raise Exception('Invalid default value %s.%s is %s but should be %s'
                                 % (classs.__name__, field.name, actual_value, value))
             #print('%s.%s -> %s' % (classs, field.name, value))
             if not field.name in gpx_field_names:
                 gpx_field_names.append(field.name)
 
-    gpx_field_names = tuple(gpx_field_names)
+    gpx_field_names = tuple(gpx_field_names) # type: ignore
 ##    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
 ##        try: slots = classs.__slots__
 ##        except Exception as e: slots = '[Unknown:%s]' % e

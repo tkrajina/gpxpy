@@ -12,13 +12,15 @@ import math as mod_math
 import argparse as mod_argparse
 
 import gpxpy as mod_gpxpy
+import gpxpy.gpx as mod_gpx
 
+from typing import *
 
 KM_TO_MILES = 0.621371
 M_TO_FEET = 3.28084
 
 
-def format_time(time_s):
+def format_time(time_s: float) -> str:
     if not time_s:
         return 'n/a'
     elif args.seconds:
@@ -29,21 +31,21 @@ def format_time(time_s):
         return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
 
 
-def format_long_length(length):
+def format_long_length(length: float) -> str:
     if args.miles:
         return '{:.3f}miles'.format(length / 1000. * KM_TO_MILES)
     else:
         return '{:.3f}km'.format(length / 1000.)
 
 
-def format_short_length(length):
+def format_short_length(length: float) -> str:
     if args.miles:
         return '{:.2f}ft'.format(length * M_TO_FEET)
     else:
         return '{:.2f}m'.format(length)
 
 
-def format_speed(speed):
+def format_speed(speed: float) -> str:
     if not speed:
         speed = 0
     if args.miles:
@@ -52,21 +54,22 @@ def format_speed(speed):
         return '{:.2f}m/s = {:.2f}km/h'.format(speed, speed * 3600. / 1000.)
 
 
-def print_gpx_part_info(gpx_part, indentation='    '):
+def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.GPXTrackSegment], indentation: str='    ') -> None:
     """
     gpx_part may be a track or segment.
     """
     length_2d = gpx_part.length_2d()
     length_3d = gpx_part.length_3d()
-    print('%sLength 2D: %s' % (indentation, format_long_length(length_2d)))
+    print('%sLength 2D: %s' % (indentation, format_long_length(length_2d or 0)))
     print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
 
-    moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx_part.get_moving_data()
-    print('%sMoving time: %s' % (indentation, format_time(moving_time)))
-    print('%sStopped time: %s' % (indentation, format_time(stopped_time)))
-    #print('%sStopped distance: %s' % (indentation, format_short_length(stopped_distance)))
-    print('%sMax speed: %s' % (indentation, format_speed(max_speed)))
-    print('%sAvg speed: %s' % (indentation, format_speed(moving_distance / moving_time) if moving_time > 0 else "?"))
+    moving_data = gpx_part.get_moving_data()
+    if moving_data:
+        print('%sMoving time: %s' % (indentation, format_time(moving_data.moving_time)))
+        print('%sStopped time: %s' % (indentation, format_time(moving_data.stopped_time)))
+        #print('%sStopped distance: %s' % (indentation, format_short_length(stopped_distance)))
+        print('%sMax speed: %s' % (indentation, format_speed(moving_data.max_speed)))
+        print('%sAvg speed: %s' % (indentation, format_speed(moving_data.moving_distance / moving_data.moving_time) if moving_data.moving_time > 0 else "?"))
 
     uphill, downhill = gpx_part.get_uphill_downhill()
     print('%sTotal uphill: %s' % (indentation, format_short_length(uphill)))
@@ -80,7 +83,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     print('%sPoints: %s' % (indentation, points_no))
 
     if points_no > 0:
-        distances = []
+        distances: List[float] = []
         previous_point = None
         for point in gpx_part.walk(only_points=True):
             if previous_point:
@@ -92,7 +95,7 @@ def print_gpx_part_info(gpx_part, indentation='    '):
     print('')
 
 
-def print_gpx_info(gpx, gpx_file):
+def print_gpx_info(gpx: mod_gpx.GPX, gpx_file: str) -> None:
     print('File: %s' % gpx_file)
 
     if gpx.name:
@@ -112,7 +115,7 @@ def print_gpx_info(gpx, gpx_file):
             print_gpx_part_info(segment, indentation='        ')
 
 
-def run(gpx_files):
+def run(gpx_files: List[str]) -> None:
     if not gpx_files:
         print('No GPX files given')
         mod_sys.exit(1)
@@ -127,7 +130,7 @@ def run(gpx_files):
             mod_sys.exit(1)
 
 
-def make_parser():
+def make_parser() -> mod_argparse.ArgumentParser:
     parser = mod_argparse.ArgumentParser(usage='%(prog)s [-s] [-m] [-d] [file ...]',
         description='Command line utility to extract basic statistics from gpx file(s)')
     parser.add_argument('-s', '--seconds', action='store_true',
