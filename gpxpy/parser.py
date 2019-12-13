@@ -33,6 +33,16 @@ from . import gpxfield as mod_gpxfield
 
 log = mod_logging.getLogger(__name__)
 
+def library() -> str:
+    """
+    Return the underlying ETree.
+
+    Provided for convenient unittests.
+    """
+    if "lxml" in str(mod_etree):
+        return "LXML"
+    return "STDLIB"
+
 class GPXParser:
     """
     Parse the XML and provide new GPX instance.
@@ -113,7 +123,7 @@ class GPXParser:
 
         # Build tree
         try:
-            if GPXParser.__library() == "LXML":
+            if library() == "LXML":
                 # lxml does not like unicode strings when it's expecting
                 # UTF-8. Also, XML comments result in a callable .tag().
                 # Strip them out to avoid handling them later.
@@ -142,14 +152,3 @@ class GPXParser:
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
         return self.gpx
-
-    @staticmethod
-    def __library() -> str:
-        """
-        Return the underlying ETree.
-
-        Provided for convenient unittests.
-        """
-        if "lxml" in str(mod_etree):
-            return "LXML"
-        return "STDLIB"
