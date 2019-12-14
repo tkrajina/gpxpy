@@ -2911,11 +2911,13 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
 
         print("Extension 1")
+        print(type(gpx.waypoints[0].extensions[0]))
         print(print_etree(gpx.waypoints[0].extensions[0]))
         print()
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[0], root1))
 
         print("Extension 2")
+        print(type(gpx.waypoints[0].extensions[1]))
         print(print_etree(gpx.waypoints[0].extensions[1]))
         print()
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[1], root2))
