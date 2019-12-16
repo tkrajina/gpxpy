@@ -105,11 +105,6 @@ def equals(object1: typing.Any, object2: typing.Any, ignore: typing.Any=None) ->
     return True
 
 
-def custom_open(filename: str, encoding: typing.Optional[str]=None) -> typing.IO[str]:
-    # TODO: Remove this function, left here because of custom py2 handling!
-    return open(filename, encoding=encoding)
-
-
 def cca(number1: float, number2: float) -> bool:
     return 1 - number1 / number2 < 0.999
 
@@ -174,7 +169,7 @@ class GPXTests(mod_unittest.TestCase):
     """
 
     def parse(self, file: typing.Any, encoding: typing.Optional[str]=None, version: typing.Optional[str]=None) -> mod_gpx.GPX:
-        with custom_open('test_files/%s' % file, encoding=encoding) as f:
+        with open('test_files/%s' % file, encoding=encoding) as f:
             parser = mod_parser.GPXParser(f)
             return parser.parse(version)
 
@@ -191,7 +186,7 @@ class GPXTests(mod_unittest.TestCase):
 
     def test_simple_parse_function(self) -> None:
         # Must not throw any exception:
-        with custom_open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
+        with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
             mod_gpxpy.parse(f)
 
     def test_simple_parse_function_invalid_xml(self) -> None:
@@ -360,7 +355,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(make_str(name) == 'šđčćž') # type: ignore
 
     def test_unicode_2(self) -> None:
-        with custom_open('test_files/unicode2.gpx', encoding='utf-8') as f:
+        with open('test_files/unicode2.gpx', encoding='utf-8') as f:
             parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         gpx.to_xml()
@@ -1479,17 +1474,17 @@ class GPXTests(mod_unittest.TestCase):
     def test_simplify(self) -> None:
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8')as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8')as f:
                 gpx = mod_gpxpy.parse(f)
 
             length_2d_original = gpx.length_2d()
 
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
@@ -1649,7 +1644,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.routes[1].points[1].time, t1_adjusted)
 
     def test_unicode(self) -> None:
-        with custom_open('test_files/unicode2.gpx', encoding='utf-8') as f:
+        with open('test_files/unicode2.gpx', encoding='utf-8') as f:
             parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         gpx.to_xml()
@@ -3237,7 +3232,7 @@ class GPXTests(mod_unittest.TestCase):
 
     def test_default_schema_locations(self) -> None:
         gpx = mod_gpx.GPX()
-        with custom_open('test_files/default_schema_locations.gpx') as f:
+        with open('test_files/default_schema_locations.gpx') as f:
             self.assertEqual(gpx.to_xml(), f.read())
 
     def test_custom_schema_locations(self) -> None:
@@ -3251,7 +3246,7 @@ class GPXTests(mod_unittest.TestCase):
            'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
            'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
         ]
-        with custom_open('test_files/custom_schema_locations.gpx') as f:
+        with open('test_files/custom_schema_locations.gpx') as f:
             self.assertEqual(gpx.to_xml(), f.read())
 
     def test_parse_custom_schema_locations(self) -> None:
