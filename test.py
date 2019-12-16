@@ -3293,6 +3293,20 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xmls[1])
         self.assertEqual(35, gpx.tracks[0].segments[0].points[0].latitude)
         self.assertEqual(-5.832745, gpx.tracks[0].segments[0].points[0].longitude)
+    
+    def test_garmin_extension(self) -> None:
+        gpx = self.parse("garmin_extensions.gpx")
+        self.assertTrue(gpx)
+        self.assertTrue(1, len(gpx.waypoints[0].extensions))
+        
+        reparsed = self.reparse(gpx)
+        self.assertTrue(reparsed)
+        self.assertTrue(1, len(reparsed.waypoints[0].extensions))
+
+        print(reparsed.to_xml())
+        self.assertFalse("<http://www.garmin.com/xmlschemas/GpxExtensions/v3:WaypointExtension>" in reparsed.to_xml())
+        self.assertTrue(":WaypointExtension>" in reparsed.to_xml())
+        self.assertTrue(":CreationTimeExtension>" in reparsed.to_xml())
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
