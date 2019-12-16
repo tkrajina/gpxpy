@@ -52,6 +52,7 @@ except:
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
+import gpxpy.gpxxml as mod_gpxxml
 import gpxpy.gpxfield as mod_gpxfield
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
@@ -3284,6 +3285,19 @@ class GPXTests(mod_unittest.TestCase):
         print(gpx2.to_xml())
         self.assertEquals(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond) # type: ignore
         self.assertTrue("<time>1901-12-13T20:45:52.207343" in gpx2.to_xml())
+
+    def test_split_tracks_without_gpxpy(self) -> None:
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk><trkseg><trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '<trk><trkseg><trkpt lat="35." lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '<trk><trkseg><trkpt lat="35.794159" lon="-5."><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '</gpx>\n'
+        xmls = list(mod_gpxxml.split_gpxs(xml))
+        self.assertEqual(3, len(xmls))
+        gpx = mod_gpxpy.parse(xmls[1])
+        self.assertEqual(35, gpx.tracks[0].segments[0].points[0].latitude)
+        self.assertEqual(-5.832745, gpx.tracks[0].segments[0].points[0].longitude)
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
