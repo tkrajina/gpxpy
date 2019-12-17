@@ -128,7 +128,7 @@ class GPXParser:
                 # lxml does not like unicode strings when it's expecting
                 # UTF-8. Also, XML comments result in a callable .tag().
                 # Strip them out to avoid handling them later.
-                self.xml = self.xml.encode('utf-8') # type: ignore
+                self.xml = cast(str, self.xml.encode('utf-8'))
                 root = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
             else:
                 root = mod_etree.XML(self.xml)

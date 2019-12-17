@@ -1044,7 +1044,7 @@ class GPXTests(mod_unittest.TestCase):
         for tmp_point in track.walk():
             self.assertTrue(tmp_point)
 
-        for point, segment_no, point_no in track.walk():
+        for point, segment_no, point_no in track.walk(): # type: ignore
             self.assertTrue(point)
 
         self.assertEqual(segment_no, len(track.segments) - 1)

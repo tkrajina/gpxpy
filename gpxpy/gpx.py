@@ -193,7 +193,7 @@ class GPXXMLSyntaxException(GPXException):
     """
     def __init__(self, message: str, original_exception: object) -> None:
         GPXException.__init__(self, message)
-        self.__cause__ = original_exception # type: ignore
+        self.__cause__ = cast(BaseException, original_exception)
 
 
 class GPXWaypoint(mod_geo.Location):
@@ -1521,7 +1521,7 @@ class GPXTrack:
 
         return bounds
 
-    def walk(self, only_points: bool=False) -> Iterator[Tuple[GPXTrackPoint, int, int]]:
+    def walk(self, only_points: bool=False) -> Iterator[Union[GPXTrackPoint, Tuple[GPXTrackPoint, int, int]]]:
         """
         Generator used to iterates through track
 
@@ -1543,7 +1543,7 @@ class GPXTrack:
         for segment_no, segment in enumerate(self.segments):
             for point_no, point in enumerate(segment.points):
                 if only_points:
-                    yield point # type: ignore
+                    yield point
                 else:
                     yield point, segment_no, point_no
 

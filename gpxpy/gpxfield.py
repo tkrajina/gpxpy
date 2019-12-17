@@ -584,7 +584,7 @@ def gpx_fields_from_xml(class_or_instance: Any, node: str, version: str) -> Any:
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(current_node.find(gpx_field)) # type: ignore
+                    node_path.append(cast(str, current_node).find(gpx_field))
         else:
             if current_node is not None:
                 value = gpx_field.from_xml(current_node, version)
@@ -599,12 +599,8 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
     """
     Will fill the default values for this class. Instances will inherit those
     values so we don't need to fill default values for every instance.
-    This method will also fill the attribute gpx_field_names with a list of
-    gpx field names. This can be used
     """
     fields = classs.gpx_10_fields + classs.gpx_11_fields # type: ignore
-
-    gpx_field_names: List[str] = []
 
     instance = classs()
 
@@ -634,12 +630,3 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
             if field.name != "latitude" and field.name != "longitude" and value != actual_value:
                 raise Exception('Invalid default value %s.%s is %s but should be %s'
                                 % (classs.__name__, field.name, actual_value, value))
-            #print('%s.%s -> %s' % (classs, field.name, value))
-            if not field.name in gpx_field_names:
-                gpx_field_names.append(field.name)
-
-    gpx_field_names = tuple(gpx_field_names) # type: ignore
-##    if not hasattr(classs, '__slots__') or not classs.__slots__ or classs.__slots__ != gpx_field_names:
-##        try: slots = classs.__slots__
-##        except Exception as e: slots = '[Unknown:%s]' % e
-##        raise Exception('%s __slots__ invalid, found %s, but should be %s' % (classs, slots, gpx_field_names))
