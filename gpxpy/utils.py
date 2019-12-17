@@ -19,13 +19,13 @@ import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 import datetime as mod_datetime
 
-import typing
+from typing import Any, AnyStr, List, Optional
 
-def to_xml(tag: str, attributes: typing.Any=None, content: typing.Any=None, default: typing.Any=None, escape: bool=False, prettyprint: bool=True, indent: str='') -> str:
+def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None, escape: bool=False, prettyprint: bool=True, indent: str='') -> str:
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
-    result: typing.List[str] = []
+    result: List[str] = []
     result.append('\n' + indent + '<{0}'.format(tag))
 
     if content is None and default:
@@ -46,7 +46,7 @@ def to_xml(tag: str, attributes: typing.Any=None, content: typing.Any=None, defa
     return make_str(''.join(result))
 
 
-def is_numeric(object: typing.Any) -> bool:
+def is_numeric(object: Any) -> bool:
     try:
         float(object)
         return True
@@ -56,7 +56,7 @@ def is_numeric(object: typing.Any) -> bool:
         return False
 
 
-def to_number(s: str, default: float=0, nan_value: typing.Optional[float]=None) -> float:
+def to_number(s: str, default: float=0, nan_value: Optional[float]=None) -> float:
     try:
         result = float(s)
         if mod_math.isnan(result) and nan_value:
@@ -76,7 +76,7 @@ def total_seconds(timedelta: mod_datetime.timedelta) -> float:
     return (timedelta.days * 86400) + timedelta.seconds
 
 
-def make_str(s: typing.AnyStr) -> str:
+def make_str(s: AnyStr) -> str:
     """ Convert a str or unicode or float object into a str type. """
     if isinstance(s, float):
         result = str(s)

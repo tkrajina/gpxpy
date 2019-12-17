@@ -39,8 +39,6 @@ import sys as mod_sys
 import unittest as mod_unittest
 import xml.dom.minidom as mod_minidom # type: ignore
 
-import typing
-
 try:
     # Load LXML or fallback to cET or ET 
     import lxml.etree as mod_etree  # type: ignore
@@ -60,11 +58,12 @@ import gpxpy.geo as mod_geo
 from gpxpy.utils import make_str
 from gpxpy.utils import total_seconds
 
+from typing import *
+
 mod_logging.basicConfig(level=mod_logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-
-def equals(object1: typing.Any, object2: typing.Any, ignore: typing.Any=None) -> bool:
+def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
     """ Testing purposes only """
 
     if not object1 and not object2:
@@ -78,7 +77,7 @@ def equals(object1: typing.Any, object2: typing.Any, ignore: typing.Any=None) ->
         print('Not obj1')
         return False
 
-    attributes: typing.List[str] = []
+    attributes: List[str] = []
     for attr in dir(object1):
         if not ignore or not attr in ignore:
             if not hasattr(object1, '__call__') and not attr.startswith('_'):
@@ -109,7 +108,7 @@ def cca(number1: float, number2: float) -> bool:
     return 1 - number1 / number2 < 0.999
 
 
-def get_dom_node(dom: typing.Any, path: str) -> typing.Any:
+def get_dom_node(dom: Any, path: str) -> Any:
     path_parts = path.split('/')
     result = dom
     for path_part in path_parts:
@@ -139,12 +138,12 @@ def get_dom_node(dom: typing.Any, path: str) -> typing.Any:
 ##    input()
 
 
-def node_strip(text: typing.AnyStr) -> typing.AnyStr:
+def node_strip(text: AnyStr) -> AnyStr:
     if text is None:
         return ''
     return text.strip()
 
-def elements_equal(e1: typing.Any, e2: typing.Any) -> bool:
+def elements_equal(e1: Any, e2: Any) -> bool:
     if node_strip(e1.tag) != node_strip(e2.tag): return False
     if node_strip(e1.text) != node_strip(e2.text): return False
     if node_strip(e1.tail) != node_strip(e2.tail): return False
@@ -152,7 +151,7 @@ def elements_equal(e1: typing.Any, e2: typing.Any) -> bool:
     if len(e1) != len(e2): return False
     return all(elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
-def print_etree(e1: typing.Any, indent: str='') -> str:
+def print_etree(e1: Any, indent: str='') -> str:
     tag = ['{0}tag: |{1}|\n'.format(indent,e1.tag)]
     for att, value in e1.attrib.items():
         tag.append('{0}-att: |{1}| = |{2}|\n'.format(indent, att, value))
@@ -168,7 +167,7 @@ class GPXTests(mod_unittest.TestCase):
     Add tests here.
     """
 
-    def parse(self, file: typing.Any, encoding: typing.Optional[str]=None, version: typing.Optional[str]=None) -> mod_gpx.GPX:
+    def parse(self, file: Any, encoding: Optional[str]=None, version: Optional[str]=None) -> mod_gpx.GPX:
         with open('test_files/%s' % file, encoding=encoding) as f:
             parser = mod_parser.GPXParser(f)
             return parser.parse(version)
@@ -432,7 +431,7 @@ class GPXTests(mod_unittest.TestCase):
 
         result = gpx.to_xml()
         if mod_sys.version_info[0] != 3:
-            result = typing.cast(str, result.encode('utf-8'))
+            result = cast(str, result.encode('utf-8'))
 
         started = mod_time.time()
         parser = mod_parser.GPXParser(result)
@@ -1281,7 +1280,7 @@ class GPXTests(mod_unittest.TestCase):
                                                                       elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval: typing.List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: typing.List[float]) -> None:
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             raise Exception()
 
         gpx.add_missing_data(get_data_function=lambda point: point.elevation, add_missing_function=_add_missing_function) # type: ignore
@@ -1299,7 +1298,7 @@ class GPXTests(mod_unittest.TestCase):
                                                                       elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval: typing.List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: typing.List[float]) -> None:
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
@@ -1326,7 +1325,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval: typing.List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: typing.List[float]) -> None:
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
@@ -1686,7 +1685,7 @@ class GPXTests(mod_unittest.TestCase):
 
         previous_location = None
 
-        distances_between_points: typing.List[float] = []
+        distances_between_points: List[float] = []
 
         for angle in angles:
             new_location = location + mod_geo.LocationDelta(angle=angle, distance=distance)

@@ -2,14 +2,14 @@
 
 import xml.dom.minidom as mod_minidom # type: ignore
 
-import typing
+from typing import Any, AnyStr, Iterable
 
-def split_gpxs(xml: typing.AnyStr) -> typing.Iterable[str]:
+def split_gpxs(xml: AnyStr) -> Iterable[str]:
     """
     Split tracks in multiple xml files, without gpxpy. Each one with ont <trk>.
     """
     dom = mod_minidom.parseString(xml)
-    gpx_node: typing.Any = _find_gpx_node(dom)
+    gpx_node: Any = _find_gpx_node(dom)
     gpx_track_nodes = []
     if gpx_node:
         for child_node in gpx_node.childNodes:
@@ -22,7 +22,7 @@ def split_gpxs(xml: typing.AnyStr) -> typing.Iterable[str]:
         yield dom.toxml()
         gpx_node.removeChild(gpx_track_node)
 
-def join_gpxs(xmls: typing.Iterable[typing.AnyStr]) -> str:
+def join_gpxs(xmls: Iterable[AnyStr]) -> str:
     """
     Join GPX files without parsing them with gpxpy.
     """
@@ -61,7 +61,7 @@ def join_gpxs(xmls: typing.Iterable[typing.AnyStr]) -> str:
 
     return result.toxml() # type: ignore
 
-def _find_gpx_node(dom: typing.Any) -> typing.Any:
+def _find_gpx_node(dom: Any) -> Any:
     for gpx_candidate_node in dom.childNodes:
         if gpx_candidate_node.nodeName == 'gpx':
             return gpx_candidate_node

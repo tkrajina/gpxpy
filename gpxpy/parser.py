@@ -16,7 +16,8 @@
 
 import logging as mod_logging
 import re as mod_re
-import typing
+
+from typing import cast, Union, AnyStr, IO, Optional
 
 try:
     # Load LXML or fallback to cET or ET
@@ -58,7 +59,7 @@ class GPXParser:
 
     """
 
-    def __init__(self, xml_or_file: typing.Union[typing.AnyStr, typing.IO[str]]) -> None:
+    def __init__(self, xml_or_file: Union[AnyStr, IO[str]]) -> None:
         """
         Initialize new GPXParser instance.
 
@@ -71,7 +72,7 @@ class GPXParser:
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
 
-    def init(self, xml_or_file: typing.Union[typing.AnyStr, typing.IO[str]]) -> None:
+    def init(self, xml_or_file: Union[AnyStr, IO[str]]) -> None:
         """
         Store the XML and remove utf-8 Byte Order Mark if present.
 
@@ -81,9 +82,9 @@ class GPXParser:
 
         """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file # type: ignore
-        self.xml = mod_utils.make_str(typing.cast(str, text))
+        self.xml = mod_utils.make_str(cast(str, text))
 
-    def parse(self, version: typing.Optional[str]=None) -> mod_gpx.GPX:
+    def parse(self, version: Optional[str]=None) -> mod_gpx.GPX:
         """
         Parse the XML and return a GPX object.
 

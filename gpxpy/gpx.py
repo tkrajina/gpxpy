@@ -29,7 +29,7 @@ from . import utils as mod_utils
 from . import geo as mod_geo
 from . import gpxfield as mod_gpxfield
 
-import typing
+from typing import *
 
 log = mod_logging.getLogger(__name__)
 
@@ -113,27 +113,27 @@ GPX_TRACK_POINT_FIELDS = GPX_10_POINT_FIELDS[:4] \
         + GPX_10_POINT_FIELDS[4:]
 
 # When possible, the result of various methods are named tuples defined here:
-class TimeBounds(typing.NamedTuple):
-    start_time: typing.Optional[mod_datetime.datetime]
-    end_time: typing.Optional[mod_datetime.datetime]
-class MovingData(typing.NamedTuple):
+class TimeBounds(NamedTuple):
+    start_time: Optional[mod_datetime.datetime]
+    end_time: Optional[mod_datetime.datetime]
+class MovingData(NamedTuple):
     moving_time: float
     stopped_time: float
     moving_distance: float
     stopped_distance: float
     max_speed: float
-class UphillDownhill(typing.NamedTuple):
+class UphillDownhill(NamedTuple):
     uphill: float
     downhill: float
-class MinimumMaximum(typing.NamedTuple):
-    minimum: typing.Optional[float]
-    maximum: typing.Optional[float]
-class NearestLocationData(typing.NamedTuple):
+class MinimumMaximum(NamedTuple):
+    minimum: Optional[float]
+    maximum: Optional[float]
+class NearestLocationData(NamedTuple):
     location: mod_geo.Location
     track_no: int
     segment_no: int
     point_no: int
-class PointData(typing.NamedTuple):
+class PointData(NamedTuple):
     point: "GPXTrackPoint"
     distance_from_start: float
     track_no: int
@@ -159,22 +159,22 @@ class GPXBounds:
 
     __slots__ = ('min_latitude', 'max_latitude', 'min_longitude', 'max_longitude')
 
-    def __init__(self, min_latitude: typing.Optional[float] = None, max_latitude: typing.Optional[float] = None,
-                 min_longitude: typing.Optional[float] = None, max_longitude: typing.Optional[float] = None) -> None:
+    def __init__(self, min_latitude: Optional[float] = None, max_latitude: Optional[float] = None,
+                 min_longitude: Optional[float] = None, max_longitude: Optional[float] = None) -> None:
         self.min_latitude = min_latitude
         self.max_latitude = max_latitude
         self.min_longitude = min_longitude
         self.max_longitude = max_longitude
 
-    def __iter__(self): # type: ignore
+    def __iter__(self) -> Iterator[Any]:
         return (self.min_latitude, self.max_latitude, self.min_longitude, self.max_longitude,).__iter__()
 
-    def _min(self, a: typing.Optional[float], b: typing.Optional[float]) -> typing.Optional[float]:
+    def _min(self, a: Optional[float], b: Optional[float]) -> Optional[float]:
         if a is not None and b is not None:
             return min(a, b)
         return None
 
-    def _max(self, a: typing.Optional[float], b: typing.Optional[float]) -> typing.Optional[float]:
+    def _max(self, a: Optional[float], b: Optional[float]) -> Optional[float]:
         if a is not None and b is not None:
             return max(a, b)
         return None
@@ -208,32 +208,32 @@ class GPXWaypoint(mod_geo.Location):
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
-    def __init__(self, latitude: typing.Optional[float]=None, longitude: typing.Optional[float]=None, elevation: typing.Optional[float]=None,
-                 time: typing.Optional[mod_datetime.datetime]=None, name: typing.Optional[str]=None, description: typing.Optional[str]=None,
-                 symbol: typing.Optional[str]=None, type: typing.Optional[str]=None, comment: typing.Optional[str]=None,
-                 horizontal_dilution: typing.Optional[float]=None, vertical_dilution: typing.Optional[float]=None,
-                 position_dilution: typing.Optional[float]=None) -> None:
+    def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
+                 time: Optional[mod_datetime.datetime]=None, name: Optional[str]=None, description: Optional[str]=None,
+                 symbol: Optional[str]=None, type: Optional[str]=None, comment: Optional[str]=None,
+                 horizontal_dilution: Optional[float]=None, vertical_dilution: Optional[float]=None,
+                 position_dilution: Optional[float]=None) -> None:
         mod_geo.Location.__init__(self, latitude or 0, longitude or 0, elevation)
         self.time = time
-        self.magnetic_variation: typing.Optional[float] = None
-        self.geoid_height: typing.Optional[float] = None
+        self.magnetic_variation: Optional[float] = None
+        self.geoid_height: Optional[float] = None
         self.name = name
         self.comment = comment
         self.description = description
-        self.source: typing.Optional[str] = None
+        self.source: Optional[str] = None
         self.link = None
         self.link_text = None
-        self.link_type: typing.Optional[str] = None
+        self.link_type: Optional[str] = None
         self.symbol = symbol
         self.type = type
-        self.type_of_gpx_fix: typing.Optional[str] = None
-        self.satellites: typing.Optional[int] = None
+        self.type_of_gpx_fix: Optional[str] = None
+        self.satellites: Optional[int] = None
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
-        self.age_of_dgps_data: typing.Optional[float] = None
-        self.dgps_id: typing.Optional[int] = None
-        self.extensions: typing.List[typing.Any] = [] # TODO
+        self.age_of_dgps_data: Optional[float] = None
+        self.dgps_id: Optional[int] = None
+        self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
         return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -264,7 +264,7 @@ class GPXWaypoint(mod_geo.Location):
         """ Will remove time metadata. """
         self.time = None
 
-    def get_max_dilution_of_precision(self) -> typing.Optional[float]:
+    def get_max_dilution_of_precision(self) -> Optional[float]:
         """
         Only care about the max dop for filtering, no need to go into too much detail
         """
@@ -283,32 +283,32 @@ class GPXRoutePoint(mod_geo.Location):
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
-    def __init__(self, latitude: typing.Optional[float]=None, longitude: typing.Optional[float]=None, elevation: typing.Optional[float]=None, time: typing.Optional[mod_datetime.datetime]=None, name: typing.Optional[str]=None,
-                 description: typing.Optional[str]=None, symbol: typing.Optional[str]=None, type: typing.Optional[str]=None, comment: typing.Optional[str]=None,
-                 horizontal_dilution: typing.Optional[float]=None, vertical_dilution: typing.Optional[float]=None,
-                 position_dilution: typing.Optional[float]=None) -> None:
+    def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None, time: Optional[mod_datetime.datetime]=None, name: Optional[str]=None,
+                 description: Optional[str]=None, symbol: Optional[str]=None, type: Optional[str]=None, comment: Optional[str]=None,
+                 horizontal_dilution: Optional[float]=None, vertical_dilution: Optional[float]=None,
+                 position_dilution: Optional[float]=None) -> None:
 
         mod_geo.Location.__init__(self, latitude or 0, longitude or 0, elevation)
         self.time = time
-        self.magnetic_variation: typing.Optional[float] = None
-        self.geoid_height: typing.Optional[float] = None
+        self.magnetic_variation: Optional[float] = None
+        self.geoid_height: Optional[float] = None
         self.name = name
         self.comment = comment
         self.description = description
-        self.source: typing.Optional[str] = None
-        self.link: typing.Optional[str] = None
-        self.link_text: typing.Optional[str] = None
+        self.source: Optional[str] = None
+        self.link: Optional[str] = None
+        self.link_text: Optional[str] = None
         self.symbol = symbol
-        self.type: typing.Optional[str] = type
-        self.type_of_gpx_fix: typing.Optional[str] = None
-        self.satellites: typing.Optional[int] = None
+        self.type: Optional[str] = type
+        self.type_of_gpx_fix: Optional[str] = None
+        self.satellites: Optional[int] = None
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
-        self.age_of_dgps_data: typing.Optional[float] = None
-        self.dgps_id: typing.Optional[int] = None
-        self.link_type: typing.Optional[str] = None
-        self.extensions: typing.List[typing.Any] = [] # TODO
+        self.age_of_dgps_data: Optional[float] = None
+        self.dgps_id: Optional[int] = None
+        self.link_type: Optional[str] = None
+        self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
         return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
@@ -372,18 +372,18 @@ class GPXRoute:
                  'link_text', 'number', 'points', 'link_type', 'type',
                  'extensions')
 
-    def __init__(self, name: typing.Optional[str]=None, description: typing.Optional[str]=None, number: typing.Optional[int]=None) -> None:
+    def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
         self.name = name
-        self.comment: typing.Optional[str] = None
+        self.comment: Optional[str] = None
         self.description = description
-        self.source: typing.Optional[str] = None
-        self.link: typing.Optional[str] = None
-        self.link_text: typing.Optional[str] = None
+        self.source: Optional[str] = None
+        self.link: Optional[str] = None
+        self.link_text: Optional[str] = None
         self.number = number
-        self.points: typing.List[GPXRoutePoint] = []
-        self.link_type: typing.Optional[str] = None
-        self.type: typing.Optional[str] = None
-        self.extensions: typing.List[typing.Any] = []
+        self.points: List[GPXRoutePoint] = []
+        self.link_type: Optional[str] = None
+        self.type: Optional[str] = None
+        self.extensions: List[Any] = []
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
         """
@@ -417,9 +417,9 @@ class GPXRoute:
         length: float
             Length returned in meters
         """
-        return mod_geo.length_2d(typing.cast(typing.List[mod_geo.Location], self.points))
+        return mod_geo.length_2d(cast(List[mod_geo.Location], self.points))
 
-    def get_center(self) -> typing.Optional[mod_geo.Location]:
+    def get_center(self) -> Optional[mod_geo.Location]:
         """
         Get the center of the route.
 
@@ -450,7 +450,7 @@ class GPXRoute:
 
         return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
 
-    def walk(self, only_points: bool=False) -> typing.Iterator[typing.Any]:
+    def walk(self, only_points: bool=False) -> Iterator[Any]:
         """
         Generator for iterating over route points
 
@@ -517,34 +517,34 @@ class GPXTrackPoint(mod_geo.Location):
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
                  'link_type', 'extensions')
 
-    def __init__(self, latitude: typing.Optional[float]=None, longitude: typing.Optional[float]=None, elevation: typing.Optional[float]=None,
-                 time: typing.Optional[mod_datetime.datetime]=None, symbol: typing.Optional[str]=None, comment: typing.Optional[str]=None,
-                 horizontal_dilution: typing.Optional[float]=None, vertical_dilution: typing.Optional[float]=None,
-                 position_dilution: typing.Optional[float]=None, speed: typing.Optional[float]=None,
-                 name: typing.Optional[str]=None) -> None:
+    def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
+                 time: Optional[mod_datetime.datetime]=None, symbol: Optional[str]=None, comment: Optional[str]=None,
+                 horizontal_dilution: Optional[float]=None, vertical_dilution: Optional[float]=None,
+                 position_dilution: Optional[float]=None, speed: Optional[float]=None,
+                 name: Optional[str]=None) -> None:
         mod_geo.Location.__init__(self, latitude or 0, longitude or 0, elevation)
         self.time = time
         self.course = None
         self.speed = speed
-        self.magnetic_variation: typing.Optional[float] = None
-        self.geoid_height: typing.Optional[float] = None
+        self.magnetic_variation: Optional[float] = None
+        self.geoid_height: Optional[float] = None
         self.name = name
         self.comment = comment
-        self.description: typing.Optional[str] = None
-        self.source: typing.Optional[str] = None
-        self.link: typing.Optional[str] = None
-        self.link_text: typing.Optional[str] = None
-        self.link_type: typing.Optional[str] = None
-        self.symbol: typing.Optional[str] = symbol
-        self.type: typing.Optional[str] = None
-        self.type_of_gpx_fix: typing.Optional[str] = None
-        self.satellites: typing.Optional[float] = None
+        self.description: Optional[str] = None
+        self.source: Optional[str] = None
+        self.link: Optional[str] = None
+        self.link_text: Optional[str] = None
+        self.link_type: Optional[str] = None
+        self.symbol: Optional[str] = symbol
+        self.type: Optional[str] = None
+        self.type_of_gpx_fix: Optional[str] = None
+        self.satellites: Optional[float] = None
         self.horizontal_dilution = horizontal_dilution
         self.vertical_dilution = vertical_dilution
         self.position_dilution = position_dilution
-        self.age_of_dgps_data: typing.Optional[float] = None
-        self.dgps_id: typing.Optional[int] = None
-        self.extensions: typing.List[typing.Any] = []
+        self.age_of_dgps_data: Optional[float] = None
+        self.dgps_id: Optional[int] = None
+        self.extensions: List[Any] = []
 
     def __repr__(self) -> str:
         representation = '%s, %s' % (self.latitude, self.longitude)
@@ -572,7 +572,7 @@ class GPXTrackPoint(mod_geo.Location):
         """ Will remove time metadata. """
         self.time = None
 
-    def time_difference(self, track_point: "GPXTrackPoint") -> typing.Optional[float]:
+    def time_difference(self, track_point: "GPXTrackPoint") -> Optional[float]:
         """
         Get time difference between specified point and this point.
 
@@ -601,7 +601,7 @@ class GPXTrackPoint(mod_geo.Location):
 
         return mod_utils.total_seconds(delta)
 
-    def speed_between(self, track_point: "GPXTrackPoint") -> typing.Optional[float]:
+    def speed_between(self, track_point: "GPXTrackPoint") -> Optional[float]:
         """
         Compute the speed between specified point and this point.
 
@@ -645,11 +645,11 @@ class GPXTrackSegment:
 
     __slots__ = ('points', 'extensions', )
 
-    def __init__(self, points: typing.Optional[typing.List[GPXTrackPoint]]=None) -> None:
-        self.points: typing.List[GPXTrackPoint] = points if points else []
-        self.extensions: typing.List[typing.Any] = []
+    def __init__(self, points: Optional[List[GPXTrackPoint]]=None) -> None:
+        self.points: List[GPXTrackPoint] = points if points else []
+        self.extensions: List[Any] = []
 
-    def simplify(self, max_distance: typing.Optional[float]=None) -> None:
+    def simplify(self, max_distance: Optional[float]=None) -> None:
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
@@ -665,7 +665,7 @@ class GPXTrackSegment:
         min_distance : float
             The minimum separation in meters between points
         """
-        reduced_points: typing.List[GPXTrackPoint] = []
+        reduced_points: List[GPXTrackPoint] = []
         for point in self.points:
             if reduced_points:
                 distance = reduced_points[-1].distance_3d(point)
@@ -700,7 +700,7 @@ class GPXTrackSegment:
         for track_point in self.points:
             track_point.remove_elevation()
 
-    def length_2d(self) -> typing.Optional[float]:
+    def length_2d(self) -> Optional[float]:
         """
         Computes 2-dimensional length (meters) of segment (only latitude and
         longitude, no elevation).
@@ -737,7 +737,7 @@ class GPXTrackSegment:
         for track_point in self.points:
             track_point.move(location_delta)
 
-    def walk(self, only_points: bool=False) -> typing.Iterator[typing.Any]: # TODO: find a better solution for typing
+    def walk(self, only_points: bool=False) -> Iterator[Any]: # TODO: find a better solution for typing
         """
         Generator for iterating over segment points
 
@@ -772,7 +772,7 @@ class GPXTrackSegment:
             return 0
         return len(self.points)
 
-    def split(self, point_no: int) -> typing.Tuple["GPXTrackSegment", "GPXTrackSegment"]:
+    def split(self, point_no: int) -> Tuple["GPXTrackSegment", "GPXTrackSegment"]:
         """
         Splits the segment into two parts.
 
@@ -799,7 +799,7 @@ class GPXTrackSegment:
 
         self.points = part_1 + part_2
 
-    def get_moving_data(self, stopped_speed_threshold: typing.Optional[float]=None) -> typing.Optional[MovingData]:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None) -> Optional[MovingData]:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance,
         stopped_distance, max_speed) that may be used for detecting the time
@@ -903,7 +903,7 @@ class GPXTrackSegment:
 
         return TimeBounds(start_time, end_time)
 
-    def get_bounds(self) -> typing.Optional[GPXBounds]:
+    def get_bounds(self) -> Optional[GPXBounds]:
         """
         Gets the latitude and longitude bounds of the segment.
 
@@ -938,7 +938,7 @@ class GPXTrackSegment:
             return GPXBounds(min_lat, max_lat, min_lon, max_lon)
         return None
 
-    def get_speed(self, point_no: int) -> typing.Optional[float]:
+    def get_speed(self, point_no: int) -> Optional[float]:
         """
         Computes the speed at the specified point index.
 
@@ -1000,8 +1000,8 @@ class GPXTrackSegment:
                 track_point.elevation += delta
 
     def add_missing_data(self,
-                         get_data_function: typing.Callable[[GPXTrackPoint], typing.Any],
-                         add_missing_function: typing.Callable[[typing.List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, typing.List[float]], None]) -> None:
+                         get_data_function: Callable[[GPXTrackPoint], Any],
+                         add_missing_function: Callable[[List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, List[float]], None]) -> None:
         """
         Calculate missing data.
 
@@ -1020,7 +1020,7 @@ class GPXTrackSegment:
             raise GPXException('Invalid add_missing_function: %s' % add_missing_function)
 
         # Points (*without* data) between two points (*with* data):
-        interval: typing.List[GPXTrackPoint] = []
+        interval: List[GPXTrackPoint] = []
         # Point (*with* data) before and after the interval:
         start_point = None
 
@@ -1039,7 +1039,7 @@ class GPXTrackSegment:
                     interval = []
             previous_point = track_point
 
-    def _get_interval_distances_ratios(self, interval: typing.List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint) -> typing.List[float]:
+    def _get_interval_distances_ratios(self, interval: List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint) -> List[float]:
         assert start, start
         assert end, end
         assert interval, interval
@@ -1065,7 +1065,7 @@ class GPXTrackSegment:
                 lambda distance: (distance / from_start_to_end) if from_start_to_end else 0,
                 distances))
 
-    def get_duration(self) -> typing.Optional[float]:
+    def get_duration(self) -> Optional[float]:
         """
         Calculates duration or track segment
 
@@ -1140,7 +1140,7 @@ class GPXTrackSegment:
             return MinimumMaximum(None, None)
         return MinimumMaximum(min(l), max(l))
 
-    def get_location_at(self, time: mod_datetime.datetime) -> typing.Optional[GPXTrackPoint]:
+    def get_location_at(self, time: mod_datetime.datetime) -> Optional[GPXTrackPoint]:
         """
         Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
@@ -1172,12 +1172,12 @@ class GPXTrackSegment:
         
         return None
 
-    def get_nearest_location(self, location: mod_geo.Location) -> typing.Optional[NearestLocationData]:
+    def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
         if not self.points:
             return None
 
-        result: typing.Optional[mod_geo.Location] = None
+        result: Optional[mod_geo.Location] = None
         current_distance = None
         result_track_point_no = None
         for i in range(len(self.points)):
@@ -1201,9 +1201,9 @@ class GPXTrackSegment:
         if len(self.points) <= 3:
             return
 
-        elevations: typing.List[float] = []
-        latitudes: typing.List[float] = []
-        longitudes: typing.List[float] = []
+        elevations: List[float] = []
+        latitudes: List[float] = []
+        longitudes: List[float] = []
 
         for point in self.points:
             elevations.append(point.elevation or 0)
@@ -1214,7 +1214,7 @@ class GPXTrackSegment:
         avg_elevation_delta: float = 1
         if remove_extremes:
             # compute the average distance between two points:
-            distances: typing.List[float] = []
+            distances: List[float] = []
             elevations_delta = []
             for i in range(len(self.points))[1:]:
                 dist = self.points[i].distance_2d(self.points[i - 1])
@@ -1387,20 +1387,20 @@ class GPXTrack:
                  'link_text', 'number', 'segments', 'link_type', 'type',
                  'extensions')
 
-    def __init__(self, name: typing.Optional[str]=None, description: typing.Optional[str]=None, number: typing.Optional[int]=None) -> None:
+    def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
         self.name = name
-        self.comment: typing.Optional[str] = None
+        self.comment: Optional[str] = None
         self.description = description
-        self.source: typing.Optional[str] = None
-        self.link: typing.Optional[str] = None
-        self.link_text: typing.Optional[str] = None
+        self.source: Optional[str] = None
+        self.link: Optional[str] = None
+        self.link_text: Optional[str] = None
         self.number = number
-        self.segments: typing.List[GPXTrackSegment] = []
+        self.segments: List[GPXTrackSegment] = []
         self.link_type = None
         self.type = None
-        self.extensions: typing.List[typing.Any] = [] # TODO
+        self.extensions: List[Any] = [] # TODO
 
-    def simplify(self, max_distance: typing.Optional[float]=None) -> None:
+    def simplify(self, max_distance: Optional[float]=None) -> None:
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
@@ -1495,7 +1495,7 @@ class GPXTrack:
 
         return TimeBounds(start_time, end_time)
 
-    def get_bounds(self) -> typing.Optional[GPXBounds]:
+    def get_bounds(self) -> Optional[GPXBounds]:
         """
         Gets the latitude and longitude bounds of the track.
 
@@ -1511,7 +1511,7 @@ class GPXTrack:
             max_longitude : float
                 Maximum longitude of track in decimal degrees [-180, 180]
         """
-        bounds: typing.Optional[GPXBounds] = None
+        bounds: Optional[GPXBounds] = None
         for track_segment in self.segments:
             segment_bounds = track_segment.get_bounds()
             if bounds is None:
@@ -1521,7 +1521,7 @@ class GPXTrack:
 
         return bounds
 
-    def walk(self, only_points: bool=False) -> typing.Iterator[typing.Tuple[GPXTrackPoint, int, int]]:
+    def walk(self, only_points: bool=False) -> Iterator[Tuple[GPXTrackPoint, int, int]]:
         """
         Generator used to iterates through track
 
@@ -1606,7 +1606,7 @@ class GPXTrack:
                 new_segments.append(segment)
         self.segments = new_segments
 
-    def join(self, track_segment_no: int, track_segment_no_2: typing.Optional[int]=None) -> None:
+    def join(self, track_segment_no: int, track_segment_no_2: Optional[int]=None) -> None:
         """
         Joins two segments of this track. The segments will be split in place.
 
@@ -1640,7 +1640,7 @@ class GPXTrack:
                 new_segments.append(segment)
         self.segments = new_segments
 
-    def get_moving_data(self, stopped_speed_threshold: typing.Optional[float]=None) -> MovingData:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None) -> MovingData:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance,
         stopped_distance, max_speed) that may be used for detecting the time
@@ -1703,8 +1703,8 @@ class GPXTrack:
             track_segment.add_elevation(delta)
 
     def add_missing_data(self,
-                         get_data_function: typing.Callable[[GPXTrackPoint], typing.Any],
-                         add_missing_function: typing.Callable[[typing.List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, typing.List[float]], None]) -> None:
+                         get_data_function: Callable[[GPXTrackPoint], Any],
+                         add_missing_function: Callable[[List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, List[float]], None]) -> None:
         for track_segment in self.segments:
             track_segment.add_missing_data(get_data_function, add_missing_function)
 
@@ -1721,7 +1721,7 @@ class GPXTrack:
         for track_segment in self.segments:
             track_segment.move(location_delta)
 
-    def get_duration(self) -> typing.Optional[float]:
+    def get_duration(self) -> Optional[float]:
         """
         Calculates duration or track
 
@@ -1770,7 +1770,7 @@ class GPXTrack:
 
         return UphillDownhill(uphill, downhill)
 
-    def get_location_at(self, time: mod_datetime.datetime) -> typing.List[GPXTrackPoint]:
+    def get_location_at(self, time: mod_datetime.datetime) -> List[GPXTrackPoint]:
         """
         Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
@@ -1814,7 +1814,7 @@ class GPXTrack:
 
         return MinimumMaximum(min(elevations), max(elevations))
 
-    def get_center(self) -> typing.Optional[mod_geo.Location]:
+    def get_center(self) -> Optional[mod_geo.Location]:
         """
         Get the center of the route.
 
@@ -1868,12 +1868,12 @@ class GPXTrack:
 
         return result
 
-    def get_nearest_location(self, location: mod_geo.Location) -> typing.Optional[NearestLocationData]:
+    def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
         if not self.segments:
             return None
 
-        result: typing.Optional[GPXTrackPoint] = None
+        result: Optional[GPXTrackPoint] = None
         distance: float = -1
         result_track_segment_no: int = -1
         result_track_point_no: int = -1
@@ -1977,40 +1977,40 @@ class GPX:
                  'schema_locations')
 
     def __init__(self) -> None:
-        self.version: typing.Optional[str] = None
-        self.creator: typing.Optional[str] = None
-        self.name: typing.Optional[str] = None
-        self.description: typing.Optional[str] = None
-        self.link: typing.Optional[str] = None
-        self.link_text: typing.Optional[str] = None
-        self.link_type: typing.Optional[str] = None
-        self.time: typing.Optional[mod_datetime.datetime] = None
-        self.keywords: typing.Optional[str] = None
-        self.bounds: typing.Optional[GPXBounds] = None
-        self.author_name: typing.Optional[str] = None
-        self.author_email: typing.Optional[str] = None
-        self.author_link: typing.Optional[str] = None
-        self.author_link_text: typing.Optional[str] = None
-        self.author_link_type: typing.Optional[str] = None
-        self.copyright_author: typing.Optional[str] = None
-        self.copyright_year: typing.Optional[str] = None
-        self.copyright_license: typing.Optional[str] = None
-        self.metadata_extensions: typing.List[typing.Any] = [] # TODO
-        self.extensions: typing.List[typing.Any] = [] # TODO
-        self.waypoints: typing.List[GPXWaypoint] = []
-        self.routes: typing.List[GPXRoute] = []
-        self.tracks: typing.List[GPXTrack] = []
-        self.nsmap: typing.Dict[str, str] = {}
-        self.schema_locations: typing.List[str] = []
+        self.version: Optional[str] = None
+        self.creator: Optional[str] = None
+        self.name: Optional[str] = None
+        self.description: Optional[str] = None
+        self.link: Optional[str] = None
+        self.link_text: Optional[str] = None
+        self.link_type: Optional[str] = None
+        self.time: Optional[mod_datetime.datetime] = None
+        self.keywords: Optional[str] = None
+        self.bounds: Optional[GPXBounds] = None
+        self.author_name: Optional[str] = None
+        self.author_email: Optional[str] = None
+        self.author_link: Optional[str] = None
+        self.author_link_text: Optional[str] = None
+        self.author_link_type: Optional[str] = None
+        self.copyright_author: Optional[str] = None
+        self.copyright_year: Optional[str] = None
+        self.copyright_license: Optional[str] = None
+        self.metadata_extensions: List[Any] = [] # TODO
+        self.extensions: List[Any] = [] # TODO
+        self.waypoints: List[GPXWaypoint] = []
+        self.routes: List[GPXRoute] = []
+        self.tracks: List[GPXTrack] = []
+        self.nsmap: Dict[str, str] = {}
+        self.schema_locations: List[str] = []
 
-    def simplify(self, max_distance: typing.Optional[float]=None) -> None:
+    def simplify(self, max_distance: Optional[float]=None) -> None:
         """
         Simplify using the Ramer-Douglas-Peucker algorithm: http://en.wikipedia.org/wiki/Ramer-Douglas-Peucker_algorithm
         """
         for track in self.tracks:
             track.simplify(max_distance=max_distance)
 
-    def reduce_points(self, max_points_no: typing.Optional[float]=None, min_distance: typing.Optional[float]=None) -> None:
+    def reduce_points(self, max_points_no: Optional[float]=None, min_distance: Optional[float]=None) -> None:
         """
         Reduces the number of points. Points will be updated in place.
 
@@ -2129,7 +2129,7 @@ class GPX:
 
         return TimeBounds(start_time, end_time)
 
-    def get_bounds(self) -> typing.Optional[GPXBounds]:
+    def get_bounds(self) -> Optional[GPXBounds]:
         """
         Gets the latitude and longitude bounds of the GPX file.
 
@@ -2145,7 +2145,7 @@ class GPX:
             max_longitude : float
                 Maximum longitude of track in decimal degrees [-180, 180]
         """
-        result: typing.Optional[GPXBounds] = None 
+        result: Optional[GPXBounds] = None 
         for track in self.tracks:
             track_bounds = track.get_bounds()
             if not result:
@@ -2194,7 +2194,7 @@ class GPX:
         for track in self.tracks:
             track.remove_empty()
 
-    def get_moving_data(self, stopped_speed_threshold: typing.Optional[float]=None) -> MovingData:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None) -> MovingData:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
         that may be used for detecting the time stopped, and max speed. Not that those values are not
@@ -2288,7 +2288,7 @@ class GPX:
                 result += length
         return result
 
-    def walk(self, only_points: bool=False) -> typing.Iterator[typing.Any]:
+    def walk(self, only_points: bool=False) -> Iterator[Any]:
         """
         Generator used to iterates through points in GPX file
 
@@ -2328,7 +2328,7 @@ class GPX:
 
         return result
 
-    def get_duration(self) -> typing.Optional[float]:
+    def get_duration(self) -> Optional[float]:
         """
         Calculates duration of GPX file
 
@@ -2377,14 +2377,14 @@ class GPX:
 
         return UphillDownhill(uphill, downhill)
 
-    def get_location_at(self, time: mod_datetime.datetime) -> typing.List[mod_geo.Location]:
+    def get_location_at(self, time: mod_datetime.datetime) -> List[mod_geo.Location]:
         """
         Gets approx. location at given time. Note that, at the moment this
         method returns an instance of GPXTrackPoint in the future -- this may
         be a mod_geo.Location instance with approximated latitude, longitude
         and elevation!
         """
-        result: typing.List[mod_geo.Location] = []
+        result: List[mod_geo.Location] = []
         for track in self.tracks:
             locations = track.get_location_at(time)
             for location in locations:
@@ -2421,7 +2421,7 @@ class GPX:
 
         return MinimumMaximum(min(elevations), max(elevations))
 
-    def get_points_data(self, distance_2d: bool=False) -> typing.List[PointData]:
+    def get_points_data(self, distance_2d: bool=False) -> List[PointData]:
         """
         Returns a list of tuples containing the actual point, its distance from the start,
         track_no, segment_no, and segment_point_no
@@ -2452,7 +2452,7 @@ class GPX:
 
         return points
 
-    def get_nearest_locations(self, location: mod_geo.Location, threshold_distance: float=0.01) -> typing.List[NearestLocationData]:
+    def get_nearest_locations(self, location: mod_geo.Location, threshold_distance: float=0.01) -> List[NearestLocationData]:
         """
         Returns a list of locations of elements like
         consisting of points where the location may be on the track
@@ -2465,22 +2465,22 @@ class GPX:
         assert location
         assert threshold_distance
 
-        result: typing.List[NearestLocationData] = []
+        result: List[NearestLocationData] = []
 
         points = self.get_points_data()
 
         if not points:
             return result
 
-        distance: typing.Optional[float] = points[- 1][1]
+        distance: Optional[float] = points[- 1][1]
 
         threshold = (distance or 0.0) * threshold_distance
 
         min_distance_candidate = None
         distance_from_start_candidate = None
-        track_no_candidate: typing.Optional[int] = None
-        segment_no_candidate: typing.Optional[int] = None
-        point_no_candidate: typing.Optional[int] = None
+        track_no_candidate: Optional[int] = None
+        segment_no_candidate: Optional[int] = None
+        point_no_candidate: Optional[int] = None
 
         for point, distance_from_start, track_no, segment_no, point_no in points:
             distance = location.distance_3d(point)
@@ -2505,7 +2505,7 @@ class GPX:
 
         return result
 
-    def get_nearest_location(self, location: mod_geo.Location) -> typing.Optional[NearestLocationData]:
+    def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_no, track_segment_no, track_point_no) for the
         nearest location on map """
         if not self.tracks:
@@ -2545,13 +2545,13 @@ class GPX:
             track.add_elevation(delta)
 
     def add_missing_data(self,
-                         get_data_function: typing.Callable[[GPXTrackPoint], typing.Any],
-                         add_missing_function: typing.Callable[[typing.List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, typing.List[float]], None]) -> None:
+                         get_data_function: Callable[[GPXTrackPoint], Any],
+                         add_missing_function: Callable[[List[GPXTrackPoint], GPXTrackPoint, GPXTrackPoint, List[float]], None]) -> None:
         for track in self.tracks:
             track.add_missing_data(get_data_function, add_missing_function)
 
     def add_missing_elevations(self) -> None:
-        def _add(interval: typing.List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: typing.List[float]) -> None:
+        def _add(interval: List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: List[float]) -> None:
             if (start.elevation is None) or (end.elevation is None):
                 return
             assert start
@@ -2565,7 +2565,7 @@ class GPX:
                               add_missing_function=_add)
 
     def add_missing_times(self) -> None:
-        def _add(interval: typing.List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: typing.List[float]) -> None:
+        def _add(interval: List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: List[float]) -> None:
             if (not start) or (not end) or (not start.time) or (not end.time):
                 return
             assert interval
@@ -2591,7 +2591,7 @@ class GPX:
         For this to work the speed of the first and last track point in a
         segment needs to be known.
         """
-        def _add(interval: typing.List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: typing.List[float]) -> None:
+        def _add(interval: List[GPXTrackPoint], start: GPXTrackPoint, end: GPXTrackPoint, distances_ratios: List[float]) -> None:
             if (not start) or (not end) or (not start.time) or (not end.time):
                 return
             assert interval
@@ -2603,7 +2603,7 @@ class GPX:
                                interval[-1].distance_3d(end))
 
             # Assemble list of times and distance to neighbour points
-            times_dists: typing.List[typing.Tuple[typing.Optional[float], typing.Optional[float]]] = [(interval[i].time_difference(interval[i+1]),
+            times_dists: List[Tuple[Optional[float], Optional[float]]] = [(interval[i].time_difference(interval[i+1]),
                             interval[i].distance_3d(interval[i+1]))
                             for i in range(len(interval) - 1)]
             times_dists.insert(0, time_dist_before)
@@ -2618,7 +2618,7 @@ class GPX:
         self.add_missing_data(get_data_function=lambda point: point.speed,
                               add_missing_function=_add)
 
-    def fill_time_data_with_regular_intervals(self, start_time: typing.Optional[mod_datetime.datetime]=None, time_delta: typing.Optional[mod_datetime.timedelta]=None, end_time: typing.Optional[mod_datetime.datetime]=None, force: bool=True) -> None:
+    def fill_time_data_with_regular_intervals(self, start_time: Optional[mod_datetime.datetime]=None, time_delta: Optional[mod_datetime.timedelta]=None, end_time: Optional[mod_datetime.datetime]=None, force: bool=True) -> None:
         """
         Fills the time data for all points in the GPX file. At least two of the parameters start_time, time_delta, and
         end_time have to be provided. If the three are provided, time_delta will be ignored and will be recalculated
@@ -2685,7 +2685,7 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
-    def to_xml(self, version: typing.Optional[str]=None, prettyprint: bool=True) -> str:
+    def to_xml(self, version: Optional[str]=None, prettyprint: bool=True) -> str:
         """
         FIXME: Note, this method will change self.version
         """

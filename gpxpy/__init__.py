@@ -14,13 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import gpx as mod_gpx
+from typing import IO, Union, Optional, AnyStr
 
-import typing
+from . import gpx as mod_gpx
 
 __version__ = '1.3.5'
 
-def parse(xml_or_file: typing.Union[typing.AnyStr, typing.IO[str]], version: typing.Optional[str] = None) -> mod_gpx.GPX:
+def parse(xml_or_file: Union[AnyStr, IO[str]], version: Optional[str] = None) -> mod_gpx.GPX:
     """
     Parse xml (string) or file object. This is just an wrapper for
     GPXParser.parse() function.

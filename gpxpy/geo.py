@@ -19,7 +19,7 @@ import math as mod_math
 
 from . import utils as mod_utils
 
-import typing
+from typing import *
 
 log = mod_logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ def haversine_distance(latitude_1: float, longitude_1: float, latitude_2: float,
     return d
 
 
-def length(locations: typing.List["Location"]=[], _3d: bool=False) -> float:
+def length(locations: List["Location"]=[], _3d: bool=False) -> float:
     if not locations:
         return 0
     length: float = 0
@@ -74,17 +74,17 @@ def length(locations: typing.List["Location"]=[], _3d: bool=False) -> float:
     return length
 
 
-def length_2d(locations: typing.List["Location"]=[]) -> float:
+def length_2d(locations: List["Location"]=[]) -> float:
     """ 2-dimensional length (meters) of locations (only latitude and longitude, no elevation). """
     return length(locations, False)
 
 
-def length_3d(locations: typing.List["Location"]=[]) -> float:
+def length_3d(locations: List["Location"]=[]) -> float:
     """ 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). """
     return length(locations, True)
 
 
-def calculate_max_speed(speeds_and_distances: typing.List[typing.Tuple[float, float]]) -> typing.Optional[float]:
+def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Optional[float]:
     """
     Compute average distance and standard deviation for distance. Extremes
     in distances are usually extremes in speeds, so we will ignore them,
@@ -128,7 +128,7 @@ def calculate_max_speed(speeds_and_distances: typing.List[typing.Tuple[float, fl
     return speeds[index]
 
 
-def calculate_uphill_downhill(elevations: typing.List[float]) -> typing.Tuple[float, float]:
+def calculate_uphill_downhill(elevations: List[float]) -> Tuple[float, float]:
     if not elevations:
         return 0, 0
 
@@ -159,8 +159,8 @@ def calculate_uphill_downhill(elevations: typing.List[float]) -> typing.Tuple[fl
     return uphill, downhill
 
 
-def distance(latitude_1: float, longitude_1: float, elevation_1: typing.Optional[float],
-            latitude_2: float, longitude_2: float, elevation_2: typing.Optional[float],
+def distance(latitude_1: float, longitude_1: float, elevation_1: Optional[float],
+            latitude_2: float, longitude_2: float, elevation_2: Optional[float],
             haversine: bool=False) -> float:
     """
     Distance between two points. If elevation is None compute a 2d distance
@@ -189,7 +189,7 @@ def distance(latitude_1: float, longitude_1: float, elevation_1: typing.Optional
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
 
-def elevation_angle(location1: "Location", location2: "Location", radians: float=False) -> typing.Optional[float]:
+def elevation_angle(location1: "Location", location2: "Location", radians: float=False) -> Optional[float]:
     """ Uphill/downhill angle between two locations. """
     if location1.elevation is None or location2.elevation is None:
         return None
@@ -208,7 +208,7 @@ def elevation_angle(location1: "Location", location2: "Location", radians: float
     return 180 * angle / mod_math.pi
 
 
-def distance_from_line(point: "Location", line_point_1: "Location", line_point_2: "Location") -> typing.Optional[float]:
+def distance_from_line(point: "Location", line_point_1: "Location", line_point_2: "Location") -> Optional[float]:
     """ Distance of point from a line given with two points. """
     assert point, point
     assert line_point_1, line_point_1
@@ -228,7 +228,7 @@ def distance_from_line(point: "Location", line_point_1: "Location", line_point_2
     return None
 
 
-def get_line_equation_coefficients(location1: "Location", location2: "Location") -> typing.Iterable[float]:
+def get_line_equation_coefficients(location1: "Location", location2: "Location") -> Iterable[float]:
     """
     Get line equation coefficients for:
         latitude * a + longitude * b + c = 0
@@ -244,7 +244,7 @@ def get_line_equation_coefficients(location1: "Location", location2: "Location")
         return float(1), float(-a), float(-b)
 
 
-def simplify_polyline(points: typing.List["Location"], max_distance: typing.Optional[float]) -> typing.List["Location"]:
+def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -> List["Location"]:
     """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
 
     _max_distance = max_distance if max_distance is not None else 10
@@ -291,30 +291,30 @@ def simplify_polyline(points: typing.List["Location"], max_distance: typing.Opti
 class Location:
     """ Generic geographical location """
 
-    def __init__(self, latitude: float, longitude: float, elevation: typing.Optional[float]=None) -> None:
+    def __init__(self, latitude: float, longitude: float, elevation: Optional[float]=None) -> None:
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
 
     def has_elevation(self) -> bool:
-        return self.elevation or self.elevation == 0 # type: ignore
+        return cast(bool, self.elevation or self.elevation)
 
     def remove_elevation(self) -> None:
         self.elevation = None
 
-    def distance_2d(self, location: "Location") -> typing.Optional[float]:
+    def distance_2d(self, location: "Location") -> Optional[float]:
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
 
-    def distance_3d(self, location: "Location") -> typing.Optional[float]:
+    def distance_3d(self, location: "Location") -> Optional[float]:
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
 
-    def elevation_angle(self, location: "Location", radians: bool=False) -> typing.Optional[float]:
+    def elevation_angle(self, location: "Location", radians: bool=False) -> Optional[float]:
         return elevation_angle(self, location, radians)
 
     def move(self, location_delta: "LocationDelta") -> None:
@@ -344,8 +344,8 @@ class LocationDelta:
     SOUTH = 180
     WEST = 270
 
-    def __init__(self, distance: typing.Optional[float]=None, angle: typing.Optional[float]=None, latitude_diff: typing.Optional[float]=None,
-                 longitude_diff: typing.Optional[float]=None) -> None:
+    def __init__(self, distance: Optional[float]=None, angle: Optional[float]=None, latitude_diff: Optional[float]=None,
+                 longitude_diff: Optional[float]=None) -> None:
         """
         Version 1:
             Distance (in meters).
@@ -368,13 +368,13 @@ class LocationDelta:
             self.longitude_diff = longitude_diff
             self.move_function = self.move_by_lat_lon_diff
 
-    def move(self, location: Location) -> typing.Tuple[float, float]:
+    def move(self, location: Location) -> Tuple[float, float]:
         """
         Move location by this timedelta.
         """
         return self.move_function(location)
 
-    def move_by_angle_and_distance(self, location: Location) -> typing.Tuple[float, float]:
+    def move_by_angle_and_distance(self, location: Location) -> Tuple[float, float]:
         coef = mod_math.cos(location.latitude / 180. * mod_math.pi)
         vertical_distance_diff   = mod_math.sin((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
         horizontal_distance_diff = mod_math.cos((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
@@ -382,5 +382,5 @@ class LocationDelta:
         lon_diff = self.distance * horizontal_distance_diff / coef
         return location.latitude + lat_diff, location.longitude + lon_diff
 
-    def move_by_lat_lon_diff(self, location: "Location") -> typing.Tuple[float, float]:
+    def move_by_lat_lon_diff(self, location: "Location") -> Tuple[float, float]:
         return location.latitude + self.latitude_diff, location.longitude + self.longitude_diff
