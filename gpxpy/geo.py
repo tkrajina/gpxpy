@@ -80,7 +80,7 @@ def length_3d(locations: List["Location"]=[]) -> float:
     return length(locations, True)
 
 
-def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Optional[float]:
+def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreemes_percentile: float) -> Optional[float]:
     """
     Compute average distance and standard deviation for distance. Extremes
     in distances are usually extremes in speeds, so we will ignore them,
@@ -88,6 +88,9 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Opti
 
     speeds_and_distances must be a list containing pairs of (speed, distance)
     for every point in a track segment.
+
+    In many cases the top speeds are measurement errors. For that reason extreme speeds can be removed
+    with the extreemes_percentile (for example, a value of 0.05 will remove top 5%).
     """
     assert speeds_and_distances
     if len(speeds_and_distances) > 0:
@@ -117,7 +120,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Opti
     speeds.sort()
 
     # Even here there may be some extremes => ignore the last 5%:
-    index = int(len(speeds) * 0.95)
+    index = int(len(speeds) * 1-extreemes_percentile)
     if index >= len(speeds):
         index = -1
 

@@ -799,7 +799,7 @@ class GPXTrackSegment:
 
         self.points = part_1 + part_2
 
-    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None) -> Optional[MovingData]:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, speed_extreemes_percentile: float=0.05) -> Optional[MovingData]:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance,
         stopped_distance, max_speed) that may be used for detecting the time
@@ -875,7 +875,7 @@ class GPXTrackSegment:
 
         max_speed = None
         if speeds_and_distances:
-            max_speed = mod_geo.calculate_max_speed(speeds_and_distances)
+            max_speed = mod_geo.calculate_max_speed(speeds_and_distances, speed_extreemes_percentile)
 
         return MovingData(moving_time, stopped_time, moving_distance, stopped_distance, max_speed or 0.0)
 
