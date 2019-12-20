@@ -293,7 +293,7 @@ class Location:
         self.elevation = elevation
 
     def has_elevation(self) -> bool:
-        return cast(bool, self.elevation or self.elevation)
+        return self.elevation is not None
 
     def remove_elevation(self) -> None:
         self.elevation = None
