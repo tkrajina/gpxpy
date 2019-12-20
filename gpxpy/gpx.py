@@ -191,9 +191,9 @@ class GPXXMLSyntaxException(GPXException):
 
     The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).
     """
-    def __init__(self, message: str, original_exception: object) -> None:
+    def __init__(self, message: str, original_exception: BaseException) -> None:
         GPXException.__init__(self, message)
-        self.__cause__ = cast(BaseException, original_exception)
+        self.__cause__ = original_exception
 
 
 class GPXWaypoint(mod_geo.Location):
