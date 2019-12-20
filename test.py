@@ -430,8 +430,6 @@ class GPXTests(mod_unittest.TestCase):
         points_reduced = gpx.get_track_points_no()
 
         result = gpx.to_xml()
-        if mod_sys.version_info[0] != 3:
-            result = cast(str, result.encode('utf-8'))
 
         started = mod_time.time()
         parser = mod_parser.GPXParser(result)
