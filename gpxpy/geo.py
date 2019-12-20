@@ -124,7 +124,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Opti
     return speeds[index]
 
 
-def calculate_uphill_downhill(elevations: List[float]) -> Tuple[float, float]:
+def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float, float]:
     if not elevations:
         return 0, 0
 

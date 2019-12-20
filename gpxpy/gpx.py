@@ -129,7 +129,7 @@ class MinimumMaximum(NamedTuple):
     minimum: Optional[float]
     maximum: Optional[float]
 class NearestLocationData(NamedTuple):
-    location: mod_geo.Location
+    location: "GPXTrackPoint"
     track_no: int
     segment_no: int
     point_no: int
@@ -1114,7 +1114,7 @@ class GPXTrackSegment:
             return UphillDownhill(0, 0)
 
         elevations = list(map(lambda point: point.elevation, self.points))
-        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations) # type: ignore
+        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
 
         return UphillDownhill(uphill, downhill)
 
@@ -1177,7 +1177,7 @@ class GPXTrackSegment:
         if not self.points:
             return None
 
-        result: Optional[mod_geo.Location] = None
+        result: Optional[GPXTrackPoint] = None
         current_distance = None
         result_track_point_no = None
         for i in range(len(self.points)):
@@ -1886,7 +1886,7 @@ class GPXTrack:
                 nearest_location_distance = nearest_loc_info.location.distance_2d(location)
                 if distance is not None and nearest_location_distance is not None and (distance < 0 or nearest_location_distance < distance):
                     distance = nearest_location_distance
-                    result = nearest_loc_info.location # type: ignore
+                    result = nearest_loc_info.location
                     result_track_segment_no = i
                     result_track_point_no = nearest_loc_info.point_no
 
@@ -2511,11 +2511,11 @@ class GPX:
         if not self.tracks:
             return None
 
-        result: mod_geo.Location = None # type: ignore
+        result: Optional[GPXTrackPoint] = None
         distance = None
-        result_track_no: int = None # type: ignore
-        result_segment_no: int = None # type: ignore
-        result_point_no: int = None # type: ignore
+        result_track_no: int = -1
+        result_segment_no: int = -1
+        result_point_no: int = -1
         for i in range(len(self.tracks)):
             track = self.tracks[i]
             nearest_loc_info = track.get_nearest_location(location)
