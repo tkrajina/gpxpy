@@ -745,7 +745,9 @@ class GPXTests(mod_unittest.TestCase):
     def test_spaces_in_elevation(self) -> None:
         gpx = mod_gpxpy.parse("""<?xml version='1.0' encoding='UTF-8'?>
 <gpx version='1.1' creator='GPSMID' xmlns='http://www.topografix.com/GPX/1/1'>
-<trk><trkseg><trkpt lat='40.61262' lon='10.592117'><ele>   100   </ele><time>2018-01-01T09:00:00Z</time></trkpt></trkseg></trk>
+<trk><trkseg><trkpt lat='40.61262' lon='10.592117'><ele> 
+  100  
+   </ele><time>2018-01-01T09:00:00Z</time></trkpt></trkseg></trk>
 </gpx>""")
 
         self.assertEqual(100, gpx.tracks[0].segments[0].points[0].elevation)
