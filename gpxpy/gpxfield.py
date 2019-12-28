@@ -498,22 +498,20 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
     if version == '1.1':
         fields = instance.gpx_11_fields
 
-    tag_open = bool(tag)
+    tag_with_attrs = []
     body = []
     if tag:
-        body.append('\n' + indent + '<' + tag)
+        tag_with_attrs.append(tag)
         if tag == 'gpx':  # write nsmap in root node
-            body.append(' xmlns="{0}"'.format(nsmap['defaultns']))
+            tag_with_attrs.append(' xmlns="{0}"'.format(nsmap['defaultns']))
             namespaces = set(nsmap.keys())
             namespaces.remove('defaultns')
             for prefix in sorted(namespaces):
-                body.append(
-                    ' xmlns:{0}="{1}"'.format(prefix, nsmap[prefix])
-                )
+                tag_with_attrs.append(' xmlns:{0}="{1}"'.format(prefix, nsmap[prefix]))
         if custom_attributes:
             # Make sure to_xml() always return attributes in the same order:
             for key in sorted(custom_attributes.keys()):
-                body.append(' {0}="{1}"'.format(key, mod_utils.make_str(custom_attributes[key])))
+                tag_with_attrs.append(' {0}="{1}"'.format(key, mod_utils.make_str(custom_attributes[key])))
     suppressuntil = ''
     for gpx_field in fields:
         # strings indicate non-data container tags with subelements
@@ -526,9 +524,6 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
                 suppressuntil, gpx_field = _check_dependents(instance,
                                                              gpx_field)
                 if not suppressuntil:
-                    if tag_open:
-                        body.append('>')
-                        tag_open = False
                     if gpx_field[0] == '/':
                         body.append('\n' + indent + '<{0}>'.format(gpx_field))
                         if prettyprint and len(indent) > 1:
@@ -536,28 +531,25 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
                     else:
                         if prettyprint:
                             indent += '  '
-                        body.append('\n' + indent + '<{0}'.format(gpx_field))
-                        tag_open = True
+                        body.append('\n' + indent + '<{0}>'.format(gpx_field))
         elif not suppressuntil:
             value = getattr(instance, gpx_field.name)
             if gpx_field.attribute:
-                body.append(' ' + gpx_field.to_xml(value, version, nsmap,
+                tag_with_attrs.append(' ' + gpx_field.to_xml(value, version, nsmap,
                                                    prettyprint=prettyprint,
                                                    indent=indent + '  '))
             elif value is not None:
-                if tag_open:
-                    body.append('>')
-                    tag_open = False
                 xml_value = gpx_field.to_xml(value, version, nsmap,
                                              prettyprint=prettyprint,
                                              indent=indent + '  ')
                 if xml_value:
                     body.append(xml_value)
 
-    if tag:
-        if tag_open:
-            body.append('>')
-        body.append('\n' + indent + '</' + tag + '>')
+    if tag_with_attrs:
+        if body or tag == "gpx":
+            return f"\n{indent}<{''.join(tag_with_attrs)}>\n" + ''.join(body) + f"</{tag}>\n"
+        else:
+            return f"\n{indent}<{''.join(tag_with_attrs)} />\n"
 
     return ''.join(body)
 

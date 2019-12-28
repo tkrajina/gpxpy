@@ -822,6 +822,13 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.bounds.min_longitude, -100) # type: ignore
         self.assertEqual(gpx.bounds.max_longitude, 100) # type: ignore
 
+    def test_bounds_xml(self) -> None:
+        track = mod_gpx.GPX()
+        track.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
+        xml = track.to_xml()
+        print(xml)
+        self.assertTrue('<bounds minlat="1" maxlat="2" minlon="3" maxlon="4" />' in xml)
+
     def test_time_bounds(self) -> None:
         gpx = mod_gpx.GPX()
 
@@ -2422,9 +2429,9 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.gpx.GPX()
         gpx.name = "Test<a>jkljkl</gpx>"
 
-        print(gpx.to_xml())
-
-        gpx_2 = mod_gpxpy.parse(gpx.to_xml())
+        xml = gpx.to_xml()
+        print(xml)
+        gpx_2 = mod_gpxpy.parse(xml)
 
         self.assertTrue('<name>Test&lt;a&gt;jkljkl&lt;/gpx&gt;</name>' in gpx_2.to_xml())
 
@@ -3240,7 +3247,9 @@ class GPXTests(mod_unittest.TestCase):
     def test_default_schema_locations(self) -> None:
         gpx = mod_gpx.GPX()
         with open('test_files/default_schema_locations.gpx') as f:
-            self.assertEqual(gpx.to_xml(), f.read())
+            xml = gpx.to_xml()
+            print(xml)
+            self.assertEqual(xml, f.read())
 
     def test_custom_schema_locations(self) -> None:
         gpx = mod_gpx.GPX()
