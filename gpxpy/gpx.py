@@ -234,10 +234,10 @@ class GPXWaypoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[wpt{{{}}}:{},{}@{}]'.format(self.name, self.latitude, self.longitude, self.elevation)
+        return f'[wpt{{{self.name}}}:{self.latitude},{self.longitude}@{self.elevation}]'
 
     def __repr__(self) -> str:
-        representation = '{}, {}'.format(self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
@@ -309,10 +309,10 @@ class GPXRoutePoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[rtept{{{}}}:{},{}@{}]'.format(self.name, self.latitude, self.longitude, self.elevation)
+        return f'[rtept{{{self.name}}}:{self.latitude},{self.longitude}@{self.elevation}]'
 
     def __repr__(self) -> str:
-        representation = '{}, {}'.format(self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
@@ -545,7 +545,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.extensions: List[Any] = []
 
     def __repr__(self) -> str:
-        representation = '{}, {}'.format(self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'symbol', 'comment', 'horizontal_dilution', \
                 'vertical_dilution', 'position_dilution', 'speed', 'name':
             value = getattr(self, attribute)
@@ -629,7 +629,7 @@ class GPXTrackPoint(mod_geo.Location):
         return length / float(seconds)
 
     def __str__(self) -> str:
-        return '[trkpt:{},{}@{}@{}]'.format(self.latitude, self.longitude, self.elevation, self.time)
+        return f'[trkpt:{self.latitude},{self.longitude}@{self.elevation}@{self.time}]'
 
 
 class GPXTrackSegment:
@@ -1159,7 +1159,7 @@ class GPXTrackSegment:
             return None
 
         if first_time and time and last_time and not first_time <= time <= last_time:
-            log.debug('Not in track (search for:{}, start:{}, end:{})'.format(time, first_time, last_time))
+            log.debug(f'Not in track (search for:{time}, start:{first_time}, end:{last_time})')
             return None
 
         for point in self.points:

@@ -85,7 +85,7 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
             dt.append(0)
         dt.append(SimpleTZ(m.group(8))) # type: ignore
         return mod_datetime.datetime(*dt) # type: ignore
-    raise mod_gpx.GPXException('Invalid time: {}'.format(string))
+    raise mod_gpx.GPXException(f'Invalid time: {string}')
 
 
 def format_time(time: mod_datetime.datetime) -> str:
@@ -192,7 +192,7 @@ class GPXField(AbstractGPXField):
         if result is None:
             if self.mandatory:
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('{} is mandatory in {} (got {})'.format(self.name, self.tag, result))
+                raise mod_gpx.GPXException(f'{self.name} is mandatory in {self.tag} (got {result})')
             return None
 
         if self.type_converter:
@@ -200,12 +200,12 @@ class GPXField(AbstractGPXField):
                 result = self.type_converter.from_string(result)
             except Exception as e:
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('Invalid value for <{}>... {} ({})'.format(self.tag, result, e))
+                raise mod_gpx.GPXException(f'Invalid value for <{self.tag}>... {result} ({e})')
 
         if self.possible:
             if not (result in self.possible):
                 from . import gpx as mod_gpx
-                raise mod_gpx.GPXException('Invalid value "{}", possible: {}'.format(result, self.possible))
+                raise mod_gpx.GPXException(f'Invalid value "{result}", possible: {self.possible}')
 
         return result
 
@@ -287,7 +287,7 @@ class GPXEmailField(AbstractGPXField):
 
         email_id = email_node.get('id')
         email_domain = email_node.get('domain')
-        return '{}@{}'.format(email_id, email_domain)
+        return f'{email_id}@{email_domain}'
 
     def to_xml(self, value: Any, version: str, nsmap: Optional[Dict[str, str]]=None, prettyprint: bool=True, indent: str='') -> str:
         """
@@ -401,7 +401,7 @@ class GPXExtensionsField(AbstractGPXField):
         result.append('\n' + indent + '<' + prefixedname)
         for attrib, value in node.attrib.items():
             attrib = self._resolve_prefix(attrib, nsmap)
-            result.append(' {}="{}"'.format(attrib, value))
+            result.append(f' {attrib}="{value}"')
         result.append('>')
         if node.text is not None:
              result.append(node.text.strip())
@@ -528,13 +528,13 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
                         body.append('>')
                         tag_open = False
                     if gpx_field[0] == '/':
-                        body.append('\n' + indent + '<{}>'.format(gpx_field))
+                        body.append('\n' + indent + f'<{gpx_field}>')
                         if prettyprint and len(indent) > 1:
                             indent = indent[:-2]
                     else:
                         if prettyprint:
                             indent += '  '
-                        body.append('\n' + indent + '<{}'.format(gpx_field))
+                        body.append('\n' + indent + f'<{gpx_field}')
                         tag_open = True
         elif not suppressuntil:
             value = getattr(instance, gpx_field.name)
@@ -607,14 +607,14 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
         attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
         attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
     except Exception as e:
-        raise Exception('Error reading attributes for {}: {}'.format(classs.__name__, e))
+        raise Exception(f'Error reading attributes for {classs.__name__}: {e}')
 
     attributes.sort()
     slots = list(classs.__slots__)
     slots.sort()
 
     if attributes != slots:
-        raise Exception('Attributes for {} is\n{} but should be\n{}'.format(classs.__name__, attributes, slots))
+        raise Exception(f'Attributes for {classs.__name__} is\n{attributes} but should be\n{slots}')
 
     for field in fields:
         if not isinstance(field, str):
@@ -624,7 +624,7 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
             try:
                 actual_value = getattr(instance, field.name)
             except:
-                raise Exception('{} has no attribute {}'.format(classs.__name__, field.name))
+                raise Exception(f'{classs.__name__} has no attribute {field.name}')
             if field.name != "latitude" and field.name != "longitude" and value != actual_value:
                 raise Exception('Invalid default value %s.%s is %s but should be %s'
                                 % (classs.__name__, field.name, actual_value, value))

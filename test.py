@@ -91,11 +91,11 @@ def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
         if not attr1 and not attr2:
             return True
         if not attr1 or not attr2:
-            print('Object differs in attribute {} ({} - {})'.format(attr, attr1, attr2))
+            print(f'Object differs in attribute {attr} ({attr1} - {attr2})')
             return False
 
         if not equals(attr1, attr2):
-            print('Object differs in attribute {} ({} - {})'.format(attr, attr1, attr2))
+            print(f'Object differs in attribute {attr} ({attr1} - {attr2})')
             return False
 
     return True
@@ -124,7 +124,7 @@ def get_dom_node(dom: Any, path: str) -> Any:
         try:
             result = candidates[n]
         except Exception:
-            raise Exception('Can\'t fint {}th child of {}'.format(n, path_part))
+            raise Exception(f'Can\'t fint {n}th child of {path_part}')
 
     return result
 
@@ -149,11 +149,11 @@ def elements_equal(e1: Any, e2: Any) -> bool:
     return all(elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
 def print_etree(e1: Any, indent: str='') -> str:
-    tag = ['{}tag: |{}|\n'.format(indent,e1.tag)]
+    tag = [f'{indent}tag: |{e1.tag}|\n']
     for att, value in e1.attrib.items():
-        tag.append('{}-att: |{}| = |{}|\n'.format(indent, att, value))
-    tag.append('{}-text: |{}|\n'.format(indent, e1.text))
-    tag.append('{}-tail: |{}|\n'.format(indent, e1.tail))
+        tag.append(f'{indent}-att: |{att}| = |{value}|\n')
+    tag.append(f'{indent}-text: |{e1.text}|\n')
+    tag.append(f'{indent}-tail: |{e1.tail}|\n')
     for subelem in e1:
         tag.append(print_etree(subelem, indent+'__|'))
     return ''.join(tag)

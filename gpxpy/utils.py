@@ -24,7 +24,7 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
         indent = ''
     attributes = attributes or {}
     result: List[str] = []
-    result.append('\n' + indent + '<{}'.format(tag))
+    result.append('\n' + indent + f'<{tag}')
 
     if content is None and default:
         content = default
@@ -39,7 +39,7 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
         if escape:
             result.append(make_str('>{}</{}>'.format(mod_saxutils.escape(content), tag)))
         else:
-            result.append(make_str('>{}</{}>'.format(content, tag)))
+            result.append(make_str(f'>{content}</{tag}>'))
 
     return make_str(''.join(result))
 
