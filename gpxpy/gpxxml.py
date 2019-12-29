@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import xml.dom.minidom as mod_minidom # type: ignore
 
 from typing import Any, AnyStr, Iterable

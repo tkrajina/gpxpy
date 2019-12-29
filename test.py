@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +23,6 @@ Run single test with:
     $ python -m unittest test.GPXTests.test_method
 """
 
-from __future__ import print_function
 
 import logging as mod_logging
 import os as mod_os
