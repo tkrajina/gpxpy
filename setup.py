@@ -14,9 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup
-
 import gpxpy
+import sys
+
+from setuptools import setup # type: ignore
+
+if sys.version_info < (3, 6):
+    sys.exit('Sorry, Python < 3.6 is not supported')
 
 with open('README.md') as f:
     long_description = f.read()
@@ -35,10 +39,6 @@ setup(
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

@@ -17,15 +17,15 @@
 import sys as mod_sys
 import math as mod_math
 import xml.sax.saxutils as mod_saxutils
+import datetime as mod_datetime
 
-PYTHON_VERSION = mod_sys.version.split(' ')[0]
+from typing import Any, AnyStr, List, Optional
 
-
-def to_xml(tag, attributes=None, content=None, default=None, escape=False, prettyprint=True, indent=''):
+def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None, escape: bool=False, prettyprint: bool=True, indent: str='') -> str:
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
-    result = []
+    result: List[str] = []
     result.append('\n' + indent + '<{0}'.format(tag))
 
     if content is None and default:
@@ -43,12 +43,10 @@ def to_xml(tag, attributes=None, content=None, default=None, escape=False, prett
         else:
             result.append(make_str('>%s</%s>' % (content, tag)))
 
-    result = make_str(''.join(result))
-
-    return result
+    return make_str(''.join(result))
 
 
-def is_numeric(object):
+def is_numeric(object: Any) -> bool:
     try:
         float(object)
         return True
@@ -58,10 +56,10 @@ def is_numeric(object):
         return False
 
 
-def to_number(s, default=0, nan_value=None):
+def to_number(s: str, default: float=0, nan_value: Optional[float]=None) -> float:
     try:
         result = float(s)
-        if mod_math.isnan(result):
+        if mod_math.isnan(result) and nan_value:
             return nan_value
         return result
     except TypeError:
@@ -71,14 +69,14 @@ def to_number(s, default=0, nan_value=None):
     return default
 
 
-def total_seconds(timedelta):
+def total_seconds(timedelta: mod_datetime.timedelta) -> float:
     """ Some versions of python don't have the timedelta.total_seconds() method. """
     if timedelta is None:
         return None
     return (timedelta.days * 86400) + timedelta.seconds
 
 
-def make_str(s):
+def make_str(s: AnyStr) -> str:
     """ Convert a str or unicode or float object into a str type. """
     if isinstance(s, float):
         result = str(s)
@@ -86,7 +84,4 @@ def make_str(s):
             return result
         # scientific notation is illegal in GPX 1/1
         return format(s, '.10f').rstrip('0.')
-    if PYTHON_VERSION[0] == '2':
-        if isinstance(s, unicode):
-            return s.encode("utf-8")
     return str(s)

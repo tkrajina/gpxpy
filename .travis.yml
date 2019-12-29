@@ -3,8 +3,6 @@ dist: xenial
 
 # Those without lxml wheels first because building lxml is slow
 python:
- - 2.7
- - 3.5
  - 3.6
  - 3.7
  - 3.8

@@ -37,18 +37,20 @@ import random as mod_random
 import math as mod_math
 import sys as mod_sys
 import unittest as mod_unittest
-import xml.dom.minidom as mod_minidom
+import xml.dom.minidom as mod_minidom # type: ignore
 
 try:
-    import lxml.etree as mod_etree  # Load LXML or fallback to cET or ET
+    # Load LXML or fallback to cET or ET 
+    import lxml.etree as mod_etree  # type: ignore
 except:
     try:
-        import xml.etree.cElementTree as mod_etree
+        import xml.etree.cElementTree as mod_etree # type: ignore
     except:
-        import xml.etree.ElementTree as mod_etree
+        import xml.etree.ElementTree as mod_etree # type: ignore
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
+import gpxpy.gpxxml as mod_gpxxml
 import gpxpy.gpxfield as mod_gpxfield
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
@@ -56,13 +58,12 @@ import gpxpy.geo as mod_geo
 from gpxpy.utils import make_str
 from gpxpy.utils import total_seconds
 
-PYTHON_VERSION = mod_sys.version.split(' ')[0]
+from typing import *
 
 mod_logging.basicConfig(level=mod_logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-
-def equals(object1, object2, ignore=None):
+def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
     """ Testing purposes only """
 
     if not object1 and not object2:
@@ -76,7 +77,7 @@ def equals(object1, object2, ignore=None):
         print('Not obj1')
         return False
 
-    attributes = []
+    attributes: List[str] = []
     for attr in dir(object1):
         if not ignore or not attr in ignore:
             if not hasattr(object1, '__call__') and not attr.startswith('_'):
@@ -98,24 +99,16 @@ def equals(object1, object2, ignore=None):
 
         if not equals(attr1, attr2):
             print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
-            return None
+            return False
 
     return True
 
 
-def custom_open(filename, encoding=None):
-    if PYTHON_VERSION[0] == '3':
-        return open(filename, encoding=encoding)
-    elif encoding == 'utf-8':
-        mod_codecs.open(filename, encoding='utf-8')
-    return open(filename)
-
-
-def cca(number1, number2):
+def cca(number1: float, number2: float) -> bool:
     return 1 - number1 / number2 < 0.999
 
 
-def get_dom_node(dom, path):
+def get_dom_node(dom: Any, path: str) -> Any:
     path_parts = path.split('/')
     result = dom
     for path_part in path_parts:
@@ -145,13 +138,12 @@ def get_dom_node(dom, path):
 ##    input()
 
 
-def node_strip(text):
+def node_strip(text: AnyStr) -> AnyStr:
     if text is None:
         return ''
     return text.strip()
 
-def elements_equal(e1, e2):
-
+def elements_equal(e1: Any, e2: Any) -> bool:
     if node_strip(e1.tag) != node_strip(e2.tag): return False
     if node_strip(e1.text) != node_strip(e2.text): return False
     if node_strip(e1.tail) != node_strip(e2.tail): return False
@@ -159,7 +151,7 @@ def elements_equal(e1, e2):
     if len(e1) != len(e2): return False
     return all(elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
-def print_etree(e1, indent=''):
+def print_etree(e1: Any, indent: str='') -> str:
     tag = ['{0}tag: |{1}|\n'.format(indent,e1.tag)]
     for att, value in e1.attrib.items():
         tag.append('{0}-att: |{1}| = |{2}|\n'.format(indent, att, value))
@@ -175,35 +167,28 @@ class GPXTests(mod_unittest.TestCase):
     Add tests here.
     """
 
-    def parse(self, file, encoding=None, version=None):
-        f = custom_open('test_files/%s' % file, encoding=encoding)
+    def parse(self, file: Any, encoding: Optional[str]=None, version: Optional[str]=None) -> mod_gpx.GPX:
+        with open('test_files/%s' % file, encoding=encoding) as f:
+            parser = mod_parser.GPXParser(f)
+            return parser.parse(version)
 
-        parser = mod_parser.GPXParser(f)
-        gpx = parser.parse(version)
-        f.close()
-
-        if not gpx:
-            print('Parser error: %s' % parser.get_error())
-
-        return gpx
-
-    def reparse(self, gpx):
+    def reparse(self, gpx: mod_gpx.GPX) -> mod_gpx.GPX:
         xml = gpx.to_xml()
 
         parser = mod_parser.GPXParser(xml)
         gpx = parser.parse()
 
         if not gpx:
-            print('Parser error while reparsing: %s' % parser.get_error())
+            print('Parser error while reparsing')
 
         return gpx
 
-    def test_simple_parse_function(self):
+    def test_simple_parse_function(self) -> None:
         # Must not throw any exception:
-        with custom_open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
+        with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
             mod_gpxpy.parse(f)
 
-    def test_simple_parse_function_invalid_xml(self):
+    def test_simple_parse_function_invalid_xml(self) -> None:
         try:
             mod_gpxpy.parse('<gpx></gpx')
             self.fail()
@@ -221,15 +206,15 @@ class GPXTests(mod_unittest.TestCase):
             except:
                 pass
 
-    def test_creator_field(self):
+    def test_creator_field(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
         self.assertEqual(gpx.creator, "GPSBabel - http://www.gpsbabel.org")
 
-    def test_no_creator_field(self):
+    def test_no_creator_field(self) -> None:
         gpx = self.parse('cerknicko-jezero-no-creator.gpx')
         self.assertEqual(gpx.creator, None)
 
-    def test_to_xml_creator(self):
+    def test_to_xml_creator(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
         xml = gpx.to_xml()
         self.assertTrue('creator="GPSBabel - http://www.gpsbabel.org"' in xml)
@@ -237,7 +222,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx2 = self.reparse(gpx)
         self.assertEqual(gpx2.creator, "GPSBabel - http://www.gpsbabel.org")
 
-    def test_waypoints_equality_after_reparse(self):
+    def test_waypoints_equality_after_reparse(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
         gpx2 = self.reparse(gpx)
 
@@ -246,13 +231,13 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
 
-    def test_waypoint_time(self):
+    def test_waypoint_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         self.assertTrue(gpx.waypoints[0].time)
         self.assertTrue(isinstance(gpx.waypoints[0].time, mod_datetime.datetime))
 
-    def test_add_elevation(self):
+    def test_add_elevation(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
@@ -267,7 +252,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 90)
         self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
 
-    def test_get_duration(self):
+    def test_get_duration(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
@@ -287,7 +272,7 @@ class GPXTests(mod_unittest.TestCase):
                                                                       time=mod_datetime.datetime(2013, 1, 1, 12, 31)))
         self.assertEqual(gpx.get_duration(), 60)
 
-    def test_remove_elevation(self):
+    def test_remove_elevation(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
@@ -302,7 +287,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertFalse('<ele>' in xml)
 
-    def test_remove_time_tracks_only(self):
+    def test_remove_time_tracks_only(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         for point, track_no, segment_no, point_no in gpx.walk():
@@ -313,7 +298,7 @@ class GPXTests(mod_unittest.TestCase):
         for point, track_no, segment_no, point_no in gpx.walk():
             self.assertTrue(point.time is None)
 
-    def test_remove_time_all(self):
+    def test_remove_time_all(self) -> None:
         gpx = mod_gpx.GPX()
 
         t0 = mod_datetime.datetime(2018, 7, 15, 12, 30, 0)
@@ -330,10 +315,10 @@ class GPXTests(mod_unittest.TestCase):
         gpx.waypoints.append(mod_gpx.GPXWaypoint(latitude=13.1, longitude=13.1, time=t1))
 
         gpx.routes.append(mod_gpx.GPXRoute())
-        p0 = mod_gpx.GPXRoutePoint(latitude=13.0, longitude=13.0, time=t0)
-        p1 = mod_gpx.GPXRoutePoint(latitude=13.1, longitude=13.1, time=t1)
-        gpx.routes[0].points.append(p0)
-        gpx.routes[0].points.append(p1)
+        p0 = mod_gpx.GPXRoutePoint(latitude=13.0, longitude=13.0, time=t0) # type: ignore
+        p1 = mod_gpx.GPXRoutePoint(latitude=13.1, longitude=13.1, time=t1) # type: ignore
+        gpx.routes[0].points.append(p0) # type: ignore
+        gpx.routes[0].points.append(p1) # type: ignore
 
         gpx.remove_time(all=True)
 
@@ -347,11 +332,11 @@ class GPXTests(mod_unittest.TestCase):
             for point, _ in route.walk():
                 self.assertTrue(point.time is None)
 
-    def test_has_times_false(self):
+    def test_has_times_false(self) -> None:
         gpx = self.parse('cerknicko-without-times.gpx')
         self.assertFalse(gpx.has_times())
 
-    def test_has_times(self):
+    def test_has_times(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
         self.assertTrue(len(gpx.tracks) == 4)
         # Empty -- True
@@ -363,33 +348,33 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
 
-    def test_unicode_name(self):
+    def test_unicode_name(self) -> None:
         gpx = self.parse('unicode.gpx', encoding='utf-8')
         name = gpx.waypoints[0].name
-        self.assertTrue(make_str(name) == 'šđčćž')
+        self.assertTrue(make_str(name) == 'šđčćž') # type: ignore
 
-    def test_unicode_2(self):
-        with custom_open('test_files/unicode2.gpx', encoding='utf-8') as f:
+    def test_unicode_2(self) -> None:
+        with open('test_files/unicode2.gpx', encoding='utf-8') as f:
             parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         gpx.to_xml()
 
-    def test_unicode_bom(self):
+    def test_unicode_bom(self) -> None:
         # TODO: Check that this file has the BOM and is unicode before checking gpxpy handling
         gpx = self.parse('unicode_with_bom.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
-        self.assertTrue(make_str(name) == 'test')
+        self.assertTrue(make_str(name) == 'test') # type: ignore
 
-    def test_unicode_bom_noencoding(self):
+    def test_unicode_bom_noencoding(self) -> None:
         gpx = self.parse('unicode_with_bom_noencoding.gpx', encoding='utf-8')
 
         name = gpx.waypoints[0].name
 
-        self.assertTrue(make_str(name) == 'bom noencoding ő')
+        self.assertTrue(make_str(name) == 'bom noencoding ő') # type: ignore
 
-    def test_force_version(self):
+    def test_force_version(self) -> None:
         gpx = self.parse('unicode_with_bom.gpx', version = '1.1', encoding='utf-8')
         # TODO: Implement new test. Current gpx is not valid (extensions using default namespace).
         # I don't want to edit this file without easy verification that it has the BOM and is unicode
@@ -398,26 +383,28 @@ class GPXTests(mod_unittest.TestCase):
 ##
 ##        self.assertTrue(make_str(security) == 'Open')
 
-    def test_nearest_location_1(self):
+    def test_nearest_location_1(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         location = mod_geo.Location(45.451058791, 14.027903696)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location)
-        point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(location) < 0.001)
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001)
+        nearest_loc_info = gpx.get_nearest_location(location)
+        print(nearest_loc_info)
+        self.assertTrue(nearest_loc_info is not None)
+        point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no] # type: ignore
+        self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
+        self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
 
         location = mod_geo.Location(1, 1)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location)
+        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
         point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001)
+        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
 
         location = mod_geo.Location(50, 50)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location)
+        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
         point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001)
+        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
 
-    def test_long_timestamps(self):
+    def test_long_timestamps(self) -> None:
         # Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
         gpx = self.parse('Mojstrovka.gpx')
 
@@ -426,7 +413,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207343, tzinfo=mod_gpxfield.SimpleTZ()))
         self.assertEqual(gpx.tracks[0].segments[0].points[1].time, mod_datetime.datetime(1901, 12, 13, 20, 45, 52, 207000, tzinfo=mod_gpxfield.SimpleTZ()))
 
-    def test_reduce_gpx_file(self):
+    def test_reduce_gpx_file(self) -> None:
         f = open('test_files/Mojstrovka.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -443,8 +430,6 @@ class GPXTests(mod_unittest.TestCase):
         points_reduced = gpx.get_track_points_no()
 
         result = gpx.to_xml()
-        if mod_sys.version_info[0] != 3:
-            result = result.encode('utf-8')
 
         started = mod_time.time()
         parser = mod_parser.GPXParser(result)
@@ -460,25 +445,25 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(points_reduced < points_original)
         self.assertTrue(points_reduced < max_reduced_points_no)
 
-    def test_smooth_without_removing_extreemes_preserves_point_count(self):
+    def test_smooth_without_removing_extreemes_preserves_point_count(self) -> None:
         gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=True, horizontal=False)
         self.assertEqual(l, len(list(gpx.walk())))
 
-    def test_smooth_without_removing_extreemes_preserves_point_count_2(self):
+    def test_smooth_without_removing_extreemes_preserves_point_count_2(self) -> None:
         gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=False, horizontal=True)
         self.assertEqual(l, len(list(gpx.walk())))
 
-    def test_smooth_without_removing_extreemes_preserves_point_count_3(self):
+    def test_smooth_without_removing_extreemes_preserves_point_count_3(self) -> None:
         gpx = self.parse('first_and_last_elevation.gpx')
         l = len(list(gpx.walk()))
         gpx.smooth(vertical=True, horizontal=True)
         self.assertEqual(l, len(list(gpx.walk())))
 
-    def test_clone_and_smooth(self):
+    def test_clone_and_smooth(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -505,7 +490,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.length_3d() > cloned_gpx.length_3d())
         self.assertTrue(gpx.length_2d() > cloned_gpx.length_2d())
 
-    def test_reduce_by_min_distance(self):
+    def test_reduce_by_min_distance(self) -> None:
         with open('test_files/cerknicko-jezero.gpx') as f:
             gpx = mod_gpxpy.parse(f)
 
@@ -529,7 +514,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(min_distance_before_reduce < 10)
         self.assertTrue(10 < min_distance_after_reduce)
 
-    def test_moving_stopped_times(self):
+    def test_moving_stopped_times(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -565,7 +550,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(moving_distance > 0.75 * length)
         self.assertTrue(stopped_distance < 0.1 * length)
 
-    def test_split_on_impossible_index(self):
+    def test_split_on_impossible_index(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -579,7 +564,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(before == after)
 
-    def test_split(self):
+    def test_split(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -605,7 +590,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(len(track.segments[1].points) == 21)
         self.assertTrue(len(track.segments[0].points) + len(track.segments[1].points) + len(track.segments[2].points) == track_points_no)
 
-    def test_split_and_join(self):
+    def test_split_and_join(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -627,7 +612,7 @@ class GPXTests(mod_unittest.TestCase):
         # Check that this split and joined track is the same as the original one:
         self.assertTrue(equals(track, original_track))
 
-    def test_remove_point_from_segment(self):
+    def test_remove_point_from_segment(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
@@ -648,12 +633,12 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(len(segment.points) + 1 == len(original_segment.points))
 
-    def test_distance(self):
-        distance = mod_geo.distance(48.56806, 21.43467, None, 48.599214, 21.430878, None)
+    def test_distance(self) -> None:
+        distance = mod_geo.distance(48.56806, 21.43467, None, 48.599214, 21.430878, False)
         print(distance)
         self.assertTrue(distance > 3450 and distance < 3500)
 
-    def test_haversine_and_nonhaversine(self):
+    def test_haversine_and_nonhaversine(self) -> None:
         haversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=True)
         nonhaversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=False)
 
@@ -661,20 +646,20 @@ class GPXTests(mod_unittest.TestCase):
         print("nonhaversine_dist=", nonhaversine_dist)
 
         self.assertTrue(haversine_dist != nonhaversine_dist)
-        self.assertTrue(abs(haversine_dist - nonhaversine_dist) < 15)
+        self.assertAlmostEqual(haversine_dist, nonhaversine_dist, delta=15)
 
-    def test_haversine_distance(self):
+    def test_haversine_distance(self) -> None:
         loc1 = mod_geo.Location(1, 2)
         loc2 = mod_geo.Location(2, 3)
 
         self.assertEqual(loc1.distance_2d(loc2),
-                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, None))
+                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, False))
 
         loc1 = mod_geo.Location(1, 2)
         loc2 = mod_geo.Location(3, 4)
 
         self.assertEqual(loc1.distance_2d(loc2),
-                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, None))
+                         mod_geo.distance(loc1.latitude, loc1.longitude, None, loc2.latitude, loc2.longitude, False))
 
         loc1 = mod_geo.Location(1, 2)
         loc2 = mod_geo.Location(3.1, 4)
@@ -688,7 +673,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(loc1.distance_2d(loc2),
                          mod_geo.haversine_distance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude))
 
-    def test_horizontal_smooth_remove_extremes(self):
+    def test_horizontal_smooth_remove_extremes(self) -> None:
         with open('test_files/track-with-extremes.gpx', 'r') as f:
 
             parser = mod_parser.GPXParser(f)
@@ -704,7 +689,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 2 == points_after)
 
-    def test_vertical_smooth_remove_extremes(self):
+    def test_vertical_smooth_remove_extremes(self) -> None:
         with open('test_files/track-with-extremes.gpx', 'r') as f:
             parser = mod_parser.GPXParser(f)
 
@@ -719,7 +704,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 1 == points_after)
 
-    def test_horizontal_and_vertical_smooth_remove_extremes(self):
+    def test_horizontal_and_vertical_smooth_remove_extremes(self) -> None:
         with open('test_files/track-with-extremes.gpx', 'r') as f:
             parser = mod_parser.GPXParser(f)
 
@@ -734,7 +719,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 3 == points_after)
 
-    def test_positions_on_track(self):
+    def test_positions_on_track(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
         gpx.tracks.append(track)
@@ -753,11 +738,21 @@ class GPXTests(mod_unittest.TestCase):
             if i == 500:
                 location_to_find_on_track = mod_gpx.GPXWaypoint(latitude=latitude, longitude=longitude)
 
-        result = gpx.get_nearest_locations(location_to_find_on_track)
+        result = gpx.get_nearest_locations(location_to_find_on_track) # type: ignore
 
         self.assertTrue(len(result) == 1)
 
-    def test_positions_on_track_2(self):
+    def test_spaces_in_elevation(self) -> None:
+        gpx = mod_gpxpy.parse("""<?xml version='1.0' encoding='UTF-8'?>
+<gpx version='1.1' creator='GPSMID' xmlns='http://www.topografix.com/GPX/1/1'>
+<trk><trkseg><trkpt lat='40.61262' lon='10.592117'><ele> 
+  100  
+   </ele><time>2018-01-01T09:00:00Z</time></trkpt></trkseg></trk>
+</gpx>""")
+
+        self.assertEqual(100, gpx.tracks[0].segments[0].points[0].elevation)
+
+    def test_positions_on_track_2(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
         gpx.tracks.append(track)
@@ -787,13 +782,13 @@ class GPXTests(mod_unittest.TestCase):
             point = mod_gpx.GPXTrackPoint(latitude=latitude, longitude=longitude, elevation=elevation)
             segment.points.append(point)
 
-        result = gpx.get_nearest_locations(location_to_find_on_track)
+        result = gpx.get_nearest_locations(location_to_find_on_track) # type: ignore
 
         print('Found', result)
 
         self.assertTrue(len(result) == 2)
 
-    def test_bounds(self):
+    def test_bounds(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -814,20 +809,20 @@ class GPXTests(mod_unittest.TestCase):
 
         bounds = gpx.get_bounds()
 
-        self.assertEqual(bounds.min_latitude, -100)
-        self.assertEqual(bounds.max_latitude, 100)
-        self.assertEqual(bounds.min_longitude, -100)
-        self.assertEqual(bounds.max_longitude, 100)
+        self.assertEqual(bounds.min_latitude, -100) # type: ignore
+        self.assertEqual(bounds.max_latitude, 100) # type: ignore
+        self.assertEqual(bounds.min_longitude, -100) # type: ignore
+        self.assertEqual(bounds.max_longitude, 100) # type: ignore
 
         # Test refresh bounds:
 
         gpx.refresh_bounds()
-        self.assertEqual(gpx.bounds.min_latitude, -100)
-        self.assertEqual(gpx.bounds.max_latitude, 100)
-        self.assertEqual(gpx.bounds.min_longitude, -100)
-        self.assertEqual(gpx.bounds.max_longitude, 100)
+        self.assertEqual(gpx.bounds.min_latitude, -100) # type: ignore
+        self.assertEqual(gpx.bounds.max_latitude, 100) # type: ignore
+        self.assertEqual(gpx.bounds.min_longitude, -100) # type: ignore
+        self.assertEqual(gpx.bounds.max_longitude, 100) # type: ignore
 
-    def test_time_bounds(self):
+    def test_time_bounds(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -851,7 +846,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(bounds.start_time, mod_datetime.datetime(2001, 1, 12))
         self.assertEqual(bounds.end_time, mod_datetime.datetime(2011, 1, 12))
 
-    def test_speed(self):
+    def test_speed(self) -> None:
         gpx = self.parse('track_with_speed.gpx')
         gpx2 = self.reparse(gpx)
 
@@ -864,7 +859,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[1].speed, 2.2)
         self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
-    def test_dilutions(self):
+    def test_dilutions(self) -> None:
         gpx = self.parse('track_with_dilution_errors.gpx')
         gpx2 = self.reparse(gpx)
 
@@ -887,7 +882,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
 
-    def test_name_comment_and_symbol(self):
+    def test_name_comment_and_symbol(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
         gpx.tracks.append(track)
@@ -906,7 +901,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx2.tracks[0].segments[0].points[0].comment, 'ccc')
         self.assertEqual(gpx2.tracks[0].segments[0].points[0].symbol, 'sss')
 
-    def test_get_bounds_and_refresh_bounds(self):
+    def test_get_bounds_and_refresh_bounds(self) -> None:
         gpx = mod_gpx.GPX()
 
         latitudes = []
@@ -931,19 +926,19 @@ class GPXTests(mod_unittest.TestCase):
         print(latitudes)
         print(longitudes)
 
-        self.assertEqual(bounds.min_latitude, min(latitudes))
-        self.assertEqual(bounds.max_latitude, max(latitudes))
-        self.assertEqual(bounds.min_longitude, min(longitudes))
-        self.assertEqual(bounds.max_longitude, max(longitudes))
+        self.assertEqual(bounds.min_latitude, min(latitudes)) # type: ignore
+        self.assertEqual(bounds.max_latitude, max(latitudes)) # type: ignore
+        self.assertEqual(bounds.min_longitude, min(longitudes)) # type: ignore
+        self.assertEqual(bounds.max_longitude, max(longitudes)) # type: ignore
 
         gpx.refresh_bounds()
 
-        self.assertEqual(gpx.bounds.min_latitude, min(latitudes))
-        self.assertEqual(gpx.bounds.max_latitude, max(latitudes))
-        self.assertEqual(gpx.bounds.min_longitude, min(longitudes))
-        self.assertEqual(gpx.bounds.max_longitude, max(longitudes))
+        self.assertEqual(gpx.bounds.min_latitude, min(latitudes)) # type: ignore
+        self.assertEqual(gpx.bounds.max_latitude, max(latitudes)) # type: ignore
+        self.assertEqual(gpx.bounds.min_longitude, min(longitudes)) # type: ignore
+        self.assertEqual(gpx.bounds.max_longitude, max(longitudes)) # type: ignore
 
-    def test_named_tuples_values_time_bounds(self):
+    def test_named_tuples_values_time_bounds(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         time_bounds = gpx.get_time_bounds()
@@ -952,7 +947,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(start_time, time_bounds.start_time)
         self.assertEqual(end_time, time_bounds.end_time)
 
-    def test_named_tuples_values_moving_data(self):
+    def test_named_tuples_values_moving_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         moving_data = gpx.get_moving_data()
@@ -963,7 +958,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(stopped_distance, moving_data.stopped_distance)
         self.assertEqual(max_speed, moving_data.max_speed)
 
-    def test_named_tuples_values_uphill_downhill(self):
+    def test_named_tuples_values_uphill_downhill(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         uphill_downhill = gpx.get_uphill_downhill()
@@ -971,7 +966,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(uphill, uphill_downhill.uphill)
         self.assertEqual(downhill, uphill_downhill.downhill)
 
-    def test_named_tuples_values_elevation_extremes(self):
+    def test_named_tuples_values_elevation_extremes(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         elevation_extremes = gpx.get_elevation_extremes()
@@ -979,20 +974,20 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(minimum, elevation_extremes.minimum)
         self.assertEqual(maximum, elevation_extremes.maximum)
 
-    def test_named_tuples_values_nearest_location_data(self):
+    def test_named_tuples_values_nearest_location_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         location = gpx.tracks[1].segments[0].points[2]
         location.latitude *= 1.00001
         location.longitude *= 0.99999
         nearest_location_data = gpx.get_nearest_location(location)
-        found_location, track_no, segment_no, point_no = gpx.get_nearest_location(location)
-        self.assertEqual(found_location, nearest_location_data.location)
-        self.assertEqual(track_no, nearest_location_data.track_no)
-        self.assertEqual(segment_no, nearest_location_data.segment_no)
-        self.assertEqual(point_no, nearest_location_data.point_no)
+        found_location, track_no, segment_no, point_no = gpx.get_nearest_location(location) # type: ignore
+        self.assertEqual(found_location, nearest_location_data.location) # type: ignore
+        self.assertEqual(track_no, nearest_location_data.track_no) # type: ignore
+        self.assertEqual(segment_no, nearest_location_data.segment_no) # type: ignore
+        self.assertEqual(point_no, nearest_location_data.point_no) # type: ignore
 
-    def test_named_tuples_values_point_data(self):
+    def test_named_tuples_values_point_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         points_datas = gpx.get_points_data()
@@ -1005,7 +1000,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(segment_no, point_data.segment_no)
             self.assertEqual(point_no, point_data.point_no)
 
-    def test_track_points_data(self):
+    def test_track_points_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         points_data_2d = gpx.get_points_data(distance_2d=True)
@@ -1025,7 +1020,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(gpx.length_2d() != gpx.length_3d())
 
-    def test_walk_route_points(self):
+    def test_walk_route_points(self) -> None:
         with open('test_files/route.gpx') as f:
             gpx = mod_gpxpy.parse(f)
 
@@ -1037,7 +1032,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertEqual(point_no, len(gpx.routes[0].points) - 1)
 
-    def test_walk_gpx_points(self):
+    def test_walk_gpx_points(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
         for point in gpx.walk():
@@ -1050,20 +1045,20 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(segment_no, len(gpx.tracks[-1].segments) - 1)
         self.assertEqual(point_no, len(gpx.tracks[-1].segments[-1].points) - 1)
 
-    def test_walk_gpx_points2(self):
+    def test_walk_gpx_points2(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
         track = gpx.tracks[1]
 
-        for point in track.walk():
-            self.assertTrue(point)
+        for tmp_point in track.walk():
+            self.assertTrue(tmp_point)
 
-        for point, segment_no, point_no in track.walk():
+        for point, segment_no, point_no in track.walk(): # type: ignore
             self.assertTrue(point)
 
         self.assertEqual(segment_no, len(track.segments) - 1)
         self.assertEqual(point_no, len(track.segments[-1].points) - 1)
 
-    def test_walk_segment_points(self):
+    def test_walk_segment_points(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
         track = gpx.tracks[1]
         segment = track.segments[0]
@@ -1081,7 +1076,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(point_no, len(track.segments[-1].points) - 1)
         """
 
-    def test_angle_0(self):
+    def test_angle_0(self) -> None:
         loc1 = mod_geo.Location(0, 0)
         loc2 = mod_geo.Location(0, 1)
 
@@ -1094,12 +1089,12 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(angle_radians, 0)
         self.assertEqual(angle_degrees, 0)
 
-    def test_angle(self):
+    def test_angle(self) -> None:
         loc1 = mod_geo.Location(0, 0)
         loc2 = mod_geo.Location(0, 1)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + loc1.distance_2d(loc2)
+        loc2.elevation = loc1.elevation + loc1.distance_2d(loc2) # type: ignore
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -1107,38 +1102,38 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(angle_radians, mod_math.pi / 4)
         self.assertEqual(angle_degrees, 45)
 
-    def test_angle_2(self):
+    def test_angle_2(self) -> None:
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + 0.5 * loc1.distance_2d(loc2)
+        loc2.elevation = loc1.elevation + 0.5 * loc1.distance_2d(loc2) # type: ignore
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
 
-        self.assertTrue(angle_radians < mod_math.pi / 4)
-        self.assertTrue(angle_degrees < 45)
+        self.assertTrue(angle_radians < mod_math.pi / 4) # type: ignore
+        self.assertTrue(angle_degrees < 45) # type: ignore
 
-    def test_angle_3(self):
+    def test_angle_3(self) -> None:
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + 1.5 * loc1.distance_2d(loc2)
+        loc2.elevation = loc1.elevation + 1.5 * loc1.distance_2d(loc2) # type: ignore
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
 
-        self.assertTrue(angle_radians > mod_math.pi / 4)
-        self.assertTrue(angle_degrees > 45)
+        self.assertTrue(angle_radians > mod_math.pi / 4) # type: ignore
+        self.assertTrue(angle_degrees > 45) # type: ignore
 
-    def test_angle_4(self):
+    def test_angle_4(self) -> None:
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation - loc1.distance_2d(loc2)
+        loc2.elevation = loc1.elevation - loc1.distance_2d(loc2) # type: ignore
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -1146,7 +1141,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(angle_radians, - mod_math.pi / 4)
         self.assertEqual(angle_degrees, - 45)
 
-    def test_angle_loc(self):
+    def test_angle_loc(self) -> None:
         loc1 = mod_geo.Location(45, 45)
         loc2 = mod_geo.Location(46, 45)
 
@@ -1154,7 +1149,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
         self.assertEqual(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
 
-    def test_ignore_maximums_for_max_speed(self):
+    def test_ignore_maximums_for_max_speed(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -1162,7 +1157,7 @@ class GPXTests(mod_unittest.TestCase):
 
         tmp_time = mod_datetime.datetime.now()
 
-        tmp_longitude = 0
+        tmp_longitude: float = 0
         segment_1 = mod_gpx.GPXTrackSegment()
         for i in range(4):
             segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=tmp_longitude, time=tmp_time))
@@ -1213,7 +1208,7 @@ class GPXTests(mod_unittest.TestCase):
         mod_logging.debug('max_speed_with_extreemes = %s', max_speed_with_extreemes)
         self.assertTrue(max_speed_with_more_extreemes - max_speed_with_extreemes > 10)
 
-    def test_track_with_elevation_zero(self):
+    def test_track_with_elevation_zero(self) -> None:
         with open('test_files/cerknicko-jezero-with-elevations-zero.gpx') as f:
             gpx = mod_gpxpy.parse(f)
 
@@ -1225,7 +1220,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(uphill, 0)
             self.assertEqual(downhill, 0)
 
-    def test_track_without_elevation(self):
+    def test_track_without_elevation(self) -> None:
         with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
             gpx = mod_gpxpy.parse(f)
 
@@ -1237,17 +1232,17 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(uphill, 0)
             self.assertEqual(downhill, 0)
 
-    def test_has_elevation_false(self):
+    def test_has_elevation_false(self) -> None:
         with open('test_files/cerknicko-jezero-without-elevations.gpx') as f:
             gpx = mod_gpxpy.parse(f)
             self.assertFalse(gpx.has_elevations())
 
-    def test_has_elevation_true(self):
+    def test_has_elevation_true(self) -> None:
         with open('test_files/cerknicko-jezero.gpx') as f:
             gpx = mod_gpxpy.parse(f)
             self.assertFalse(gpx.has_elevations())
 
-    def test_track_with_some_points_are_without_elevations(self):
+    def test_track_with_some_points_are_without_elevations(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -1273,13 +1268,13 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(uphill is not None)
         self.assertTrue(downhill is not None)
 
-    def test_track_with_empty_segment(self):
+    def test_track_with_empty_segment(self) -> None:
         with open('test_files/track-with-empty-segment.gpx') as f:
             gpx = mod_gpxpy.parse(f)
-            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude)
-            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude)
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_latitude) # type: ignore
+            self.assertIsNotNone(gpx.tracks[0].get_bounds().min_longitude) # type: ignore
 
-    def test_add_missing_data_no_intervals(self):
+    def test_add_missing_data_no_intervals(self) -> None:
         # Test only that the add_missing_function is called with the right data
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
@@ -1293,13 +1288,12 @@ class GPXTests(mod_unittest.TestCase):
                                                                       elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point, ratios):
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             raise Exception()
 
-        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
-                             add_missing_function=_add_missing_function)
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation, add_missing_function=_add_missing_function) # type: ignore
 
-    def test_add_missing_data_one_interval(self):
+    def test_add_missing_data_one_interval(self) -> None:
         # Test only that the add_missing_function is called with the right data
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
@@ -1307,13 +1301,12 @@ class GPXTests(mod_unittest.TestCase):
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
                                                                       elevation=10))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
-                                                                      elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
                                                                       elevation=20))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point, ratios):
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
@@ -1323,30 +1316,24 @@ class GPXTests(mod_unittest.TestCase):
             assert ratios
             interval[0].elevation = 314
 
-        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
-                             add_missing_function=_add_missing_function)
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation, add_missing_function=_add_missing_function) # type: ignore
 
         self.assertEqual(314, gpx.tracks[0].segments[0].points[1].elevation)
 
-    def test_add_missing_data_one_interval_and_empty_points_on_start_and_end(self):
+    def test_add_missing_data_one_interval_and_empty_points_on_start_and_end(self) -> None:
         # Test only that the add_missing_function is called with the right data
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                                                                      elevation=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                                                                      elevation=10))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14,
-                                                                      elevation=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15,
-                                                                      elevation=20))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13,
-                                                                      elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13, elevation=10))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=14))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=15, elevation=20))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=12, longitude=13))
 
         # Shouldn't be called because all points have elevation
-        def _add_missing_function(interval, start_point, end_point, ratios):
+        def _add_missing_function(interval: List[mod_geo.Location], start_point: mod_geo.Location, end_point: mod_geo.Location, ratios: List[float]) -> None:
             assert start_point
             assert start_point.latitude == 12 and start_point.longitude == 13
             assert end_point
@@ -1356,9 +1343,7 @@ class GPXTests(mod_unittest.TestCase):
             assert ratios
             interval[0].elevation = 314
 
-        gpx.add_missing_data(get_data_function=lambda point: point.elevation,
-                             add_missing_function=_add_missing_function)
-
+        gpx.add_missing_data(get_data_function=lambda point: point.elevation, add_missing_function=_add_missing_function) # type: ignore
         # Points at start and end should not have elevation 314 because have
         # no two bounding points with elevations:
         self.assertEqual(None, gpx.tracks[0].segments[0].points[0].elevation)
@@ -1366,7 +1351,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertEqual(314, gpx.tracks[0].segments[0].points[2].elevation)
 
-    def test_add_missing_speeds(self):
+    def test_add_missing_speeds(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
@@ -1385,35 +1370,31 @@ class GPXTests(mod_unittest.TestCase):
                                                                       speed=0))
         gpx.add_missing_speeds()
 
-        self.assertTrue(abs(3000./(2*3600) - gpx.tracks[0].segments[0].points[1].speed) < 0.01)
-        self.assertTrue(abs(3000./(80*60) - gpx.tracks[0].segments[0].points[2].speed) < 0.01)
-        self.assertTrue(abs(4000./(40*60) - gpx.tracks[0].segments[0].points[3].speed) < 0.01)
+        self.assertTrue(abs(3000./(2*3600) - gpx.tracks[0].segments[0].points[1].speed) < 0.01) # type: ignore
+        self.assertTrue(abs(3000./(80*60) - gpx.tracks[0].segments[0].points[2].speed) < 0.01) # type: ignore
+        self.assertTrue(abs(4000./(40*60) - gpx.tracks[0].segments[0].points[3].speed) < 0.01) # type: ignore
 
-    def test_add_missing_elevations(self):
+    def test_add_missing_elevations(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
                                                                       elevation=10))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
-                                                                      elevation=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
-                                                                      elevation=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12,
-                                                                      elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.9, longitude=12))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
                                                                       elevation=20))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12,
-                                                                      elevation=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=15, longitude=12))
 
         gpx.add_missing_elevations()
 
-        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01)
-        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01)
-        self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01)
+        self.assertTrue(abs(12.5 - gpx.tracks[0].segments[0].points[1].elevation) < 0.01) # type: ignore
+        self.assertTrue(abs(15 - gpx.tracks[0].segments[0].points[2].elevation) < 0.01) # type: ignore
+        self.assertTrue(abs(19 - gpx.tracks[0].segments[0].points[3].elevation) < 0.01) # type: ignore
 
-    def test_add_missing_elevations_without_ele(self):
+    def test_add_missing_elevations_without_ele(self) -> None:
         xml = """<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <gpx>
     <trk>
@@ -1431,19 +1412,16 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[0].segments[0].points[1].elevation == None)
         self.assertTrue(gpx.tracks[0].segments[0].points[2].elevation == 0.0)
 
-    def test_add_missing_times(self):
+    def test_add_missing_times(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
                                                                       time=mod_datetime.datetime(2013, 1, 2, 12, 0)))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12,
-                                                                      time=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12,
-                                                                      time=None))
-        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12,
-                                                                      time=None))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.25, longitude=12))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.5, longitude=12))
+        gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=13.75, longitude=12))
         gpx.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=14, longitude=12,
                                                                       time=mod_datetime.datetime(2013, 1, 2, 13, 0)))
 
@@ -1453,25 +1431,25 @@ class GPXTests(mod_unittest.TestCase):
         time_2 = gpx.tracks[0].segments[0].points[2].time
         time_3 = gpx.tracks[0].segments[0].points[3].time
 
-        self.assertEqual(2013, time_1.year)
-        self.assertEqual(1, time_1.month)
-        self.assertEqual(2, time_1.day)
-        self.assertEqual(12, time_1.hour)
-        self.assertEqual(15, time_1.minute)
+        self.assertEqual(2013, time_1.year) # type: ignore
+        self.assertEqual(1, time_1.month) # type: ignore
+        self.assertEqual(2, time_1.day) # type: ignore
+        self.assertEqual(12, time_1.hour) # type: ignore
+        self.assertEqual(15, time_1.minute) # type: ignore
 
-        self.assertEqual(2013, time_2.year)
-        self.assertEqual(1, time_2.month)
-        self.assertEqual(2, time_2.day)
-        self.assertEqual(12, time_2.hour)
-        self.assertEqual(30, time_2.minute)
+        self.assertEqual(2013, time_2.year) # type: ignore
+        self.assertEqual(1, time_2.month) # type: ignore
+        self.assertEqual(2, time_2.day) # type: ignore
+        self.assertEqual(12, time_2.hour) # type: ignore
+        self.assertEqual(30, time_2.minute) # type: ignore
 
-        self.assertEqual(2013, time_3.year)
-        self.assertEqual(1, time_3.month)
-        self.assertEqual(2, time_3.day)
-        self.assertEqual(12, time_3.hour)
-        self.assertEqual(45, time_3.minute)
+        self.assertEqual(2013, time_3.year) # type: ignore
+        self.assertEqual(1, time_3.month) # type: ignore
+        self.assertEqual(2, time_3.day) # type: ignore
+        self.assertEqual(12, time_3.hour) # type: ignore
+        self.assertEqual(45, time_3.minute) # type: ignore
 
-    def test_add_missing_times_2(self):
+    def test_add_missing_times_2(self) -> None:
         xml = ''
         xml += '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
@@ -1494,26 +1472,26 @@ class GPXTests(mod_unittest.TestCase):
                     self.assertTrue(point.time > previous_time)
             previous_time = point.time
 
-    def test_distance_from_line(self):
+    def test_distance_from_line(self) -> None:
         d = mod_geo.distance_from_line(mod_geo.Location(1, 1),
                                        mod_geo.Location(0, -1),
                                        mod_geo.Location(0, 1))
-        self.assertTrue(abs(d - mod_geo.ONE_DEGREE) < 100)
+        self.assertTrue(abs(d - mod_geo.ONE_DEGREE) < 100) # type: ignore
 
-    def test_simplify(self):
+    def test_simplify(self) -> None:
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8')as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8')as f:
                 gpx = mod_gpxpy.parse(f)
 
             length_2d_original = gpx.length_2d()
 
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            with custom_open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
@@ -1532,7 +1510,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(length_2d_after_distance_10 >= length_2d_original * .6)
             self.assertTrue(length_2d_after_distance_50 >= length_2d_original * .5)
 
-    def test_simplify_circular_gpx(self):
+    def test_simplify_circular_gpx(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
 
@@ -1545,15 +1523,15 @@ class GPXTests(mod_unittest.TestCase):
 
         gpx.simplify()
 
-    def test_nan_elevation(self):
+    def test_nan_elevation(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
         gpx = mod_gpxpy.parse(xml)
 
-        self.assertTrue(mod_math.isnan(gpx.tracks[0].segments[0].points[0].elevation))
-        self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation))
-        self.assertTrue(mod_math.isnan(gpx.waypoints[0].elevation))
+        self.assertTrue(mod_math.isnan(gpx.tracks[0].segments[0].points[0].elevation)) # type: ignore
+        self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation)) # type: ignore
+        self.assertTrue(mod_math.isnan(gpx.waypoints[0].elevation)) # type: ignore
 
-    def test_time_difference(self):
+    def test_time_difference(self) -> None:
         point_1 = mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
                                         time=mod_datetime.datetime(2013, 1, 2, 12, 31))
         point_2 = mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
@@ -1562,7 +1540,7 @@ class GPXTests(mod_unittest.TestCase):
         seconds = point_1.time_difference(point_2)
         self.assertEqual(seconds, 60 * 60 * 24 + 60)
 
-    def test_parse_time(self):
+    def test_parse_time(self) -> None:
         timestamps = [
             '2001-10-26T21:32:52',
             #'2001-10-26T21:32:52+0200',
@@ -1584,7 +1562,7 @@ class GPXTests(mod_unittest.TestCase):
             print('Parsing: %s' % timestamp)
             self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
 
-    def test_get_location_at(self):
+    def test_get_location_at(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
         gpx.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
@@ -1599,7 +1577,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 0))[0], p1)
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 30)), [])
 
-    def test_adjust_time_tracks_only(self):
+    def test_adjust_time_tracks_only(self) -> None:
         gpx = mod_gpx.GPX()
 
         t0 = mod_datetime.datetime(2013, 1, 2, 12, 30, 0)
@@ -1636,7 +1614,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.waypoints[0].time, None)
         self.assertEqual(gpx.waypoints[1].time, t0)
 
-    def test_adjust_time_all(self):
+    def test_adjust_time_all(self) -> None:
         gpx = mod_gpx.GPX()
 
         t0 = mod_datetime.datetime(2018, 7, 15, 12, 30, 0)
@@ -1672,31 +1650,31 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.routes[1].points[0].time, t0_adjusted)
         self.assertEqual(gpx.routes[1].points[1].time, t1_adjusted)
 
-    def test_unicode(self):
-        with custom_open('test_files/unicode2.gpx', encoding='utf-8') as f:
+    def test_unicode(self) -> None:
+        with open('test_files/unicode2.gpx', encoding='utf-8') as f:
             parser = mod_parser.GPXParser(f)
         gpx = parser.parse()
         gpx.to_xml()
 
-    def test_location_delta(self):
+    def test_location_delta(self) -> None:
         location = mod_geo.Location(-20, -50)
 
         location_2 = location + mod_geo.LocationDelta(angle=45, distance=100)
         self.assertTrue(cca(location_2.latitude - location.latitude, location_2.longitude - location.longitude))
 
-    def test_location_equator_delta_distance_111120(self):
+    def test_location_equator_delta_distance_111120(self) -> None:
         self.__test_location_delta(mod_geo.Location(0, 13), 111120)
 
-    def test_location_equator_delta_distance_50(self):
+    def test_location_equator_delta_distance_50(self) -> None:
         self.__test_location_delta(mod_geo.Location(0, -50), 50)
 
-    def test_location_nonequator_delta_distance_111120(self):
+    def test_location_nonequator_delta_distance_111120(self) -> None:
         self.__test_location_delta(mod_geo.Location(45, 13), 111120)
 
-    def test_location_nonequator_delta_distance_50(self):
+    def test_location_nonequator_delta_distance_50(self) -> None:
         self.__test_location_delta(mod_geo.Location(-20, -50), 50)
 
-    def test_delta_add_and_move(self):
+    def test_delta_add_and_move(self) -> None:
         location = mod_geo.Location(45.1, 13.2)
         delta = mod_geo.LocationDelta(angle=20, distance=1000)
         location_2 = location + delta
@@ -1705,22 +1683,22 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(cca(location.latitude, location_2.latitude))
         self.assertTrue(cca(location.longitude, location_2.longitude))
 
-    def test_parse_gpx_with_node_with_comments(self):
+    def test_parse_gpx_with_node_with_comments(self) -> None:
         with open('test_files/gpx-with-node-with-comments.gpx') as f:
             self.assertTrue(mod_gpxpy.parse(f))
 
-    def __test_location_delta(self, location, distance):
+    def __test_location_delta(self, location: mod_geo.Location, distance: float) -> None:
         angles = [ x * 15 for x in range(int(360 / 15)) ]
         print(angles)
 
         previous_location = None
 
-        distances_between_points = []
+        distances_between_points: List[float] = []
 
         for angle in angles:
             new_location = location + mod_geo.LocationDelta(angle=angle, distance=distance)
             # All locations same distance from center
-            self.assertTrue(cca(location.distance_2d(new_location), distance))
+            self.assertTrue(cca(location.distance_2d(new_location), distance)) # type: ignore
             if previous_location:
                 distances_between_points.append(new_location.distance_2d(previous_location))
             previous_location = new_location
@@ -1730,7 +1708,7 @@ class GPXTests(mod_unittest.TestCase):
         for i in range(1, len(distances_between_points)):
             self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
 
-    def test_gpx_10_fields(self):
+    def test_gpx_10_fields(self) -> None:
         """ Test (de) serialization all gpx1.0 fields """
 
         with open('test_files/gpx1.0_with_all_fields.gpx') as f:
@@ -1780,7 +1758,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.keywords, 'example keywords')
                 self.assertEqual(get_dom_node(dom, 'gpx/keywords').firstChild.nodeValue, 'example keywords')
 
-                self.assertEqual(gpx.bounds.min_latitude, 1.2)
+                self.assertEqual(gpx.bounds.min_latitude, 1.2) # type: ignore
                 self.assertEqual(get_dom_node(dom, 'gpx/bounds').attributes['minlat'].value, '1.2')
 
                 # Waypoints:
@@ -1911,7 +1889,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.routes[0].points[0].age_of_dgps_data, 10)
                 self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ageofdgpsdata').firstChild.nodeValue in ('10.0', '10'))
 
-                self.assertEqual(gpx.routes[0].points[0].dgps_id, '99')
+                self.assertEqual(gpx.routes[0].points[0].dgps_id, 99)
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/dgpsid').firstChild.nodeValue, '99')
 
                 # second rtept:
@@ -2020,10 +1998,10 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].age_of_dgps_data, 104)
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ageofdgpsdata').firstChild.nodeValue in ('104.0', '104'))
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].dgps_id, '99')
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].dgps_id, 99)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
-    def test_gpx_11_fields(self):
+    def test_gpx_11_fields(self) -> None:
         """ Test (de) serialization all gpx1.0 fields """
 
         with open('test_files/gpx1.1_with_all_fields.gpx') as f:
@@ -2091,7 +2069,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.keywords, 'example keywords')
                 self.assertEqual(get_dom_node(dom, 'gpx/metadata/keywords').firstChild.nodeValue, 'example keywords')
 
-                self.assertEqual(gpx.bounds.min_latitude, 1.2)
+                self.assertEqual(gpx.bounds.min_latitude, 1.2) # type: ignore
                 self.assertEqual(get_dom_node(dom, 'gpx/metadata/bounds').attributes['minlat'].value, '1.2')
 
                 # TODO
@@ -2292,7 +2270,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.routes[0].points[0].age_of_dgps_data, 10)
                 self.assertTrue(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/ageofdgpsdata').firstChild.nodeValue in ('10.0', '10'))
 
-                self.assertEqual(gpx.routes[0].points[0].dgps_id, '99')
+                self.assertEqual(gpx.routes[0].points[0].dgps_id, 99)
                 self.assertEqual(get_dom_node(dom, 'gpx/rte[0]/rtept[0]/dgpsid').firstChild.nodeValue, '99')
 
                 # second rtept:
@@ -2407,7 +2385,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].age_of_dgps_data, 104)
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ageofdgpsdata').firstChild.nodeValue in ('104.0', '104'))
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].dgps_id, '99')
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].dgps_id, 99)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/dgpsid').firstChild.nodeValue, '99')
 
                 self.assertEqual(1, len(gpx.tracks[0].segments[0].points[0].extensions))
@@ -2421,26 +2399,26 @@ class GPXTests(mod_unittest.TestCase):
 
         # Clear extensions because those should be declared in the <gpx> but
         # gpxpy don't have support for this (yet):
-        reparsed_gpx.extensions = {}
-        reparsed_gpx.metadata_extensions = {}
+        reparsed_gpx.extensions = {} # type: ignore
+        reparsed_gpx.metadata_extensions = {} # type: ignore
         for waypoint in reparsed_gpx.waypoints:
-            waypoint.extensions = {}
+            waypoint.extensions = {} # type: ignore
         for route in reparsed_gpx.routes:
-            route.extensions = {}
+            route.extensions = {} # type: ignore
             for point in route.points:
-                point.extensions = {}
+                point.extensions = {} # type: ignore
         for track in reparsed_gpx.tracks:
-            track.extensions = {}
+            track.extensions = {} # type: ignore
             for segment in track.segments:
-                segment.extensions = {}
-                for point in segment.points:
-                    point.extensions = {}
+                segment.extensions = {} # type: ignore
+                for point in segment.points: # type: ignore
+                    point.extensions = {} # type: ignore
 
         with open('test_files/validation_gpx11.gpx', 'w') as f:
             f.write(reparsed_gpx.to_xml())
 
 
-    def test_xml_chars_encode_decode(self):
+    def test_xml_chars_encode_decode(self) -> None:
         gpx = mod_gpxpy.gpx.GPX()
         gpx.name = "Test<a>jkljkl</gpx>"
 
@@ -2450,7 +2428,7 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue('<name>Test&lt;a&gt;jkljkl&lt;/gpx&gt;</name>' in gpx_2.to_xml())
 
-    def test_10_to_11_conversion(self):
+    def test_10_to_11_conversion(self) -> None:
         """
         This test checks that reparsing from 1.0 to 1.1 and from 1.1 to 1.0
         will preserve all fields common for both versions.
@@ -2486,7 +2464,7 @@ class GPXTests(mod_unittest.TestCase):
         original_waypoint.vertical_dilution = 15
         original_waypoint.position_dilution = 16
         original_waypoint.age_of_dgps_data = 16
-        original_waypoint.dgps_id = '17'
+        original_waypoint.dgps_id = 17
         original_gpx.waypoints.append(original_waypoint)
 
         original_route = mod_gpx.GPXRoute()
@@ -2517,7 +2495,7 @@ class GPXTests(mod_unittest.TestCase):
         original_route_points.vertical_dilution = 20
         original_route_points.position_dilution = 21
         original_route_points.age_of_dgps_data = 22
-        original_route_points.dgps_id = '23'
+        original_route_points.dgps_id = 23
         original_route.points.append(original_route_points)
         original_gpx.routes.append(original_route)
 
@@ -2549,7 +2527,7 @@ class GPXTests(mod_unittest.TestCase):
         original_track_point.vertical_dilution = 21
         original_track_point.position_dilution = 22
         original_track_point.age_of_dgps_data = 23
-        original_track_point.dgps_id = '22'
+        original_track_point.dgps_id = 22
 
         original_track.segments.append(mod_gpx.GPXTrackSegment())
         original_track.segments[0].points.append(original_track_point)
@@ -2605,7 +2583,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(original_gpx.link_text, gpx.link_text)
 
             self.assertTrue(gpx.bounds is not None)
-            self.assertEqual(tuple(original_gpx.bounds), tuple(gpx.bounds))
+            self.assertEqual(tuple(original_gpx.bounds), tuple(gpx.bounds)) # type: ignore
 
             self.assertEqual(1, len(gpx.waypoints))
 
@@ -2816,7 +2794,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(gpx.tracks[0].segments[0].points[0].dgps_id is not None)
             self.assertEqual(original_gpx.tracks[0].segments[0].points[0].dgps_id, gpx.tracks[0].segments[0].points[0].dgps_id)
 
-    def test_min_max(self):
+    def test_min_max(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -2843,7 +2821,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(100, elevation_min)
         self.assertEqual(200, elevation_max)
 
-    def test_distance_between_points_near_0_longitude(self):
+    def test_distance_between_points_near_0_longitude(self) -> None:
         """ Make sure that the distance function works properly when points have longitudes on opposite sides of the 0-longitude meridian """
         distance = mod_geo.distance(latitude_1=0, longitude_1=0.1, elevation_1=0, latitude_2=0, longitude_2=-0.1, elevation_2=0, haversine=True)
         print(distance)
@@ -2858,7 +2836,7 @@ class GPXTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(distance < 230000)
 
-    def test_zero_latlng(self):
+    def test_zero_latlng(self) -> None:
         gpx = mod_gpx.GPX()
 
         track = mod_gpx.GPXTrack()
@@ -2887,7 +2865,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(0, gpx2.tracks[0].segments[0].points[0].longitude)
         self.assertEqual(0, gpx2.tracks[0].segments[0].points[0].elevation)
 
-    def test_timezone_from_timestamp(self):
+    def test_timezone_from_timestamp(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
         xml += '<trk>\n'
@@ -2897,7 +2875,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('01')))
 
-    def test_timestamp_with_single_digits(self):
+    def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
         xml += '<trk>\n'
@@ -2907,7 +2885,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('-02')))
 
-    def test_read_extensions(self):
+    def test_read_extensions(self) -> None:
         """ Test extensions """
 
         with open('test_files/gpx1.1_with_extensions.gpx') as f:
@@ -2936,16 +2914,18 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
 
         print("Extension 1")
+        print(type(gpx.waypoints[0].extensions[0]))
         print(print_etree(gpx.waypoints[0].extensions[0]))
         print()
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[0], root1))
 
         print("Extension 2")
+        print(type(gpx.waypoints[0].extensions[1]))
         print(print_etree(gpx.waypoints[0].extensions[1]))
         print()
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[1], root2))
 
-    def test_write_read_extensions(self):
+    def test_write_read_extensions(self) -> None:
         namespace = '{gpx.py}'
         nsmap = {'ext' : namespace[1:-1]}
         root = mod_etree.Element(namespace + 'ccc')
@@ -3023,7 +3003,7 @@ class GPXTests(mod_unittest.TestCase):
         print("Reading Track Point Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].segments[0].points[0].extensions[0], root))
 
-    def test_no_10_extensions(self):
+    def test_no_10_extensions(self) -> None:
         namespace = '{gpx.py}'
         nsmap = {'ext' : namespace[1:-1]}
         root = mod_etree.Element(namespace + 'tag')
@@ -3065,14 +3045,14 @@ class GPXTests(mod_unittest.TestCase):
         xml = gpx.to_xml('1.0')
         self.assertFalse('extension' in xml)
 
-    def test_extension_without_namespaces(self):
+    def test_extension_without_namespaces(self) -> None:
         f = open('test_files/gpx1.1_with_extensions_without_namespaces.gpx', 'r')
         gpx = mod_gpxpy.parse(f)
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
 
-    def test_with_ns_namespace(self):
+    def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
         <gpx creator="Garmin Connect" version="1.1"
           xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/11.xsd"
@@ -3107,7 +3087,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual("125", extensions[0].getchildren()[0].text.strip())
             self.assertEqual("75", extensions[0].getchildren()[1].text.strip())
 
-    def test_join_gpx_xml_files(self):
+    def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
 
         files = [
@@ -3141,16 +3121,17 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(trcks, len(result_gpx.tracks))
         self.assertEqual(points, result_gpx.get_points_no())
 
-    def test_small_floats(self):
+    def test_small_floats(self) -> None:
         """GPX 1/1 does not allow scientific notation but that is what gpxpy writes right now."""
         f = open('test_files/track-with-small-floats.gpx', 'r')
+        
 
         gpx = mod_gpxpy.parse(f)
 
         xml = gpx.to_xml()
         self.assertNotIn('e-', xml)
 
-    def test_gpx_fill_time_data_with_start_time_and_end_time(self):
+    def test_gpx_fill_time_data_with_start_time_and_end_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3160,12 +3141,12 @@ class GPXTests(mod_unittest.TestCase):
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
-        start_time_diff = total_seconds(time_bounds.start_time - start_time)
-        end_time_diff = total_seconds(time_bounds.end_time - end_time)
+        start_time_diff = total_seconds(time_bounds.start_time - start_time) # type: ignore
+        end_time_diff = total_seconds(time_bounds.end_time - end_time) # type: ignore
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
-    def test_gpx_fill_time_data_with_start_time_and_end_time_and_time_delta(self):
+    def test_gpx_fill_time_data_with_start_time_and_end_time_and_time_delta(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3176,12 +3157,12 @@ class GPXTests(mod_unittest.TestCase):
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
-        start_time_diff = total_seconds(time_bounds.start_time - start_time)
-        end_time_diff = total_seconds(time_bounds.end_time - end_time)
+        start_time_diff = total_seconds(time_bounds.start_time - start_time) # type: ignore
+        end_time_diff = total_seconds(time_bounds.end_time - end_time) # type: ignore
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
-    def test_gpx_fill_time_data_with_start_time_and_time_delta(self):
+    def test_gpx_fill_time_data_with_start_time_and_time_delta(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3192,12 +3173,12 @@ class GPXTests(mod_unittest.TestCase):
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
-        start_time_diff = total_seconds(time_bounds.start_time - start_time)
-        end_time_diff = total_seconds(time_bounds.end_time - end_time)
+        start_time_diff = total_seconds(time_bounds.start_time - start_time) # type: ignore
+        end_time_diff = total_seconds(time_bounds.end_time - end_time) # type: ignore
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
-    def test_gpx_fill_time_data_with_end_time_and_time_delta(self):
+    def test_gpx_fill_time_data_with_end_time_and_time_delta(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         end_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3208,12 +3189,12 @@ class GPXTests(mod_unittest.TestCase):
         time_bounds = gpx.get_time_bounds()
 
         tolerance = 1.0
-        start_time_diff = total_seconds(time_bounds.start_time - start_time)
-        end_time_diff = total_seconds(time_bounds.end_time - end_time)
+        start_time_diff = total_seconds(time_bounds.start_time - start_time) # type: ignore
+        end_time_diff = total_seconds(time_bounds.end_time - end_time) # type: ignore
         self.assertLessEqual(mod_math.fabs(start_time_diff), tolerance)
         self.assertLessEqual(mod_math.fabs(end_time_diff), tolerance)
 
-    def test_gpx_fill_time_data_raises_when_not_enough_parameters(self):
+    def test_gpx_fill_time_data_raises_when_not_enough_parameters(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3221,7 +3202,7 @@ class GPXTests(mod_unittest.TestCase):
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data_with_regular_intervals(start_time=start_time)
 
-    def test_gpx_fill_time_data_raises_when_start_time_after_end_time(self):
+    def test_gpx_fill_time_data_raises_when_start_time_after_end_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3230,7 +3211,7 @@ class GPXTests(mod_unittest.TestCase):
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time)
 
-    def test_gpx_fill_time_data_raises_when_force_is_false(self):
+    def test_gpx_fill_time_data_raises_when_force_is_false(self) -> None:
         gpx = self.parse('Mojstrovka.gpx')
 
         start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
@@ -3241,7 +3222,7 @@ class GPXTests(mod_unittest.TestCase):
         with self.assertRaises(mod_gpx.GPXException):
             gpx.fill_time_data_with_regular_intervals(start_time=start_time, end_time=end_time, force=False)
 
-    def test_single_quotes_xmlns(self):
+    def test_single_quotes_xmlns(self) -> None:
         gpx = mod_gpxpy.parse("""<?xml version='1.0' encoding='UTF-8'?>
 <gpx version='1.1' creator='GPSMID' xmlns='http://www.topografix.com/GPX/1/1'>
 <trk>
@@ -3256,12 +3237,12 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(1, len(gpx.tracks[0].segments))
         self.assertEqual(1, len(gpx.tracks[0].segments[0].points))
 
-    def test_default_schema_locations(self):
+    def test_default_schema_locations(self) -> None:
         gpx = mod_gpx.GPX()
-        with custom_open('test_files/default_schema_locations.gpx') as f:
+        with open('test_files/default_schema_locations.gpx') as f:
             self.assertEqual(gpx.to_xml(), f.read())
 
-    def test_custom_schema_locations(self):
+    def test_custom_schema_locations(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.nsmap = {
             'gpxx': 'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
@@ -3272,10 +3253,10 @@ class GPXTests(mod_unittest.TestCase):
            'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
            'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
         ]
-        with custom_open('test_files/custom_schema_locations.gpx') as f:
+        with open('test_files/custom_schema_locations.gpx') as f:
             self.assertEqual(gpx.to_xml(), f.read())
 
-    def test_parse_custom_schema_locations(self):
+    def test_parse_custom_schema_locations(self) -> None:
         gpx = self.parse('custom_schema_locations.gpx')
         self.assertEqual(
             [
@@ -3287,7 +3268,7 @@ class GPXTests(mod_unittest.TestCase):
             gpx.schema_locations
         )
 
-    def test_no_track(self):
+    def test_no_track(self) -> None:
         xml = """<?xml version="1.0" encoding="UTF-8"?>
 <gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:om="http://www.oruxmaps.com/oruxmapsextensions/1/0" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd" version="1.1" creator="OruxMaps v.6.5.10">
     <extensions>
@@ -3299,18 +3280,31 @@ class GPXTests(mod_unittest.TestCase):
         gpx2 = self.reparse(gpx)
         self.assertEqual(0, len(gpx2.tracks))
 
-    def test_microsecond(self):
+    def test_microsecond(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx><trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"><time>1901-12-13T20:45:52.2073437Z</time></trkpt></trkseg></trk></gpx>'
         gpx = mod_gpxpy.parse(xml)
         gpx2 = self.reparse(gpx)
         print(gpx2.to_xml())
-        self.assertEquals(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond)
+        self.assertEquals(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond) # type: ignore
         self.assertTrue("<time>1901-12-13T20:45:52.207343" in gpx2.to_xml())
+
+    def test_split_tracks_without_gpxpy(self) -> None:
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk><trkseg><trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '<trk><trkseg><trkpt lat="35." lon="-5.832745"><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '<trk><trkseg><trkpt lat="35.794159" lon="-5."><time>2014-02-02T10:23:18+01:00</time></trkpt></trkseg></trk>\n'
+        xml += '</gpx>\n'
+        xmls = list(mod_gpxxml.split_gpxs(xml))
+        self.assertEqual(3, len(xmls))
+        gpx = mod_gpxpy.parse(xmls[1])
+        self.assertEqual(35, gpx.tracks[0].segments[0].points[0].latitude)
+        self.assertEqual(-5.832745, gpx.tracks[0].segments[0].points[0].longitude)
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
-    def test_checklxml(self):
-        self.assertEqual('LXML', mod_parser.GPXParser._GPXParser__library())
+    def test_checklxml(self) -> None:
+        self.assertEqual('LXML', mod_parser.library())
 
 if __name__ == '__main__':
     mod_unittest.main()

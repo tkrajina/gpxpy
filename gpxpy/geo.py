@@ -19,6 +19,8 @@ import math as mod_math
 
 from . import utils as mod_utils
 
+from typing import *
+
 log = mod_logging.getLogger(__name__)
 
 # Generic geo related function and class(es)
@@ -31,34 +33,29 @@ EARTH_RADIUS = 6378.137 * 1000
 ONE_DEGREE = (2*mod_math.pi*EARTH_RADIUS) / 360  # ==> 111.319 km
 
 
-def to_rad(x):
-    return x / 180. * mod_math.pi
-
-
-def haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2):
+def haversine_distance(latitude_1: float, longitude_1: float, latitude_2: float, longitude_2: float) -> float:
     """
     Haversine distance between two points, expressed in meters.
 
     Implemented from http://www.movable-type.co.uk/scripts/latlong.html
     """
-    d_lat = to_rad(latitude_1 - latitude_2)
-    d_lon = to_rad(longitude_1 - longitude_2)
-    lat1 = to_rad(latitude_1)
-    lat2 = to_rad(latitude_2)
+    d_lon = mod_math.radians(longitude_1 - longitude_2)
+    lat1 = mod_math.radians(latitude_1)
+    lat2 = mod_math.radians(latitude_2)
+    d_lat = lat1 - lat2
 
-    a = mod_math.sin(d_lat/2) * mod_math.sin(d_lat/2) + \
-        mod_math.sin(d_lon/2) * mod_math.sin(d_lon/2) * mod_math.cos(lat1) * mod_math.cos(lat2)
-    c = 2 * mod_math.atan2(mod_math.sqrt(a), mod_math.sqrt(1-a))
+    a = mod_math.pow(mod_math.sin(d_lat/2),2) + \
+        mod_math.pow(mod_math.sin(d_lon/2),2) * mod_math.cos(lat1) * mod_math.cos(lat2)
+    c = 2 * mod_math.asin(mod_math.sqrt(a))
     d = EARTH_RADIUS * c
 
     return d
 
 
-def length(locations=None, _3d=None):
-    locations = locations or []
+def length(locations: List["Location"]=[], _3d: bool=False) -> float:
     if not locations:
         return 0
-    length = 0
+    length: float = 0
     for i in range(len(locations)):
         if i > 0:
             previous_location = locations[i - 1]
@@ -73,19 +70,17 @@ def length(locations=None, _3d=None):
     return length
 
 
-def length_2d(locations=None):
+def length_2d(locations: List["Location"]=[]) -> float:
     """ 2-dimensional length (meters) of locations (only latitude and longitude, no elevation). """
-    locations = locations or []
     return length(locations, False)
 
 
-def length_3d(locations=None):
+def length_3d(locations: List["Location"]=[]) -> float:
     """ 3-dimensional length (meters) of locations (it uses latitude, longitude, and elevation). """
-    locations = locations or []
     return length(locations, True)
 
 
-def calculate_max_speed(speeds_and_distances):
+def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]]) -> Optional[float]:
     """
     Compute average distance and standard deviation for distance. Extremes
     in distances are usually extremes in speeds, so we will ignore them,
@@ -129,13 +124,12 @@ def calculate_max_speed(speeds_and_distances):
     return speeds[index]
 
 
-def calculate_uphill_downhill(elevations):
+def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float, float]:
     if not elevations:
         return 0, 0
 
     size = len(elevations)
-
-    def __filter(n):
+    def __filter(n: int) -> float:
         current_ele = elevations[n]
         if current_ele is None:
             return False
@@ -161,8 +155,9 @@ def calculate_uphill_downhill(elevations):
     return uphill, downhill
 
 
-def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elevation_2,
-             haversine=None):
+def distance(latitude_1: float, longitude_1: float, elevation_1: Optional[float],
+            latitude_2: float, longitude_2: float, elevation_2: Optional[float],
+            haversine: bool=False) -> float:
     """
     Distance between two points. If elevation is None compute a 2d distance
 
@@ -178,7 +173,7 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
     if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
-    coef = mod_math.cos(latitude_1 / 180. * mod_math.pi)
+    coef = mod_math.cos(mod_math.radians(latitude_1))
     x = latitude_1 - latitude_2
     y = (longitude_1 - longitude_2) * coef
 
@@ -190,7 +185,7 @@ def distance(latitude_1, longitude_1, elevation_1, latitude_2, longitude_2, elev
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
 
-def elevation_angle(location1, location2, radians=False):
+def elevation_angle(location1: "Location", location2: "Location", radians: float=False) -> Optional[float]:
     """ Uphill/downhill angle between two locations. """
     if location1.elevation is None or location2.elevation is None:
         return None
@@ -198,7 +193,7 @@ def elevation_angle(location1, location2, radians=False):
     b = float(location2.elevation - location1.elevation)
     a = location2.distance_2d(location1)
 
-    if a == 0:
+    if not a:
         return 0
 
     angle = mod_math.atan(b / a)
@@ -206,10 +201,10 @@ def elevation_angle(location1, location2, radians=False):
     if radians:
         return angle
 
-    return 180 * angle / mod_math.pi
+    return mod_math.degrees(angle)
 
 
-def distance_from_line(point, line_point_1, line_point_2):
+def distance_from_line(point: "Location", line_point_1: "Location", line_point_2: "Location") -> Optional[float]:
     """ Distance of point from a line given with two points. """
     assert point, point
     assert line_point_1, line_point_1
@@ -217,18 +212,19 @@ def distance_from_line(point, line_point_1, line_point_2):
 
     a = line_point_1.distance_2d(line_point_2)
 
-    if a == 0:
+    if not a:
         return line_point_1.distance_2d(point)
 
     b = line_point_1.distance_2d(point)
     c = line_point_2.distance_2d(point)
 
-    s = (a + b + c) / 2.
+    if a is not None and b is not None and c is not None:
+        s = (a + b + c) / 2.
+        return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
+    return None
 
-    return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
 
-
-def get_line_equation_coefficients(location1, location2):
+def get_line_equation_coefficients(location1: "Location", location2: "Location") -> Iterable[float]:
     """
     Get line equation coefficients for:
         latitude * a + longitude * b + c = 0
@@ -244,8 +240,10 @@ def get_line_equation_coefficients(location1, location2):
         return float(1), float(-a), float(-b)
 
 
-def simplify_polyline(points, max_distance):
+def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -> List["Location"]:
     """Does Ramer-Douglas-Peucker algorithm for simplification of polyline """
+
+    _max_distance = max_distance if max_distance is not None else 10
 
     if len(points) < 3:
         return points
@@ -262,7 +260,7 @@ def simplify_polyline(points, max_distance):
     a, b, c = get_line_equation_coefficients(begin, end)
 
     # Initialize to safe values
-    tmp_max_distance = 0
+    tmp_max_distance: float = 0
     tmp_max_distance_position = 1
     
     # Check distance of all points between begin and end, exclusive
@@ -277,66 +275,59 @@ def simplify_polyline(points, max_distance):
     real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
 
     # If furthest point is less than max_distance, remove all points between begin and end
-    if real_max_distance < max_distance:
+    if real_max_distance is not None and real_max_distance < _max_distance:
         return [begin, end]
     
     # If furthest point is more than max_distance, use it as anchor and run
     # function again using (begin to anchor) and (anchor to end), remove extra anchor
-    return (simplify_polyline(points[:tmp_max_distance_position + 1], max_distance) +
-            simplify_polyline(points[tmp_max_distance_position:], max_distance)[1:])
+    return (simplify_polyline(points[:tmp_max_distance_position + 1], _max_distance) +
+            simplify_polyline(points[tmp_max_distance_position:], _max_distance)[1:])
 
 
 class Location:
     """ Generic geographical location """
 
-    latitude = None
-    longitude = None
-    elevation = None
-
-    def __init__(self, latitude, longitude, elevation=None):
+    def __init__(self, latitude: float, longitude: float, elevation: Optional[float]=None) -> None:
         self.latitude = latitude
         self.longitude = longitude
         self.elevation = elevation
 
-    def has_elevation(self):
-        return self.elevation or self.elevation == 0
+    def has_elevation(self) -> bool:
+        return self.elevation is not None
 
-    def remove_elevation(self):
+    def remove_elevation(self) -> None:
         self.elevation = None
 
-    def distance_2d(self, location):
+    def distance_2d(self, location: "Location") -> Optional[float]:
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
 
-    def distance_3d(self, location):
+    def distance_3d(self, location: "Location") -> Optional[float]:
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
 
-    def elevation_angle(self, location, radians=False):
+    def elevation_angle(self, location: "Location", radians: bool=False) -> Optional[float]:
         return elevation_angle(self, location, radians)
 
-    def move(self, location_delta):
+    def move(self, location_delta: "LocationDelta") -> None:
         self.latitude, self.longitude = location_delta.move(self)
 
-    def __add__(self, location_delta):
+    def __add__(self, location_delta: "LocationDelta") -> "Location":
         latitude, longitude = location_delta.move(self)
         return Location(latitude, longitude)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if self.elevation is None:
             return 'Location(%s, %s)' % (self.latitude, self.longitude)
         else:
             return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
-
-    def __hash__(self):
-        return mod_utils.hash_object(self, ('latitude', 'longitude', 'elevation'))
 
 
 class LocationDelta:
@@ -349,7 +340,8 @@ class LocationDelta:
     SOUTH = 180
     WEST = 270
 
-    def __init__(self, distance=None, angle=None, latitude_diff=None, longitude_diff=None):
+    def __init__(self, distance: Optional[float]=None, angle: Optional[float]=None, latitude_diff: Optional[float]=None,
+                 longitude_diff: Optional[float]=None) -> None:
         """
         Version 1:
             Distance (in meters).
@@ -372,19 +364,19 @@ class LocationDelta:
             self.longitude_diff = longitude_diff
             self.move_function = self.move_by_lat_lon_diff
 
-    def move(self, location):
+    def move(self, location: Location) -> Tuple[float, float]:
         """
         Move location by this timedelta.
         """
         return self.move_function(location)
 
-    def move_by_angle_and_distance(self, location):
-        coef = mod_math.cos(location.latitude / 180. * mod_math.pi)
-        vertical_distance_diff   = mod_math.sin((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
-        horizontal_distance_diff = mod_math.cos((90 - self.angle_from_north) / 180. * mod_math.pi) / ONE_DEGREE
+    def move_by_angle_and_distance(self, location: Location) -> Tuple[float, float]:
+        coef = mod_math.cos(mod_math.radians(location.latitude))
+        vertical_distance_diff   = mod_math.sin(mod_math.radians(90 - self.angle_from_north)) / ONE_DEGREE
+        horizontal_distance_diff = mod_math.cos(mod_math.radians(90 - self.angle_from_north)) / ONE_DEGREE
         lat_diff = self.distance * vertical_distance_diff
         lon_diff = self.distance * horizontal_distance_diff / coef
         return location.latitude + lat_diff, location.longitude + lon_diff
 
-    def move_by_lat_lon_diff(self, location):
+    def move_by_lat_lon_diff(self, location: "Location") -> Tuple[float, float]:
         return location.latitude + self.latitude_diff, location.longitude + self.longitude_diff

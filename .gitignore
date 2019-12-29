@@ -7,6 +7,7 @@ q.py
 tags
 xsd/*.xsd
 .cache/*
+.mypy_cache/*
 
 *.py[cod]
 
