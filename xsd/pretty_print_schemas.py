@@ -28,7 +28,7 @@ def parse_1_1_element_node(gpx_element_node: Any, complex_type_nodes: Dict[str, 
     result = ''
     node_type = gpx_element_node.attributes['type'].value
     node_name = gpx_element_node.attributes['name'].value
-    result += get_indented(depth, '%s (%s)' % (node_name, node_type))
+    result += get_indented(depth, '{} ({})'.format(node_name, node_type))
     if node_type in complex_type_nodes:
         # Complex node => parse:
         attribute_nodes = get_children_by_tag_name(complex_type_nodes[node_type], 'xsd:attribute')
@@ -36,7 +36,7 @@ def parse_1_1_element_node(gpx_element_node: Any, complex_type_nodes: Dict[str, 
             attribute_node_name = attribute_node.attributes['name'].value
             attribute_node_type = attribute_node.attributes['type'].value
             attribute_node_required = attribute_node.attributes['required'].value if attribute_node.attributes.has_key('required') else None
-            result += get_indented(depth + 1, '- attr: %s (%s) %s' % (attribute_node_name, attribute_node_type, attribute_node_required))
+            result += get_indented(depth + 1, '- attr: {} ({}) {}'.format(attribute_node_name, attribute_node_type, attribute_node_required))
         sequence_nodes = get_children_by_tag_name(complex_type_nodes[node_type], 'xsd:sequence')
         if len(sequence_nodes) > 0:
             sequence_node = sequence_nodes[0]
@@ -75,7 +75,7 @@ def parse_1_0_elements(element: Any, depth: int=0) -> Any:
             attribute_node_name = attribute_node.attributes['name'].value
             attribute_node_type = attribute_node.attributes['type'].value
             attribute_node_use = attribute_node.attributes['use'].value if attribute_node.attributes.has_key('use') else None
-            result += get_indented(depth + 1, '- attr: %s (%s) %s' % (attribute_node_name, attribute_node_type, attribute_node_use))
+            result += get_indented(depth + 1, '- attr: {} ({}) {}'.format(attribute_node_name, attribute_node_type, attribute_node_use))
         sequences = get_children_by_tag_name(complex_type, 'xsd:sequence')
         if len(sequences) > 0:
             sequence = sequences[0]

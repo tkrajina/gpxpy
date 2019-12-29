@@ -94,11 +94,11 @@ def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
         if not attr1 and not attr2:
             return True
         if not attr1 or not attr2:
-            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
+            print('Object differs in attribute {} ({} - {})'.format(attr, attr1, attr2))
             return False
 
         if not equals(attr1, attr2):
-            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
+            print('Object differs in attribute {} ({} - {})'.format(attr, attr1, attr2))
             return False
 
     return True
@@ -127,7 +127,7 @@ def get_dom_node(dom: Any, path: str) -> Any:
         try:
             result = candidates[n]
         except Exception:
-            raise Exception('Can\'t fint %sth child of %s' % (n, path_part))
+            raise Exception('Can\'t fint {}th child of {}'.format(n, path_part))
 
     return result
 
@@ -152,11 +152,11 @@ def elements_equal(e1: Any, e2: Any) -> bool:
     return all(elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
 def print_etree(e1: Any, indent: str='') -> str:
-    tag = ['{0}tag: |{1}|\n'.format(indent,e1.tag)]
+    tag = ['{}tag: |{}|\n'.format(indent,e1.tag)]
     for att, value in e1.attrib.items():
-        tag.append('{0}-att: |{1}| = |{2}|\n'.format(indent, att, value))
-    tag.append('{0}-text: |{1}|\n'.format(indent, e1.text))
-    tag.append('{0}-tail: |{1}|\n'.format(indent, e1.tail))
+        tag.append('{}-att: |{}| = |{}|\n'.format(indent, att, value))
+    tag.append('{}-text: |{}|\n'.format(indent, e1.text))
+    tag.append('{}-tail: |{}|\n'.format(indent, e1.tail))
     for subelem in e1:
         tag.append(print_etree(subelem, indent+'__|'))
     return ''.join(tag)
@@ -537,8 +537,8 @@ class GPXTests(mod_unittest.TestCase):
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
         print('Length: %s' % length)
-        print('Moving time: %s (%smin)' % (moving_time, moving_time / 60.))
-        print('Stopped time: %s (%smin)' % (stopped_time, stopped_time / 60.))
+        print('Moving time: {} ({}min)'.format(moving_time, moving_time / 60.))
+        print('Stopped time: {} ({}min)'.format(stopped_time, stopped_time / 60.))
         print('Moving distance: %s' % moving_distance)
         print('Stopped distance: %s' % stopped_distance)
         print('Max speed: %sm/s' % max_speed)

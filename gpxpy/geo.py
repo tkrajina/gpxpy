@@ -321,13 +321,13 @@ class Location:
         return Location(latitude, longitude)
 
     def __str__(self) -> str:
-        return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
+        return '[loc:{},{}@{}]'.format(self.latitude, self.longitude, self.elevation)
 
     def __repr__(self) -> str:
         if self.elevation is None:
-            return 'Location(%s, %s)' % (self.latitude, self.longitude)
+            return 'Location({}, {})'.format(self.latitude, self.longitude)
         else:
-            return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
+            return 'Location({}, {}, {})'.format(self.latitude, self.longitude, self.elevation)
 
 
 class LocationDelta:

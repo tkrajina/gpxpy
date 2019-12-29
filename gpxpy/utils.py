@@ -26,22 +26,22 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
         indent = ''
     attributes = attributes or {}
     result: List[str] = []
-    result.append('\n' + indent + '<{0}'.format(tag))
+    result.append('\n' + indent + '<{}'.format(tag))
 
     if content is None and default:
         content = default
 
     if attributes:
         for attribute in attributes.keys():
-            result.append(make_str(' %s="%s"' % (attribute, attributes[attribute])))
+            result.append(make_str(' {}="{}"'.format(attribute, attributes[attribute])))
 
     if content is None:
         result.append('/>')
     else:
         if escape:
-            result.append(make_str('>%s</%s>' % (mod_saxutils.escape(content), tag)))
+            result.append(make_str('>{}</{}>'.format(mod_saxutils.escape(content), tag)))
         else:
-            result.append(make_str('>%s</%s>' % (content, tag)))
+            result.append(make_str('>{}</{}>'.format(content, tag)))
 
     return make_str(''.join(result))
 

@@ -236,15 +236,15 @@ class GPXWaypoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+        return '[wpt{{{}}}:{},{}@{}]'.format(self.name, self.latitude, self.longitude, self.elevation)
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = '{}, {}'.format(self.latitude, self.longitude)
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXWaypoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -311,15 +311,15 @@ class GPXRoutePoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+        return '[rtept{{{}}}:{},{}@{}]'.format(self.name, self.latitude, self.longitude, self.elevation)
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = '{}, {}'.format(self.latitude, self.longitude)
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXRoutePoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -500,8 +500,8 @@ class GPXRoute:
         for attribute in 'name', 'description', 'number':
             value = getattr(self, attribute)
             if value is not None:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
-        representation += '%spoints=[%s])' % (', ' if representation else '', '...' if self.points else '')
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
+        representation += '{}points=[{}])'.format(', ' if representation else '', '...' if self.points else '')
         return 'GPXRoute(%s)' % representation
 
 
@@ -547,12 +547,12 @@ class GPXTrackPoint(mod_geo.Location):
         self.extensions: List[Any] = []
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = '{}, {}'.format(self.latitude, self.longitude)
         for attribute in 'elevation', 'time', 'symbol', 'comment', 'horizontal_dilution', \
                 'vertical_dilution', 'position_dilution', 'speed', 'name':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXTrackPoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -631,7 +631,7 @@ class GPXTrackPoint(mod_geo.Location):
         return length / float(seconds)
 
     def __str__(self) -> str:
-        return '[trkpt:%s,%s@%s@%s]' % (self.latitude, self.longitude, self.elevation, self.time)
+        return '[trkpt:{},{}@{}@{}]'.format(self.latitude, self.longitude, self.elevation, self.time)
 
 
 class GPXTrackSegment:
@@ -1161,7 +1161,7 @@ class GPXTrackSegment:
             return None
 
         if first_time and time and last_time and not first_time <= time <= last_time:
-            log.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
+            log.debug('Not in track (search for:{}, start:{}, end:{})'.format(time, first_time, last_time))
             return None
 
         for point in self.points:
@@ -1903,8 +1903,8 @@ class GPXTrack:
         for attribute in 'name', 'description', 'number':
             value = getattr(self, attribute)
             if value is not None:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
-        representation += '%ssegments=%s' % (', ' if representation else '', repr(self.segments))
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
+        representation += '{}segments={}'.format(', ' if representation else '', repr(self.segments))
         return 'GPXTrack(%s)' % representation
 
 
@@ -2706,7 +2706,7 @@ class GPX:
 
         version_path = version.replace('.', '/')
 
-        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(
+        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{}'.format(
             version_path
         )
 
@@ -2756,7 +2756,7 @@ class GPX:
         for attribute in 'waypoints', 'routes', 'tracks':
             value = getattr(self, attribute)
             if value:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
         return 'GPX(%s)' % representation
 
     def clone(self) -> "GPX":
