@@ -88,17 +88,22 @@ The GPX version is automatically determined when parsing by reading the version 
 
 ## Pull requests
 
-OK, so you found a bug and fixed it. Before sending a pull request -- check that all tests are OK with Python 2.7 and Python 3.5+.
+Branches:
 
-Run all tests with:
+* `branch` contains the code of the latest release
+* `dev` branch is where code for the next release should go.
 
-    $ python -m unittest test
-    $ python3 -m unittest test
+Send your pull request against `dev`, not `master`!
+
+Before sending a pull request -- check that all tests are OK.  Run all the static typing checks and unit tests with:
+
+    $ make mypy-and-tests
 
 Run a single test with:
 
-    $ python -m unittest test.GPXTests.test_haversine_and_nonhaversine
     $ python3 -m unittest test.GPXTests.test_haversine_and_nonhaversine
+
+Gpxpy runs only with python 3.6+. The code must have type hints and must pass all the mypy checks.
 
 ## GPXInfo
 
