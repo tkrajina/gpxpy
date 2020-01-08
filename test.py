@@ -879,6 +879,88 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
 
+    def test_course_between(self) -> None:
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+
+        segment = mod_gpx.GPXTrackSegment()
+        points = segment.points
+
+        # The points are extremely distant.
+        # Therefore, the computed orthodromic and loxodromic courses
+        # should diverge significantly.
+
+        points.append(mod_gpx.GPXTrackPoint(latitude=-73, longitude=-150))
+        points.append(mod_gpx.GPXTrackPoint(latitude=43.5798, longitude=35.71265))
+        points.append(mod_gpx.GPXTrackPoint(latitude=85, longitude=0.12345))
+        track.segments.append(segment)
+        gpx.tracks.append(track)
+
+        self.assertEqual(points[0].course_between(points[0]), 0)
+        # self.assertIsNone(points[2].course_between(None))
+
+        course_01 = points[0].course_between(points[1])
+        course_12 = points[1].course_between(points[2])
+        course_02 = points[0].course_between(points[2])
+
+        self.assertAlmostEqual(course_01, 312.089, 3)  # type: ignore
+        self.assertAlmostEqual(course_12, 344.790, 3)  # type: ignore
+        self.assertAlmostEqual(course_02, 27.5055, 3)  # type: ignore
+
+        # The default computational model should be loxodromic:
+
+        self.assertAlmostEqual(points[0].course_between(points[1], loxodromic=True), course_01, 6)  # type: ignore
+        self.assertAlmostEqual(points[1].course_between(points[2], loxodromic=True), course_12, 6)  # type: ignore
+        self.assertAlmostEqual(points[0].course_between(points[2], loxodromic=True), course_02, 6)  # type: ignore
+
+        # Verifying the orthodromic results
+
+        course_orthodromic_01 = points[0].course_between(points[1], loxodromic=False)
+        course_orthodromic_12 = points[1].course_between(points[2], loxodromic=False)
+        course_orthodromic_02 = points[0].course_between(points[2], loxodromic=False)
+
+        self.assertAlmostEqual(course_orthodromic_01, 188.409, 3)  # type: ignore
+        self.assertAlmostEqual(course_orthodromic_12, 355.6886, 3)  # type: ignore
+        self.assertAlmostEqual(course_orthodromic_02, 11.2136, 3)  # type: ignore
+
+        # Short distance tests:
+
+        gpx_short = self.parse('track_with_speed.gpx')
+        points_short = gpx_short.tracks[0].segments[0].points
+
+        course_short_01 = points_short[0].course_between(points_short[1])
+        course_short_12 = points_short[1].course_between(points_short[2])
+        course_short_02 = points_short[0].course_between(points_short[2])
+
+        # When the points are not too distant (less than about 100-150km),
+        # the orthodromic and loxodromic bearings should be almost identical:
+
+        self.assertAlmostEqual(points_short[0].course_between(points_short[1], loxodromic=False), course_short_01, 3)  # type: ignore
+        self.assertAlmostEqual(points_short[1].course_between(points_short[2], loxodromic=False), course_short_12, 3)  # type: ignore
+        self.assertAlmostEqual(points_short[0].course_between(points_short[2], loxodromic=False), course_short_02, 3)  # type: ignore
+
+    def test_get_course(self) -> None:
+        pts = [[-73, -150], [43.5798, 35.71265], [85, 0.12345]]
+
+        # same long distance checks as in test_get_course_between
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1]), 312.089, 3)  # type: ignore
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1]), 344.790, 3)  # type: ignore
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1]), 27.5055, 3)  # type: ignore
+
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1],  # type: ignore
+                                                  loxodromic=True), 312.089, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=True), 344.790, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=True), 27.5055, 3)
+
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1],  # type: ignore
+                                                  loxodromic=False), 188.409, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=False), 355.6886, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=False), 11.2136, 3)
+
     def test_name_comment_and_symbol(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()

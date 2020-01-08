@@ -21,7 +21,6 @@ import math as mod_math
 import collections as mod_collections
 import copy as mod_copy
 import datetime as mod_datetime
-import datetime as mod_datetime
 
 from . import utils as mod_utils
 from . import geo as mod_geo
@@ -628,9 +627,56 @@ class GPXTrackPoint(mod_geo.Location):
 
         return length / float(seconds)
 
+    def course_between(self, track_point: "GPXTrackPoint", loxodromic: bool=True) -> Optional[float]:
+        """
+        Compute the instantaneous course from one point to another.
+
+        Both loxodromic (Rhumb line) and orthodromic (Great circle) navigation
+        models are available.
+
+        The default navigation model is loxodromic.
+
+        There is no difference between these models in course computation
+        when points are relatively close to each other (less than ≈150 km)
+
+        In most cases the default model is OK.
+
+        However, the orthodromic navigation model can be important for the
+        long-distance (> ≈1000 km) logs acquired from maritime transport
+        or aeroplanes
+
+        Generally, the choice between these two models depends on a vehicle type,
+        distance and navigation equipment used.
+
+        More information on these two navigation models:
+        https://www.movable-type.co.uk/scripts/latlong.html
+
+        NOTE: This is a computed course, not the GPXTrackPoint course that comes in
+              the GPX file.
+
+        Parameters
+        ----------
+        track_point : GPXTrackPoint
+        loxodromic : True
+                     Set to False to use the orthodromic navigation model
+
+        Returns
+        ----------
+        course : float
+                Course returned in decimal degrees, true (not magnetic)
+                (0.0 <= value < 360.0)
+        """
+
+        if not track_point:
+            return None
+
+        course = mod_geo.get_course(self.latitude, self.longitude,
+                                    track_point.latitude, track_point.longitude,
+                                    loxodromic)
+        return course
+
     def __str__(self) -> str:
         return f'[trkpt:{self.latitude},{self.longitude}@{self.elevation}@{self.time}]'
-
 
 class GPXTrackSegment:
     gpx_10_fields = [
