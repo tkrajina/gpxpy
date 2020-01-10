@@ -1,5 +1,12 @@
 # Changelog
 
+##
+
+* Removed support for python2.* and python3.5
+* Added typehints and with mypy checks
+* Course computation <https://github.com/tkrajina/gpxpy/pull/156> <https://github.com/tkrajina/gpxpy/issues/155>
+* Refactored haversine_distance for speed and use math.radians <https://github.com/tkrajina/gpxpy/pull/180>
+
 ## v1.3.5
 
 * Rewrite parse_time so it understands time zones and microseconds <https://github.com/tkrajina/gpxpy/pull/152>
