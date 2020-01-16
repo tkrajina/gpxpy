@@ -1,6 +1,6 @@
 # Changelog
 
-##
+## v1.4.0
 
 * Removed support for python2.* and python3.5
 * Added typehints and with mypy checks
