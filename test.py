@@ -3129,7 +3129,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(f)
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
-        self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
+        self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
 
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
@@ -3163,8 +3163,8 @@ class GPXTests(mod_unittest.TestCase):
         for gpx in [gpx_with_ns, reparsed]:
             extensions = gpx.tracks[0].segments[0].points[0].extensions
             self.assertEqual(1, len(extensions))
-            self.assertEqual("125", extensions[0].getchildren()[0].text.strip())
-            self.assertEqual("75", extensions[0].getchildren()[1].text.strip())
+            self.assertEqual("125", list(extensions[0])[0].text.strip())
+            self.assertEqual("75", list(extensions[0])[1].text.strip())
 
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
