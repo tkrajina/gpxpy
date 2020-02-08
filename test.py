@@ -345,6 +345,11 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
 
+    def test_time_diff_less_one_sec(self) -> None:
+        gpx = self.parse('track-with-less-sec-time.gpx')
+        moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data()
+        self.assertEqual(0.994, moving_time)
+
     def test_unicode_name(self) -> None:
         gpx = self.parse('unicode.gpx', encoding='utf-8')
         name = gpx.waypoints[0].name
