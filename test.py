@@ -354,7 +354,7 @@ class GPXTests(mod_unittest.TestCase):
 
 
     def test_total_time_none(self) -> None:
-        moving_time = total_seconds(None)
+        moving_time = total_seconds(None) #type: ignore
         self.assertIsNone(moving_time)
 
     def test_unicode_name(self) -> None:
