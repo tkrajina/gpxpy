@@ -904,18 +904,16 @@ class GPXTrackSegment:
                 speed_kmh: float = 0
                 if seconds > 0 and distance is not None:
                     # TODO: compute threshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
-
-                #print speed, stopped_speed_threshold
-                if distance:
-                    if speed_kmh <= stopped_speed_threshold:
-                        stopped_time += mod_utils.total_seconds(timedelta)
-                        stopped_distance += distance
-                    else:
-                        moving_time += mod_utils.total_seconds(timedelta)
-                        moving_distance += distance
-                    if moving_time:
-                        speeds_and_distances.append((distance / mod_utils.total_seconds(timedelta), distance, ))
+                    speed_kmh = (distance / 1000.) / (seconds / 60. ** 2)
+                    if distance:
+                        if speed_kmh <= stopped_speed_threshold:
+                            stopped_time += seconds
+                            stopped_distance += distance
+                        else:
+                            moving_time += seconds
+                            moving_distance += distance
+                        if moving_time:
+                            speeds_and_distances.append((distance / seconds, distance, ))
 
         max_speed = None
         if speeds_and_distances:
