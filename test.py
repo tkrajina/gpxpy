@@ -879,6 +879,15 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
 
+    def test_subsecond_speed(self) -> None:
+        t1 = mod_datetime.datetime(2020, 1, 1, 0, 0, 0, 0)
+        pt1 = mod_gpx.GPXTrackPoint(0, 0, time=t1)
+        pt2 = mod_gpx.GPXTrackPoint(1, 1, time=t1 + mod_datetime.timedelta(milliseconds=500))
+        print(pt1.time)
+        print(pt2.time)
+        speed = pt1.speed_between(pt2)
+        self.assertTrue(speed > 0) # type: ignore
+
     def test_course_between(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
