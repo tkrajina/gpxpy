@@ -1,5 +1,11 @@
 # Changelog
 
+## 
+
+* Division by zero fixed <https://github.com/tkrajina/gpxpy/issues/197>
+* Consider microseconds when total_seconds o timedelta is requested <https://github.com/tkrajina/gpxpy/pull/196>
+* Use list instead of getchildren for Python 3.9 compatibility <https://github.com/tkrajina/gpxpy/pull/192>
+
 ## v1.4.0
 
 * Removed support for python2.* and python3.5
