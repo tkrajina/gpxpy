@@ -140,8 +140,8 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
 
     size = len(speeds_and_distances)
 
-    if size < 20:
-        log.debug('Segment too small to compute speed, size=%s', size)
+    if size < 2:
+        # log.debug('Segment too small to compute speed, size=%s', size)
         return None
 
     distances = list(map(lambda x: x[1], speeds_and_distances))
@@ -160,7 +160,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
     speeds.sort()
 
     # Even here there may be some extremes => ignore the last 5%:
-    index = int(len(speeds) * 1-extreemes_percentile)
+    index = int(len(speeds) * (1-extreemes_percentile))
     if index >= len(speeds):
         index = -1
 

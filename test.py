@@ -868,6 +868,19 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[1].speed, 2.2)
         self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
+    def test_speed_ignore_top_speed_percentiles(self) -> None:
+        gpx = self.parse('cerknicko-jezero-with-elevations-zero.gpx')
+
+        moving_data_1 = gpx.get_moving_data()
+        moving_data_2 = gpx.get_moving_data(speed_extreemes_percentiles=0.05)
+        self.assertEqual(moving_data_1.max_speed, moving_data_2.max_speed)
+
+        for i in range(0, 11, 1):
+            data_1 = gpx.get_moving_data(speed_extreemes_percentiles=0.1*(i-1))
+            data_2 = gpx.get_moving_data(speed_extreemes_percentiles=0.1*i)
+            print(0.1*i, data_2.max_speed)
+            self.assertTrue(data_1.max_speed >= data_2.max_speed)
+
     def test_dilutions(self) -> None:
         gpx = self.parse('track_with_dilution_errors.gpx')
         gpx2 = self.reparse(gpx)
