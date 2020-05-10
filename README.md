@@ -84,6 +84,14 @@ If lxml is available, then it will be used for XML parsing, otherwise minidom is
 
 The GPX version is automatically determined when parsing by reading the version attribute in the gpx node. If this attribute is not present then the version is assumed to be 1.0. A specific version can be forced by setting the `version` parameter in the parse function. Possible values for the 'version' parameter are `1.0`, `1.1` and `None`.
 
+## GPX max speed
+
+Gpxpy is a GPX parser and by using it you have acess to all the data from the original GPX file, but the additional methods to calculate stats have some additional simple heuristics to remove common GPS errors. For example, to calculate `max_speed` it removes the top `5%` of speeds. Based on my years-long experience the top 5% are just random GPS errors.
+
+"Raw" max speed can be calculated with:
+
+    moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0)
+
 ## Pull requests
 
 Branches:
