@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,29 +17,29 @@ import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 import datetime as mod_datetime
 
-from typing import Any, AnyStr, List, Optional
+from typing import Any, AnyStr, List, Optional, cast
 
 def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None, escape: bool=False, prettyprint: bool=True, indent: str='') -> str:
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
     result: List[str] = []
-    result.append('\n' + indent + '<{0}'.format(tag))
+    result.append('\n' + indent + f'<{tag}')
 
     if content is None and default:
         content = default
 
     if attributes:
         for attribute in attributes.keys():
-            result.append(make_str(' %s="%s"' % (attribute, attributes[attribute])))
+            result.append(make_str(' {}="{}"'.format(attribute, attributes[attribute])))
 
     if content is None:
         result.append('/>')
     else:
         if escape:
-            result.append(make_str('>%s</%s>' % (mod_saxutils.escape(content), tag)))
+            result.append(make_str('>{}</{}>'.format(mod_saxutils.escape(content), tag)))
         else:
-            result.append(make_str('>%s</%s>' % (content, tag)))
+            result.append(make_str(f'>{content}</{tag}>'))
 
     return make_str(''.join(result))
 
@@ -73,7 +71,10 @@ def total_seconds(timedelta: mod_datetime.timedelta) -> float:
     """ Some versions of python don't have the timedelta.total_seconds() method. """
     if timedelta is None:
         return None
-    return (timedelta.days * 86400) + timedelta.seconds
+    return_seconds = cast(float, (timedelta.days * 86400) + timedelta.seconds)
+    if timedelta.microseconds > 0:
+        return_seconds += timedelta.microseconds/1000000.0
+    return return_seconds
 
 
 def make_str(s: AnyStr) -> str:

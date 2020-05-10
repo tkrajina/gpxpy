@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +16,7 @@ from typing import IO, Union, Optional, AnyStr
 
 from . import gpx as mod_gpx
 
-__version__ = '1.3.5'
+__version__ = '1.4.0'
 
 def parse(xml_or_file: Union[AnyStr, IO[str]], version: Optional[str] = None) -> mod_gpx.GPX:
     """

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +23,6 @@ Run single test with:
     $ python -m unittest test.GPXTests.test_method
 """
 
-from __future__ import print_function
 
 import logging as mod_logging
 import os as mod_os
@@ -94,11 +91,11 @@ def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
         if not attr1 and not attr2:
             return True
         if not attr1 or not attr2:
-            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
+            print(f'Object differs in attribute {attr} ({attr1} - {attr2})')
             return False
 
         if not equals(attr1, attr2):
-            print('Object differs in attribute %s (%s - %s)' % (attr, attr1, attr2))
+            print(f'Object differs in attribute {attr} ({attr1} - {attr2})')
             return False
 
     return True
@@ -127,7 +124,7 @@ def get_dom_node(dom: Any, path: str) -> Any:
         try:
             result = candidates[n]
         except Exception:
-            raise Exception('Can\'t fint %sth child of %s' % (n, path_part))
+            raise Exception(f'Can\'t fint {n}th child of {path_part}')
 
     return result
 
@@ -152,11 +149,11 @@ def elements_equal(e1: Any, e2: Any) -> bool:
     return all(elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
 def print_etree(e1: Any, indent: str='') -> str:
-    tag = ['{0}tag: |{1}|\n'.format(indent,e1.tag)]
+    tag = [f'{indent}tag: |{e1.tag}|\n']
     for att, value in e1.attrib.items():
-        tag.append('{0}-att: |{1}| = |{2}|\n'.format(indent, att, value))
-    tag.append('{0}-text: |{1}|\n'.format(indent, e1.text))
-    tag.append('{0}-tail: |{1}|\n'.format(indent, e1.tail))
+        tag.append(f'{indent}-att: |{att}| = |{value}|\n')
+    tag.append(f'{indent}-text: |{e1.text}|\n')
+    tag.append(f'{indent}-tail: |{e1.tail}|\n')
     for subelem in e1:
         tag.append(print_etree(subelem, indent+'__|'))
     return ''.join(tag)
@@ -348,6 +345,18 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
 
+    def test_total_time_support_less_one_sec(self) -> None:
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+        end_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0, 994000)
+        d_time = end_time - start_time
+        moving_time = total_seconds(d_time)
+        self.assertEqual(0.994, moving_time)
+
+
+    def test_total_time_none(self) -> None:
+        moving_time = total_seconds(None) #type: ignore
+        self.assertIsNone(moving_time)
+
     def test_unicode_name(self) -> None:
         gpx = self.parse('unicode.gpx', encoding='utf-8')
         name = gpx.waypoints[0].name
@@ -430,8 +439,6 @@ class GPXTests(mod_unittest.TestCase):
         points_reduced = gpx.get_track_points_no()
 
         result = gpx.to_xml()
-        if mod_sys.version_info[0] != 3:
-            result = cast(str, result.encode('utf-8'))
 
         started = mod_time.time()
         parser = mod_parser.GPXParser(result)
@@ -539,8 +546,8 @@ class GPXTests(mod_unittest.TestCase):
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
         print('Length: %s' % length)
-        print('Moving time: %s (%smin)' % (moving_time, moving_time / 60.))
-        print('Stopped time: %s (%smin)' % (stopped_time, stopped_time / 60.))
+        print('Moving time: {} ({}min)'.format(moving_time, moving_time / 60.))
+        print('Stopped time: {} ({}min)'.format(stopped_time, stopped_time / 60.))
         print('Moving distance: %s' % moving_distance)
         print('Stopped distance: %s' % stopped_distance)
         print('Max speed: %sm/s' % max_speed)
@@ -744,6 +751,16 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(len(result) == 1)
 
+    def test_spaces_in_elevation(self) -> None:
+        gpx = mod_gpxpy.parse("""<?xml version='1.0' encoding='UTF-8'?>
+<gpx version='1.1' creator='GPSMID' xmlns='http://www.topografix.com/GPX/1/1'>
+<trk><trkseg><trkpt lat='40.61262' lon='10.592117'><ele> 
+  100  
+   </ele><time>2018-01-01T09:00:00Z</time></trkpt></trkseg></trk>
+</gpx>""")
+
+        self.assertEqual(100, gpx.tracks[0].segments[0].points[0].elevation)
+
     def test_positions_on_track_2(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
@@ -873,6 +890,88 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].horizontal_dilution == 300.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
+
+    def test_course_between(self) -> None:
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+
+        segment = mod_gpx.GPXTrackSegment()
+        points = segment.points
+
+        # The points are extremely distant.
+        # Therefore, the computed orthodromic and loxodromic courses
+        # should diverge significantly.
+
+        points.append(mod_gpx.GPXTrackPoint(latitude=-73, longitude=-150))
+        points.append(mod_gpx.GPXTrackPoint(latitude=43.5798, longitude=35.71265))
+        points.append(mod_gpx.GPXTrackPoint(latitude=85, longitude=0.12345))
+        track.segments.append(segment)
+        gpx.tracks.append(track)
+
+        self.assertEqual(points[0].course_between(points[0]), 0)
+        # self.assertIsNone(points[2].course_between(None))
+
+        course_01 = points[0].course_between(points[1])
+        course_12 = points[1].course_between(points[2])
+        course_02 = points[0].course_between(points[2])
+
+        self.assertAlmostEqual(course_01, 312.089, 3)  # type: ignore
+        self.assertAlmostEqual(course_12, 344.790, 3)  # type: ignore
+        self.assertAlmostEqual(course_02, 27.5055, 3)  # type: ignore
+
+        # The default computational model should be loxodromic:
+
+        self.assertAlmostEqual(points[0].course_between(points[1], loxodromic=True), course_01, 6)  # type: ignore
+        self.assertAlmostEqual(points[1].course_between(points[2], loxodromic=True), course_12, 6)  # type: ignore
+        self.assertAlmostEqual(points[0].course_between(points[2], loxodromic=True), course_02, 6)  # type: ignore
+
+        # Verifying the orthodromic results
+
+        course_orthodromic_01 = points[0].course_between(points[1], loxodromic=False)
+        course_orthodromic_12 = points[1].course_between(points[2], loxodromic=False)
+        course_orthodromic_02 = points[0].course_between(points[2], loxodromic=False)
+
+        self.assertAlmostEqual(course_orthodromic_01, 188.409, 3)  # type: ignore
+        self.assertAlmostEqual(course_orthodromic_12, 355.6886, 3)  # type: ignore
+        self.assertAlmostEqual(course_orthodromic_02, 11.2136, 3)  # type: ignore
+
+        # Short distance tests:
+
+        gpx_short = self.parse('track_with_speed.gpx')
+        points_short = gpx_short.tracks[0].segments[0].points
+
+        course_short_01 = points_short[0].course_between(points_short[1])
+        course_short_12 = points_short[1].course_between(points_short[2])
+        course_short_02 = points_short[0].course_between(points_short[2])
+
+        # When the points are not too distant (less than about 100-150km),
+        # the orthodromic and loxodromic bearings should be almost identical:
+
+        self.assertAlmostEqual(points_short[0].course_between(points_short[1], loxodromic=False), course_short_01, 3)  # type: ignore
+        self.assertAlmostEqual(points_short[1].course_between(points_short[2], loxodromic=False), course_short_12, 3)  # type: ignore
+        self.assertAlmostEqual(points_short[0].course_between(points_short[2], loxodromic=False), course_short_02, 3)  # type: ignore
+
+    def test_get_course(self) -> None:
+        pts = [[-73, -150], [43.5798, 35.71265], [85, 0.12345]]
+
+        # same long distance checks as in test_get_course_between
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1]), 312.089, 3)  # type: ignore
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1]), 344.790, 3)  # type: ignore
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1]), 27.5055, 3)  # type: ignore
+
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1],  # type: ignore
+                                                  loxodromic=True), 312.089, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=True), 344.790, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=True), 27.5055, 3)
+
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[1][0], pts[1][1],  # type: ignore
+                                                  loxodromic=False), 188.409, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[1][0], pts[1][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=False), 355.6886, 3)
+        self.assertAlmostEqual(mod_geo.get_course(pts[0][0], pts[0][1], pts[2][0], pts[2][1],  # type: ignore
+                                                  loxodromic=False), 11.2136, 3)
 
     def test_name_comment_and_symbol(self) -> None:
         gpx = mod_gpx.GPX()
@@ -3042,7 +3141,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(f)
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
-        self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
+        self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
 
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
@@ -3076,8 +3175,8 @@ class GPXTests(mod_unittest.TestCase):
         for gpx in [gpx_with_ns, reparsed]:
             extensions = gpx.tracks[0].segments[0].points[0].extensions
             self.assertEqual(1, len(extensions))
-            self.assertEqual("125", extensions[0].getchildren()[0].text.strip())
-            self.assertEqual("75", extensions[0].getchildren()[1].text.strip())
+            self.assertEqual("125", list(extensions[0])[0].text.strip())
+            self.assertEqual("75", list(extensions[0])[1].text.strip())
 
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml

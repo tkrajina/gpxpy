@@ -1,5 +1,18 @@
 # Changelog
 
+## 
+
+* Division by zero fixed <https://github.com/tkrajina/gpxpy/issues/197>
+* Consider microseconds when total_seconds o timedelta is requested <https://github.com/tkrajina/gpxpy/pull/196>
+* Use list instead of getchildren for Python 3.9 compatibility <https://github.com/tkrajina/gpxpy/pull/192>
+
+## v1.4.0
+
+* Removed support for python2.* and python3.5
+* Added typehints and with mypy checks
+* Course computation <https://github.com/tkrajina/gpxpy/pull/156> <https://github.com/tkrajina/gpxpy/issues/155>
+* Refactored haversine_distance for speed and use math.radians <https://github.com/tkrajina/gpxpy/pull/180>
+
 ## v1.3.5
 
 * Rewrite parse_time so it understands time zones and microseconds <https://github.com/tkrajina/gpxpy/pull/152>

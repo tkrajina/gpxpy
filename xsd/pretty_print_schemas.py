@@ -1,19 +1,21 @@
-import xml.dom.minidom as mod_minidom
+import xml.dom.minidom as mod_minidom # type: ignore
 
-def get_children_by_tag_name(node, tag_name):
+from typing import *
+
+def get_children_by_tag_name(node: Any, tag_name: str) -> Any:
     result = []
     for child in node.childNodes:
         if child.nodeName == tag_name:
             result.append(child)
     return result
 
-def get_indented(indentation, string):
+def get_indented(indentation: int, string: str) -> str:
     result = ''
     for i in range(indentation):
         result += '    '
     return result + str(string) + '\n'
 
-def parse_1_1(dom):
+def parse_1_1(dom: Any) -> Any:
     root_node = dom.childNodes[0]
     complex_type_nodes = parse_1_1_find_complex_type(root_node)
     gpx_element_nodes = parse_1_1_find_elements(root_node)
@@ -22,11 +24,11 @@ def parse_1_1(dom):
         result += parse_1_1_element_node(gpx_element_node, complex_type_nodes)
     return result
 
-def parse_1_1_element_node(gpx_element_node, complex_type_nodes, depth=0):
+def parse_1_1_element_node(gpx_element_node: Any, complex_type_nodes: Dict[str, Any], depth: int=0) -> str:
     result = ''
     node_type = gpx_element_node.attributes['type'].value
     node_name = gpx_element_node.attributes['name'].value
-    result += get_indented(depth, '%s (%s)' % (node_name, node_type))
+    result += get_indented(depth, f'{node_name} ({node_type})')
     if node_type in complex_type_nodes:
         # Complex node => parse:
         attribute_nodes = get_children_by_tag_name(complex_type_nodes[node_type], 'xsd:attribute')
@@ -34,7 +36,7 @@ def parse_1_1_element_node(gpx_element_node, complex_type_nodes, depth=0):
             attribute_node_name = attribute_node.attributes['name'].value
             attribute_node_type = attribute_node.attributes['type'].value
             attribute_node_required = attribute_node.attributes['required'].value if attribute_node.attributes.has_key('required') else None
-            result += get_indented(depth + 1, '- attr: %s (%s) %s' % (attribute_node_name, attribute_node_type, attribute_node_required))
+            result += get_indented(depth + 1, f'- attr: {attribute_node_name} ({attribute_node_type}) {attribute_node_required}')
         sequence_nodes = get_children_by_tag_name(complex_type_nodes[node_type], 'xsd:sequence')
         if len(sequence_nodes) > 0:
             sequence_node = sequence_nodes[0]
@@ -42,7 +44,7 @@ def parse_1_1_element_node(gpx_element_node, complex_type_nodes, depth=0):
                 result += parse_1_1_element_node(element_node, complex_type_nodes, depth=depth+1)
     return result
 
-def parse_1_1_find_elements(node):
+def parse_1_1_find_elements(node: Any) -> List[str]:
     result = []
     for node in node.childNodes:
         if node.nodeName == 'xsd:element':
@@ -50,7 +52,7 @@ def parse_1_1_find_elements(node):
             result.append(node)
     return result
 
-def parse_1_1_find_complex_type(root_node):
+def parse_1_1_find_complex_type(root_node: Any) -> Dict[str, Any]:
     result = {}
     for node in root_node.childNodes:
         if node.nodeName == 'xsd:complexType':
@@ -58,11 +60,11 @@ def parse_1_1_find_complex_type(root_node):
             result[node_name] = node
     return result
 
-def parse_1_0(dom):
+def parse_1_0(dom: Any) -> Any:
     root_node = dom.getElementsByTagName('xsd:element')[0]
     return parse_1_0_elements(root_node)
 
-def parse_1_0_elements(element, depth=0):
+def parse_1_0_elements(element: Any, depth: int=0) -> Any:
     result = ''
     result += get_indented(depth, element.attributes['name'].value)
     complex_types = get_children_by_tag_name(element, 'xsd:complexType')
@@ -73,7 +75,7 @@ def parse_1_0_elements(element, depth=0):
             attribute_node_name = attribute_node.attributes['name'].value
             attribute_node_type = attribute_node.attributes['type'].value
             attribute_node_use = attribute_node.attributes['use'].value if attribute_node.attributes.has_key('use') else None
-            result += get_indented(depth + 1, '- attr: %s (%s) %s' % (attribute_node_name, attribute_node_type, attribute_node_use))
+            result += get_indented(depth + 1, f'- attr: {attribute_node_name} ({attribute_node_type}) {attribute_node_use}')
         sequences = get_children_by_tag_name(complex_type, 'xsd:sequence')
         if len(sequences) > 0:
             sequence = sequences[0]
@@ -85,10 +87,10 @@ dom = mod_minidom.parseString(open('gpx1.0.xsd').read())
 prety_print_1_0 = parse_1_0(dom)
 with open('gpx1.0.txt', 'w') as f:
     f.write(prety_print_1_0)
-    print '1.0 written'
+    print('1.0 written')
 
 dom = mod_minidom.parseString(open('gpx1.1.xsd').read())
 prety_print_1_1 = parse_1_1(dom)
 with open('gpx1.1.txt', 'w') as f:
     f.write(prety_print_1_1)
-    print '1.1 written'
+    print('1.1 written')

@@ -34,13 +34,14 @@ setup(
     license='Apache License, Version 2.0',
     author='Tomo Krajina',
     author_email='tkrajina@gmail.com',
-    url='http://www.trackprofiler.com/gpxpy/index.html',
+    url='https://github.com/tkrajina/gpxpy',
     packages=['gpxpy', ],
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
+    python_requires=">=3.6",
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     scripts=['gpxinfo']
 )

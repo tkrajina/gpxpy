@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -50,6 +48,48 @@ def haversine_distance(latitude_1: float, longitude_1: float, latitude_2: float,
     d = EARTH_RADIUS * c
 
     return d
+
+
+def get_course(latitude_1: float, longitude_1: float, latitude_2: float, longitude_2: float,
+               loxodromic: bool=True) -> float:
+    """
+    The initial course from one point to another,
+    expressed in decimal degrees clockwise from true North
+    (not magnetic)
+    (0.0 <= value < 360.0)
+
+    Use the default loxodromic model in most cases
+    (except when visualizing the long routes of maritime transport and aeroplanes)
+
+    Implemented from http://www.movable-type.co.uk/scripts/latlong.html
+    (sections 'Bearing' and 'Rhumb lines')
+    """
+
+    d_lon = mod_math.radians(longitude_2 - longitude_1)
+    lat1 = mod_math.radians(latitude_1)
+    lat2 = mod_math.radians(latitude_2)
+
+    if not loxodromic:
+        y = mod_math.sin(d_lon) * mod_math.cos(lat2)
+        x = mod_math.cos(lat1) * mod_math.sin(lat2) - \
+            mod_math.sin(lat1) * mod_math.cos(lat2) * mod_math.cos(d_lon)
+    else:
+        radian_circle = 2*mod_math.pi
+
+        if abs(d_lon) > mod_math.pi:
+            if d_lon > 0:
+                d_lon = - (radian_circle - d_lon)
+            else:
+                d_lon = radian_circle + d_lon
+
+        y = d_lon
+
+        delta = mod_math.pi/4
+        x = mod_math.log(mod_math.tan(delta + 0.5*lat2)
+                         / mod_math.tan(delta + 0.5*lat1))
+
+    course = mod_math.degrees(mod_math.atan2(y, x))
+    return (course + 360.) % 360.
 
 
 def length(locations: List["Location"]=[], _3d: bool=False) -> float:
@@ -127,7 +167,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
     return speeds[index]
 
 
-def calculate_uphill_downhill(elevations: List[float]) -> Tuple[float, float]:
+def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float, float]:
     if not elevations:
         return 0, 0
 
@@ -296,7 +336,7 @@ class Location:
         self.elevation = elevation
 
     def has_elevation(self) -> bool:
-        return cast(bool, self.elevation or self.elevation)
+        return self.elevation is not None
 
     def remove_elevation(self) -> None:
         self.elevation = None
@@ -324,13 +364,13 @@ class Location:
         return Location(latitude, longitude)
 
     def __str__(self) -> str:
-        return '[loc:%s,%s@%s]' % (self.latitude, self.longitude, self.elevation)
+        return f'[loc:{self.latitude},{self.longitude}@{self.elevation}]'
 
     def __repr__(self) -> str:
         if self.elevation is None:
-            return 'Location(%s, %s)' % (self.latitude, self.longitude)
+            return f'Location({self.latitude}, {self.longitude})'
         else:
-            return 'Location(%s, %s, %s)' % (self.latitude, self.longitude, self.elevation)
+            return f'Location({self.latitude}, {self.longitude}, {self.elevation})'
 
 
 class LocationDelta:

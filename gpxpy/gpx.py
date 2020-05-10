@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright 2011 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +20,6 @@ import logging as mod_logging
 import math as mod_math
 import collections as mod_collections
 import copy as mod_copy
-import datetime as mod_datetime
 import datetime as mod_datetime
 
 from . import utils as mod_utils
@@ -129,7 +126,7 @@ class MinimumMaximum(NamedTuple):
     minimum: Optional[float]
     maximum: Optional[float]
 class NearestLocationData(NamedTuple):
-    location: mod_geo.Location
+    location: "GPXTrackPoint"
     track_no: int
     segment_no: int
     point_no: int
@@ -191,9 +188,9 @@ class GPXXMLSyntaxException(GPXException):
 
     The __cause__ can be a minidom or lxml exception (See http://www.python.org/dev/peps/pep-3134/).
     """
-    def __init__(self, message: str, original_exception: object) -> None:
+    def __init__(self, message: str, original_exception: BaseException) -> None:
         GPXException.__init__(self, message)
-        self.__cause__ = cast(BaseException, original_exception)
+        self.__cause__ = original_exception
 
 
 class GPXWaypoint(mod_geo.Location):
@@ -236,15 +233,15 @@ class GPXWaypoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[wpt{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+        return f'[wpt{{{self.name}}}:{self.latitude},{self.longitude}@{self.elevation}]'
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXWaypoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -311,15 +308,15 @@ class GPXRoutePoint(mod_geo.Location):
         self.extensions: List[Any] = [] # TODO
 
     def __str__(self) -> str:
-        return '[rtept{%s}:%s,%s@%s]' % (self.name, self.latitude, self.longitude, self.elevation)
+        return f'[rtept{{{self.name}}}:{self.latitude},{self.longitude}@{self.elevation}]'
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'name', 'description', 'symbol', 'type', 'comment', \
                 'horizontal_dilution', 'vertical_dilution', 'position_dilution':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXRoutePoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -500,8 +497,8 @@ class GPXRoute:
         for attribute in 'name', 'description', 'number':
             value = getattr(self, attribute)
             if value is not None:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
-        representation += '%spoints=[%s])' % (', ' if representation else '', '...' if self.points else '')
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
+        representation += '{}points=[{}])'.format(', ' if representation else '', '...' if self.points else '')
         return 'GPXRoute(%s)' % representation
 
 
@@ -547,12 +544,12 @@ class GPXTrackPoint(mod_geo.Location):
         self.extensions: List[Any] = []
 
     def __repr__(self) -> str:
-        representation = '%s, %s' % (self.latitude, self.longitude)
+        representation = f'{self.latitude}, {self.longitude}'
         for attribute in 'elevation', 'time', 'symbol', 'comment', 'horizontal_dilution', \
                 'vertical_dilution', 'position_dilution', 'speed', 'name':
             value = getattr(self, attribute)
             if value is not None:
-                representation += ', %s=%s' % (attribute, repr(value))
+                representation += ', {}={}'.format(attribute, repr(value))
         return 'GPXTrackPoint(%s)' % representation
 
     def adjust_time(self, delta: mod_datetime.timedelta) -> None:
@@ -630,9 +627,56 @@ class GPXTrackPoint(mod_geo.Location):
 
         return length / float(seconds)
 
-    def __str__(self) -> str:
-        return '[trkpt:%s,%s@%s@%s]' % (self.latitude, self.longitude, self.elevation, self.time)
+    def course_between(self, track_point: "GPXTrackPoint", loxodromic: bool=True) -> Optional[float]:
+        """
+        Compute the instantaneous course from one point to another.
 
+        Both loxodromic (Rhumb line) and orthodromic (Great circle) navigation
+        models are available.
+
+        The default navigation model is loxodromic.
+
+        There is no difference between these models in course computation
+        when points are relatively close to each other (less than ≈150 km)
+
+        In most cases the default model is OK.
+
+        However, the orthodromic navigation model can be important for the
+        long-distance (> ≈1000 km) logs acquired from maritime transport
+        or aeroplanes
+
+        Generally, the choice between these two models depends on a vehicle type,
+        distance and navigation equipment used.
+
+        More information on these two navigation models:
+        https://www.movable-type.co.uk/scripts/latlong.html
+
+        NOTE: This is a computed course, not the GPXTrackPoint course that comes in
+              the GPX file.
+
+        Parameters
+        ----------
+        track_point : GPXTrackPoint
+        loxodromic : True
+                     Set to False to use the orthodromic navigation model
+
+        Returns
+        ----------
+        course : float
+                Course returned in decimal degrees, true (not magnetic)
+                (0.0 <= value < 360.0)
+        """
+
+        if not track_point:
+            return None
+
+        course = mod_geo.get_course(self.latitude, self.longitude,
+                                    track_point.latitude, track_point.longitude,
+                                    loxodromic)
+        return course
+
+    def __str__(self) -> str:
+        return f'[trkpt:{self.latitude},{self.longitude}@{self.elevation}@{self.time}]'
 
 class GPXTrackSegment:
     gpx_10_fields = [
@@ -860,18 +904,16 @@ class GPXTrackSegment:
                 speed_kmh: float = 0
                 if seconds > 0 and distance is not None:
                     # TODO: compute threshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (mod_utils.total_seconds(timedelta) / 60. ** 2)
-
-                #print speed, stopped_speed_threshold
-                if distance:
-                    if speed_kmh <= stopped_speed_threshold:
-                        stopped_time += mod_utils.total_seconds(timedelta)
-                        stopped_distance += distance
-                    else:
-                        moving_time += mod_utils.total_seconds(timedelta)
-                        moving_distance += distance
-                    if moving_time:
-                        speeds_and_distances.append((distance / mod_utils.total_seconds(timedelta), distance, ))
+                    speed_kmh = (distance / 1000.) / (seconds / 60. ** 2)
+                    if distance:
+                        if speed_kmh <= stopped_speed_threshold:
+                            stopped_time += seconds
+                            stopped_distance += distance
+                        else:
+                            moving_time += seconds
+                            moving_distance += distance
+                        if moving_time:
+                            speeds_and_distances.append((distance / seconds, distance, ))
 
         max_speed = None
         if speeds_and_distances:
@@ -1114,7 +1156,7 @@ class GPXTrackSegment:
             return UphillDownhill(0, 0)
 
         elevations = list(map(lambda point: point.elevation, self.points))
-        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations) # type: ignore
+        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
 
         return UphillDownhill(uphill, downhill)
 
@@ -1161,7 +1203,7 @@ class GPXTrackSegment:
             return None
 
         if first_time and time and last_time and not first_time <= time <= last_time:
-            log.debug('Not in track (search for:%s, start:%s, end:%s)' % (time, first_time, last_time))
+            log.debug(f'Not in track (search for:{time}, start:{first_time}, end:{last_time})')
             return None
 
         for point in self.points:
@@ -1177,7 +1219,7 @@ class GPXTrackSegment:
         if not self.points:
             return None
 
-        result: Optional[mod_geo.Location] = None
+        result: Optional[GPXTrackPoint] = None
         current_distance = None
         result_track_point_no = None
         for i in range(len(self.points)):
@@ -1886,7 +1928,7 @@ class GPXTrack:
                 nearest_location_distance = nearest_loc_info.location.distance_2d(location)
                 if distance is not None and nearest_location_distance is not None and (distance < 0 or nearest_location_distance < distance):
                     distance = nearest_location_distance
-                    result = nearest_loc_info.location # type: ignore
+                    result = nearest_loc_info.location
                     result_track_segment_no = i
                     result_track_point_no = nearest_loc_info.point_no
 
@@ -1903,8 +1945,8 @@ class GPXTrack:
         for attribute in 'name', 'description', 'number':
             value = getattr(self, attribute)
             if value is not None:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
-        representation += '%ssegments=%s' % (', ' if representation else '', repr(self.segments))
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
+        representation += '{}segments={}'.format(', ' if representation else '', repr(self.segments))
         return 'GPXTrack(%s)' % representation
 
 
@@ -2511,11 +2553,11 @@ class GPX:
         if not self.tracks:
             return None
 
-        result: mod_geo.Location = None # type: ignore
+        result: Optional[GPXTrackPoint] = None
         distance = None
-        result_track_no: int = None # type: ignore
-        result_segment_no: int = None # type: ignore
-        result_point_no: int = None # type: ignore
+        result_track_no: int = -1
+        result_segment_no: int = -1
+        result_point_no: int = -1
         for i in range(len(self.tracks)):
             track = self.tracks[i]
             nearest_loc_info = track.get_nearest_location(location)
@@ -2706,7 +2748,7 @@ class GPX:
 
         version_path = version.replace('.', '/')
 
-        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{0}'.format(
+        self.nsmap['defaultns'] = 'http://www.topografix.com/GPX/{}'.format(
             version_path
         )
 
@@ -2756,7 +2798,7 @@ class GPX:
         for attribute in 'waypoints', 'routes', 'tracks':
             value = getattr(self, attribute)
             if value:
-                representation += '%s%s=%s' % (', ' if representation else '', attribute, repr(value))
+                representation += '{}{}={}'.format(', ' if representation else '', attribute, repr(value))
         return 'GPX(%s)' % representation
 
     def clone(self) -> "GPX":
