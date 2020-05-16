@@ -345,6 +345,18 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.tracks[2].has_times())
         self.assertTrue(gpx.tracks[3].has_times())
 
+    def test_total_time_support_less_one_sec(self) -> None:
+        start_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0)
+        end_time = mod_datetime.datetime(2018, 7, 4, 0, 0, 0, 994000)
+        d_time = end_time - start_time
+        moving_time = total_seconds(d_time)
+        self.assertEqual(0.994, moving_time)
+
+
+    def test_total_time_none(self) -> None:
+        moving_time = total_seconds(None) #type: ignore
+        self.assertIsNone(moving_time)
+
     def test_unicode_name(self) -> None:
         gpx = self.parse('unicode.gpx', encoding='utf-8')
         name = gpx.waypoints[0].name
@@ -3138,7 +3150,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(f)
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
-        self.assertEqual("eee", gpx.waypoints[0].extensions[1].getchildren()[0].text.strip())
+        self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
 
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
@@ -3172,8 +3184,8 @@ class GPXTests(mod_unittest.TestCase):
         for gpx in [gpx_with_ns, reparsed]:
             extensions = gpx.tracks[0].segments[0].points[0].extensions
             self.assertEqual(1, len(extensions))
-            self.assertEqual("125", extensions[0].getchildren()[0].text.strip())
-            self.assertEqual("75", extensions[0].getchildren()[1].text.strip())
+            self.assertEqual("125", list(extensions[0])[0].text.strip())
+            self.assertEqual("75", list(extensions[0])[1].text.strip())
 
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
