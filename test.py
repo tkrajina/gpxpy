@@ -3152,6 +3152,14 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
 
+    def test_garmin_extension(self) -> None:
+        f = open('test_files/gpx_with_garmin_extension.gpx', 'r')
+        gpx = mod_gpxpy.parse(f)
+        xml = gpx.to_xml()
+        self.assertTrue("<gpxtpx:TrackPointExtension>" in xml)
+        self.assertTrue("<gpxtpx:hr>171</gpxtpx:hr>" in xml)
+        print(gpx.to_xml())
+
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
         <gpx creator="Garmin Connect" version="1.1"
