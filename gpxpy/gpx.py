@@ -1214,6 +1214,13 @@ class GPXTrackSegment:
         
         return None
 
+    def get_nearest_location_x(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
+        """ Return the (location, track_point_no) on this track segment """
+        if (self.points is None) or len(self.points) == 0:
+            return None
+        result_track_point_no,result = min(enumerate(self.points), key=lambda x: x[1].distance_2d(location))
+        return NearestLocationData(result, -1, -1, result_track_point_no)
+        
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
         if not self.points:
@@ -1228,8 +1235,13 @@ class GPXTrackSegment:
                 result = track_point
             else:
                 distance = track_point.distance_2d(location)
-                #print current_distance, distance
-                if not current_distance or distance < current_distance:
+                #if (current_distance == None) or distance < current_distance:
+                # if not ( (not current_distance or distance < current_distance) == ((current_distance == None) or distance < current_distance ) ):
+                #     print(';xx;', not current_distance or distance < current_distance, (current_distance == None) or distance < current_distance )
+                #     print(';xx;', (not current_distance) or distance < current_distance, (current_distance == None) or distance < current_distance )
+                #if not current_distance or distance < current_distance:
+                if (current_distance is None) or distance < current_distance:
+                    #print ("huhu",current_distance, distance)
                     current_distance = distance
                     result = track_point
                     result_track_point_no = i
