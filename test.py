@@ -393,7 +393,7 @@ class GPXTests(mod_unittest.TestCase):
 ##        self.assertTrue(make_str(security) == 'Open')
 
     def test_nearest_location_1(self) -> None:
-        def test_nearest_location_gpx(gpx) -> None:
+        def test_nearest_location_gpx(gpx: mod_gpx.GPX) -> None:
             location = mod_geo.Location(45.451058791, 14.027903696)
             nearest_loc_info = gpx.get_nearest_location(location)
             print(nearest_loc_info)
@@ -404,7 +404,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
 
                 nearest_nearest_loc_info =  gpx.get_nearest_location(point)
-                self.assertTrue( nearest_nearest_loc_info == nearest_loc_info ) # type: ignore
+                self.assertTrue( nearest_nearest_loc_info == nearest_loc_info )
             
                 location = mod_geo.Location(1, 1)
                 nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
@@ -418,11 +418,11 @@ class GPXTests(mod_unittest.TestCase):
                 
         gpx = self.parse('korita-zbevnica.gpx')
         test_nearest_location_gpx(gpx)
-        gpx.tracks[0].segments[0].points=None
+        gpx.tracks[0].segments[0].points = None # type: ignore
         test_nearest_location_gpx(gpx)
-        gpx.tracks[0].segments=None
+        gpx.tracks[0].segments = None # type: ignore
         test_nearest_location_gpx(gpx)
-        gpx.tracks=None
+        gpx.tracks = None # type: ignore
         test_nearest_location_gpx(gpx)
         
         
