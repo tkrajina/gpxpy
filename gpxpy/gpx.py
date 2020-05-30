@@ -781,7 +781,7 @@ class GPXTrackSegment:
         for track_point in self.points:
             track_point.move(location_delta)
 
-    def walk(self, only_points: bool=False) -> Iterator[Union[GPXTrackPoint, Tuple[GPXTrackPoint, int]]]:
+    def walk(self, only_points: bool=False) -> Iterator[Any]: # Union[GPXTrackPoint, Tuple[GPXTrackPoint, int]]]:
         """
         Generator for iterating over segment points
 
@@ -1545,7 +1545,7 @@ class GPXTrack:
 
         return bounds
 
-    def walk(self, only_points: bool=False) -> Iterator[Union[GPXTrackPoint, Tuple[GPXTrackPoint, int, int]]]:
+    def walk(self, only_points: bool=False) -> Iterator[Any]: #Union[GPXTrackPoint, Tuple[GPXTrackPoint, int, int]]]:
         """
         Generator used to iterates through track
 
