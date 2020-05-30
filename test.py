@@ -393,26 +393,39 @@ class GPXTests(mod_unittest.TestCase):
 ##        self.assertTrue(make_str(security) == 'Open')
 
     def test_nearest_location_1(self) -> None:
+        def test_nearest_location_gpx(gpx) -> None:
+            location = mod_geo.Location(45.451058791, 14.027903696)
+            nearest_loc_info = gpx.get_nearest_location(location)
+            print(nearest_loc_info)
+            if gpx.tracks is not None:
+                self.assertTrue(nearest_loc_info is not None)
+                point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no] # type: ignore
+                self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
+                self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
+
+                nearest_nearest_loc_info =  gpx.get_nearest_location(point)
+                self.assertTrue( nearest_nearest_loc_info == nearest_loc_info ) # type: ignore
+            
+                location = mod_geo.Location(1, 1)
+                nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
+                point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
+                self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
+
+                location = mod_geo.Location(50, 50)
+                nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
+                point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
+                self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
+                
         gpx = self.parse('korita-zbevnica.gpx')
-
-        location = mod_geo.Location(45.451058791, 14.027903696)
-        nearest_loc_info = gpx.get_nearest_location(location)
-        print(nearest_loc_info)
-        self.assertTrue(nearest_loc_info is not None)
-        point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no] # type: ignore
-        self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
-        self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
-
-        location = mod_geo.Location(1, 1)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
-        point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
-
-        location = mod_geo.Location(50, 50)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
-        point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
-
+        test_nearest_location_gpx(gpx)
+        gpx.tracks[0].segments[0].points=None
+        test_nearest_location_gpx(gpx)
+        gpx.tracks[0].segments=None
+        test_nearest_location_gpx(gpx)
+        gpx.tracks=None
+        test_nearest_location_gpx(gpx)
+        
+        
     def test_long_timestamps(self) -> None:
         # Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
         gpx = self.parse('Mojstrovka.gpx')
