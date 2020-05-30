@@ -135,7 +135,7 @@ def get_dom_node(dom: Any, path: str) -> Any:
 ##    input()
 
 
-def node_strip(text: AnyStr) -> AnyStr:
+def node_strip(text: str) -> str:
     if text is None:
         return ''
     return text.strip()
