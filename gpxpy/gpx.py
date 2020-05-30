@@ -781,7 +781,7 @@ class GPXTrackSegment:
         for track_point in self.points:
             track_point.move(location_delta)
 
-    def walk(self, only_points: bool=False) -> Iterator[Any]: # TODO: find a better solution for typing
+    def walk(self, only_points: bool=False) -> Iterator[Union[GPXTrackPoint, Tuple[GPXTrackPoint, int]]]:
         """
         Generator for iterating over segment points
 
@@ -1216,10 +1216,9 @@ class GPXTrackSegment:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
-        if (self.points is None) or len(self.points) == 0:
-            return None
-        result_track_point_no,result = min(enumerate(self.points), key=lambda x: x[1].distance_2d(location))
-        return NearestLocationData(result, -1, -1, result_track_point_no)
+        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk())
+                   ,key=lambda x: x.location.distance_2d(location) if x is not None else float('INF')
+                   ,default=None)
 
     def smooth(self, vertical: bool=True, horizontal: bool=False, remove_extremes: bool=False) -> None:
         """ "Smooths" the elevation graph. Can be called multiple times. """
@@ -1895,7 +1894,7 @@ class GPXTrack:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
-        return min((NearestLocationData(pt, tr, seg, pt_no) for (pt,tr, seg, pt_no) in self.walk())
+        return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk())
                    ,key=lambda x: x.location.distance_2d(location) if x is not None else float('INF')
                    ,default=None)
         
