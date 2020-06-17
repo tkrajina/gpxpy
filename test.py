@@ -185,6 +185,13 @@ class GPXTests(mod_unittest.TestCase):
         with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
             mod_gpxpy.parse(f)
 
+    def test_parse_bytes(self) -> None:
+        # Must not throw any exception:
+        with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
+            byts = f.read().encode(encoding='utf-8')
+            print(type(byts))
+            mod_gpxpy.parse(byts)
+
     def test_simple_parse_function_invalid_xml(self) -> None:
         try:
             mod_gpxpy.parse('<gpx></gpx')
