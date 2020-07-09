@@ -8,6 +8,7 @@ tags
 xsd/*.xsd
 .cache/*
 .mypy_cache/*
+examples/*.gpx
 
 *.py[cod]
 
