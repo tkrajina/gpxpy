@@ -30,4 +30,4 @@ analyze-xsd:
 	test -f xsd/gpx1.0.xsd || wget -c http://www.topografix.com/gpx/1/0/gpx.xsd -O xsd/gpx1.0.xsd
 	cd xsd && python pretty_print_schemas.py
 mypy:
-	mypy --strict . gpxinfo xsd/*py
+	mypy --strict . examples gpxinfo xsd/*py
