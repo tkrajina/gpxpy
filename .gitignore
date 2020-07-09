@@ -9,6 +9,7 @@ xsd/*.xsd
 .cache/*
 .mypy_cache/*
 examples/*.gpx
+.DS_Store
 
 *.py[cod]
 
