@@ -35,6 +35,7 @@ setup(
     author='Tomo Krajina',
     author_email='tkrajina@gmail.com',
     url='https://github.com/tkrajina/gpxpy',
+    package_data={"gpxpy": ["py.typed"]},
     packages=['gpxpy', ],
     python_requires=">=3.6",
     classifiers=[
@@ -43,5 +44,5 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
     ],
-    scripts=['gpxinfo']
+    scripts=['gpxinfo'],
 )
