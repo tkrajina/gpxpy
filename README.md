@@ -105,7 +105,7 @@ Gpxpy runs only with python 3.6+. The code must have type hints and must pass al
 
 ## GPX tools
 
-Additional command-line tools for handling GPX can be downloaded here <https://github.com/tkrajina/gpx-cmd-tools> or installed with:
+Additional command-line tools for GPX files can be downloaded here <https://github.com/tkrajina/gpx-cmd-tools> or installed with:
 
 ```
 pip install gpx-cmd-tools
