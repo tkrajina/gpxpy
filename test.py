@@ -2994,6 +2994,13 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('01')))
 
+        gpx = gpx.clone()
+
+        self.assertTrue("2014-02-02T10:23:18+0100" in gpx.to_xml())
+        reparsed = mod_gpxpy.parse(gpx.to_xml())
+        self.assertTrue("2014-02-02T10:23:18+0100" in reparsed.to_xml())
+        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo)
+
     def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
