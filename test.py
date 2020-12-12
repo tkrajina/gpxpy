@@ -900,6 +900,26 @@ class GPXTests(mod_unittest.TestCase):
             print(0.1*i, data_2.max_speed)
             self.assertTrue(data_1.max_speed >= data_2.max_speed)
 
+    def test_raw_max_speed(self) -> None:
+        gpx = self.parse('korita-zbevnica.gpx')
+
+        raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0)
+
+        max_speed = 0
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for pt_no, pt in enumerate(segment.points):
+                    if pt_no > 0:
+                        speed = segment.points[pt_no].speed_between(segment.points[pt_no - 1])
+                        #print(speed)
+                        if speed:
+                            max_speed = max(speed, max_speed)
+                            print(max_speed)
+
+        print("raw=", raw_moving_data.max_speed)
+        print("calculated=", max_speed)
+        self.assertEqual(max_speed, raw_moving_data.max_speed)
+
     def test_dilutions(self) -> None:
         gpx = self.parse('track_with_dilution_errors.gpx')
         gpx2 = self.reparse(gpx)
