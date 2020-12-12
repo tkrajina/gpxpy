@@ -135,7 +135,7 @@ def get_dom_node(dom: Any, path: str) -> Any:
 ##    input()
 
 
-def node_strip(text: AnyStr) -> AnyStr:
+def node_strip(text: str) -> str:
     if text is None:
         return ''
     return text.strip()
@@ -184,6 +184,13 @@ class GPXTests(mod_unittest.TestCase):
         # Must not throw any exception:
         with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
             mod_gpxpy.parse(f)
+
+    def test_parse_bytes(self) -> None:
+        # Must not throw any exception:
+        with open('test_files/korita-zbevnica.gpx', encoding='utf-8') as f:
+            byts = f.read().encode(encoding='utf-8')
+            print(type(byts))
+            mod_gpxpy.parse(byts)
 
     def test_simple_parse_function_invalid_xml(self) -> None:
         try:
@@ -393,26 +400,38 @@ class GPXTests(mod_unittest.TestCase):
 ##        self.assertTrue(make_str(security) == 'Open')
 
     def test_nearest_location_1(self) -> None:
+        def test_nearest_gpx(gpx: mod_gpx.GPX) -> None:
+            def test_nearest(gpx: mod_gpx.GPX,loc: mod_geo.Location) -> None:
+                def test_nearest_part(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.GPXTrackSegment], loc: mod_geo.Location) -> mod_gpx.NearestLocationData:
+                    nearest_loc_info = gpx_part.get_nearest_location(loc)
+                    print(gpx_part,nearest_loc_info)
+                    self.assertTrue(nearest_loc_info is not None)
+                    location = nearest_loc_info.location # type: ignore
+                    nearest_nearest_loc_info = gpx_part.get_nearest_location(location)
+                    self.assertTrue(nearest_nearest_loc_info == nearest_loc_info)
+                    return nearest_loc_info # type: ignore
+                
+                nearest_loc_info =test_nearest_part( gpx, loc)
+                location=nearest_loc_info.location
+                point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no]
+                self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
+                self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
+                test_nearest_part( gpx.tracks[nearest_loc_info.track_no], loc)
+                test_nearest_part( gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no], loc)
+            
+            test_nearest(gpx,mod_geo.Location(45.451058791, 14.027903696))
+            test_nearest(gpx,mod_geo.Location(1, 1))
+            test_nearest(gpx,mod_geo.Location(50,50))
+                
         gpx = self.parse('korita-zbevnica.gpx')
-
-        location = mod_geo.Location(45.451058791, 14.027903696)
-        nearest_loc_info = gpx.get_nearest_location(location)
-        print(nearest_loc_info)
-        self.assertTrue(nearest_loc_info is not None)
-        point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no] # type: ignore
-        self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
-        self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
-
-        location = mod_geo.Location(1, 1)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
-        point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
-
-        location = mod_geo.Location(50, 50)
-        nearest_location, track_no, track_segment_no, track_point_no = gpx.get_nearest_location(location) # type: ignore
-        point = gpx.tracks[track_no].segments[track_segment_no].points[track_point_no]
-        self.assertTrue(point.distance_2d(nearest_location) < 0.001) # type: ignore
-
+        test_nearest_gpx(gpx)
+        gpx.tracks[0].segments[0].points = None # type: ignore
+        test_nearest_gpx(gpx)
+        gpx.tracks[0].segments = None # type: ignore
+        test_nearest_gpx(gpx)
+        gpx.tracks = None # type: ignore
+        self.assertTrue( gpx.get_nearest_location(mod_geo.Location(1, 1)) is None)
+        
     def test_long_timestamps(self) -> None:
         # Check if timestamps in format: 1901-12-13T20:45:52.2073437Z work
         gpx = self.parse('Mojstrovka.gpx')
@@ -904,6 +923,15 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].vertical_dilution == 301.1)
             self.assertTrue(test_gpx.tracks[0].segments[0].points[0].position_dilution == 302.1)
 
+    def test_subsecond_speed(self) -> None:
+        t1 = mod_datetime.datetime(2020, 1, 1, 0, 0, 0, 0)
+        pt1 = mod_gpx.GPXTrackPoint(0, 0, time=t1)
+        pt2 = mod_gpx.GPXTrackPoint(1, 1, time=t1 + mod_datetime.timedelta(milliseconds=500))
+        print(pt1.time)
+        print(pt2.time)
+        speed = pt1.speed_between(pt2)
+        self.assertTrue(speed > 0) # type: ignore
+
     def test_course_between(self) -> None:
         gpx = mod_gpx.GPX()
         track = mod_gpx.GPXTrack()
@@ -1156,7 +1184,7 @@ class GPXTests(mod_unittest.TestCase):
         for tmp_point in track.walk():
             self.assertTrue(tmp_point)
 
-        for point, segment_no, point_no in track.walk(): # type: ignore
+        for point, segment_no, point_no in track.walk():
             self.assertTrue(point)
 
         self.assertEqual(segment_no, len(track.segments) - 1)
@@ -3155,6 +3183,14 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
+
+    def test_garmin_extension(self) -> None:
+        f = open('test_files/gpx_with_garmin_extension.gpx', 'r')
+        gpx = mod_gpxpy.parse(f)
+        xml = gpx.to_xml()
+        self.assertTrue("<gpxtpx:TrackPointExtension>" in xml)
+        self.assertTrue("<gpxtpx:hr>171</gpxtpx:hr>" in xml)
+        print(gpx.to_xml())
 
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>

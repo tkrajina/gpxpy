@@ -71,10 +71,7 @@ def total_seconds(timedelta: mod_datetime.timedelta) -> float:
     """ Some versions of python don't have the timedelta.total_seconds() method. """
     if timedelta is None:
         return None
-    return_seconds = cast(float, (timedelta.days * 86400) + timedelta.seconds)
-    if timedelta.microseconds > 0:
-        return_seconds += timedelta.microseconds/1000000.0
-    return return_seconds
+    return timedelta.total_seconds()
 
 
 def make_str(s: AnyStr) -> str:

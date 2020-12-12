@@ -80,6 +80,8 @@ class GPXParser:
 
         """
         text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file # type: ignore
+        if isinstance(text, bytes):
+            text = text.decode()
         self.xml = mod_utils.make_str(cast(str, text))
 
     def parse(self, version: Optional[str]=None) -> mod_gpx.GPX:

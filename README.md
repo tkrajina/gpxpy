@@ -111,22 +111,13 @@ Run a single test with:
 
 Gpxpy runs only with python 3.6+. The code must have type hints and must pass all the mypy checks.
 
-## GPXInfo
+## GPX tools
 
-The repository contains a little command line utility to extract basic statistics from a file.
-Example usage:
+Additional command-line tools for GPX files can be downloaded here <https://github.com/tkrajina/gpx-cmd-tools> or installed with:
 
-    $ gpxinfo voznjica.gpx
-    File: voznjica.gpx
-      Length 2D: 63.6441229018
-      Length 3D: 63.8391428454
-      Moving time: 02:56:03
-      Stopped time: 00:21:38
-      Max speed: 14.187909492m/s = 51.0764741713km/h
-      Total uphill: 1103.1626183m
-      Total downhill: 1087.7812703m
-      Started: 2013-06-01 06:46:53
-      Ended: 2013-06-01 10:23:45
+```
+pip install gpx-cmd-tools
+```
 
 ## License
 

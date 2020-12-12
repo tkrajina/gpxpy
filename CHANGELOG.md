@@ -1,10 +1,20 @@
 # Changelog
 
-## 
+##
+
+*
+
+## v1.4.2
+
+* get_nearest_location(location) has the property that if 'location' is a point on the track, the point after 'location' on the track is returned <https://github.com/tkrajina/gpxpy/pull/203>
+* parse bytes <https://github.com/tkrajina/gpxpy/issues/175#issuecomment-645074781>
+
+## v1.4.1
 
 * Division by zero fixed <https://github.com/tkrajina/gpxpy/issues/197>
 * Consider microseconds when total_seconds o timedelta is requested <https://github.com/tkrajina/gpxpy/pull/196>
 * Use list instead of getchildren for Python 3.9 compatibility <https://github.com/tkrajina/gpxpy/pull/192>
+* utils.total_seconds() ignores microseconds <https://github.com/tkrajina/gpxpy/issues/201>
 
 ## v1.4.0
 
