@@ -845,7 +845,7 @@ class GPXTrackSegment:
 
         self.points = part_1 + part_2
 
-    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool = True) -> Optional[MovingData]:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, raw: bool=False, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool = True) -> Optional[MovingData]:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance,
         stopped_distance, max_speed) that may be used for detecting the time
@@ -877,6 +877,10 @@ class GPXTrackSegment:
         """
         if not stopped_speed_threshold:
             stopped_speed_threshold = DEFAULT_STOPPED_SPEED_THRESHOLD
+
+        if raw:
+            speed_extreemes_percentiles=0
+            ignore_nonstandard_distances=False
 
         moving_time = 0.
         stopped_time = 0.
@@ -1666,7 +1670,7 @@ class GPXTrack:
                 new_segments.append(segment)
         self.segments = new_segments
 
-    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool = True) -> MovingData:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, raw: bool=False, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool = True) -> MovingData:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance,
         stopped_distance, max_speed) that may be used for detecting the time
@@ -1705,7 +1709,7 @@ class GPXTrack:
         max_speed = 0.
 
         for segment in self.segments:
-            moving_data = segment.get_moving_data(stopped_speed_threshold, speed_extreemes_percentiles, ignore_nonstandard_distances)
+            moving_data = segment.get_moving_data(stopped_speed_threshold, raw, speed_extreemes_percentiles, ignore_nonstandard_distances)
             if moving_data:
                 moving_time += moving_data.moving_time
                 stopped_time += moving_data.stopped_time
@@ -2200,7 +2204,7 @@ class GPX:
         for track in self.tracks:
             track.remove_empty()
 
-    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool=True) -> MovingData:
+    def get_moving_data(self, stopped_speed_threshold: Optional[float]=None, raw: bool=False, speed_extreemes_percentiles: float=IGNORE_TOP_SPEED_PERCENTILES, ignore_nonstandard_distances: bool=True) -> MovingData:
         """
         Return a tuple of (moving_time, stopped_time, moving_distance, stopped_distance, max_speed)
         that may be used for detecting the time stopped, and max speed. Not that those values are not
@@ -2229,7 +2233,7 @@ class GPX:
         max_speed = 0.
 
         for track in self.tracks:
-            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = track.get_moving_data(stopped_speed_threshold, speed_extreemes_percentiles=speed_extreemes_percentiles, ignore_nonstandard_distances=ignore_nonstandard_distances)
+            track_moving_time, track_stopped_time, track_moving_distance, track_stopped_distance, track_max_speed = track.get_moving_data(stopped_speed_threshold, raw=raw, speed_extreemes_percentiles=speed_extreemes_percentiles, ignore_nonstandard_distances=ignore_nonstandard_distances)
             moving_time += track_moving_time
             stopped_time += track_stopped_time
             moving_distance += track_moving_distance

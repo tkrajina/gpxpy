@@ -64,7 +64,7 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
     print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
 
     moving_data = gpx_part.get_moving_data()
-    raw_moving_data = gpx_part.get_moving_data(speed_extreemes_percentiles=0, ignore_nonstandard_distances=False)
+    raw_moving_data = gpx_part.get_moving_data(raw=True)
     if moving_data:
         print(f'{indentation}Moving time: {format_time(moving_data.moving_time)}')
         print(f'{indentation}Stopped time: {format_time(moving_data.stopped_time)}')
