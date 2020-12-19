@@ -901,24 +901,25 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(data_1.max_speed >= data_2.max_speed)
 
     def test_raw_max_speed(self) -> None:
-        gpx = self.parse('korita-zbevnica.gpx')
+        for gpx_file in ("around-visnjan-with-car.gpx", "korita-zbevnica.gpx"):
+            gpx = self.parse(gpx_file)
 
-        raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0)
+            raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0)
 
-        max_speed = 0
-        for track in gpx.tracks:
-            for segment in track.segments:
-                for pt_no, pt in enumerate(segment.points):
-                    if pt_no > 0:
-                        speed = segment.points[pt_no].speed_between(segment.points[pt_no - 1])
-                        #print(speed)
-                        if speed:
-                            max_speed = max(speed, max_speed)
-                            print(max_speed)
+            max_speed = 0
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    for pt_no, pt in enumerate(segment.points):
+                        if pt_no > 0:
+                            speed = segment.points[pt_no].speed_between(segment.points[pt_no - 1])
+                            #print(speed)
+                            if speed:
+                                max_speed = max(speed, max_speed)
+                                print(max_speed)
 
-        print("raw=", raw_moving_data.max_speed)
-        print("calculated=", max_speed)
-        self.assertEqual(max_speed, raw_moving_data.max_speed)
+            print("raw=", raw_moving_data.max_speed)
+            print("calculated=", max_speed)
+            self.assertEqual(max_speed, raw_moving_data.max_speed)
 
     def test_dilutions(self) -> None:
         gpx = self.parse('track_with_dilution_errors.gpx')
@@ -928,7 +929,6 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.routes, gpx2.routes))
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
-
 
         for test_gpx in (gpx, gpx2):
             self.assertTrue(test_gpx.waypoints[0].horizontal_dilution == 100.1)
