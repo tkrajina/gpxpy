@@ -90,7 +90,7 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
 
 def format_time(time: mod_datetime.datetime) -> str:
     offset = time.utcoffset()
-    if not offset or offset == 0:
+    if not offset:
         tz = 'Z'
     else:
         tz = time.strftime('%z')

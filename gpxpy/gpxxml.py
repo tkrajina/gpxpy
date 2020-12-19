@@ -1,4 +1,4 @@
-import xml.dom.minidom as mod_minidom # type: ignore
+import xml.dom.minidom as mod_minidom
 
 from typing import Any, AnyStr, Iterable
 
