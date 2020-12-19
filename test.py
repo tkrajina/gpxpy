@@ -34,7 +34,7 @@ import random as mod_random
 import math as mod_math
 import sys as mod_sys
 import unittest as mod_unittest
-import xml.dom.minidom as mod_minidom # type: ignore
+import xml.dom.minidom as mod_minidom
 
 try:
     # Load LXML or fallback to cET or ET 
@@ -904,9 +904,9 @@ class GPXTests(mod_unittest.TestCase):
         for gpx_file in ("around-visnjan-with-car.gpx", "korita-zbevnica.gpx"):
             gpx = self.parse(gpx_file)
 
-            raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0)
+            raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0, ignore_nonstandard_distances=False)
 
-            max_speed = 0
+            max_speed = 0.0
             for track in gpx.tracks:
                 for segment in track.segments:
                     for pt_no, pt in enumerate(segment.points):
@@ -1321,7 +1321,7 @@ class GPXTests(mod_unittest.TestCase):
 
         # Too few points:
         mod_logging.debug('max_speed = %s', max_speed_with_too_small_segment)
-        self.assertFalse(max_speed_with_too_small_segment)
+        self.assertTrue(max_speed_with_too_small_segment > 0)
 
         tmp_longitude = 0.
         segment_2 = mod_gpx.GPXTrackSegment()

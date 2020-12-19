@@ -166,11 +166,13 @@ class GPXField(AbstractGPXField):
         if tag and attribute:
             from . import gpx as mod_gpx
             raise mod_gpx.GPXException('Only tag *or* attribute may be given!')
+
+        self.tag: Optional[str] = None
         if attribute:
             self.tag = None
             self.attribute = attribute
         elif tag:
-            self.tag = name if tag is True else tag
+            self.tag = name if (tag is True) else tag # type: ignore
             self.attribute = None
         else:
             self.tag = name
