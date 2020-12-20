@@ -64,12 +64,12 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
     print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
 
     moving_data = gpx_part.get_moving_data()
+    raw_moving_data = gpx_part.get_moving_data(raw=True)
     if moving_data:
-        print('%sMoving time: %s' % (indentation, format_time(moving_data.moving_time)))
-        print('%sStopped time: %s' % (indentation, format_time(moving_data.stopped_time)))
-        #print('%sStopped distance: %s' % (indentation, format_short_length(stopped_distance)))
-        print('%sMax speed: %s' % (indentation, format_speed(moving_data.max_speed)))
-        print('%sAvg speed: %s' % (indentation, format_speed(moving_data.moving_distance / moving_data.moving_time) if moving_data.moving_time > 0 else "?"))
+        print(f'{indentation}Moving time: {format_time(moving_data.moving_time)}')
+        print(f'{indentation}Stopped time: {format_time(moving_data.stopped_time)}')
+        print(f'{indentation}Max speed: {format_speed(moving_data.max_speed)} (raw: {format_speed(raw_moving_data.max_speed) if raw_moving_data else "?"})')
+        print(f'{indentation}Avg speed: {format_speed(moving_data.moving_distance / moving_data.moving_time) if moving_data.moving_time > 0 else "?"}')
 
     uphill, downhill = gpx_part.get_uphill_downhill()
     print('%sTotal uphill: %s' % (indentation, format_short_length(uphill)))

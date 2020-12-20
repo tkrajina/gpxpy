@@ -34,7 +34,7 @@ import random as mod_random
 import math as mod_math
 import sys as mod_sys
 import unittest as mod_unittest
-import xml.dom.minidom as mod_minidom # type: ignore
+import xml.dom.minidom as mod_minidom
 
 try:
     # Load LXML or fallback to cET or ET 
@@ -887,6 +887,40 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[1].speed, 2.2)
         self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
+    def test_speed_ignore_top_speed_percentiles(self) -> None:
+        gpx = self.parse('cerknicko-jezero-with-elevations-zero.gpx')
+
+        moving_data_1 = gpx.get_moving_data()
+        moving_data_2 = gpx.get_moving_data(speed_extreemes_percentiles=0.05)
+        self.assertEqual(moving_data_1.max_speed, moving_data_2.max_speed)
+
+        for i in range(0, 11, 1):
+            data_1 = gpx.get_moving_data(speed_extreemes_percentiles=0.1*(i-1))
+            data_2 = gpx.get_moving_data(speed_extreemes_percentiles=0.1*i)
+            print(0.1*i, data_2.max_speed)
+            self.assertTrue(data_1.max_speed >= data_2.max_speed)
+
+    def test_raw_max_speed(self) -> None:
+        for gpx_file in ("around-visnjan-with-car.gpx", "korita-zbevnica.gpx"):
+            gpx = self.parse(gpx_file)
+
+            raw_moving_data = gpx.get_moving_data(speed_extreemes_percentiles=0, ignore_nonstandard_distances=False)
+
+            max_speed = 0.0
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    for pt_no, pt in enumerate(segment.points):
+                        if pt_no > 0:
+                            speed = segment.points[pt_no].speed_between(segment.points[pt_no - 1])
+                            #print(speed)
+                            if speed:
+                                max_speed = max(speed, max_speed)
+                                print(max_speed)
+
+            print("raw=", raw_moving_data.max_speed)
+            print("calculated=", max_speed)
+            self.assertEqual(max_speed, raw_moving_data.max_speed)
+
     def test_dilutions(self) -> None:
         gpx = self.parse('track_with_dilution_errors.gpx')
         gpx2 = self.reparse(gpx)
@@ -895,7 +929,6 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(equals(gpx.routes, gpx2.routes))
         self.assertTrue(equals(gpx.tracks, gpx2.tracks))
         self.assertTrue(equals(gpx, gpx2))
-
 
         for test_gpx in (gpx, gpx2):
             self.assertTrue(test_gpx.waypoints[0].horizontal_dilution == 100.1)
@@ -1288,7 +1321,7 @@ class GPXTests(mod_unittest.TestCase):
 
         # Too few points:
         mod_logging.debug('max_speed = %s', max_speed_with_too_small_segment)
-        self.assertFalse(max_speed_with_too_small_segment)
+        self.assertTrue(max_speed_with_too_small_segment > 0)
 
         tmp_longitude = 0.
         segment_2 = mod_gpx.GPXTrackSegment()
