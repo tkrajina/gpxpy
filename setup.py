@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Copyright 2011 Tomo Krajina
+# Copyright 2020 Tomo Krajina
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,6 +38,15 @@ setup(
     package_data={"gpxpy": ["py.typed"]},
     packages=['gpxpy', ],
     python_requires=">=3.6",
+    extras_require={
+        'docs': [
+            'm2r2',
+            'Sphinx~=3.2.1',
+            'sphinx-autodoc-typehints',
+            'sphinx-rtd-theme',
+            'sphinxcontrib-apidoc',
+        ],
+    },
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.6",
