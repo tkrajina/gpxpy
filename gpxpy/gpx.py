@@ -417,7 +417,7 @@ class GPXRoute:
         """
         Computes length (2-dimensional) of route.
 
-        Returns:
+        Returns
         -----------
         length: float
             Length returned in meters
@@ -934,7 +934,7 @@ class GPXTrackSegment:
         """
         Gets the time bound (start and end) of the segment.
 
-        returns
+        Returns
         ----------
         time_bounds : TimeBounds named tuple
             start_time : datetime

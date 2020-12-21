@@ -296,8 +296,8 @@ class GPXEmailField(AbstractGPXField):
             version: str of the gpx output version "1.0" or "1.1"
 
         Returns:
-            None if value is empty or str of XML representation of the
-            address. Representation starts with a \n.
+            None if value is empty or str of XML representation of the address.
+            Representation starts with ``\\n``.
         """
         if not value:
             return ''
