@@ -21,7 +21,7 @@ __version__ = '1.4.2'
 def parse(xml_or_file: Union[AnyStr, IO[str]], version: Optional[str] = None) -> mod_gpx.GPX:
     """
     Parse xml (string) or file object. This is just an wrapper for
-    GPXParser.parse() function.
+    :py:meth:`GPXParser.parse`.
 
     parser may be 'lxml', 'minidom' or None (then it will be automatically
     detected, lxml if possible).
