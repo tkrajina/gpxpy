@@ -134,7 +134,7 @@ class GPXParser:
                 root = mod_etree.XML(self.xml)
         except Exception as e:
             # The exception here can be a lxml or ElementTree exception.
-            log.debug('Error in:\n%s\n-----------\n' % self.xml, exc_info=True)
+            log.debug('Error in:\n%s\n-----------\n', self.xml, exc_info=True)
 
             # The library should work in the same way regardless of the
             # underlying XML parser that's why the exception thrown

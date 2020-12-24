@@ -1038,7 +1038,7 @@ class GPXTrackSegment:
         delta : float
             Elevation delta in meters to apply to track
         """
-        log.debug('delta = %s' % delta)
+        log.debug('delta = %s', delta)
 
         if not delta:
             return
@@ -2055,7 +2055,7 @@ class GPX:
             track.reduce_points(min_distance)
 
         # TODO
-        log.debug('Track reduced to %s points' % self.get_track_points_no())
+        log.debug('Track reduced to %s points', self.get_track_points_no())
 
     def adjust_time(self, delta: mod_datetime.timedelta, all: bool=False) -> None:
         """
