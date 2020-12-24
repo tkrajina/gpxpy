@@ -702,7 +702,7 @@ class GPXTests(mod_unittest.TestCase):
                          mod_geo.haversine_distance(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude))
 
     def test_horizontal_smooth_remove_extremes(self) -> None:
-        with open('test_files/track-with-extremes.gpx', 'r') as f:
+        with open('test_files/track-with-extremes.gpx') as f:
 
             parser = mod_parser.GPXParser(f)
 
@@ -718,7 +718,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(points_before - 2 == points_after)
 
     def test_vertical_smooth_remove_extremes(self) -> None:
-        with open('test_files/track-with-extremes.gpx', 'r') as f:
+        with open('test_files/track-with-extremes.gpx') as f:
             parser = mod_parser.GPXParser(f)
 
         gpx = parser.parse()
@@ -733,7 +733,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(points_before - 1 == points_after)
 
     def test_horizontal_and_vertical_smooth_remove_extremes(self) -> None:
-        with open('test_files/track-with-extremes.gpx', 'r') as f:
+        with open('test_files/track-with-extremes.gpx') as f:
             parser = mod_parser.GPXParser(f)
 
         gpx = parser.parse()
@@ -3198,14 +3198,14 @@ class GPXTests(mod_unittest.TestCase):
         self.assertFalse('extension' in xml)
 
     def test_extension_without_namespaces(self) -> None:
-        f = open('test_files/gpx1.1_with_extensions_without_namespaces.gpx', 'r')
+        f = open('test_files/gpx1.1_with_extensions_without_namespaces.gpx')
         gpx = mod_gpxpy.parse(f)
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
 
     def test_garmin_extension(self) -> None:
-        f = open('test_files/gpx_with_garmin_extension.gpx', 'r')
+        f = open('test_files/gpx_with_garmin_extension.gpx')
         gpx = mod_gpxpy.parse(f)
         xml = gpx.to_xml()
         self.assertTrue("<gpxtpx:TrackPointExtension>" in xml)
@@ -3283,7 +3283,7 @@ class GPXTests(mod_unittest.TestCase):
 
     def test_small_floats(self) -> None:
         """GPX 1/1 does not allow scientific notation but that is what gpxpy writes right now."""
-        f = open('test_files/track-with-small-floats.gpx', 'r')
+        f = open('test_files/track-with-small-floats.gpx')
         
 
         gpx = mod_gpxpy.parse(f)
