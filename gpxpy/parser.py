@@ -143,7 +143,7 @@ class GPXParser:
             #
             # But, if the user needs the original exception (lxml or ElementTree)
             # it is available with GPXXMLSyntaxException.original_exception:
-            raise mod_gpx.GPXXMLSyntaxException('Error parsing XML: %s' % str(e), e)
+            raise mod_gpx.GPXXMLSyntaxException(f'Error parsing XML: {e}', e)
 
         if root is None:
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')

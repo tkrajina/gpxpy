@@ -26,12 +26,12 @@ gpx.description = 'Marrekrite aanlegplaatsen'
 namespace = '{opencpn}'
 
 #create extension element
-root = mod_etree.Element(namespace + 'scale_min_max')
-#mod_etree.SubElement(root, namespace + 'UseScale')
+root = mod_etree.Element(f'{namespace}scale_min_max')
+#mod_etree.SubElement(root, f'{namespace}UseScale')
 root.attrib['UseScale'] = "true"
 root.attrib['ScaleMin'] = "50000"
 root.attrib['ScaleMax'] = "0"
-rootElement2 = mod_etree.Element(namespace + 'arrival_radius')
+rootElement2 = mod_etree.Element(f'{namespace}arrival_radius')
 rootElement2.text = '0.050'
 
 #add extension to header

@@ -165,7 +165,7 @@ class GPXTests(mod_unittest.TestCase):
     """
 
     def parse(self, file: Any, encoding: Optional[str]=None, version: Optional[str]=None) -> mod_gpx.GPX:
-        with open('test_files/%s' % file, encoding=encoding) as f:
+        with open(f'test_files/{file}', encoding=encoding) as f:
             parser = mod_parser.GPXParser(f)
             return parser.parse(version)
 
@@ -555,7 +555,7 @@ class GPXTests(mod_unittest.TestCase):
         print(gpx.get_track_points_no())
 
         length = gpx.length_3d()
-        print('Distance: %s' % length)
+        print(f'Distance: {length}')
 
         gpx.reduce_points(2000, min_distance=10)
 
@@ -564,12 +564,12 @@ class GPXTests(mod_unittest.TestCase):
 
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
-        print('Length: %s' % length)
-        print('Moving time: {} ({}min)'.format(moving_time, moving_time / 60.))
-        print('Stopped time: {} ({}min)'.format(stopped_time, stopped_time / 60.))
-        print('Moving distance: %s' % moving_distance)
-        print('Stopped distance: %s' % stopped_distance)
-        print('Max speed: %sm/s' % max_speed)
+        print(f'Length: {length}')
+        print(f'Moving time: {moving_time} ({moving_time / 60.}min)')
+        print(f'Stopped time: {stopped_time} ({stopped_time / 60.}min)')
+        print(f'Moving distance: {moving_distance}')
+        print(f'Stopped distance: {stopped_distance}')
+        print(f'Max speed: {max_speed}m/s')
         print('-----')
 
         # TODO: More tests and checks
@@ -1633,17 +1633,17 @@ class GPXTests(mod_unittest.TestCase):
     def test_simplify(self) -> None:
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
-            with open('test_files/%s' % gpx_file, encoding='utf-8')as f:
+            with open(f'test_files/{gpx_file}', encoding='utf-8')as f:
                 gpx = mod_gpxpy.parse(f)
 
             length_2d_original = gpx.length_2d()
 
-            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open(f'test_files/{gpx_file}', encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=50)
             length_2d_after_distance_50 = gpx.length_2d()
 
-            with open('test_files/%s' % gpx_file, encoding='utf-8') as f:
+            with open(f'test_files/{gpx_file}', encoding='utf-8') as f:
                 gpx = mod_gpxpy.parse(f)
             gpx.simplify(max_distance=10)
             length_2d_after_distance_10 = gpx.length_2d()
@@ -1711,7 +1711,7 @@ class GPXTests(mod_unittest.TestCase):
         for t in timestamps_without_tz:
             timestamps.append(t)
         for timestamp in timestamps:
-            print('Parsing: %s' % timestamp)
+            print(f'Parsing: {timestamp}')
             self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
 
     def test_get_location_at(self) -> None:
@@ -2241,7 +2241,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertTrue(elements_equal(gpx.metadata_extensions[2], ccc))
 
                 # get_dom_node function is not escaped and so fails on proper namespaces
-                #self.assertEqual(get_dom_node(dom, 'gpx/metadata/extensions/{}aaa'.format(namespace)).firstChild.nodeValue, 'bbb')
+                #self.assertEqual(get_dom_node(dom, f'gpx/metadata/extensions/{namespace}aaa').firstChild.nodeValue, 'bbb')
                 #self.assertEqual(get_dom_node(dom, 'gpx/metadata/extensions/bbb').firstChild.nodeValue, 'ccc')
                 #self.assertEqual(get_dom_node(dom, 'gpx/metadata/extensions/ccc').firstChild.nodeValue, 'ddd')
 

@@ -26,32 +26,32 @@ def format_time(time_s: float) -> str:
     elif args.seconds:
         return str(int(time_s))
     else:
-        minutes = mod_math.floor(time_s / 60.)
-        hours = mod_math.floor(minutes / 60.)
-        return '%s:%s:%s' % (str(int(hours)).zfill(2), str(int(minutes % 60)).zfill(2), str(int(time_s % 60)).zfill(2))
+        mins, secs = divmod(int(time_s), 60)
+        hrs, mins = divmod(mins, 60)
+        return f"{hrs:02d}:{mins:02d}:{secs:02d}"
 
 
 def format_long_length(length: float) -> str:
     if args.miles:
-        return '{:.3f}miles'.format(length / 1000. * KM_TO_MILES)
+        return f'{length / 1000. * KM_TO_MILES:.3f}miles'
     else:
-        return '{:.3f}km'.format(length / 1000.)
+        return f'{length / 1000.:.3f}km'
 
 
 def format_short_length(length: float) -> str:
     if args.miles:
-        return '{:.2f}ft'.format(length * M_TO_FEET)
+        return f'{length * M_TO_FEET:.2f}ft'
     else:
-        return '{:.2f}m'.format(length)
+        return f'{length:.2f}m'
 
 
 def format_speed(speed: float) -> str:
     if not speed:
         speed = 0
     if args.miles:
-        return '{:.2f}mph'.format(speed * KM_TO_MILES * 3600. / 1000.)
+        return f'{speed * KM_TO_MILES * 3600. / 1000.:.2f}mph'
     else:
-        return '{:.2f}m/s = {:.2f}km/h'.format(speed, speed * 3600. / 1000.)
+        return f'{speed:.2f}m/s = {speed * 3600. / 1000.:.2f}km/h'
 
 
 def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.GPXTrackSegment], indentation: str='    ') -> None:
@@ -60,8 +60,8 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
     """
     length_2d = gpx_part.length_2d()
     length_3d = gpx_part.length_3d()
-    print('%sLength 2D: %s' % (indentation, format_long_length(length_2d or 0)))
-    print('%sLength 3D: %s' % (indentation, format_long_length(length_3d)))
+    print(f'{indentation}Length 2D: {format_long_length(length_2d or 0)}')
+    print(f'{indentation}Length 3D: {format_long_length(length_3d)}')
 
     moving_data = gpx_part.get_moving_data()
     raw_moving_data = gpx_part.get_moving_data(raw=True)
@@ -72,15 +72,15 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
         print(f'{indentation}Avg speed: {format_speed(moving_data.moving_distance / moving_data.moving_time) if moving_data.moving_time > 0 else "?"}')
 
     uphill, downhill = gpx_part.get_uphill_downhill()
-    print('%sTotal uphill: %s' % (indentation, format_short_length(uphill)))
-    print('%sTotal downhill: %s' % (indentation, format_short_length(downhill)))
+    print(f'{indentation}Total uphill: {format_short_length(uphill)}')
+    print(f'{indentation}Total downhill: {format_short_length(downhill)}')
 
     start_time, end_time = gpx_part.get_time_bounds()
-    print('%sStarted: %s' % (indentation, start_time))
-    print('%sEnded: %s' % (indentation, end_time))
+    print(f'{indentation}Started: {start_time}')
+    print(f'{indentation}Ended: {end_time}')
 
     points_no = len(list(gpx_part.walk(only_points=True)))
-    print('%sPoints: %s' % (indentation, points_no))
+    print(f'{indentation}Points: {points_no}')
 
     if points_no > 0:
         distances: List[float] = []
@@ -90,28 +90,28 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
                 distance = point.distance_2d(previous_point)
                 distances.append(distance)
             previous_point = point
-        print('%sAvg distance between points: %s' % (indentation, format_short_length(sum(distances) / len(list(gpx_part.walk())))))
+        print(f'{indentation}Avg distance between points: {format_short_length(sum(distances) / len(list(gpx_part.walk())))}')
 
     print('')
 
 
 def print_gpx_info(gpx: mod_gpx.GPX, gpx_file: str) -> None:
-    print('File: %s' % gpx_file)
+    print(f'File: {gpx_file}')
 
     if gpx.name:
-        print('  GPX name: %s' % gpx.name)
+        print(f'  GPX name: {gpx.name}')
     if gpx.description:
-        print('  GPX description: %s' % gpx.description)
+        print(f'  GPX description: {gpx.description}')
     if gpx.author_name:
-        print('  Author: %s' % gpx.author_name)
+        print(f'  Author: {gpx.author_name}')
     if gpx.author_email:
-        print('  Email: %s' % gpx.author_email)
+        print(f'  Email: {gpx.author_email}')
 
     print_gpx_part_info(gpx)
 
     for track_no, track in enumerate(gpx.tracks):
         for segment_no, segment in enumerate(track.segments):
-            print('    Track #%s, Segment #%s' % (track_no, segment_no))
+            print(f'    Track #{track_no}, Segment #{segment_no}')
             print_gpx_part_info(segment, indentation='        ')
 
 
@@ -126,7 +126,7 @@ def run(gpx_files: List[str]) -> None:
             print_gpx_info(gpx, gpx_file)
         except Exception as e:
             mod_logging.exception(e)
-            print('Error processing %s' % gpx_file)
+            print(f'Error processing {gpx_file}')
             mod_sys.exit(1)
 
 
