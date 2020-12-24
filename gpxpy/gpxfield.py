@@ -605,9 +605,9 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
     instance = classs()
 
     try:
-        attributes = list(filter(lambda x : x[0] != '_', dir(instance)))
-        attributes = list(filter(lambda x : not callable(getattr(instance, x)), attributes))
-        attributes = list(filter(lambda x : not x.startswith('gpx_'), attributes))
+        attributes = [x for x in dir(instance)
+                      if not x.startswith(('_', 'gpx_'))
+                      and not callable(getattr(instance, x))]
     except Exception as e:
         raise Exception(f'Error reading attributes for {classs.__name__}: {e}')
 

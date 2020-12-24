@@ -1707,7 +1707,7 @@ class GPXTests(mod_unittest.TestCase):
             #'-2001-10-26T21:32:52',
             '2001-10-26T21:32:52.12679',
         ]
-        timestamps_without_tz = list(map(lambda x: x.replace('T', ' ').replace('Z', ''), timestamps))
+        timestamps_without_tz = [x.replace('T', ' ').replace('Z', '') for x in timestamps]
         for t in timestamps_without_tz:
             timestamps.append(t)
         for timestamp in timestamps:

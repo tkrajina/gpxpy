@@ -1109,9 +1109,8 @@ class GPXTrackSegment:
 
         assert len(interval) == len(distances)
 
-        return list(map(
-                lambda distance: (distance / from_start_to_end) if from_start_to_end else 0,
-                distances))
+        return [(distance / from_start_to_end) if from_start_to_end else 0
+                for distance in distances]
 
     def get_duration(self) -> Optional[float]:
         """
@@ -1161,7 +1160,7 @@ class GPXTrackSegment:
         if not self.points:
             return UphillDownhill(0, 0)
 
-        elevations = list(map(lambda point: point.elevation, self.points))
+        elevations = [point.elevation for point in self.points]
         uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
 
         return UphillDownhill(uphill, downhill)
@@ -1181,12 +1180,10 @@ class GPXTrackSegment:
         if not self.points:
             return MinimumMaximum(None, None)
 
-        elevations = map(lambda location: location.elevation, self.points)
-        elevations = filter(lambda elevation: elevation is not None, elevations)
-        l = list(elevations)
-        if len(l) == 0:
+        elevations = [x.elevation for x in self.points if x.elevation is not None]
+        if not elevations:
             return MinimumMaximum(None, None)
-        return MinimumMaximum(min(l), max(l))
+        return MinimumMaximum(min(elevations), max(elevations))
 
     def get_location_at(self, time: mod_datetime.datetime) -> Optional[GPXTrackPoint]:
         """

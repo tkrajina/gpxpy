@@ -139,7 +139,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
         assert len(speeds_and_distances[-1]) == 2
 
     if not ignore_nonstandard_distances:
-        return max(list(map(lambda x: x[0] or 0, speeds_and_distances)))
+        return max(x[0] or 0 for x in speeds_and_distances)
 
     size = len(speeds_and_distances)
 
@@ -147,17 +147,15 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
         # log.debug('Segment too small to compute speed, size=%s', size)
         return None
 
-    distances = list(map(lambda x: x[1], speeds_and_distances))
+    distances = [x[1] for x in speeds_and_distances]
     average_distance = sum(distances) / float(size)
-    standard_distance_deviation = mod_math.sqrt(sum(map(lambda distance: (distance-average_distance)**2, distances))/float(size))
+    standard_distance_deviation = mod_math.sqrt(sum((distance - average_distance) ** 2 for distance in distances) / float(size))
 
     # Ignore items where the distance is too big:
-    filtered_speeds_and_distances = filter(lambda speed_and_distance: abs(speed_and_distance[1] - average_distance) <= standard_distance_deviation * 1.5, speeds_and_distances)
+    filtered_speeds_and_distances = [x for x in speeds_and_distances if abs(x[1] - average_distance) <= standard_distance_deviation * 1.5]
 
     # sort by speed:
-    speeds = list(map(lambda speed_and_distance: speed_and_distance[0], filtered_speeds_and_distances))
-    if not isinstance(speeds, list):  # python3
-        speeds = list(speeds)
+    speeds = [x[0] for x in filtered_speeds_and_distances]
     if not speeds:
         return None
     speeds.sort()
