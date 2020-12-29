@@ -61,7 +61,7 @@ from typing import *
 mod_logging.basicConfig(level=mod_logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 
-TESTDATA = Path(__file__).with_name('test_files')
+TESTDATA = Path(__file__).with_name('testdata')
 
 def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
     """ Testing purposes only """

@@ -20,9 +20,8 @@ import gpxpy.gpx
 # Parsing an existing file:
 # -------------------------
 
-gpx_file = open('test_files/cerknicko-jezero.gpx', 'r')
-
-gpx = gpxpy.parse(gpx_file)
+with open('tests/testdata/cerknicko-jezero.gpx', 'r') as gpx_file:
+    gpx = gpxpy.parse(gpx_file)
 
 for track in gpx.tracks:
     for segment in track.segments:
