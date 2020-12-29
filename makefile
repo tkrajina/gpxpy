@@ -7,11 +7,11 @@ mypy-and-tests: mypy run-gpxinfo test
 
 .PHONY: run-gpxinfo
 run-gpxinfo:
-	./gpxinfo test_files/*gpx
+	./gpxinfo tests/testdata/*.gpx
 
 .PHONY: test
 test:
-	python3 -m unittest test
+	python3 -m unittest tests/test_gpxpy.py
 
 .PHONY: check-all-committed
 check-all-committed:
