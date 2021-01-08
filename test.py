@@ -565,8 +565,8 @@ class GPXTests(mod_unittest.TestCase):
         moving_time, stopped_time, moving_distance, stopped_distance, max_speed = gpx.get_moving_data(stopped_speed_threshold=0.1)
         print('-----')
         print('Length: %s' % length)
-        print('Moving time: {} ({}min)'.format(moving_time, moving_time / 60.))
-        print('Stopped time: {} ({}min)'.format(stopped_time, stopped_time / 60.))
+        print('Moving time: {} ({}min)'.format(moving_time, moving_time / 60))
+        print('Stopped time: {} ({}min)'.format(stopped_time, stopped_time / 60))
         print('Moving distance: %s' % moving_distance)
         print('Stopped distance: %s' % stopped_distance)
         print('Max speed: %sm/s' % max_speed)
@@ -1840,7 +1840,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(mod_gpxpy.parse(f))
 
     def __test_location_delta(self, location: mod_geo.Location, distance: float) -> None:
-        angles = [ x * 15 for x in range(int(360 / 15)) ]
+        angles = list(range(0, 360, 15))
         print(angles)
 
         previous_location = None
