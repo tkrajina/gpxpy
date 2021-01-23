@@ -48,3 +48,8 @@ analyze-xsd:
 .PHONY: mypy
 mypy:
 	mypy --strict . examples gpxinfo xsd/*py
+
+.PHONY: docs
+docs:
+	echo "If needed, install extra deps with: pip install \".[docs]\""
+	make -C docs html
