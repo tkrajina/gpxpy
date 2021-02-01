@@ -93,6 +93,22 @@ def get_course(latitude_1: float, longitude_1: float, latitude_2: float, longitu
 
 
 def length(locations: List["Location"]=[], _3d: bool=False) -> float:
+    """
+    Compute the total length between locations.
+
+    Parameters
+    ----------
+    locations: list
+        List with Location objects to calculate the length between.
+    _3d: bool
+        True: use the 3d distance: with taking elevation in account.
+        False: use the 2d distance: without taking elevation in account.
+
+    Returns
+    ----------
+    length: float
+        Sum of the length between consecutive locations in meters.
+    """
     if not locations:
         return 0
     length: float = 0
@@ -169,10 +185,26 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
 
 
 def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float, float]:
+    """
+    Compute the total uphill and downhill elevation for a list of elevations.
+    Note that the result is smoothened.
+
+    Parameters
+    ----------
+    elevations: list
+        List of elevations to calculate the total up-/downhill elevation between.
+        If elevation is missing for a point, None can be used.
+
+    Returns
+    ----------
+    uphill_downhill: tuple
+        Tuple of total (uphill, downhill) elevation. (smoothened)
+    """
     if not elevations:
         return 0, 0
 
     size = len(elevations)
+
     def __filter(n: int) -> float:
         current_ele = elevations[n]
         if current_ele is None:
@@ -337,27 +369,81 @@ class Location:
         self.elevation = elevation
 
     def has_elevation(self) -> bool:
+        """Returns if this location contains elevation data."""
         return self.elevation is not None
 
     def remove_elevation(self) -> None:
+        """ Remove the elevation data from this location."""
         self.elevation = None
 
     def distance_2d(self, location: "Location") -> Optional[float]:
+        """
+        Calculate the distance between self and location in meters.
+        Does not take elevation in account.
+
+        Parameters
+        ----------
+        location: Location
+            Location to calculate the distance to.
+
+        Returns
+        ----------
+        distance : float
+            Distance returned in meters.
+        """
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
 
     def distance_3d(self, location: "Location") -> Optional[float]:
+        """
+        Calculate the distance between self and location in meters.
+        Takes elevation in account.
+
+        Parameters
+        ----------
+        location: Location
+            Location to calculate the distance to.
+
+        Returns
+        ----------
+        distance : float
+            Distance returned in meters.
+        """
         if not location:
             return None
 
         return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
 
     def elevation_angle(self, location: "Location", radians: bool=False) -> Optional[float]:
+        """
+        Computes the uphill/downhill angle towards locations.
+
+        Parameters
+        ----------
+        location: Location
+            Location to calculate the angle to.
+        radians: bool, default=False
+            If True: return result in radians.
+            If False: return result in degrees.
+
+        Returns
+        ----------
+        angle : float
+            Angle returned in degrees or radians.
+        """
         return elevation_angle(self, location, radians)
 
     def move(self, location_delta: "LocationDelta") -> None:
+        """
+        Move this location with the given LocationDelta.
+
+        Parameters
+        ----------
+        location_delta: LocationDelta
+            Delta (distance/angle or lat/lon) offset to apply to this location.
+        """
         self.latitude, self.longitude = location_delta.move(self)
 
     def __add__(self, location_delta: "LocationDelta") -> "Location":
@@ -384,8 +470,8 @@ class LocationDelta:
     SOUTH = 180
     WEST = 270
 
-    def __init__(self, distance: Optional[float]=None, angle: Optional[float]=None, latitude_diff: Optional[float]=None,
-                 longitude_diff: Optional[float]=None) -> None:
+    def __init__(self, distance: Optional[float]=None, angle: Optional[float]=None,
+                 latitude_diff: Optional[float]=None,longitude_diff: Optional[float]=None) -> None:
         """
         Version 1:
             Distance (in meters).
