@@ -410,7 +410,7 @@ class LocationDelta:
 
     def move(self, location: Location) -> Tuple[float, float]:
         """
-        Move location by this timedelta.
+        Move location by this LocationDelta.
         """
         return self.move_function(location)
 
@@ -424,3 +424,22 @@ class LocationDelta:
 
     def move_by_lat_lon_diff(self, location: "Location") -> Tuple[float, float]:
         return location.latitude + self.latitude_diff, location.longitude + self.longitude_diff
+
+    def __repr__(self) -> str:
+        if hasattr(self, 'distance'):
+            return f'LocationDelta: {self.distance}, {self.angle_from_north}, {None}, {None}'
+        return f'LocationDelta: {None}, {None}, {self.latitude_diff}, {self.longitude_diff}'
+
+    def __str__(self) -> str:
+        if hasattr(self, 'distance'):
+            return f'LocationDelta(distance={self.distance}, ' \
+                   f'angle={self.angle_from_north})'
+        return f'LocationDelta(latitude_diff={self.latitude_diff}, ' \
+               f'longitude_diff={self.longitude_diff})'
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        if hasattr(self, 'distance'):
+            return self.distance == other.distance and self.angle_from_north == other.angle_from_north
+        return self.latitude_diff == other.latitude_diff and self.longitude_diff == other.longitude_diff
