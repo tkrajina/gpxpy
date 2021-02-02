@@ -526,6 +526,10 @@ class LocationDelta:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, self.__class__):
             return False
+        if (hasattr(self, 'distance') and not hasattr(other, 'distance')) \
+                or (not hasattr(self, "distance") and hasattr(other, "distance")):
+            # self and other are both a different kind of LocationDelta (angle&distance vs. lat-&longitude_diff)
+            return False
         if hasattr(self, 'distance'):
             return self.distance == other.distance and self.angle_from_north == other.angle_from_north
         return self.latitude_diff == other.latitude_diff and self.longitude_diff == other.longitude_diff

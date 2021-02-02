@@ -1835,6 +1835,19 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(cca(location.latitude, location_2.latitude))
         self.assertTrue(cca(location.longitude, location_2.longitude))
 
+    def test_location_delta_equality(self) -> None:
+        delta1 = mod_geo.LocationDelta(angle=20, distance=1000)
+        delta2 = mod_geo.LocationDelta(angle=20, distance=1000)
+        delta3 = mod_geo.LocationDelta(latitude_diff=10, longitude_diff=20)
+        delta4 = mod_geo.LocationDelta(latitude_diff=10, longitude_diff=20)
+        delta5 = mod_geo.LocationDelta(latitude_diff=10.1, longitude_diff=-20)
+        self.assertEqual(delta1, delta1)
+        self.assertNotEqual(delta1, "False")
+        self.assertEqual(delta1, delta2)
+        self.assertEqual(delta3, delta4)
+        self.assertNotEqual(delta1, delta3)
+        self.assertNotEqual(delta4, delta5)
+
     def test_parse_gpx_with_node_with_comments(self) -> None:
         with open('test_files/gpx-with-node-with-comments.gpx') as f:
             self.assertTrue(mod_gpxpy.parse(f))
