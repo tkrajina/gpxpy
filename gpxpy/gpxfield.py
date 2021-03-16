@@ -89,16 +89,7 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
 
 
 def format_time(time: mod_datetime.datetime) -> str:
-    offset = time.utcoffset()
-    if not offset:
-        tz = 'Z'
-    else:
-        tz = time.strftime('%z')
-    if time.microsecond:
-        ms = time.strftime('.%f')
-    else:
-        ms = ''
-    return ''.join((time.strftime('%Y-%m-%dT%H:%M:%S'), ms, tz))
+    return time.isoformat().replace('+00:00', 'Z')
 
 
 
@@ -127,9 +118,7 @@ class TimeConverter:
             return None
 
     def to_string(self, time: Optional[mod_datetime.datetime]) -> Optional[str]:
-        if time:
-            return format_time(time) if time else None
-        return None
+        return format_time(time) if time else None
 
 
 INT_TYPE = IntConverter()
