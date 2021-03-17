@@ -41,7 +41,7 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
         else:
             result.append(make_str(f'>{content}</{tag}>'))
 
-    return make_str(''.join(result))
+    return ''.join(result)
 
 
 def is_numeric(object: Any) -> bool:
