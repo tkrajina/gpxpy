@@ -125,9 +125,8 @@ class TimeConverter:
 
     def to_string(self, time: Optional[mod_datetime.datetime]) -> Optional[str]:
         if time:
-            return format_time(time)
-        else:
-            return None
+            return format_time(time) if time else None
+        return None
 
 
 INT_TYPE = IntConverter()
