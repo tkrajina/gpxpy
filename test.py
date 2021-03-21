@@ -1714,6 +1714,16 @@ class GPXTests(mod_unittest.TestCase):
             print('Parsing: %s' % timestamp)
             self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
 
+    def test_dst_in_SimpleTZ(self) -> None:
+        # No DST in UTC times.
+        timestamps = ['2001-10-26T19:32:52Z',
+                      '2001-10-26T19:32:52+0000',
+                      '2001-10-26T19:32:52+00:00']
+        for timestamp in timestamps:
+            daylight_saving_time = mod_gpxfield.parse_time(timestamp).dst()
+            print(f'Testing: {timestamp}, dst = {daylight_saving_time}')
+            self.assertTrue(daylight_saving_time in {None, mod_datetime.timedelta(0)})
+
     def test_format_time(self) -> None:
         tz1 = mod_datetime.timezone(mod_datetime.timedelta(hours=2), )
         tz2 = mod_datetime.timezone.utc
