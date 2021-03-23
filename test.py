@@ -1904,7 +1904,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.link_text, 'example urlname')
                 self.assertEqual(get_dom_node(dom, 'gpx/urlname').firstChild.nodeValue, 'example urlname')
 
-                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=mod_gpxfield.SimpleTZ()))
+                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=None))
                 self.assertTrue(get_dom_node(dom, 'gpx/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
 
                 self.assertEqual(gpx.keywords, 'example keywords')
@@ -2099,7 +2099,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=mod_gpxfield.SimpleTZ()))
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=None))
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue in ('2013-01-01T12:00:04Z', '2013-01-01T12:00:04'))
 
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
@@ -2215,7 +2215,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.link_type, 'link type2')
                 self.assertEqual(get_dom_node(dom, 'gpx/metadata/link/type').firstChild.nodeValue, 'link type2')
 
-                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=mod_gpxfield.SimpleTZ()))
+                self.assertEqual(gpx.time, mod_datetime.datetime(2013, 1, 1, 12, 0, tzinfo=None))
                 self.assertTrue(get_dom_node(dom, 'gpx/metadata/time').firstChild.nodeValue in ('2013-01-01T12:00:00Z', '2013-01-01T12:00:00'))
 
                 self.assertEqual(gpx.keywords, 'example keywords')
@@ -2483,7 +2483,7 @@ class GPXTests(mod_unittest.TestCase):
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 11.1)
                 self.assertEqual(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/ele').firstChild.nodeValue, '11.1')
 
-                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=mod_gpxfield.SimpleTZ()))
+                self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2013, 1, 1, 12, 0, 4, tzinfo=None))
                 self.assertTrue(get_dom_node(dom, 'gpx/trk[0]/trkseg[0]/trkpt[0]/time').firstChild.nodeValue in ('2013-01-01T12:00:04Z', '2013-01-01T12:00:04'))
 
                 self.assertEqual(gpx.tracks[0].segments[0].points[0].magnetic_variation, 12)
@@ -3018,6 +3018,17 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(0, gpx2.tracks[0].segments[0].points[0].elevation)
 
     def test_timezone_from_timestamp(self) -> None:
+        # Test tz unaware 
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n'
+        xml += '<trk>\n'
+        xml += '<trkseg>\n'
+        xml += '<trkpt lat="35.794159" lon="-5.832745"><time>2014-02-02T10:23:18</time></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+        gpx = mod_gpxpy.parse(xml)
+        self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18, tzinfo=None))
+
+        # Test tz aware 
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
         xml += '<trk>\n'
@@ -3026,6 +3037,14 @@ class GPXTests(mod_unittest.TestCase):
         xml += '</trkseg></trk></gpx>\n'
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 10, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('01')))
+
+        # Test deepcopy of SimpleTZ 
+        gpx = gpx.clone()
+        t_stamp = "2014-02-02T10:23:18"
+        self.assertTrue(t_stamp + "+01:00" in gpx.to_xml() or t_stamp + "+0100" in gpx.to_xml())
+        reparsed = mod_gpxpy.parse(gpx.to_xml())
+        self.assertTrue(t_stamp + "+01:00" in reparsed.to_xml() or t_stamp + "+0100" in reparsed.to_xml())
+        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo)
 
     def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
