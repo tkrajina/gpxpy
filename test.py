@@ -3461,6 +3461,23 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(35, gpx.tracks[0].segments[0].points[0].latitude)
         self.assertEqual(-5.832745, gpx.tracks[0].segments[0].points[0].longitude)
 
+    def test_large_float_values(self) -> None:
+        gpx = mod_gpx.GPX()
+        waypoint_orig = mod_gpx.GPXWaypoint(
+                latitude=10000000000000000.0,
+                longitude=10000000000000000.0,
+                elevation=10000000000000000.0
+            )
+        gpx.waypoints.append(waypoint_orig)
+
+        xml = gpx.to_xml()
+
+        gpx = mod_gpxpy.parse(xml)
+        waypoint = gpx.waypoints[0]
+        self.assertAlmostEqual(waypoint_orig.latitude, waypoint.latitude)
+        self.assertAlmostEqual(waypoint_orig.longitude, waypoint.longitude)
+        self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation)
+
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
     def test_checklxml(self) -> None:
