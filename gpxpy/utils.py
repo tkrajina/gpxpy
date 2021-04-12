@@ -81,5 +81,5 @@ def make_str(s: AnyStr) -> str:
         if not 'e' in result:
             return result
         # scientific notation is illegal in GPX 1/1
-        return format(s, '.10f').rstrip('0.')
+        return format(s, '.10f').rstrip('0').rstrip('.')
     return str(s)
