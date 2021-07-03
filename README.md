@@ -86,7 +86,7 @@ The GPX version is automatically determined when parsing by reading the version 
 
 ## GPX max speed
 
-Gpxpy is a GPX parser and by using it you have acess to all the data from the original GPX file. The additional methods to calculate stats have some additional heuristics to remove common GPS errors. For example, to calculate `max_speed` it removes the top `5%` of speeds and points with nonstandard distance (those are usually GPS errors).
+Gpxpy is a GPX parser and by using it you have access to all the data from the original GPX file. The additional methods to calculate stats have some additional heuristics to remove common GPS errors. For example, to calculate `max_speed` it removes the top `5%` of speeds and points with nonstandard distance (those are usually GPS errors).
 
 "Raw" max speed can be calculated with:
 
