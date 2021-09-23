@@ -101,8 +101,8 @@ def equals(object1: Any, object2: Any, ignore: Any=None) -> bool:
     return True
 
 
-def cca(number1: float, number2: float) -> bool:
-    return 1 - number1 / number2 < 0.999
+def almostEqual(number1: float, number2: float) -> bool:
+    return 1 - number1 / number2 < 0.999999
 
 
 def get_dom_node(dom: Any, path: str) -> Any:
@@ -1812,7 +1812,7 @@ class GPXTests(mod_unittest.TestCase):
         location = mod_geo.Location(-20, -50)
 
         location_2 = location + mod_geo.LocationDelta(angle=45, distance=100)
-        self.assertTrue(cca(location_2.latitude - location.latitude, location_2.longitude - location.longitude))
+        self.assertTrue(almostEqual(location_2.latitude - location.latitude, location_2.longitude - location.longitude))
 
     def test_location_equator_delta_distance_111120(self) -> None:
         self.__test_location_delta(mod_geo.Location(0, 13), 111120)
@@ -1832,8 +1832,8 @@ class GPXTests(mod_unittest.TestCase):
         location_2 = location + delta
         location.move(delta)
 
-        self.assertTrue(cca(location.latitude, location_2.latitude))
-        self.assertTrue(cca(location.longitude, location_2.longitude))
+        self.assertTrue(almostEqual(location.latitude, location_2.latitude))
+        self.assertTrue(almostEqual(location.longitude, location_2.longitude))
 
     def test_parse_gpx_with_node_with_comments(self) -> None:
         with open('test_files/gpx-with-node-with-comments.gpx') as f:
@@ -1850,7 +1850,7 @@ class GPXTests(mod_unittest.TestCase):
         for angle in angles:
             new_location = location + mod_geo.LocationDelta(angle=angle, distance=distance)
             # All locations same distance from center
-            self.assertTrue(cca(location.distance_2d(new_location), distance)) # type: ignore
+            self.assertTrue(almostEqual(location.distance_2d(new_location), distance)) # type: ignore
             if previous_location:
                 distances_between_points.append(new_location.distance_2d(previous_location))
             previous_location = new_location
@@ -1858,7 +1858,7 @@ class GPXTests(mod_unittest.TestCase):
         print(distances_between_points)
         # All points should be equidistant on a circle:
         for i in range(1, len(distances_between_points)):
-            self.assertTrue(cca(distances_between_points[0], distances_between_points[i]))
+            self.assertTrue(almostEqual(distances_between_points[0], distances_between_points[i]))
 
     def test_gpx_10_fields(self) -> None:
         """ Test (de) serialization all gpx1.0 fields """
