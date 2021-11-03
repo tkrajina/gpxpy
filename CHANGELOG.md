@@ -1,8 +1,13 @@
 # Changelog
 
-##
+## v1.5.0
 
-*
+- Typos <https://github.com/tkrajina/gpxpy/pull/239>
+- Number formating bug <https://github.com/tkrajina/gpxpy/pull/230>
+- Add python 3.9 in travis <https://github.com/tkrajina/gpxpy/pull/214>
+- Option to get raw speed data
+- missing valid option for type of gpx speed ('3')
+- Added type definitions
 
 ## v1.4.2
 
