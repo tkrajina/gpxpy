@@ -836,7 +836,7 @@ class GPXTrackSegment:
         self.points += track_segment.points
 
     def remove_point(self, point_no: int) -> None:
-        """ Removes a point specificed by index from the segment """
+        """ Removes a point specified by index from the segment """
         if point_no < 0 or point_no >= len(self.points):
             return
 
@@ -1562,7 +1562,7 @@ class GPXTrack:
         point : GPXTrackPoint
             Point in the track
         segment_no : integer
-            Index of segment containint point. This is suppressed if only_points
+            Index of segment containing point. This is suppressed if only_points
             is True.
         point_no : integer
             Index of point. This is suppressed if only_points is True.
@@ -2309,10 +2309,10 @@ class GPX:
         point : GPXTrackPoint
             Point in the track
         track_no : integer
-            Index of track containint point. This is suppressed if only_points
+            Index of track containing point. This is suppressed if only_points
             is True.
         segment_no : integer
-            Index of segment containint point. This is suppressed if only_points
+            Index of segment containing point. This is suppressed if only_points
             is True.
         point_no : integer
             Index of point. This is suppressed if only_points is True.
