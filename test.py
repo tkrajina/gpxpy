@@ -3037,6 +3037,28 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         self.assertEqual(gpx.tracks[0].segments[0].points[0].time, mod_datetime.datetime(2014, 2, 2, 2, 23, 18, tzinfo=mod_gpxfield.SimpleTZ('-02')))
 
+    def test_extension_with_xmlns(self) -> None:
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3"  xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" creator="G7ToWin A.00.201 - May 28 2009 13:59" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd">
+  <trk>
+    <name>Motovun CST OSN Butoniga-Cerovlje</name>
+    <type>Track black</type>
+    <extensions>
+      <line xmlns="http://www.topografix.com/GPX/gpx_style/0/2">
+        <color>000000</color>
+      </line>
+      <gpxx:TrackExtension>
+        <gpxx:DisplayColor>Black</gpxx:DisplayColor>
+      </gpxx:TrackExtension>
+    </extensions>
+  </trk>
+</gpx>""")
+        self.assertEqual("000000", gpx.tracks[0].extensions[0].getchildren()[0].text)
+        # TODO: This fixes the test => xmlns from extensions should be copied to the global namespace:
+        # gpx.nsmap['gpx_style'] = 'http://www.topografix.com/GPX/gpx_style/0/2'
+        gpx2 = self.reparse(gpx)
+        self.assertEqual("000000", gpx2.tracks[0].extensions[0].getchildren()[0].text)
+
     def test_read_extensions(self) -> None:
         """ Test extensions """
 
