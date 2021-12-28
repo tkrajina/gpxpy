@@ -18,7 +18,7 @@ Please include tests for new features. Tests or documentation without bug fixes 
 - Fork the gpxpy repository.
 - Create a branch from master.
 - Develop bug fixes, features, tests, etc.
-- Run the test suite on both Python 2.x and 3.x. You can enable [Travis CI](https://travis-ci.org/profile/) on your repo to catch test failures prior to the pull request, and [Coveralls](https://coveralls.io) to see if the changed code is covered by tests.
+- Run the test suite. You can enable GitHub Actions on your repo to catch test failures prior to the pull request, and [CodeCov](https://codecov.io/) to see if the changed code is covered by tests.
 - Create a pull request to pull the changes from your branch to the gpxpy master.
 
 If you plan a big refactory, open an issue for discussion before starting it.

@@ -1,13 +1,13 @@
-[![Build Status](https://travis-ci.org/tkrajina/gpxpy.svg?branch=master)](https://travis-ci.org/tkrajina/gpxpy)
-[![Coverage Status](https://coveralls.io/repos/github/tkrajina/gpxpy/badge.svg?branch=master)](https://coveralls.io/github/tkrajina/gpxpy?branch=master)
+[![Test](https://github.com/tkrajina/gpxpy/actions/workflows/test.yml/badge.svg)](https://github.com/tkrajina/gpxpy/actions)
+[![codecov](https://codecov.io/gh/tkrajina/gpxpy/branch/dev/graph/badge.svg)](https://codecov.io/gh/tkrajina/gpxpy)
 
 # gpxpy -- GPX file parser
 
 This is a simple Python library for parsing and manipulating GPX files. GPX is an XML based format for GPS tracks.
 
-You can see it in action on [my online GPS track editor and organizer](http://www.trackprofiler.com).
+You can see it in action on [my online GPS track editor and organizer](https://www.trackprofiler.com/).
 
-There is also a Golang port of gpxpy: [gpxgo](http://github.com/tkrajina/gpxgo).
+There is also a Golang port of gpxpy: [gpxgo](https://github.com/tkrajina/gpxgo).
 
 See also [srtm.py](https://github.com/tkrajina/srtm.py) if your track lacks elevation data.
 
