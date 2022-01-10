@@ -23,21 +23,20 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
-    result: List[str] = []
-    result.append('\n' + indent + f'<{tag}')
+    result: List[str] = [f'\n{indent}<{tag}']
 
     if content is None and default:
         content = default
 
     if attributes:
         for attribute in attributes.keys():
-            result.append(make_str(' {}="{}"'.format(attribute, attributes[attribute])))
+            result.append(make_str(f' {attribute}="{attributes[attribute]}"'))
 
     if content is None:
         result.append('/>')
     else:
         if escape:
-            result.append(make_str('>{}</{}>'.format(mod_saxutils.escape(content), tag)))
+            result.append(make_str(f'>{mod_saxutils.escape(content)}</{tag}>'))
         else:
             result.append(make_str(f'>{content}</{tag}>'))
 

@@ -10,10 +10,7 @@ def get_children_by_tag_name(node: Any, tag_name: str) -> Any:
     return result
 
 def get_indented(indentation: int, string: str) -> str:
-    result = ''
-    for i in range(indentation):
-        result += '    '
-    return result + str(string) + '\n'
+    return f'{"    " * indentation}{string}\n'
 
 def parse_1_1(dom: Any) -> Any:
     root_node = dom.childNodes[0]
