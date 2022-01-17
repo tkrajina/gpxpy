@@ -890,10 +890,7 @@ class GPXTrackSegment:
 
         speeds_and_distances = []
 
-        for i in range(1, len(self.points)):
-
-            previous = self.points[i - 1]
-            point = self.points[i]
+        for previous, point in zip(self.points, self.points[1:]):
 
             # Won't compute max_speed for first and last because of common GPS
             # recording errors, and because smoothing don't work well for those
@@ -1243,13 +1240,12 @@ class GPXTrackSegment:
             # compute the average distance between two points:
             distances: List[float] = []
             elevations_delta = []
-            for i in range(len(self.points))[1:]:
-                dist = self.points[i].distance_2d(self.points[i - 1])
-                if dist: distances.append(dist)
-                elevation_1 = self.points[i].elevation
-                elevation_2 = self.points[i - 1].elevation
-                if elevation_1 is not None and elevation_2 is not None:
-                    elevations_delta.append(abs(elevation_1 - elevation_2))
+            for prev, cur in zip(self.points, self.points[1:]):
+                dist = prev.distance_2d(cur)
+                if dist:
+                    distances.append(dist)
+                if cur.elevation is not None and prev.elevation is not None:
+                    elevations_delta.append(abs(cur.elevation - prev.elevation))
             if distances:
                 avg_distance = 1.0 * sum(distances) / len(distances)
             if elevations_delta:
@@ -2439,12 +2435,9 @@ class GPX:
         # (point, distance_from_start) pairs:
         points = []
 
-        for track_no in range(len(self.tracks)):
-            track = self.tracks[track_no]
-            for segment_no in range(len(track.segments)):
-                segment = track.segments[segment_no]
-                for point_no in range(len(segment.points)):
-                    point = segment.points[point_no]
+        for track_no, track in enumerate(self.tracks):
+            for segment_no, segment in enumerate(track.segments):
+                for point_no, point in enumerate(segment.points):
                     if previous_point and point_no > 0:
                         if distance_2d:
                             distance = point.distance_2d(previous_point)
@@ -2546,8 +2539,8 @@ class GPX:
             assert end
             assert interval
             assert len(interval) == len(distances_ratios)
-            for i in range(len(interval)):
-                interval[i].elevation = start.elevation + distances_ratios[i] * (end.elevation - start.elevation)
+            for point, ratio in zip(interval, distances_ratios):
+                point.elevation = start.elevation + ratio * (end.elevation - start.elevation)
 
         self.add_missing_data(get_data_function=lambda point: point.elevation,
                               add_missing_function=_add)
@@ -2561,11 +2554,8 @@ class GPX:
 
             if end.time and start.time:
                 seconds_between = float(mod_utils.total_seconds(end.time - start.time))
-                for i in range(len(interval)):
-                    point = interval[i]
-                    ratio = distances_ratios[i]
-                    point.time = start.time + mod_datetime.timedelta(
-                        seconds=ratio * seconds_between)
+                for point, ratio in zip(interval, distances_ratios):
+                    point.time = start.time + mod_datetime.timedelta(seconds=ratio * seconds_between)
 
         self.add_missing_data(get_data_function=lambda point: point.time,
                               add_missing_function=_add)
@@ -2591,9 +2581,10 @@ class GPX:
                                interval[-1].distance_3d(end))
 
             # Assemble list of times and distance to neighbour points
-            times_dists: List[Tuple[Optional[float], Optional[float]]] = [(interval[i].time_difference(interval[i+1]),
-                            interval[i].distance_3d(interval[i+1]))
-                            for i in range(len(interval) - 1)]
+            times_dists: List[Tuple[Optional[float], Optional[float]]] = [
+                (point.time_difference(nextpoint), point.distance_3d(nextpoint))
+                for point, nextpoint in zip(interval, interval[1:])
+            ]
             times_dists.insert(0, time_dist_before)
             times_dists.append(time_dist_after)
 

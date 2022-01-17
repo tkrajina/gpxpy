@@ -96,17 +96,13 @@ def length(locations: List["Location"]=[], _3d: bool=False) -> float:
     if not locations:
         return 0
     length: float = 0
-    for i in range(len(locations)):
-        if i > 0:
-            previous_location = locations[i - 1]
-            location = locations[i]
-
-            if _3d:
-                d = location.distance_3d(previous_location)
-            else:
-                d = location.distance_2d(previous_location)
-            if d:
-                length += d
+    for previous_location, location in zip(locations, locations[1:]):
+        if _3d:
+            d = location.distance_3d(previous_location)
+        else:
+            d = location.distance_2d(previous_location)
+        if d:
+            length += d
     return length
 
 
@@ -187,15 +183,13 @@ def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float,
     smoothed_elevations = list(map(__filter, range(size)))
 
     uphill, downhill = 0., 0.
-
-    for n, elevation in enumerate(smoothed_elevations):
-        if n > 0 and elevation is not None and smoothed_elevations is not None:
-            d = elevation - smoothed_elevations[n-1]
+    for prev, cur in zip(smoothed_elevations, smoothed_elevations[1:]):
+        if prev is not None and cur is not None:
+            d = cur - prev
             if d > 0:
                 uphill += d
             else:
                 downhill -= d
-
     return uphill, downhill
 
 
@@ -308,8 +302,7 @@ def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -
     tmp_max_distance_position = 1
     
     # Check distance of all points between begin and end, exclusive
-    for point_no in range(1,len(points)-1):
-        point = points[point_no]
+    for point_no, point in enumerate(points[1:-1], 1):
         d = abs(a * point.latitude + b * point.longitude + c)
         if d > tmp_max_distance:
             tmp_max_distance = d
