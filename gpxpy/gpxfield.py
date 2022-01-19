@@ -64,6 +64,12 @@ class SimpleTZ(mod_datetime.tzinfo):
             return 'Z'
         return f'{self.offset // 60:02}:{self.offset % 60:02}'
 
+    def __copy__(self) -> mod_datetime.tzinfo:
+        return self.__deepcopy__()
+
+    def __deepcopy__(self, memodict: Optional[dict]={}) -> mod_datetime.tzinfo:
+        return self.__class__(self.tzname(None))
+
     def __repr__(self) -> str:
         return 'SimpleTZ({self.tzname(None}!r)'
 
@@ -83,14 +89,17 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
             dt.append(int(f + "0" * (6 - len(f))))
         else:
             dt.append(0)
-        dt.append(SimpleTZ(m.group(8))) # type: ignore
+        if m.group(8):
+            dt.append(SimpleTZ(m.group(8))) # type: ignore
         return mod_datetime.datetime(*dt) # type: ignore
     raise mod_gpx.GPXException(f'Invalid time: {string}')
 
 
 def format_time(time: mod_datetime.datetime) -> str:
     offset = time.utcoffset()
-    if not offset:
+    if time.tzinfo is None:
+        tz = ''
+    elif not offset:
         tz = 'Z'
     else:
         tz = time.strftime('%z')
