@@ -17,6 +17,8 @@ import datetime as mod_datetime
 import re as mod_re
 import copy as mod_copy
 
+from numpy import empty
+
 from . import utils as mod_utils
 
 from typing import *
@@ -236,11 +238,12 @@ class GPXField(AbstractGPXField):
 
 
 class GPXComplexField(AbstractGPXField):
-    def __init__(self, name: str, classs: Any, tag: Optional[str]=None, is_list: bool=False) -> None:
+    def __init__(self, name: str, classs: Any, tag: Optional[str]=None, is_list: bool=False, empty_body: bool=False) -> None:
         AbstractGPXField.__init__(self, is_list=is_list)
         self.name = name
         self.tag = tag or name
         self.classs = classs
+        self.empty_body = empty_body
 
     def from_xml(self, node: Any, version: str) -> Any:
         if self.is_list:
@@ -268,8 +271,7 @@ class GPXComplexField(AbstractGPXField):
                                                 indent=indent))
             return ''.join(result)
         else:
-            return gpx_fields_to_xml(value, self.tag, version,
-                                     prettyprint=prettyprint, indent=indent)
+            return gpx_fields_to_xml(value, self.tag, version, prettyprint=prettyprint, indent=indent, empty_body=self.empty_body)
 
 
 class GPXEmailField(AbstractGPXField):
@@ -497,7 +499,7 @@ def _check_dependents(gpx_object: Any, fieldname: str) -> Tuple[str, str]:
     return '', fieldname # No children
 
 def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: Dict[str, str]={},
-                      nsmap: Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
+                      nsmap: Dict[str, str]={}, prettyprint: bool=True, indent: str='', empty_body: bool=False) -> str:
     if not prettyprint:
         indent = ''
     fields = instance.gpx_10_fields
@@ -559,10 +561,15 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
                     body.append(xml_value)
 
     if tag:
-        if tag_open:
-            body.append('>')
-        body.append(f'\n{indent}</{tag}>')
-
+        if empty_body:
+            if tag_open:
+                body.append('>')
+            body.append('</' + tag + '>')
+            #print("tag,body:",tag,'\t',body)            
+        else:
+            if tag_open:
+                body.append('>')
+            body.append('\n' + indent + '</' + tag + '>')
     return ''.join(body)
 
 
