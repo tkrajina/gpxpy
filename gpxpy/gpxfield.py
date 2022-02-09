@@ -562,10 +562,8 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
 
     if tag:
         if empty_body:
-            if tag_open:
-                body.append('>')
-            body.append('</' + tag + '>')
-            #print("tag,body:",tag,'\t',body)            
+            body.append(' />')
+            #print("tag,body:",tag,'\t',body)
         else:
             if tag_open:
                 body.append('>')

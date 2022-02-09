@@ -850,6 +850,13 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.bounds.min_longitude, -100) # type: ignore
         self.assertEqual(gpx.bounds.max_longitude, 100) # type: ignore
 
+    def test_bounds_xml(self) -> None:
+        track = mod_gpx.GPX()
+        track.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
+        xml = track.to_xml()
+        print(xml)
+        self.assertTrue('<bounds minlat="1" maxlat="2" minlon="3" maxlon="4" />' in xml)
+
     def test_time_bounds(self) -> None:
         gpx = mod_gpx.GPX()
 
