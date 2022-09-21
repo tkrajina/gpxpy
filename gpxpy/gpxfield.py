@@ -73,7 +73,7 @@ class SimpleTZ(mod_datetime.tzinfo):
         return self.__class__(self.tzname(None))
 
     def __repr__(self) -> str:
-        return 'SimpleTZ({self.tzname(None}!r)'
+        return f'SimpleTZ({self.tzname(None)!r})'
 
     def __eq__(self, other: Any) -> bool:
         return self.offset == other.offset # type: ignore
