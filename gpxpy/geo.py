@@ -168,6 +168,7 @@ def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float,
     if not elevations:
         return 0, 0
 
+    elevations = list(filter(lambda e: e is not None, elevations))
     size = len(elevations)
     def __filter(n: int) -> float:
         current_ele = elevations[n]

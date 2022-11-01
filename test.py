@@ -1690,6 +1690,17 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation)) # type: ignore
         self.assertTrue(mod_math.isnan(gpx.waypoints[0].elevation)) # type: ignore
 
+    def test_uphill_downhill_with_no_elevations(self) -> None:
+        g = mod_gpx.GPX()
+        g.tracks.append(mod_gpx.GPXTrack())
+        g.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=None))
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=10))
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=20))
+        up, down = g.get_uphill_downhill()
+        self.assertEqual(10, up)
+        self.assertEqual(0, down)
+
     def test_time_difference(self) -> None:
         point_1 = mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
                                         time=mod_datetime.datetime(2013, 1, 2, 12, 31))
