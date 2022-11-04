@@ -16,7 +16,7 @@ from typing import IO, Union, Optional, AnyStr
 
 from . import gpx as mod_gpx
 
-__version__ = '1.4.2'
+__version__ = '1.5.0'
 
 def parse(xml_or_file: Union[AnyStr, IO[str]], version: Optional[str] = None) -> mod_gpx.GPX:
     """

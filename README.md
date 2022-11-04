@@ -27,15 +27,15 @@ gpx = gpxpy.parse(gpx_file)
 for track in gpx.tracks:
     for segment in track.segments:
         for point in segment.points:
-            print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
+            print(f'Point at ({point.latitude},{point.longitude}) -> {point.elevation}')
 
 for waypoint in gpx.waypoints:
-    print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
+    print(f'waypoint {waypoint.name} -> ({waypoint.latitude},{waypoint.longitude})')
 
 for route in gpx.routes:
     print('Route:')
     for point in route.points:
-        print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
+        print(f'Point at ({point.latitude},{point.longitude}) -> {point.elevtion}')
 
 # There are many more utility methods and functions:
 # You can manipulate/add/remove tracks, segments, points, waypoints and routes and
@@ -86,7 +86,7 @@ The GPX version is automatically determined when parsing by reading the version 
 
 ## GPX max speed
 
-Gpxpy is a GPX parser and by using it you have acess to all the data from the original GPX file. The additional methods to calculate stats have some additional heuristics to remove common GPS errors. For example, to calculate `max_speed` it removes the top `5%` of speeds and points with nonstandard distance (those are usually GPS errors).
+Gpxpy is a GPX parser and by using it you have access to all the data from the original GPX file. The additional methods to calculate stats have some additional heuristics to remove common GPS errors. For example, to calculate `max_speed` it removes the top `5%` of speeds and points with nonstandard distance (those are usually GPS errors).
 
 "Raw" max speed can be calculated with:
 
