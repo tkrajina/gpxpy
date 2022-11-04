@@ -1732,6 +1732,35 @@ class GPXTests(mod_unittest.TestCase):
             print(f'Parsing: {timestamp}')
             self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
 
+    def test_dst_in_SimpleTZ(self) -> None:
+        # No DST in UTC times.
+        timestamps = ['2001-10-26T19:32:52Z',
+                      '2001-10-26T19:32:52+0000',
+                      '2001-10-26T19:32:52+00:00']
+        for timestamp in timestamps:
+            daylight_saving_time = mod_gpxfield.parse_time(timestamp).dst()
+            print(f'Testing: {timestamp}, dst = {daylight_saving_time}')
+            self.assertTrue(daylight_saving_time in {None, mod_datetime.timedelta(0)})
+
+    def test_format_time(self) -> None:
+        tz1 = mod_datetime.timezone(mod_datetime.timedelta(hours=2), )
+        tz2 = mod_datetime.timezone.utc
+        # pase_time() doesn't work correctly for tz-unaware datetimes.
+        times1 = [mod_datetime.datetime(*t) for t in [#(2001, 10, 26, 21, 32, 52),
+                                                      (2001, 10, 26, 21, 32, 52, 0, tz1),
+                                                      (2001, 10, 26, 19, 32, 52, 0, tz2),
+                                                      #(2001, 10, 26, 21, 32, 52, 126790),
+                                                      (2001, 10, 26, 21, 32, 52, 126790, tz1),
+                                                      (2001, 10, 26, 19, 32, 52, 126790, tz2)]]
+        times2 = []
+        for t in times1:
+            str_t = mod_gpxfield.format_time(t)
+            print(str_t)
+            t2 = mod_gpxfield.parse_time(str_t)
+            print(t2)
+            times2.append(t2)
+        self.assertEqual(times1, times2)
+
     def test_get_location_at(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
