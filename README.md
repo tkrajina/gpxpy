@@ -1,5 +1,8 @@
+![PyPI](https://img.shields.io/pypi/v/gpxpy)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gpxpy)
 [![Build Status](https://travis-ci.org/tkrajina/gpxpy.svg?branch=master)](https://travis-ci.org/tkrajina/gpxpy)
 [![Coverage Status](https://coveralls.io/repos/github/tkrajina/gpxpy/badge.svg?branch=master)](https://coveralls.io/github/tkrajina/gpxpy?branch=master)
+[![GitHub license](https://img.shields.io/github/license/tkrajina/gpxpy)](https://github.com/tkrajina/gpxpy/blob/dev/LICENSE.txt)
 
 # gpxpy -- GPX file parser
 
