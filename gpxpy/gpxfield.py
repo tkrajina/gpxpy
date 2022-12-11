@@ -17,8 +17,6 @@ import datetime as mod_datetime
 import re as mod_re
 import copy as mod_copy
 
-from numpy import empty
-
 from . import utils as mod_utils
 
 from typing import *
