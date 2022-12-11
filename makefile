@@ -49,4 +49,4 @@ analyze-xsd:
 
 .PHONY: mypy
 mypy:
-	mypy --strict . examples gpxinfo xsd/*py
+	mypy --strict . gpxinfo

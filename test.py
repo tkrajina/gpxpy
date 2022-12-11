@@ -1738,7 +1738,7 @@ class GPXTests(mod_unittest.TestCase):
                       '2001-10-26T19:32:52+0000',
                       '2001-10-26T19:32:52+00:00']
         for timestamp in timestamps:
-            daylight_saving_time = mod_gpxfield.parse_time(timestamp).dst()
+            daylight_saving_time = mod_gpxfield.parse_time(timestamp).dst() # type: ignore
             print(f'Testing: {timestamp}, dst = {daylight_saving_time}')
             self.assertTrue(daylight_saving_time in {None, mod_datetime.timedelta(0)})
 
@@ -3091,7 +3091,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(t_stamp + "+01:00" in gpx.to_xml() or t_stamp + "+0100" in gpx.to_xml())
         reparsed = mod_gpxpy.parse(gpx.to_xml())
         self.assertTrue(t_stamp + "+01:00" in reparsed.to_xml() or t_stamp + "+0100" in reparsed.to_xml())
-        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo)
+        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo) # type: ignore
 
     def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -3542,7 +3542,7 @@ class GPXTests(mod_unittest.TestCase):
         waypoint = gpx.waypoints[0]
         self.assertAlmostEqual(waypoint_orig.latitude, waypoint.latitude)
         self.assertAlmostEqual(waypoint_orig.longitude, waypoint.longitude)
-        self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation)
+        self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation) # type: ignore
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")

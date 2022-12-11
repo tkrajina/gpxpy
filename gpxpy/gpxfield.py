@@ -67,7 +67,7 @@ class SimpleTZ(mod_datetime.tzinfo):
     def __copy__(self) -> mod_datetime.tzinfo:
         return self.__deepcopy__()
 
-    def __deepcopy__(self, memodict: Optional[dict]={}) -> mod_datetime.tzinfo:
+    def __deepcopy__(self, memodict: Optional[dict[Any, Any]]={}) -> mod_datetime.tzinfo:
         return self.__class__(self.tzname(None))
 
     def __repr__(self) -> str:
