@@ -89,7 +89,7 @@ def get_course(latitude_1: float, longitude_1: float, latitude_2: float, longitu
                          / mod_math.tan(delta + 0.5*lat1))
 
     course = mod_math.degrees(mod_math.atan2(y, x))
-    return (course + 360.) % 360.
+    return course % 360
 
 
 def length(locations: List["Location"]=[], _3d: bool=False) -> float:
@@ -144,8 +144,8 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
         return None
 
     distances = [x[1] for x in speeds_and_distances]
-    average_distance = sum(distances) / float(size)
-    standard_distance_deviation = mod_math.sqrt(sum((distance - average_distance) ** 2 for distance in distances) / float(size))
+    average_distance = sum(distances) / size
+    standard_distance_deviation = mod_math.sqrt(sum((distance - average_distance) ** 2 for distance in distances) / size)
 
     # Ignore items where the distance is too big:
     filtered_speeds_and_distances = [x for x in speeds_and_distances if abs(x[1] - average_distance) <= standard_distance_deviation * 1.5]
@@ -168,6 +168,7 @@ def calculate_uphill_downhill(elevations: List[Optional[float]]) -> Tuple[float,
     if not elevations:
         return 0, 0
 
+    elevations = list(filter(lambda e: e is not None, elevations))
     size = len(elevations)
     def __filter(n: int) -> float:
         current_ele = elevations[n]
@@ -228,7 +229,7 @@ def elevation_angle(location1: "Location", location2: "Location", radians: float
     if location1.elevation is None or location2.elevation is None:
         return None
 
-    b = float(location2.elevation - location1.elevation)
+    b = location2.elevation - location1.elevation
     a = location2.distance_2d(location1)
 
     if not a:
@@ -257,8 +258,8 @@ def distance_from_line(point: "Location", line_point_1: "Location", line_point_2
     c = line_point_2.distance_2d(point)
 
     if a is not None and b is not None and c is not None:
-        s = (a + b + c) / 2.
-        return 2. * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
+        s = (a + b + c) / 2
+        return 2 * mod_math.sqrt(abs(s * (s - a) * (s - b) * (s - c))) / a
     return None
 
 
@@ -271,11 +272,11 @@ def get_line_equation_coefficients(location1: "Location", location2: "Location")
     """
     if location1.longitude == location2.longitude:
         # Vertical line:
-        return float(0), float(1), float(-location1.longitude)
+        return 0, 1, -location1.longitude
     else:
-        a = float(location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
+        a = (location1.latitude - location2.latitude) / (location1.longitude - location2.longitude)
         b = location1.latitude - location1.longitude * a
-        return float(1), float(-a), float(-b)
+        return 1, -a, -b
 
 
 def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -> List["Location"]:

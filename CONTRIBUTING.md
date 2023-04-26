@@ -1,6 +1,6 @@
 # Contributing to gpxpy
 
-gpxpy aims to be a full featured library for handling gpx files defined by the GPX 1.0 and 1.1 schemas. Specifically:
+gpxpy aims to be a full featured library for handling gpx files defined by the GPX 1.0 and 1.1 schemas. Specifically, it should:
 
 - Be able to lossless read any well-formed and valid gpx (1.0 or 1.1)
 - Be able to manipulate all gpx fields defined by the schema
@@ -13,7 +13,7 @@ Bug fixes, feature additions, tests, documentation and more can be contributed v
 ## Bug fixes, feature additions, etc.
 
 Please send a pull requests for new features or bugfixes to the `dev` branch. Minor changes or urgent hotfixes can be sent to `master`.
-Please include tests for new features. Tests or documentation without bug fixes or feature additions are welcome too. Feel free to ask questions [via issues](https://github.com/tkrajina/gpxpy/issues/new).
+Please include tests for new features. Tests or documentation without bug fixes or feature additions are welcome too. Feel free to ask any questions [via issues](https://github.com/tkrajina/gpxpy/issues/new).
 
 - Fork the gpxpy repository.
 - Create a branch from master.
@@ -30,7 +30,7 @@ Library code is read far more than it is written. Keep your code clean and under
 - Follow PEP8 and use pycodestyle for new code.
 - Follow PEP257 and use pydocstyle. Additionally, docstrings should be styled like Google's [Python Style Guide](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
 - New code should pass flake8
-- Avoid decreases in Coverage
+- Avoid decreases in coverage
 
 ## Reporting Issues
 
@@ -41,4 +41,4 @@ When reporting issues, please include code that reproduces the issue and wheneve
 - What did you do?
 - What did you expect to happen?
 - What actually happened?
-- What versions of gpxpy, lxml and Python are you using?
+- What versions of gpxpy, lxml and Python were you using?

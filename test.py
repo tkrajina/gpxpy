@@ -664,7 +664,7 @@ class GPXTests(mod_unittest.TestCase):
     def test_distance(self) -> None:
         distance = mod_geo.distance(48.56806, 21.43467, None, 48.599214, 21.430878, False)
         print(distance)
-        self.assertTrue(distance > 3450 and distance < 3500)
+        self.assertTrue(3450 < distance < 3500)
 
     def test_haversine_and_nonhaversine(self) -> None:
         haversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=True)
@@ -1690,6 +1690,17 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(mod_math.isnan(gpx.routes[0].points[0].elevation)) # type: ignore
         self.assertTrue(mod_math.isnan(gpx.waypoints[0].elevation)) # type: ignore
 
+    def test_uphill_downhill_with_no_elevations(self) -> None:
+        g = mod_gpx.GPX()
+        g.tracks.append(mod_gpx.GPXTrack())
+        g.tracks[0].segments.append(mod_gpx.GPXTrackSegment())
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=None))
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=10))
+        g.tracks[0].segments[0].points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=0, elevation=20))
+        up, down = g.get_uphill_downhill()
+        self.assertEqual(10, up)
+        self.assertEqual(0, down)
+
     def test_time_difference(self) -> None:
         point_1 = mod_gpx.GPXTrackPoint(latitude=13, longitude=12,
                                         time=mod_datetime.datetime(2013, 1, 2, 12, 31))
@@ -1720,6 +1731,35 @@ class GPXTests(mod_unittest.TestCase):
         for timestamp in timestamps:
             print(f'Parsing: {timestamp}')
             self.assertTrue(mod_gpxfield.parse_time(timestamp) is not None)
+
+    def test_dst_in_SimpleTZ(self) -> None:
+        # No DST in UTC times.
+        timestamps = ['2001-10-26T19:32:52Z',
+                      '2001-10-26T19:32:52+0000',
+                      '2001-10-26T19:32:52+00:00']
+        for timestamp in timestamps:
+            daylight_saving_time = mod_gpxfield.parse_time(timestamp).dst() # type: ignore
+            print(f'Testing: {timestamp}, dst = {daylight_saving_time}')
+            self.assertTrue(daylight_saving_time in {None, mod_datetime.timedelta(0)})
+
+    def test_format_time(self) -> None:
+        tz1 = mod_datetime.timezone(mod_datetime.timedelta(hours=2), )
+        tz2 = mod_datetime.timezone.utc
+        # pase_time() doesn't work correctly for tz-unaware datetimes.
+        times1 = [mod_datetime.datetime(*t) for t in [#(2001, 10, 26, 21, 32, 52),
+                                                      (2001, 10, 26, 21, 32, 52, 0, tz1),
+                                                      (2001, 10, 26, 19, 32, 52, 0, tz2),
+                                                      #(2001, 10, 26, 21, 32, 52, 126790),
+                                                      (2001, 10, 26, 21, 32, 52, 126790, tz1),
+                                                      (2001, 10, 26, 19, 32, 52, 126790, tz2)]]
+        times2 = []
+        for t in times1:
+            str_t = mod_gpxfield.format_time(t)
+            print(str_t)
+            t2 = mod_gpxfield.parse_time(str_t)
+            print(t2)
+            times2.append(t2)
+        self.assertEqual(times1, times2)
 
     def test_get_location_at(self) -> None:
         gpx = mod_gpx.GPX()
@@ -1847,7 +1887,7 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(mod_gpxpy.parse(f))
 
     def __test_location_delta(self, location: mod_geo.Location, distance: float) -> None:
-        angles = [ x * 15 for x in range(int(360 / 15)) ]
+        angles = list(range(0, 360, 15))
         print(angles)
 
         previous_location = None
@@ -3051,7 +3091,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(t_stamp + "+01:00" in gpx.to_xml() or t_stamp + "+0100" in gpx.to_xml())
         reparsed = mod_gpxpy.parse(gpx.to_xml())
         self.assertTrue(t_stamp + "+01:00" in reparsed.to_xml() or t_stamp + "+0100" in reparsed.to_xml())
-        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo)
+        self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo) # type: ignore
 
     def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -3502,7 +3542,7 @@ class GPXTests(mod_unittest.TestCase):
         waypoint = gpx.waypoints[0]
         self.assertAlmostEqual(waypoint_orig.latitude, waypoint.latitude)
         self.assertAlmostEqual(waypoint_orig.longitude, waypoint.longitude)
-        self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation)
+        self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation) # type: ignore
 
 class LxmlTest(mod_unittest.TestCase):
     @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")

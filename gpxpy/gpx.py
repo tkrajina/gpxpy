@@ -267,6 +267,12 @@ class GPXWaypoint(mod_geo.Location):
         """
         Only care about the max dop for filtering, no need to go into too much detail
         """
+        if self.horizontal_dilution is None:
+            return None
+        if self.vertical_dilution is None:
+            return None
+        if self.position_dilution is None:
+            return None
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
 
 
@@ -445,7 +451,7 @@ class GPXRoute:
             sum_lon += point.longitude
 
         if not n:
-            return mod_geo.Location(float(0), float(0))
+            return mod_geo.Location(0, 0)
 
         return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
 
@@ -627,7 +633,7 @@ class GPXTrackPoint(mod_geo.Location):
         if not seconds or length is None:
             return None
 
-        return length / float(seconds)
+        return length / seconds
 
     def course_between(self, track_point: "GPXTrackPoint", loxodromic: bool=True) -> Optional[float]:
         """
@@ -907,7 +913,7 @@ class GPXTrackSegment:
                 speed_kmh: float = 0
                 if seconds > 0 and distance is not None:
                     # TODO: compute threshold in m/s instead this to kmh every time:
-                    speed_kmh = (distance / 1000.) / (seconds / 60. ** 2)
+                    speed_kmh = (distance / 1000) / (seconds / 60 ** 2)
                     if distance:
                         if speed_kmh <= stopped_speed_threshold:
                             stopped_time += seconds
@@ -1019,7 +1025,7 @@ class GPXTrackSegment:
             speed_2 = abs(speed_2)
 
         if speed_1 and speed_2:
-            return (speed_1 + speed_2) / 2.
+            return (speed_1 + speed_2) / 2
 
         if speed_1:
             return speed_1
@@ -1096,7 +1102,7 @@ class GPXTrackSegment:
         for point in interval:
             dist = point.distance_3d(previous_point)
             if dist is not None:
-                distance_from_start += float(dist)
+                distance_from_start += dist
                 distances.append(distance_from_start)
                 previous_point = point
 
@@ -1216,8 +1222,8 @@ class GPXTrackSegment:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
-        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk())
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else float('INF')
+        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk()) # type: ignore
+                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
                    ,default=None)
 
     def smooth(self, vertical: bool=True, horizontal: bool=False, remove_extremes: bool=False) -> None:
@@ -1349,7 +1355,7 @@ class GPXTrackSegment:
             if track_point.time:
                 found += 1
 
-        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
+        return len(self.points) > 2 and found / len(self.points) > .75
 
     def has_elevations(self) -> bool:
         """
@@ -1368,7 +1374,7 @@ class GPXTrackSegment:
             if track_point.elevation:
                 found += 1
 
-        return len(self.points) > 2 and float(found) / float(len(self.points)) > .75
+        return len(self.points) > 2 and found / len(self.points) > .75
 
 
     def __repr__(self) -> str:
@@ -1852,15 +1858,15 @@ class GPXTrack:
             return None
         sum_lat: float = 0
         sum_lon: float = 0
-        n = 0.
+        n = 0
         for track_segment in self.segments:
             for point in track_segment.points:
-                n += 1.
+                n += 1
                 sum_lat += point.latitude
                 sum_lon += point.longitude
 
         if not n:
-            return mod_geo.Location(float(0), float(0))
+            return mod_geo.Location(0, 0)
 
         return mod_geo.Location(latitude=sum_lat / n, longitude=sum_lon / n)
 
@@ -1893,8 +1899,8 @@ class GPXTrack:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
-        return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk())
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else float('INF')
+        return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk()) # type: ignore
+                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
                    ,default=None)
         
     def clone(self) -> "GPXTrack":
@@ -2042,7 +2048,7 @@ class GPX:
         min_distance = min_distance or 0
         max_points_no = max_points_no or 1000000000
 
-        min_distance = max(min_distance, mod_math.ceil(length / float(max_points_no)))
+        min_distance = max(min_distance, mod_math.ceil(length / max_points_no))
 
         for track in self.tracks:
             track.reduce_points(min_distance)
@@ -2509,8 +2515,8 @@ class GPX:
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_no, track_segment_no, track_point_no) for the
         nearest location on map """
-        return min((NearestLocationData(pt, tr, seg, pt_no) for (pt,tr, seg, pt_no) in self.walk())
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else float('INF')
+        return min((NearestLocationData(pt, tr, seg, pt_no) for (pt,tr, seg, pt_no) in self.walk()) # type:ignore
+                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
                    ,default=None)
 
     def add_elevation(self, delta: float) -> None:
@@ -2592,7 +2598,7 @@ class GPX:
                 time_left, dist_left = times_dists[i]
                 time_right, dist_right = times_dists[i+1]
                 if time_left and time_right and dist_left and dist_right:
-                    point.speed = float(dist_left + dist_right) / (time_left + time_right)
+                    point.speed = (dist_left + dist_right) / (time_left + time_right)
 
         self.add_missing_data(get_data_function=lambda point: point.speed,
                               add_missing_function=_add)

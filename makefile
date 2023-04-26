@@ -25,7 +25,9 @@ check-all-committed:
 .PHONY: pypi-upload
 pypi-upload: check-all-committed test
 	rm -Rf dist/*
-	python setup.py sdist
+	python3 -m build --help > /dev/null 2>&1 || python3 -m pip install build
+	python3 -m build
+	twine check dist/*
 	twine upload dist/*
 
 .PHONY: ctags
@@ -47,4 +49,4 @@ analyze-xsd:
 
 .PHONY: mypy
 mypy:
-	mypy --strict . examples gpxinfo xsd/*py
+	mypy --strict . gpxinfo

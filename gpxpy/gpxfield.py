@@ -17,8 +17,6 @@ import datetime as mod_datetime
 import re as mod_re
 import copy as mod_copy
 
-from numpy import empty
-
 from . import utils as mod_utils
 
 from typing import *
@@ -69,7 +67,7 @@ class SimpleTZ(mod_datetime.tzinfo):
     def __copy__(self) -> mod_datetime.tzinfo:
         return self.__deepcopy__()
 
-    def __deepcopy__(self, memodict: Optional[dict]={}) -> mod_datetime.tzinfo:
+    def __deepcopy__(self, memodict: Optional[dict[Any, Any]]={}) -> mod_datetime.tzinfo:
         return self.__class__(self.tzname(None))
 
     def __repr__(self) -> str:
@@ -98,18 +96,7 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
 
 
 def format_time(time: mod_datetime.datetime) -> str:
-    offset = time.utcoffset()
-    if time.tzinfo is None:
-        tz = ''
-    elif not offset:
-        tz = 'Z'
-    else:
-        tz = time.strftime('%z')
-    if time.microsecond:
-        ms = time.strftime('.%f')
-    else:
-        ms = ''
-    return ''.join((time.strftime('%Y-%m-%dT%H:%M:%S'), ms, tz))
+    return time.isoformat().replace('+00:00', 'Z')
 
 
 
@@ -138,9 +125,7 @@ class TimeConverter:
             return None
 
     def to_string(self, time: Optional[mod_datetime.datetime]) -> Optional[str]:
-        if time:
-            return format_time(time) if time else None
-        return None
+        return format_time(time) if time else None
 
 
 INT_TYPE = IntConverter()
