@@ -1932,7 +1932,7 @@ class GPXTrack:
         return f'GPXTrack({", ".join(parts)})'
 
 
-class GPX:
+class GPX(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXField('version', attribute='version'),
             mod_gpxfield.GPXField('creator', attribute='creator'),
@@ -2024,8 +2024,8 @@ class GPX:
         self.waypoints: List[GPXWaypoint] = []
         self.routes: List[GPXRoute] = []
         self.tracks: List[GPXTrack] = []
-        self.nsmap: Dict[str, str] = {}
         self.schema_locations: List[str] = []
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -2128,6 +2128,9 @@ class GPX:
         if waypoints:
             for waypoint in self.waypoints:
                 waypoint.remove_elevation()
+
+    def get_childs(self):
+        return self.tracks
 
     def get_time_bounds(self) -> TimeBounds:
         """
