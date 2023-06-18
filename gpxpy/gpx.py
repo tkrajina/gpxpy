@@ -195,6 +195,21 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 
+class AbstractGPX:
+    def __init__(self):
+        self.nsmap: Dict[str, str] = {}
+
+    def get_childs(self):
+        return []
+
+    def sync_nsmap(self):
+        for child in self.get_childs():
+            child.sync_nsmap()
+            child.nsmap.update(self.nsmap)
+            self.nsmap.update(child.nsmap)
+            child.sync_nsmap()
+
+
 class GPXWaypoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
