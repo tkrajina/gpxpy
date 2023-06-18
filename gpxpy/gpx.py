@@ -701,7 +701,7 @@ class GPXTrackPoint(mod_geo.Location):
     def __str__(self) -> str:
         return f'[trkpt:{self.latitude},{self.longitude}@{self.elevation}@{self.time}]'
 
-class GPXTrackSegment:
+class GPXTrackSegment(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
@@ -710,11 +710,12 @@ class GPXTrackSegment:
             mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
     ]
 
-    __slots__ = ('points', 'extensions', )
+    __slots__ = ('points', 'extensions', 'nsmap')
 
     def __init__(self, points: Optional[List[GPXTrackPoint]]=None) -> None:
         self.points: List[GPXTrackPoint] = points if points else []
         self.extensions: List[Any] = []
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -825,6 +826,9 @@ class GPXTrackSegment:
                 yield point
             else:
                 yield point, point_no
+
+    def get_childs(self):
+        return self.points
 
     def get_points_no(self) -> int:
         """
