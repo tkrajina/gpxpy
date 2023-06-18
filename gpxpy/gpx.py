@@ -1399,7 +1399,7 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 
-class GPXTrack:
+class GPXTrack(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
@@ -1429,7 +1429,7 @@ class GPXTrack:
 
     __slots__ = ('name', 'comment', 'description', 'source', 'link',
                  'link_text', 'number', 'segments', 'link_type', 'type',
-                 'extensions')
+                 'extensions', 'nsmap')
 
     def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
         self.name = name
@@ -1443,6 +1443,7 @@ class GPXTrack:
         self.link_type = None
         self.type = None
         self.extensions: List[Any] = [] # TODO
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -1514,6 +1515,9 @@ class GPXTrack:
             if d:
                 length += d
         return length
+
+    def get_childs(self):
+        return self.segments
 
     def get_time_bounds(self) -> TimeBounds:
         """
