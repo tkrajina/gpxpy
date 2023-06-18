@@ -525,7 +525,7 @@ class GPXRoute:
         return f'GPXRoute({", ".join(parts)})'
 
 
-class GPXTrackPoint(mod_geo.Location):
+class GPXTrackPoint(mod_geo.Location, AbstractGPX):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
@@ -535,7 +535,7 @@ class GPXTrackPoint(mod_geo.Location):
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'extensions')
+                 'link_type', 'extensions', 'nsmap')
 
     def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
                  time: Optional[mod_datetime.datetime]=None, symbol: Optional[str]=None, comment: Optional[str]=None,
@@ -565,6 +565,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.age_of_dgps_data: Optional[float] = None
         self.dgps_id: Optional[int] = None
         self.extensions: List[Any] = []
+        AbstractGPX.__init__(self)
 
     def __repr__(self) -> str:
         parts = [f'{self.latitude}, {self.longitude}']
