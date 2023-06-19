@@ -207,6 +207,11 @@ class AbstractGPX:
             child.nsmap = self.nsmap
             child.set_nsmap()
 
+    def get_nsmap(self):
+        for child in self.get_childs():
+            child.get_nsmap()
+            self.nsmap.update(child.nsmap)
+
     def sync_nsmap(self):
         for child in self.get_childs():
             child.sync_nsmap()
@@ -2719,7 +2724,7 @@ class GPX(AbstractGPX):
         if not self.creator:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
 
-        self.sync_nsmap()
+        self.get_nsmap()
 
         self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
 
