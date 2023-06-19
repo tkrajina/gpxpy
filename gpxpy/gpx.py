@@ -202,6 +202,11 @@ class AbstractGPX:
     def get_childs(self):
         return []
 
+    def set_nsmap(self):
+        for child in self.get_childs():
+            child.nsmap = self.nsmap
+            child.set_nsmap()
+
     def sync_nsmap(self):
         for child in self.get_childs():
             child.sync_nsmap()
