@@ -1107,6 +1107,7 @@ class GPXTrackSegment:
                 previous_point = point
 
         dist = interval[-1].distance_3d(end)
+        from_start_to_end = None
         if dist:
             from_start_to_end = distances[-1] + dist
 
