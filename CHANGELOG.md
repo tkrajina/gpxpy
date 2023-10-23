@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.6.0
+
+- NameError: free variable `from_start_to_end` referenced before assignment in enclosing scope <https://github.com/tkrajina/gpxpy/issues/256>
+- Ignore points with no elevation when calculatin uphill/downhill
+- Empty body for <bounds />
+- Use python-build to also make wheels <https://github.com/tkrajina/gpxpy/issues/237>
+- timezone lost in <time> fields when cloning/copying parsed GPX file <https://github.com/tkrajina/gpxpy/issues/190>
+- Parsing timezone-unaware GPX files <https://github.com/tkrajina/gpxpy/issues/183>
+- Use python3 code
+
 ## v1.5.0
 
 - Typos <https://github.com/tkrajina/gpxpy/pull/239>
@@ -11,7 +21,7 @@
 
 ## v1.4.2
 
-* get_nearest_location(location) has the property that if 'location' is a point on the track, the point after 'location' on the track is returned <https://github.com/tkrajina/gpxpy/pull/203>
+* `get_nearest_location(location)` has the property that if 'location' is a point on the track, the point after 'location' on the track is returned <https://github.com/tkrajina/gpxpy/pull/203>
 * parse bytes <https://github.com/tkrajina/gpxpy/issues/175#issuecomment-645074781>
 
 ## v1.4.1
@@ -19,11 +29,11 @@
 * Division by zero fixed <https://github.com/tkrajina/gpxpy/issues/197>
 * Consider microseconds when total_seconds o timedelta is requested <https://github.com/tkrajina/gpxpy/pull/196>
 * Use list instead of getchildren for Python 3.9 compatibility <https://github.com/tkrajina/gpxpy/pull/192>
-* utils.total_seconds() ignores microseconds <https://github.com/tkrajina/gpxpy/issues/201>
+* `utils.total_seconds()` ignores microseconds <https://github.com/tkrajina/gpxpy/issues/201>
 
 ## v1.4.0
 
-* Removed support for python2.* and python3.5
+* Removed support for python2.\* and python3.5
 * Added typehints and with mypy checks
 * Course computation <https://github.com/tkrajina/gpxpy/pull/156> <https://github.com/tkrajina/gpxpy/issues/155>
 * Refactored haversine_distance for speed and use math.radians <https://github.com/tkrajina/gpxpy/pull/180>
