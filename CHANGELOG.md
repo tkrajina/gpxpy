@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.1
+
+- Minor fix
+
 ## v1.6.0
 
 - NameError: free variable `from_start_to_end` referenced before assignment in enclosing scope <https://github.com/tkrajina/gpxpy/issues/256>
