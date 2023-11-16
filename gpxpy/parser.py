@@ -19,18 +19,28 @@ from typing import cast, Union, AnyStr, IO, Optional
 
 try:
     # Load LXML or fallback to cET or ET
-    import lxml.etree as mod_etree # type: ignore
+    import lxml.etree as mod_lxml_etree # type: ignore
 except ImportError:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except ImportError:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+    pass
+
+try:
+    import xml.etree.cElementTree as mod_xml_etree # type: ignore
+except ImportError:
+    import xml.etree.ElementTree as mod_xml_etree # type: ignore
+
+mod_etree = mod_xml_etree
+
+""" Change the etree implementation, use gpx.set_xml_etree(mod_lxml_etree) for lxml """
+def set_xml_etree(etre):
+    global mod_etree
+    mod_etree = etre
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
 log = mod_logging.getLogger(__name__)
+
 
 def library() -> str:
     """
