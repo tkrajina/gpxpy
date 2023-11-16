@@ -1126,7 +1126,7 @@ class GPXTrackSegment:
             Duration in seconds
         """
         if not self.points or len(self.points) < 2:
-            return 0
+            return 0.0
 
         # Search for start:
         first = self.points[0]
@@ -1761,7 +1761,7 @@ class GPXTrack:
             Duration in seconds or None if any time data is missing
         """
         if not self.segments:
-            return 0
+            return 0.0
 
         result = 0.
         for track_segment in self.segments:
@@ -2348,9 +2348,9 @@ class GPX:
             Duration in seconds or None if time data is not fully populated.
         """
         if not self.tracks:
-            return 0
+            return 0.0
 
-        result: float = 0
+        result: float = 0.0
         for track in self.tracks:
             duration = track.get_duration()
             if duration or duration == 0:
