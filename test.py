@@ -3511,7 +3511,7 @@ class GPXTests(mod_unittest.TestCase):
         gpx = mod_gpxpy.parse(xml)
         gpx2 = self.reparse(gpx)
         print(gpx2.to_xml())
-        self.assertEquals(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond) # type: ignore
+        self.assertEqual(207343, gpx2.tracks[0].segments[0].points[0].time.microsecond)  # type: ignore
         self.assertTrue("<time>1901-12-13T20:45:52.207343" in gpx2.to_xml())
 
     def test_split_tracks_without_gpxpy(self) -> None:
