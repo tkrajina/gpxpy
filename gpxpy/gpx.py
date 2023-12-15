@@ -1218,13 +1218,13 @@ class GPXTrackSegment:
                 # TODO: If between two points -- approx position!
                 # return mod_geo.Location(point.latitude, point.longitude)
                 return point
-        
+
         return None
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
         return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk()) # type: ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
+                   ,key=lambda x: x.location.distance_2d(location) or mod_math.inf if x is not None else mod_math.inf
                    ,default=None)
 
     def smooth(self, vertical: bool=True, horizontal: bool=False, remove_extremes: bool=False) -> None:
@@ -1901,9 +1901,9 @@ class GPXTrack:
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
         return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk()) # type: ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
+                   ,key=lambda x: x.location.distance_2d(location) or mod_math.inf if x is not None else mod_math.inf
                    ,default=None)
-        
+
     def clone(self) -> "GPXTrack":
         return mod_copy.deepcopy(self)
 
@@ -2155,7 +2155,7 @@ class GPX:
             max_longitude : float
                 Maximum longitude of track in decimal degrees [-180, 180]
         """
-        result: Optional[GPXBounds] = None 
+        result: Optional[GPXBounds] = None
         for track in self.tracks:
             track_bounds = track.get_bounds()
             if not result:
@@ -2436,8 +2436,8 @@ class GPX:
         Returns a list of tuples containing the actual point, its distance from the start,
         track_no, segment_no, and segment_point_no
         """
-        distance_from_start = 0
-        previous_point = None
+        distance_from_start: float = 0.0
+        previous_point: Optional[GPXTrackPoint] = None
 
         # (point, distance_from_start) pairs:
         points = []
@@ -2451,7 +2451,7 @@ class GPX:
                         else:
                             distance = point.distance_3d(previous_point)
 
-                        distance_from_start += distance
+                        distance_from_start += distance or 0.0
 
                     points.append(PointData(point, distance_from_start, track_no, segment_no, point_no))
 
@@ -2488,6 +2488,7 @@ class GPX:
         track_no_candidate: Optional[int] = None
         segment_no_candidate: Optional[int] = None
         point_no_candidate: Optional[int] = None
+        point_candidate: Optional[GPXTrackPoint] = None
 
         for point, distance_from_start, track_no, segment_no, point_no in points:
             distance = location.distance_3d(point)
@@ -2498,17 +2499,19 @@ class GPX:
                     track_no_candidate = track_no
                     segment_no_candidate = segment_no
                     point_no_candidate = point_no
+                    point_candidate = point
             else:
-                if distance_from_start_candidate is not None and point and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
-                    result.append(NearestLocationData(point, track_no_candidate, segment_no_candidate, point_no_candidate))
+                if distance_from_start_candidate is not None and point_candidate and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
+                    result.append(NearestLocationData(point_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
                 min_distance_candidate = None
                 distance_from_start_candidate = None
                 track_no_candidate = None
                 segment_no_candidate = None
                 point_no_candidate = None
+                point_candidate = None
 
-        if distance_from_start_candidate is not None and point and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
-            result.append(NearestLocationData(point, track_no_candidate, segment_no_candidate, point_no_candidate))
+        if distance_from_start_candidate is not None and point_candidate and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
+            result.append(NearestLocationData(point_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
 
         return result
 
@@ -2517,7 +2520,7 @@ class GPX:
         """ Returns (location, track_no, track_segment_no, track_point_no) for the
         nearest location on map """
         return min((NearestLocationData(pt, tr, seg, pt_no) for (pt,tr, seg, pt_no) in self.walk()) # type:ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
+                   ,key=lambda x: x.location.distance_2d(location) or mod_math.inf if x is not None else mod_math.inf
                    ,default=None)
 
     def add_elevation(self, delta: float) -> None:
