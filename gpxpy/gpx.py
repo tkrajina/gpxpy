@@ -1898,6 +1898,89 @@ class GPXTrack:
 
         return result
 
+    def get_points_data(self, distance_2d: bool=False) -> List[PointData]:
+        """
+        Returns a list of tuples containing the actual point, its distance from the start,
+        -1, segment_no, and segment_point_no
+        """
+        distance_from_start: float = 0.0
+        previous_point: Optional[GPXTrackPoint] = None
+
+        # (point, distance_from_start) pairs:
+        points = []
+
+        for segment_no, segment in enumerate(self.segments):
+            for point_no, point in enumerate(segment.points):
+                if previous_point and point_no > 0:
+                    if distance_2d:
+                        distance = point.distance_2d(previous_point)
+                    else:
+                        distance = point.distance_3d(previous_point)
+
+                    distance_from_start += distance or 0.0
+
+                points.append(PointData(point, distance_from_start, -1, segment_no, point_no))
+
+                previous_point = point
+
+        return points
+
+    def get_nearest_locations(self, location: mod_geo.Location, threshold_distance: float=0.01) -> List[NearestLocationData]:
+        """
+        Returns a list of locations of elements like
+        consisting of points where the location may be on the track
+
+        threshold_distance is the minimum distance from the track
+        so that the point *may* be counted as to be "on the track".
+        For example 0.01 means 1% of the track distance.
+        """
+
+        assert location
+        assert threshold_distance
+
+        result: List[NearestLocationData] = []
+
+        points = self.get_points_data()
+
+        if not points:
+            return result
+
+        distance: Optional[float] = points[- 1][1]
+
+        threshold = (distance or 0.0) * threshold_distance
+
+        min_distance_candidate = None
+        distance_from_start_candidate = None
+        track_no_candidate: Optional[int] = None
+        segment_no_candidate: Optional[int] = None
+        point_no_candidate: Optional[int] = None
+        point_candidate: Optional[GPXTrackPoint] = None
+
+        for point, distance_from_start, track_no, segment_no, point_no in points:
+            distance = location.distance_3d(point)
+            if (distance or 0.0) < threshold:
+                if min_distance_candidate is None or distance < min_distance_candidate:
+                    min_distance_candidate = distance
+                    distance_from_start_candidate = distance_from_start
+                    track_no_candidate = track_no
+                    segment_no_candidate = segment_no
+                    point_no_candidate = point_no
+                    point_candidate = point
+            else:
+                if distance_from_start_candidate is not None and point_candidate and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
+                    result.append(NearestLocationData(point_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
+                min_distance_candidate = None
+                distance_from_start_candidate = None
+                track_no_candidate = None
+                segment_no_candidate = None
+                point_no_candidate = None
+                point_candidate = None
+
+        if distance_from_start_candidate is not None and point_candidate and track_no_candidate is not None and segment_no_candidate is not None and point_no_candidate is not None:
+            result.append(NearestLocationData(point_candidate, track_no_candidate, segment_no_candidate, point_no_candidate))
+
+        return result
+
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
         return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk()) # type: ignore
