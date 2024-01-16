@@ -145,7 +145,7 @@ class GPXParser:
             # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException(f'Error parsing XML: {e}', e)
 
-        if root is None:
+        if root is None or root.tag.lower() != 'gpx':
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
         if version is None:
