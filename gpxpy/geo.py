@@ -132,7 +132,7 @@ def length_3d(locations: List["Location"]=[]) -> float:
     return length(locations, True)
 
 
-def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreemes_percentile: float, ignore_nonstandard_distances: bool) -> Optional[float]:
+def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extremes_percentile: float, ignore_nonstandard_distances: bool) -> Optional[float]:
     """
     Compute average distance and standard deviation for distance. Extremes
     in distances are usually extremes in speeds, so we will ignore them,
@@ -173,7 +173,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreem
     speeds.sort()
 
     # Even here there may be some extremes => ignore the last 5%:
-    index = int(len(speeds) * (1-extreemes_percentile))
+    index = int(len(speeds) * (1-extremes_percentile))
     if index >= len(speeds):
         index = -1
 
@@ -268,11 +268,8 @@ def elevation_angle(location1: "Location", location2: "Location", radians: float
         return 0
 
     angle = mod_math.atan(b / a)
-
-    if radians:
-        return angle
-
-    return mod_math.degrees(angle)
+    
+    return angle if radians else mod_math.degrees(angle)
 
 
 def distance_from_line(point: "Location", line_point_1: "Location", line_point_2: "Location") -> Optional[float]:
