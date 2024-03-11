@@ -942,15 +942,17 @@ class GPXTrackSegment:
             end time : datetime
                 End time of the last segment in track
         """
-        start_time = None
-        end_time = None
-
         for point in self.points:
             if point.time:
-                if not start_time:
-                    start_time = point.time
-                if point.time:
-                    end_time = point.time
+                start_time = point.time
+                break
+        else:
+            return TimeBounds(None, None)
+
+        for point in reversed(self.points):
+            if point.time:
+                end_time = point.time
+                break
 
         return TimeBounds(start_time, end_time)
 
