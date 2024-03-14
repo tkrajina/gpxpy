@@ -3291,6 +3291,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(2, len(gpx.waypoints[0].extensions))
         self.assertEqual("bbb", gpx.waypoints[0].extensions[0].text)
         self.assertEqual("eee", list(gpx.waypoints[0].extensions[1])[0].text.strip())
+        f.close()
 
     def test_garmin_extension(self) -> None:
         f = open('test_files/gpx_with_garmin_extension.gpx')
@@ -3299,6 +3300,7 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue("<gpxtpx:TrackPointExtension>" in xml)
         self.assertTrue("<gpxtpx:hr>171</gpxtpx:hr>" in xml)
         print(gpx.to_xml())
+        f.close()
 
     def test_with_ns_namespace(self) -> None:
         gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
@@ -3378,6 +3380,7 @@ class GPXTests(mod_unittest.TestCase):
 
         xml = gpx.to_xml()
         self.assertNotIn('e-', xml)
+        f.close()
 
     def test_gpx_fill_time_data_with_start_time_and_end_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
