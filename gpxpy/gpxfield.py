@@ -556,7 +556,7 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
     return ''.join(body)
 
 
-def gpx_fields_from_xml(class_or_instance: Any, node: str, version: str) -> Any:
+def gpx_fields_from_xml(class_or_instance: Any, node: Any, version: str) -> Any:
     if mod_inspect.isclass(class_or_instance):
         result = class_or_instance()
     else:

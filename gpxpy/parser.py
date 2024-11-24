@@ -18,29 +18,15 @@ import re as mod_re
 from typing import cast, Union, AnyStr, IO, Optional
 
 try:
-    # Load LXML or fallback to cET or ET
-    import lxml.etree as mod_etree # type: ignore
+    import xml.etree.cElementTree as mod_etree
 except ImportError:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except ImportError:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+    import xml.etree.ElementTree as mod_etree # type: ignore
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
 from . import gpxfield as mod_gpxfield
 
 log = mod_logging.getLogger(__name__)
-
-def library() -> str:
-    """
-    Return the underlying ETree.
-
-    Provided for convenient unittests.
-    """
-    if "lxml" in str(mod_etree):
-        return "LXML"
-    return "STDLIB"
 
 class GPXParser:
     """
@@ -124,25 +110,9 @@ class GPXParser:
 
         # Build tree
         try:
-            if library() == "LXML":
-                # lxml does not like unicode strings when it's expecting
-                # UTF-8. Also, XML comments result in a callable .tag().
-                # Strip them out to avoid handling them later.
-                self.xml = cast(str, self.xml.encode('utf-8'))
-                root = mod_etree.XML(self.xml, mod_etree.XMLParser(remove_comments=True))
-            else:
-                root = mod_etree.XML(self.xml)
+            root = mod_etree.XML(self.xml)
         except Exception as e:
-            # The exception here can be a lxml or ElementTree exception.
             log.debug('Error in:\n%s\n-----------\n', self.xml, exc_info=True)
-
-            # The library should work in the same way regardless of the
-            # underlying XML parser that's why the exception thrown
-            # here is GPXXMLSyntaxException (instead of simply throwing the
-            # original ElementTree or lxml exception e).
-            #
-            # But, if the user needs the original exception (lxml or ElementTree)
-            # it is available with GPXXMLSyntaxException.original_exception:
             raise mod_gpx.GPXXMLSyntaxException(f'Error parsing XML: {e}', e)
 
         if root is None or root.tag.lower() != 'gpx':
@@ -150,6 +120,8 @@ class GPXParser:
 
         if version is None:
             version = root.get('version')
+        if not version:
+            version = ""
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
         return self.gpx

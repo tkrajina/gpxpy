@@ -16,9 +16,6 @@
 Run all tests with:
     $ python -m unittest test
 
-Run lxml parser test with:
-    $ python -m unittest test.LxmlTest
-
 Run single test with:
     $ python -m unittest test.GPXTests.test_method
 """
@@ -37,13 +34,9 @@ import unittest as mod_unittest
 import xml.dom.minidom as mod_minidom
 
 try:
-    # Load LXML or fallback to cET or ET 
-    import lxml.etree as mod_etree  # type: ignore
+    import xml.etree.cElementTree as mod_etree
 except:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+    import xml.etree.ElementTree as mod_etree # type: ignore
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx
@@ -209,15 +202,6 @@ class GPXTests(mod_unittest.TestCase):
             self.assertTrue(('unclosed token: line 1, column 5' in str(e)) or ('expected \'>\'' in str(e)))
             self.assertTrue(isinstance(e, mod_gpx.GPXXMLSyntaxException))
             self.assertTrue(e.__cause__)
-
-            try:
-                # more checks if lxml:
-                import lxml.etree as mod_etree
-                import xml.parsers.expat as mod_expat
-                self.assertTrue(isinstance(e.__cause__, mod_etree.XMLSyntaxError)
-                                or isinstance(e.__cause__, mod_expat.ExpatError))
-            except:
-                pass
 
     def test_creator_field(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
@@ -3577,11 +3561,6 @@ class GPXTests(mod_unittest.TestCase):
         self.assertAlmostEqual(waypoint_orig.latitude, waypoint.latitude)
         self.assertAlmostEqual(waypoint_orig.longitude, waypoint.longitude)
         self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation) # type: ignore
-
-class LxmlTest(mod_unittest.TestCase):
-    @mod_unittest.skipIf(mod_os.environ.get('XMLPARSER')!="LXML", "LXML not installed")
-    def test_checklxml(self) -> None:
-        self.assertEqual('LXML', mod_parser.library())
 
 if __name__ == '__main__':
     mod_unittest.main()
