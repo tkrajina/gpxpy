@@ -214,7 +214,7 @@ class GPXField(AbstractGPXField):
         if not prettyprint:
             indent = ''
         if self.attribute:
-            return f'{self.attribute}="{mod_utils.make_str(value)}"'
+            return f'{self.attribute}="{mod_saxutils.escape(mod_utils.make_str(value))}"'
         elif self.type_converter:
             value = self.type_converter.to_string(value)
         if self.tag:
