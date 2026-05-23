@@ -3127,6 +3127,18 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(t_stamp + "+01:00" in reparsed.to_xml() or t_stamp + "+0100" in reparsed.to_xml())
         self.assertTrue(reparsed.tracks[0].segments[0].points[0].time.tzinfo) # type: ignore
 
+    def test_deepcopy_negative_simpletz(self) -> None:
+        xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+        xml += '<gpx>\n<trk>\n<trkseg>\n'
+        xml += '<trkpt lat="1" lon="2"><time>2018-04-04T10:36:53-06:00</time></trkpt>\n'
+        xml += '</trkseg></trk></gpx>\n'
+        gpx = mod_gpxpy.parse(xml)
+        clone = gpx.clone()
+        original_time = gpx.tracks[0].segments[0].points[0].time
+        cloned_time = clone.tracks[0].segments[0].points[0].time
+        self.assertEqual(original_time, cloned_time)
+        self.assertEqual(cloned_time.utcoffset(), mod_datetime.timedelta(hours=-6)) # type: ignore
+
     def test_timestamp_with_single_digits(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
         xml += '<gpx>\n'
