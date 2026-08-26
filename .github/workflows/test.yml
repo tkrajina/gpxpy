@@ -15,16 +15,18 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [ "3.12", "3.11", "3.10", "3.9", "3.8" ]
+        python-version: [ "3.14", "3.13", "3.12", "3.11", "3.10", "3.9", "3.8" ]
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v5
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Run tests
       run: make test
