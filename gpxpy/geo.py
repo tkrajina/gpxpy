@@ -142,7 +142,7 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreme
     for every point in a track segment.
 
     In many cases the top speeds are measurement errors. For that reason extreme speeds can be removed
-    with the extreemes_percentile (for example, a value of 0.05 will remove top 5%).
+    with the extremes_percentile (for example, a value of 0.05 will remove top 5%).
     """
     assert speeds_and_distances
     if len(speeds_and_distances) > 0:
