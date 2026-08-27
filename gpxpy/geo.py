@@ -15,8 +15,6 @@
 import logging as mod_logging
 import math as mod_math
 
-from . import utils as mod_utils
-
 from typing import *
 
 log = mod_logging.getLogger(__name__)

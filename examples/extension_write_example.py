@@ -6,7 +6,6 @@ Example File for gpxpy waypoints
 @author: Marcel verpaalen
 """
 
-import gpxpy
 import gpxpy.gpx
 
 try:

@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import gpxpy
-import sys
 
 from setuptools import setup # type: ignore
 

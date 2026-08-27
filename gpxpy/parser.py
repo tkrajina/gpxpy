@@ -15,7 +15,7 @@
 import logging as mod_logging
 import re as mod_re
 
-from typing import cast, Union, AnyStr, IO, Optional
+from typing import cast, AnyStr, IO
 
 try:
     # Load LXML or fallback to cET or ET
