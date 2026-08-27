@@ -23,7 +23,7 @@ def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None,
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
-    result: List[str] = [f'\n{indent}<{tag}']
+    result: list[str] = [f'\n{indent}<{tag}']
 
     if content is None and default:
         content = default
@@ -53,7 +53,7 @@ def is_numeric(object: Any) -> bool:
         return False
 
 
-def to_number(s: str, default: float=0, nan_value: Optional[float]=None) -> float:
+def to_number(s: str, default: float=0, nan_value: float | None=None) -> float:
     try:
         result = float(s)
         if mod_math.isnan(result) and nan_value:

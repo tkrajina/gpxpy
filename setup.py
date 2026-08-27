@@ -19,9 +19,6 @@ import sys
 
 from setuptools import setup # type: ignore
 
-if sys.version_info < (3, 10):
-    sys.exit('Sorry, Python < 3.10 is not supported')
-
 with open('README.md') as f:
     long_description = f.read()
 
