@@ -108,7 +108,7 @@ Run a single test with:
 
     $ python3 -m unittest test.GPXTests.test_haversine_and_nonhaversine
 
-Gpxpy runs only with python 3.6+. The code must have type hints and must pass all the mypy checks.
+Gpxpy runs only with Python 3.10+. The code must have type hints and must pass all the mypy checks.
 
 ## GPX tools
 

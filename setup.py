@@ -19,8 +19,8 @@ import sys
 
 from setuptools import setup # type: ignore
 
-if sys.version_info < (3, 6):
-    sys.exit('Sorry, Python < 3.6 is not supported')
+if sys.version_info < (3, 10):
+    sys.exit('Sorry, Python < 3.10 is not supported')
 
 with open('README.md') as f:
     long_description = f.read()
@@ -37,13 +37,9 @@ setup(
     url='https://github.com/tkrajina/gpxpy',
     package_data={"gpxpy": ["py.typed"]},
     packages=['gpxpy', ],
-    python_requires=">=3.6",
+    python_requires=">=3.10",
     classifiers=[
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
