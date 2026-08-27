@@ -50,5 +50,4 @@
 
 ## Python Support
 
-- Minimum Python 3.10 (enforced in setup.py)
-- CI tests against Python 3.10–3.15
+- Defined in classifiers in setup.py
