@@ -2652,9 +2652,10 @@ class GPXTests(mod_unittest.TestCase):
     def test_xml_link_chars_encode(self) -> None:
         gpx = self.parse('brouter_with_link.gpx')
 
-        print(gpx.to_xml())
+        xml = gpx.to_xml()
 
-        self.assertTrue('<link href="https://brouter.m11n.de/#map=14/48.3257/8.9601/osm-mapnik-german_style&amp;lonlats=8.94809,48.336472;8.968735,48.323235">' in gpx.to_xml())
+        self.assertTrue('<link href="https://brouter.m11n.de/#map=14/48.3257/8.9601/osm-mapnik-german_style&amp;lonlats=8.94809,48.336472;8.968735,48.323235&amp;name=&quot;Hechingen&quot;">' in xml)
+        self.assertEqual(mod_gpxpy.parse(xml).tracks[0].link, gpx.tracks[0].link)
 
     def test_xml_chars_encode_decode_extensions(self) -> None:
         gpx = mod_gpxpy.gpx.GPX()
