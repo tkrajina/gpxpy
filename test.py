@@ -39,11 +39,8 @@ import xml.dom.minidom as mod_minidom
 try:
     # Load LXML or fallback to cET or ET 
     import lxml.etree as mod_etree  # type: ignore
-except:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+except ImportError:
+    import xml.etree.ElementTree as mod_etree  # type: ignore
 
 import gpxpy as mod_gpxpy
 import gpxpy.gpx as mod_gpx

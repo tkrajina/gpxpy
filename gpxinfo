@@ -4,11 +4,8 @@
 Command line utility to extract basic statistics from gpx file(s)
 """
 
-import pdb
-
 import sys as mod_sys
 import logging as mod_logging
-import math as mod_math
 import argparse as mod_argparse
 
 import gpxpy as mod_gpxpy

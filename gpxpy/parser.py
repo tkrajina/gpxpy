@@ -15,16 +15,13 @@
 import logging as mod_logging
 import re as mod_re
 
-from typing import cast, Union, AnyStr, IO, Optional
+from typing import cast, AnyStr, IO
 
 try:
     # Load LXML or fallback to cET or ET
     import lxml.etree as mod_etree # type: ignore
 except ImportError:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except ImportError:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+    import xml.etree.ElementTree as mod_etree  # type: ignore
 
 from . import gpx as mod_gpx
 from . import utils as mod_utils
@@ -57,7 +54,7 @@ class GPXParser:
 
     """
 
-    def __init__(self, xml_or_file: Union[AnyStr, IO[str]]) -> None:
+    def __init__(self, xml_or_file: AnyStr | IO[str]) -> None:
         """
         Initialize new GPXParser instance.
 
@@ -70,7 +67,7 @@ class GPXParser:
         self.init(xml_or_file)
         self.gpx = mod_gpx.GPX()
 
-    def init(self, xml_or_file: Union[AnyStr, IO[str]]) -> None:
+    def init(self, xml_or_file: AnyStr | IO[str]) -> None:
         """
         Store the XML and remove utf-8 Byte Order Mark if present.
 
@@ -84,7 +81,7 @@ class GPXParser:
             text = text.decode()
         self.xml = mod_utils.make_str(cast(str, text))
 
-    def parse(self, version: Optional[str]=None) -> mod_gpx.GPX:
+    def parse(self, version: str | None=None) -> mod_gpx.GPX:
         """
         Parse the XML and return a GPX object.
 

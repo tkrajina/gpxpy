@@ -6,17 +6,13 @@ Example File for gpxpy waypoints
 @author: Marcel verpaalen
 """
 
-import gpxpy
 import gpxpy.gpx
 
 try:
     # Load LXML or fallback to cET or ET 
     import lxml.etree as mod_etree  # type: ignore
-except:
-    try:
-        import xml.etree.cElementTree as mod_etree # type: ignore
-    except:
-        import xml.etree.ElementTree as mod_etree # type: ignore
+except ImportError:
+    import xml.etree.ElementTree as mod_etree # type: ignore
 
 gpx = gpxpy.gpx.GPX()
 gpx.name = 'Aanlegplaatsen'

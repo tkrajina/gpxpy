@@ -12,18 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys as mod_sys
 import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 import datetime as mod_datetime
 
-from typing import Any, AnyStr, List, Optional, cast
+from typing import Any, AnyStr
 
 def to_xml(tag: str, attributes: Any=None, content: Any=None, default: Any=None, escape: bool=False, prettyprint: bool=True, indent: str='') -> str:
     if not prettyprint:
         indent = ''
     attributes = attributes or {}
-    result: List[str] = [f'\n{indent}<{tag}']
+    result: list[str] = [f'\n{indent}<{tag}']
 
     if content is None and default:
         content = default
@@ -53,7 +52,7 @@ def is_numeric(object: Any) -> bool:
         return False
 
 
-def to_number(s: str, default: float=0, nan_value: Optional[float]=None) -> float:
+def to_number(s: str, default: float=0, nan_value: float | None=None) -> float:
     try:
         result = float(s)
         if mod_math.isnan(result) and nan_value:
