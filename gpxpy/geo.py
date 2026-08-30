@@ -266,7 +266,7 @@ def distance(latitude_1: float, longitude_1: float, elevation_1: Optional[float]
     return mod_math.sqrt(distance_2d ** 2 + (elevation_1 - elevation_2) ** 2)
 
 
-def elevation_angle(location1: "Location", location2: "Location", radians: float=False) -> Optional[float]:
+def elevation_angle(location1: "Location", location2: "Location", radians: bool=False) -> Optional[float]:
     """ Uphill/downhill angle between two locations. """
     if location1.elevation is None or location2.elevation is None:
         return None
