@@ -859,6 +859,24 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.bounds.min_longitude, -100) # type: ignore
         self.assertEqual(gpx.bounds.max_longitude, 100) # type: ignore
 
+    def test_bounds_zero(self) -> None:
+        gpx = mod_gpx.GPX()
+
+        track = mod_gpx.GPXTrack()
+
+        segment_1 = mod_gpx.GPXTrackSegment()
+        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=0, longitude=1))
+        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=1, longitude=1))
+        segment_1.points.append(mod_gpx.GPXTrackPoint(latitude=2, longitude=2))
+        track.segments.append(segment_1)
+        gpx.tracks.append(track)
+        
+        bounds = gpx.get_bounds()
+        self.assertEqual(bounds.min_latitude, 0) # type: ignore
+        self.assertEqual(bounds.max_latitude, 2) # type: ignore
+        self.assertEqual(bounds.min_longitude, 1) # type: ignore
+        self.assertEqual(bounds.max_longitude, 2) # type: ignore
+
     def test_bounds_xml(self) -> None:
         track = mod_gpx.GPX()
         track.bounds = mod_gpx.GPXBounds(1, 2, 3, 4)
