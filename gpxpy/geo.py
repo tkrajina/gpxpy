@@ -30,6 +30,16 @@ EARTH_RADIUS = 6378.137 * 1000
 # One degree in meters:
 ONE_DEGREE = (2*mod_math.pi*EARTH_RADIUS) / 360  # ==> 111.319 km
 
+HAVERSINE_THRESHOLD: float = .1
+"""
+Threshold for switching from equirectangular to haversine distance in ``distance()``
+when ``haversine=False``. If the absolute difference in latitude or longitude between
+two points exceeds this value (in degrees), the haversine formula is used; otherwise
+the equirectangular approximation is used.
+
+This is a public, user-tunable knob. Assigning a new value to it changes the behavior
+of :func:`distance` for the entire process.
+"""
 
 def haversine_distance(latitude_1: float, longitude_1: float, latitude_2: float, longitude_2: float) -> float:
     """
@@ -241,7 +251,7 @@ def distance(latitude_1: float, longitude_1: float, elevation_1: Optional[float]
     """
 
     # If points too distant -- compute haversine distance:
-    if haversine or (abs(latitude_1 - latitude_2) > .2 or abs(longitude_1 - longitude_2) > .2):
+    if haversine or (abs(latitude_1 - latitude_2) > HAVERSINE_THRESHOLD or abs(longitude_1 - longitude_2) > HAVERSINE_THRESHOLD):
         return haversine_distance(latitude_1, longitude_1, latitude_2, longitude_2)
 
     coef = mod_math.cos(mod_math.radians(latitude_1))
