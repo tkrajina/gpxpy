@@ -985,7 +985,7 @@ class GPXTrackSegment:
             if max_lon is None or point.longitude > max_lon:
                 max_lon = point.longitude
 
-        if not any([b is None for b in [min_lat, max_lat, min_lon, max_lon]]):
+        if mod_utils.is_numeric(min_lat) and mod_utils.is_numeric(max_lat) and mod_utils.is_numeric(min_lon) and mod_utils.is_numeric(max_lon):
             return GPXBounds(min_lat, max_lat, min_lon, max_lon)
         return None
 
