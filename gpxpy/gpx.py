@@ -193,6 +193,31 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 
+class AbstractGPX:
+    def __init__(self):
+        self.nsmap: Dict[str, str] = {}
+
+    def get_childs(self):
+        return []
+
+    def set_nsmap(self):
+        for child in self.get_childs():
+            child.nsmap = self.nsmap
+            child.set_nsmap()
+
+    def get_nsmap(self):
+        for child in self.get_childs():
+            child.get_nsmap()
+            self.nsmap.update(child.nsmap)
+
+    def sync_nsmap(self):
+        for child in self.get_childs():
+            child.sync_nsmap()
+            child.nsmap.update(self.nsmap)
+            self.nsmap.update(child.nsmap)
+            child.sync_nsmap()
+
+
 class GPXWaypoint(mod_geo.Location):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
@@ -508,7 +533,7 @@ class GPXRoute:
         return f'GPXRoute({", ".join(parts)})'
 
 
-class GPXTrackPoint(mod_geo.Location):
+class GPXTrackPoint(mod_geo.Location, AbstractGPX):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
@@ -518,7 +543,7 @@ class GPXTrackPoint(mod_geo.Location):
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'extensions')
+                 'link_type', 'extensions', 'nsmap')
 
     def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
                  time: Optional[mod_datetime.datetime]=None, symbol: Optional[str]=None, comment: Optional[str]=None,
@@ -548,6 +573,7 @@ class GPXTrackPoint(mod_geo.Location):
         self.age_of_dgps_data: Optional[float] = None
         self.dgps_id: Optional[int] = None
         self.extensions: List[Any] = []
+        AbstractGPX.__init__(self)
 
     def __repr__(self) -> str:
         parts = [f'{self.latitude}, {self.longitude}']
@@ -684,7 +710,7 @@ class GPXTrackPoint(mod_geo.Location):
     def __str__(self) -> str:
         return f'[trkpt:{self.latitude},{self.longitude}@{self.elevation}@{self.time}]'
 
-class GPXTrackSegment:
+class GPXTrackSegment(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXComplexField('points', tag='trkpt', classs=GPXTrackPoint, is_list=True),
     ]
@@ -693,11 +719,12 @@ class GPXTrackSegment:
             mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
     ]
 
-    __slots__ = ('points', 'extensions', )
+    __slots__ = ('points', 'extensions', 'nsmap')
 
     def __init__(self, points: Optional[List[GPXTrackPoint]]=None) -> None:
         self.points: List[GPXTrackPoint] = points if points else []
         self.extensions: List[Any] = []
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -808,6 +835,9 @@ class GPXTrackSegment:
                 yield point
             else:
                 yield point, point_no
+
+    def get_childs(self):
+        return self.points
 
     def get_points_no(self) -> int:
         """
@@ -1383,7 +1413,7 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 
-class GPXTrack:
+class GPXTrack(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
@@ -1413,7 +1443,7 @@ class GPXTrack:
 
     __slots__ = ('name', 'comment', 'description', 'source', 'link',
                  'link_text', 'number', 'segments', 'link_type', 'type',
-                 'extensions')
+                 'extensions', 'nsmap')
 
     def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
         self.name = name
@@ -1427,6 +1457,7 @@ class GPXTrack:
         self.link_type = None
         self.type = None
         self.extensions: List[Any] = [] # TODO
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -1498,6 +1529,9 @@ class GPXTrack:
             if d:
                 length += d
         return length
+
+    def get_childs(self):
+        return self.segments
 
     def get_time_bounds(self) -> TimeBounds:
         """
@@ -1916,7 +1950,7 @@ class GPXTrack:
         return f'GPXTrack({", ".join(parts)})'
 
 
-class GPX:
+class GPX(AbstractGPX):
     gpx_10_fields = [
             mod_gpxfield.GPXField('version', attribute='version'),
             mod_gpxfield.GPXField('creator', attribute='creator'),
@@ -2008,8 +2042,8 @@ class GPX:
         self.waypoints: List[GPXWaypoint] = []
         self.routes: List[GPXRoute] = []
         self.tracks: List[GPXTrack] = []
-        self.nsmap: Dict[str, str] = {}
         self.schema_locations: List[str] = []
+        AbstractGPX.__init__(self)
 
     def simplify(self, max_distance: Optional[float]=None) -> None:
         """
@@ -2112,6 +2146,9 @@ class GPX:
         if waypoints:
             for waypoint in self.waypoints:
                 waypoint.remove_elevation()
+
+    def get_childs(self):
+        return self.tracks
 
     def get_time_bounds(self) -> TimeBounds:
         """
@@ -2685,6 +2722,8 @@ class GPX:
         self.version = version
         if not self.creator:
             self.creator = 'gpx.py -- https://github.com/tkrajina/gpxpy'
+
+        self.get_nsmap()
 
         self.nsmap['xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
 
