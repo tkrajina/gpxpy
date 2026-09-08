@@ -1939,11 +1939,12 @@ class GPX:
     # '/tag'. Required dependents are preceded by an @. If a required
     # dependent is empty, nothing in the container will serialize. The
     # format is 'tag:@dep2'. No optional dependents need to be listed.
-    # Extensions not yet supported
     gpx_11_fields = [
             mod_gpxfield.GPXField('version', attribute='version'),
             mod_gpxfield.GPXField('creator', attribute='creator'),
-            'metadata:name:description:author_name:author_email:author_link:copyright_author:copyright_year:copyright_license:link:time:keywords:bounds',
+            ('metadata:name:description:author_name:author_email:author_link:'
+             'copyright_author:copyright_year:copyright_license:link:time:'
+             'keywords:bounds:metadata_extensions'),
                 mod_gpxfield.GPXField('name', 'name'),
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author:author_name:author_email:author_link',
