@@ -3187,6 +3187,52 @@ class GPXTests(mod_unittest.TestCase):
         print()
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[1], root2))
 
+    def test_extension_with_nested_default_namespace(self) -> None:
+        """
+        An extension element may declare its own default namespace that
+        is never mentioned anywhere else in the document, for instance a
+        Garmin gpx_style ``<line>`` block:
+
+            <extensions>
+              <line xmlns="http://www.topografix.com/GPX/gpx_style/0/2">
+                <color>000000</color>
+              </line>
+            </extensions>
+
+        Since that namespace has no prefix registered in the document's
+        nsmap, to_xml() used to fall back to writing the raw namespace
+        URI where a prefix belongs (``<http://.../line>``), which is not
+        well formed XML and cannot be reparsed. See issue #234.
+        """
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<gpx xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" creator="G7ToWin A.00.201 - May 28 2009 13:59" version="1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <trk>
+    <name>Track</name>
+    <extensions>
+      <line xmlns="http://www.topografix.com/GPX/gpx_style/0/2">
+        <color>000000</color>
+      </line>
+      <gpxx:TrackExtension>
+        <gpxx:DisplayColor>Black</gpxx:DisplayColor>
+      </gpxx:TrackExtension>
+    </extensions>
+  </trk>
+</gpx>""")
+
+        line_element = gpx.tracks[0].extensions[0]
+        self.assertEqual('000000', list(line_element)[0].text)
+
+        xml = gpx.to_xml()
+
+        # A tag or attribute name is never allowed to be a bare URI: that
+        # is what used to happen when a namespace had no known prefix.
+        self.assertNotIn('<http', xml)
+        self.assertNotIn(':http', xml)
+
+        reparsed = mod_gpxpy.parse(xml)
+        reparsed_line_element = reparsed.tracks[0].extensions[0]
+        self.assertEqual('000000', list(reparsed_line_element)[0].text)
+
     def test_write_read_extensions(self) -> None:
         namespace = '{gpx.py}'
         nsmap = {'ext' : namespace[1:-1]}
