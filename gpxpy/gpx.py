@@ -902,7 +902,7 @@ class GPXTrackSegment:
             if point.time and previous.time:
                 timedelta = point.time - previous.time
 
-                if point.elevation and previous.elevation:
+                if point.elevation is not None and previous.elevation is not None:
                     distance = point.distance_3d(previous)
                 else:
                     distance = point.distance_2d(previous)
@@ -1267,7 +1267,8 @@ class GPXTrackSegment:
         for i in range(len(self.points))[1:-1]:
             new_point = None
             point_removed = False
-            if vertical and elevations[i - 1] and elevations[i] and elevations[i + 1]:
+            if vertical and all(
+                    p.elevation is not None for p in self.points[i - 1:i + 2]):
                 old_elevation = self.points[i].elevation
                 new_elevation = SMOOTHING_RATIO[0] * elevations[i - 1] + \
                     SMOOTHING_RATIO[1] * elevations[i] + \
@@ -1370,7 +1371,7 @@ class GPXTrackSegment:
 
         found = 0
         for track_point in self.points:
-            if track_point.elevation:
+            if track_point.elevation is not None:
                 found += 1
 
         return len(self.points) > 2 and found / len(self.points) > .75

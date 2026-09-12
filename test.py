@@ -1407,6 +1407,50 @@ class GPXTests(mod_unittest.TestCase):
             gpx = mod_gpxpy.parse(f)
             self.assertFalse(gpx.has_elevations())
 
+    def test_zero_elevation_is_present(self) -> None:
+        segment = mod_gpx.GPXTrackSegment([
+            mod_gpx.GPXTrackPoint(0, 0, elevation=0) for _ in range(4)
+        ])
+        self.assertTrue(segment.has_elevations())
+        segment.points[1].elevation = None
+        self.assertFalse(segment.has_elevations())
+
+    def test_moving_data_with_zero_elevation(self) -> None:
+        start = mod_datetime.datetime(2024, 1, 1)
+        for first, second in [(0, 10), (10, 0), (0, -10), (-10, 0)]:
+            with self.subTest(first=first, second=second):
+                segment = mod_gpx.GPXTrackSegment([
+                    mod_gpx.GPXTrackPoint(0, 0, elevation=first, time=start),
+                    mod_gpx.GPXTrackPoint(
+                        0, 0, elevation=second,
+                        time=start + mod_datetime.timedelta(seconds=10),
+                    ),
+                ])
+                moving = segment.get_moving_data(raw=True)
+                assert moving is not None
+                self.assertEqual(moving.moving_distance, 10)
+                self.assertEqual(moving.moving_time, 10)
+
+    def test_vertical_smoothing_includes_zero_elevation(self) -> None:
+        segment = mod_gpx.GPXTrackSegment([
+            mod_gpx.GPXTrackPoint(0, 0, elevation=value)
+            for value in [0, 10, 0, 20, 30]
+        ])
+        segment.smooth()
+        self.assertEqual(
+            [point.elevation for point in segment.points], [0, 2, 12, 16, 30],
+        )
+
+    def test_vertical_smoothing_preserves_missing_elevation(self) -> None:
+        segment = mod_gpx.GPXTrackSegment([
+            mod_gpx.GPXTrackPoint(0, 0, elevation=value)
+            for value in [0, None, 10, 20]
+        ])
+        segment.smooth()
+        self.assertEqual(
+            [point.elevation for point in segment.points], [0, None, 10, 20],
+        )
+
     def test_has_elevation_true(self) -> None:
         with open('test_files/cerknicko-jezero.gpx') as f:
             gpx = mod_gpxpy.parse(f)
