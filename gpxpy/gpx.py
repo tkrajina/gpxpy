@@ -750,7 +750,7 @@ class GPXTrackSegment:
         for track_point in self.points:
             track_point.remove_elevation()
 
-    def length_2d(self) -> Optional[float]:
+    def length_2d(self) -> float:
         """
         Computes 2-dimensional length (meters) of segment (only latitude and
         longitude, no elevation).
