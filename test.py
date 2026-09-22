@@ -1737,6 +1737,41 @@ class GPXTests(mod_unittest.TestCase):
 
         gpx.simplify()
 
+    def test_simplify_closed_track_retains_farthest_point(self) -> None:
+        """Keep distant turning points when track endpoints coincide."""
+        for near, far in [
+                ((0.000001, 0), (0.01, 0)),
+                ((0, 0), (0.01, 0)),
+                ((0, 0.00001), (0.01, 0.000005)),
+                ((0, 0.000001), (0, 0.01))]:
+            with self.subTest(near=near, far=far):
+                points = [
+                    mod_gpx.GPXTrackPoint(latitude, longitude)
+                    for latitude, longitude in [(0, 0), near, far, (0, 0)]
+                ]
+                segment = mod_gpx.GPXTrackSegment(points)
+
+                segment.simplify(max_distance=10)
+
+                self.assertEqual(
+                    segment.points, [points[0], points[2], points[-1]])
+
+    def test_simplify_closed_track_within_tolerance(self) -> None:
+        """Reduce stationary and small closed tracks to their endpoints."""
+        for latitude in (0, 0.000001):
+            with self.subTest(latitude=latitude):
+                points = [
+                    mod_gpx.GPXTrackPoint(0, 0),
+                    mod_gpx.GPXTrackPoint(latitude, 0),
+                    mod_gpx.GPXTrackPoint(2 * latitude, 0),
+                    mod_gpx.GPXTrackPoint(0, 0),
+                ]
+                segment = mod_gpx.GPXTrackSegment(points)
+
+                segment.simplify(max_distance=10)
+
+                self.assertEqual(segment.points, [points[0], points[-1]])
+
     def test_nan_elevation(self) -> None:
         xml = '<?xml version="1.0" encoding="UTF-8"?><gpx> <wpt lat="12" lon="13"> <ele>nan</ele></wpt> <rte> <rtept lat="12" lon="13"> <ele>nan</ele></rtept></rte> <trk> <name/> <desc/> <trkseg> <trkpt lat="12" lon="13"> <ele>nan</ele></trkpt></trkseg></trk></gpx>'
         gpx = mod_gpxpy.parse(xml)
