@@ -6,10 +6,7 @@ Example File for gpxpy waypoints
 @author: Marcel verpaalen
 """
 
-import gpxpy
 import gpxpy.gpx
-
-from typing import *
 
 gpx = gpxpy.gpx.GPX()
 gpx.name = 'Aanlegplaatsen'

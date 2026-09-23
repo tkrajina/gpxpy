@@ -1,6 +1,7 @@
 import xml.dom.minidom as mod_minidom
 
-from typing import Any, AnyStr, Iterable
+from typing import Any, AnyStr
+from collections.abc import Iterable
 
 def split_gpxs(xml: AnyStr) -> Iterable[str]:
     """
