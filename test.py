@@ -45,6 +45,9 @@ import gpxpy.gpxfield as mod_gpxfield
 import gpxpy.parser as mod_parser
 import gpxpy.geo as mod_geo
 
+import test_empty_segment_has_times  # noqa: F401 -- registers regression tests for `python -m unittest test`
+from test_empty_segment_has_times import EmptySegmentHasTimesTests  # noqa: F401
+
 from gpxpy.utils import make_str
 from gpxpy.utils import total_seconds
 

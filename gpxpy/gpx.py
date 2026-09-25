@@ -1880,11 +1880,11 @@ class GPXTrack:
         if not self.segments:
             return False
 
+        result = True
         for track_segment in self.segments:
-            if track_segment.has_times():
-                return True
+            result = result and track_segment.has_times()
 
-        return False
+        return result
 
     def has_elevations(self) -> bool:
         """ Returns true if track data has elevation for all segments """
