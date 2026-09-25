@@ -3292,7 +3292,8 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(elements_equal(gpx.waypoints[0].extensions[0], root))
 
         print("Reading Metadata Extension")
-        self.assertTrue(elements_equal(gpx.metadata_extensions[0], root))
+        self.assertEqual(len(parsedgpx.metadata_extensions), 1)
+        self.assertTrue(elements_equal(parsedgpx.metadata_extensions[0], root))
 
         print("Reading GPX Extension")
         self.assertTrue(elements_equal(gpx.extensions[0], root))
@@ -3308,6 +3309,31 @@ class GPXTests(mod_unittest.TestCase):
 
         print("Reading Track Point Extension")
         self.assertTrue(elements_equal(gpx.tracks[0].segments[0].points[0].extensions[0], root))
+
+    def test_metadata_extensions_after_removing_name(self) -> None:
+        xml = '''<gpx version="1.1" creator="test"
+                 xmlns="http://www.topografix.com/GPX/1/1"
+                 xmlns:ext="https://example.com/gpx">
+          <metadata>
+            <name>Track name</name>
+            <extensions><ext:tag>value</ext:tag></extensions>
+          </metadata>
+        </gpx>'''
+        for prettyprint in (False, True):
+            with self.subTest(prettyprint=prettyprint):
+                gpx = mod_gpxpy.parse(xml)
+                gpx.name = None
+                reparsed_gpx = mod_gpxpy.parse(
+                    gpx.to_xml(prettyprint=prettyprint))
+                self.assertIsNone(reparsed_gpx.name)
+                self.assertEqual(len(reparsed_gpx.metadata_extensions), 1)
+                self.assertTrue(elements_equal(
+                    reparsed_gpx.metadata_extensions[0],
+                    gpx.metadata_extensions[0]))
+
+    def test_empty_metadata_is_not_serialized(self) -> None:
+        gpx = mod_gpx.GPX()
+        self.assertNotIn('<metadata', gpx.to_xml('1.1'))
 
     def test_no_10_extensions(self) -> None:
         namespace = '{gpx.py}'
