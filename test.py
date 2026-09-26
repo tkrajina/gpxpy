@@ -3706,5 +3706,12 @@ class GPXTests(mod_unittest.TestCase):
         self.assertAlmostEqual(waypoint_orig.longitude, waypoint.longitude)
         self.assertAlmostEqual(waypoint_orig.elevation, waypoint.elevation) # type: ignore
 
+def load_tests(loader: mod_unittest.TestLoader, tests: mod_unittest.TestSuite,
+               pattern: str) -> mod_unittest.TestSuite:
+    """ Include the standalone regression module in `python -m unittest test` """
+    import test_regressions
+    tests.addTests(loader.loadTestsFromModule(test_regressions))
+    return tests
+
 if __name__ == '__main__':
     mod_unittest.main()
