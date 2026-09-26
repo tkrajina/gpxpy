@@ -1106,7 +1106,7 @@ class GPXTrackSegment:
 
         dist = interval[-1].distance_3d(end)
         from_start_to_end = None
-        if dist:
+        if dist is not None:
             from_start_to_end = distances[-1] + dist
 
         assert len(interval) == len(distances)

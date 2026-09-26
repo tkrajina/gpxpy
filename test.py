@@ -1699,6 +1699,64 @@ class GPXTests(mod_unittest.TestCase):
                     self.assertTrue(point.time > previous_time)
             previous_time = point.time
 
+    def test_add_missing_data_with_duplicate_endpoint(self) -> None:
+        """Interpolate using the full distance when the final leg is zero."""
+        # Coordinates from the duplicate-point example in #262.
+        xml = """<gpx><trk><trkseg>
+            <trkpt lat="51.481570" lon="8.354584">
+                <ele>10</ele><time>2026-09-14T12:00:00Z</time>
+            </trkpt>
+            <trkpt lat="51.481573" lon="8.354575"/>
+            <trkpt lat="51.481573" lon="8.354575">
+                <ele>20</ele><time>2026-09-14T12:01:00Z</time>
+            </trkpt>
+        </trkseg></trk></gpx>"""
+        gpx = mod_gpxpy.parse(xml)
+        points = gpx.tracks[0].segments[0].points
+        start_time, end_time = points[0].time, points[-1].time
+
+        gpx.add_missing_times()
+        gpx.add_missing_elevations()
+
+        with self.subTest(data='time'):
+            self.assertEqual([p.time for p in points],
+                             [start_time, end_time, end_time])
+        with self.subTest(data='elevation'):
+            self.assertEqual([p.elevation for p in points], [10, 20, 20])
+
+    def test_add_missing_times_with_repeated_points(self) -> None:
+        """Keep cumulative ratios for repeated points and stationary tracks."""
+        cases = [
+            ([0, 1, 2, 2], [0, 30, 60, 60]),
+            ([0, 1, 2, 2, 2], [0, 30, 60, 60, 60]),
+            ([0, 1, 1, 2], [0, 30, 30, 60]),
+            ([0, 0, 1, 2], [0, 0, 30, 60]),
+            ([0, 0, 0], [0, 0, 60]),
+        ]
+        start_time = mod_datetime.datetime(2026, 9, 14, 12)
+        for latitudes, expected_seconds in cases:
+            with self.subTest(latitudes=latitudes):
+                points = [
+                    mod_gpx.GPXTrackPoint(latitude=lat * 0.001, longitude=0)
+                    for lat in latitudes
+                ]
+                points[0].time = start_time
+                points[-1].time = (
+                    start_time + mod_datetime.timedelta(seconds=60)
+                )
+                track = mod_gpx.GPXTrack()
+                track.segments.append(mod_gpx.GPXTrackSegment(points))
+                gpx = mod_gpx.GPX()
+                gpx.tracks.append(track)
+
+                gpx.add_missing_times()
+
+                expected_times = [
+                    start_time + mod_datetime.timedelta(seconds=seconds)
+                    for seconds in expected_seconds
+                ]
+                self.assertEqual([p.time for p in points], expected_times)
+
     def test_distance_from_line(self) -> None:
         d = mod_geo.distance_from_line(mod_geo.Location(1, 1),
                                        mod_geo.Location(0, -1),
