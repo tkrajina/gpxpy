@@ -124,4 +124,5 @@ class GPXParser:
             version = ""
 
         mod_gpxfield.gpx_fields_from_xml(self.gpx, root, version)
+        self.gpx.set_nsmap()
         return self.gpx
