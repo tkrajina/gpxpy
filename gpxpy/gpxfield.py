@@ -63,7 +63,9 @@ class SimpleTZ(mod_datetime.tzinfo):
     def tzname(self, dt: Optional[mod_datetime.datetime]) -> str:
         if self.offset == 0:
             return 'Z'
-        return f'{self.offset // 60:02}:{self.offset % 60:02}'
+        sign = '-' if self.offset < 0 else '+'
+        offset = abs(self.offset)
+        return f'{sign}{offset // 60:02}:{offset % 60:02}'
 
     def __copy__(self) -> mod_datetime.tzinfo:
         return self.__deepcopy__()
