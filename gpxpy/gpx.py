@@ -2670,6 +2670,87 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
+    def _iter_extension_elements(self) -> Iterator[Any]:
+        """
+        Yield every parsed extensions Element in this GPX document.
+
+        Extensions are attached at several places (the root document, its
+        metadata, waypoints, routes and their points, tracks and their
+        segments and points) and each stored Element may itself contain
+        child elements declaring their own namespace, so the whole subtree
+        of every extensions list is walked, not just its direct children.
+
+        Returns:
+            An iterator over every Element found, at any depth, in any
+            of this document's extensions lists.
+        """
+        def walk(elements: Iterable[Any]) -> Iterator[Any]:
+            for element in elements:
+                yield element
+                yield from walk(list(element))
+
+        yield from walk(self.extensions)
+        yield from walk(self.metadata_extensions)
+        for waypoint in self.waypoints:
+            yield from walk(waypoint.extensions)
+        for route in self.routes:
+            yield from walk(route.extensions)
+            for route_point in route.points:
+                yield from walk(route_point.extensions)
+        for track in self.tracks:
+            yield from walk(track.extensions)
+            for segment in track.segments:
+                yield from walk(segment.extensions)
+                for track_point in segment.points:
+                    yield from walk(track_point.extensions)
+
+    def _register_extension_namespaces(self) -> None:
+        """
+        Make sure every namespace used by an extension is in ``nsmap``.
+
+        Extension elements are parsed straight from the source document
+        with `xml.etree.ElementTree`, so their tags and attributes end up
+        in Clark notation (``{namespace}local``) whenever they carry a
+        namespace. `to_xml` only declares the namespaces already known
+        through ``nsmap`` on the ``<gpx>`` root element, so any namespace
+        used *inside* an extension but never seen anywhere else, most
+        commonly a child element that sets its own default namespace
+        such as ``<line xmlns="...">`` under ``<extensions>``, has no
+        prefix to be serialized with. Left alone, serialization falls
+        back to writing the raw namespace URI where a prefix belongs,
+        which is not well formed XML and cannot be parsed back.
+
+        This walks every extensions element in the document beforehand
+        and assigns a fresh ``nsN`` prefix, added to ``nsmap``, to every
+        namespace URI that is not already there, so `to_xml` can declare
+        it on the root element and serialize it correctly.
+        """
+        known_uris = set(self.nsmap.values())
+        used_prefixes = set(self.nsmap.keys())
+        next_index = 0
+
+        def register(uri: str) -> None:
+            nonlocal next_index
+            if not uri or uri in known_uris:
+                return
+            while f'ns{next_index}' in used_prefixes:
+                next_index += 1
+            prefix = f'ns{next_index}'
+            next_index += 1
+            self.nsmap[prefix] = uri
+            known_uris.add(uri)
+            used_prefixes.add(prefix)
+
+        for element in self._iter_extension_elements():
+            # A comment or processing instruction node has a callable
+            # (not string) tag, so it is skipped: neither carries a
+            # namespace worth registering.
+            qnames = [element.tag, *element.attrib.keys()]
+            for qname in qnames:
+                if isinstance(qname, str) and qname.startswith('{'):
+                    uri, _, _ = qname[1:].partition('}')
+                    register(uri)
+
     def to_xml(self, version: Optional[str]=None, prettyprint: bool=True) -> str:
         """
         FIXME: Note, this method will change self.version
@@ -2692,6 +2773,8 @@ class GPX:
         version_path = version.replace('.', '/')
 
         self.nsmap['defaultns'] = f'http://www.topografix.com/GPX/{version_path}'
+
+        self._register_extension_namespaces()
 
         if not self.schema_locations:
             self.schema_locations = [
