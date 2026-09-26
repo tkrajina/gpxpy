@@ -1170,6 +1170,19 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(segment_no, point_data.segment_no)
             self.assertEqual(point_no, point_data.point_no)
 
+    def test_segment_length_2d(self) -> None:
+        segment = mod_gpx.GPXTrackSegment()
+        empty_length: float = segment.length_2d()
+        self.assertEqual(empty_length, 0)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(0, 0))
+        single_point_length: float = segment.length_2d()
+        self.assertEqual(single_point_length, 0)
+
+        segment.points.append(mod_gpx.GPXTrackPoint(0, 1))
+        length: float = segment.length_2d()
+        self.assertAlmostEqual(length, 111319.49, places=2)
+
     def test_track_points_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
