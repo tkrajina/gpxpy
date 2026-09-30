@@ -3508,6 +3508,47 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(trcks, len(result_gpx.tracks))
         self.assertEqual(points, result_gpx.get_points_no())
 
+    def test_split_compact_gpx_xml_tracks(self) -> None:
+        """Splitting adjacent tracks preserves each track and shared metadata."""
+        for separator in ('', '\n'):
+            with self.subTest(separator=separator):
+                tracks = [
+                    f'<trk><name>{name}</name><trkseg><trkpt lat="0" lon="0"/></trkseg></trk>'
+                    for name in ('first', 'second', 'third')
+                ]
+                xml = ('<gpx version="1.1" creator="synthetic" '
+                       'xmlns="http://www.topografix.com/GPX/1/1">'
+                       '<metadata><name>shared metadata</name></metadata>'
+                       + separator.join(tracks) + '</gpx>')
+                split_xmls = list(mod_gpxxml.split_gpxs(xml))
+                self.assertEqual(3, len(split_xmls))
+                for name, split_xml in zip(('first', 'second', 'third'), split_xmls):
+                    split_gpx = mod_gpxpy.parse(split_xml)
+                    self.assertEqual([name], [track.name for track in split_gpx.tracks])
+                    self.assertEqual('shared metadata', split_gpx.name)
+
+    def test_join_compact_gpx_xml_preserves_all_children(self) -> None:
+        """Joining adjacent geometry children preserves all names and order."""
+        for separator in ('', '\n'):
+            with self.subTest(separator=separator):
+                xmls = []
+                for prefix in ('a', 'b'):
+                    children = []
+                    for tag in ('wpt', 'rte', 'trk'):
+                        attributes = ' lat="0" lon="0"' if tag == 'wpt' else ''
+                        for index in (1, 2):
+                            children.append(
+                                f'<{tag}{attributes}><name>{prefix}{index}</name></{tag}>'
+                            )
+                    xmls.append('<gpx version="1.1" creator="synthetic" '
+                                'xmlns="http://www.topografix.com/GPX/1/1">'
+                                + separator.join(children) + '</gpx>')
+                joined = mod_gpxpy.parse(mod_gpxxml.join_gpxs(xmls))
+                expected_names = ['a1', 'a2', 'b1', 'b2']
+                self.assertEqual(expected_names, [point.name for point in joined.waypoints])
+                self.assertEqual(expected_names, [route.name for route in joined.routes])
+                self.assertEqual(expected_names, [track.name for track in joined.tracks])
+
     def test_small_floats(self) -> None:
         """GPX 1/1 does not allow scientific notation but that is what gpxpy writes right now."""
         f = open('test_files/track-with-small-floats.gpx')
