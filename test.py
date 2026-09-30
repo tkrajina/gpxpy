@@ -1391,6 +1391,39 @@ class GPXTests(mod_unittest.TestCase):
         mod_logging.debug('max_speed_with_extreemes = %s', max_speed_with_extreemes)
         self.assertTrue(max_speed_with_more_extreemes - max_speed_with_extreemes > 10)
 
+    def test_route_elevation_calculations(self) -> None:
+        route = mod_gpx.GPXRoute()
+        route.points = [
+            mod_gpx.GPXRoutePoint(0, 0, elevation=0),
+            mod_gpx.GPXRoutePoint(0, 0, elevation=100),
+            mod_gpx.GPXRoutePoint(0, 0, elevation=0),
+        ]
+        self.assertEqual(route.length(), 0)
+        self.assertEqual(route.length_3d(), 200)
+        # Elevation gain/loss uses the same smoothing as track segments.
+        self.assertEqual(route.get_uphill_downhill(),
+                         mod_gpx.UphillDownhill(40, 40))
+
+    def test_route_missing_elevations(self) -> None:
+        route = mod_gpx.GPXRoute()
+        self.assertEqual(route.length_3d(), 0)
+        self.assertEqual(route.get_uphill_downhill(),
+                         mod_gpx.UphillDownhill(0, 0))
+        route.points = [mod_gpx.GPXRoutePoint(0, 0)]
+        self.assertEqual(route.length_3d(), 0)
+        self.assertEqual(route.get_uphill_downhill(),
+                         mod_gpx.UphillDownhill(0, 0))
+        route.points.append(mod_gpx.GPXRoutePoint(0, 0.001))
+        self.assertEqual(route.length_3d(), route.length())
+        self.assertEqual(route.get_uphill_downhill(),
+                         mod_gpx.UphillDownhill(0, 0))
+        route.points[0].elevation = 0
+        route.points.append(
+            mod_gpx.GPXRoutePoint(0, 0.002, elevation=100))
+        self.assertEqual(route.length_3d(), route.length())
+        self.assertEqual(route.get_uphill_downhill(),
+                         mod_gpx.UphillDownhill(100, 0))
+
     def test_track_with_elevation_zero(self) -> None:
         with open('test_files/cerknicko-jezero-with-elevations-zero.gpx') as f:
             gpx = mod_gpxpy.parse(f)
