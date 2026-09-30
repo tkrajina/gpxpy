@@ -5,13 +5,14 @@ from collections.abc import Iterable
 
 def split_gpxs(xml: AnyStr) -> Iterable[str]:
     """
-    Split tracks in multiple xml files, without gpxpy. Each one with ont <trk>.
+    Split tracks into multiple XML files, each with exactly one <trk>.
     """
     dom = mod_minidom.parseString(xml)
     gpx_node: Any = _find_gpx_node(dom)
     gpx_track_nodes = []
     if gpx_node:
-        for child_node in gpx_node.childNodes:
+        # childNodes is live; snapshot it before removing adjacent tracks.
+        for child_node in list(gpx_node.childNodes):
             if child_node.nodeName == 'trk':
                 gpx_track_nodes.append(child_node)
                 gpx_node.removeChild(child_node)
@@ -38,7 +39,8 @@ def join_gpxs(xmls: Iterable[AnyStr]) -> str:
 
         gpx_node = _find_gpx_node(dom)
         if gpx_node:
-            for child_node in gpx_node.childNodes:
+            # Do not skip siblings as removals mutate the live NodeList.
+            for child_node in list(gpx_node.childNodes):
                 if child_node.nodeName == 'wpt':
                     wpt_elements.append(child_node)
                     gpx_node.removeChild(child_node)

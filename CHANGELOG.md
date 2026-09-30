@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Preserve all adjacent waypoints, routes and tracks when joining compact GPX XML, and emit one file per track when splitting compact GPX XML.
+
 ## v1.6.1
 
 - Minor fix
