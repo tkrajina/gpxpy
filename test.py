@@ -633,6 +633,26 @@ class GPXTests(mod_unittest.TestCase):
         # Check that this split and joined track is the same as the original one:
         self.assertTrue(equals(track, original_track))
 
+    def test_join_with_explicit_segment_zero(self) -> None:
+        for first, second, expected in (
+                (1, 0, [[1, 0], [2]]),
+                (2, 0, [[1], [2, 0]]),
+                (0, 2, [[0, 2], [1]]),
+                (0, None, [[0, 1], [2]])):
+            with self.subTest(first=first, second=second):
+                track = mod_gpx.GPXTrack()
+                segments = []
+                for index in range(3):
+                    segment = mod_gpx.GPXTrackSegment()
+                    segment.points.append(mod_gpx.GPXTrackPoint(index, index))
+                    segments.append(segment)
+                track.segments = segments
+                track.join(first, second)
+                self.assertEqual(
+                    [[point.latitude for point in segment.points]
+                     for segment in track.segments], expected)
+                self.assertIs(track.segments[0 if first < 2 else 1], segments[first])
+
     def test_remove_point_from_segment(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
