@@ -249,6 +249,24 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 90)
         self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
 
+    def test_duration_skips_all_untimed_edges(self) -> None:
+        start = mod_datetime.datetime(2020, 1, 1, 12, 0, 0)
+        end = start + mod_datetime.timedelta(seconds=90)
+        segment = mod_gpx.GPXTrackSegment(points=[
+            mod_gpx.GPXTrackPoint(0, 0),
+            mod_gpx.GPXTrackPoint(0, 0),
+            mod_gpx.GPXTrackPoint(0, 0, time=start),
+            mod_gpx.GPXTrackPoint(0, 0, time=end),
+            mod_gpx.GPXTrackPoint(0, 0),
+            mod_gpx.GPXTrackPoint(0, 0),
+        ])
+        self.assertEqual(segment.get_duration(), 90)
+        segment.points.reverse()
+        self.assertIsNone(segment.get_duration())
+        for point in segment.points:
+            point.time = None
+        self.assertIsNone(segment.get_duration())
+
     def test_get_duration(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
