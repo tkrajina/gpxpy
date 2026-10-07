@@ -2691,12 +2691,13 @@ class GPX:
 
         version_path = version.replace('.', '/')
 
-        self.nsmap['defaultns'] = f'http://www.topografix.com/GPX/{version_path}'
+        gpx_namespace = f'http://www.topografix.com/GPX/{version_path}'
+        self.nsmap['defaultns'] = gpx_namespace
 
-        if not self.schema_locations:
-            self.schema_locations = [
-                f'http://www.topografix.com/GPX/{version_path}',
-                f'http://www.topografix.com/GPX/{version_path}/gpx.xsd',
+        if gpx_namespace not in self.schema_locations[::2]:
+            self.schema_locations[:0] = [
+                gpx_namespace,
+                f'{gpx_namespace}/gpx.xsd',
             ]
 
         content = mod_gpxfield.gpx_fields_to_xml(
