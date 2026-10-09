@@ -3474,6 +3474,63 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual("125", list(extensions[0])[0].text.strip())
             self.assertEqual("75", list(extensions[0])[1].text.strip())
 
+    def test_with_prefixed_gpx_namespace(self) -> None:
+        gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <ns2:gpx creator="Polar Access Manager" version="1.1"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+          xmlns="http://www.garmin.com/xmlschemas/TrackPointExtension/v2"
+          xmlns:ns2="http://www.topografix.com/GPX/1/1"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <ns2:trk>
+            <ns2:name>Foo Bar</ns2:name>
+            <ns2:trkseg>
+              <ns2:trkpt lat="51.43788929097354412078857421875" lon="6.617012657225131988525390625">
+                <ns2:ele>23.6000003814697265625</ns2:ele>
+                <ns2:time>2018-02-21T14:30:50.000Z</ns2:time>
+                <ns2:extensions>
+                  <ns3:TrackPointExtension xmlns:ns3="http://www.garmin.com/xmlschemas/TrackPointExtension/v2">
+                    <ns3:hr>125</ns3:hr>
+                  </ns3:TrackPointExtension>
+                </ns2:extensions>
+              </ns2:trkpt>
+            </ns2:trkseg>
+          </ns2:trk>
+        </ns2:gpx>""")
+
+        self.assertEqual("http://www.garmin.com/xmlschemas/TrackPointExtension/v2",
+                         gpx_with_ns.nsmap['defaultns'])
+        self.assertEqual("http://www.topografix.com/GPX/1/1", gpx_with_ns.nsmap['ns2'])
+
+        reparsed = mod_gpxpy.parse(gpx_with_ns.to_xml("1.1"))
+
+        for gpx in [gpx_with_ns, reparsed]:
+            self.assertEqual(1, len(gpx.tracks))
+            self.assertEqual("Foo Bar", gpx.tracks[0].name)
+            point = gpx.tracks[0].segments[0].points[0]
+            self.assertEqual(23.6000003814697265625, point.elevation)
+            extensions = point.extensions
+            self.assertEqual(1, len(extensions))
+            self.assertEqual("125", list(extensions[0])[0].text.strip())
+
+    def test_with_prefixed_gpx_elements(self) -> None:
+        gpx_with_ns = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx creator="Polar Access Manager" version="1.1"
+          xmlns="http://www.garmin.com/xmlschemas/TrackPointExtension/v2"
+          xmlns:ns2="http://www.topografix.com/GPX/1/1">
+          <ns2:trk>
+            <ns2:trkseg>
+              <ns2:trkpt lat="51.43" lon="6.61">
+                <ns2:ele>23.6</ns2:ele>
+              </ns2:trkpt>
+            </ns2:trkseg>
+          </ns2:trk>
+        </gpx>""")
+
+        self.assertEqual(1, len(gpx_with_ns.tracks))
+        self.assertEqual(1, len(gpx_with_ns.tracks[0].segments))
+        self.assertEqual(1, len(gpx_with_ns.tracks[0].segments[0].points))
+        self.assertEqual(23.6, gpx_with_ns.tracks[0].segments[0].points[0].elevation)
+
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
 
