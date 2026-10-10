@@ -1022,10 +1022,10 @@ class GPXTrackSegment:
         if speed_2:
             speed_2 = abs(speed_2)
 
-        if speed_1 and speed_2:
+        if speed_1 is not None and speed_2 is not None:
             return (speed_1 + speed_2) / 2
 
-        if speed_1:
+        if speed_1 is not None:
             return speed_1
 
         return speed_2
