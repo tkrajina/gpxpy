@@ -1332,6 +1332,15 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(loc1.elevation_angle(loc2, radians=True), mod_geo.elevation_angle(loc1, loc2, radians=True))
         self.assertEqual(loc1.elevation_angle(loc2, radians=False), mod_geo.elevation_angle(loc1, loc2, radians=False))
 
+    def test_angle_vertical(self) -> None:
+        start = mod_geo.Location(45, 45, elevation=100)
+        for elevation, degrees in ((110, 90), (90, -90), (100, 0)):
+            with self.subTest(elevation=elevation):
+                end = mod_geo.Location(45, 45, elevation=elevation)
+                self.assertEqual(mod_geo.elevation_angle(start, end), degrees)
+                self.assertEqual(start.elevation_angle(end), degrees)
+                self.assertEqual(start.elevation_angle(end, radians=True), mod_math.radians(degrees))
+
     def test_ignore_maximums_for_max_speed(self) -> None:
         gpx = mod_gpx.GPX()
 
