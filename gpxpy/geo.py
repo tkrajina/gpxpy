@@ -334,6 +334,7 @@ def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -
     # the points are too distant, but it should be good enough for most use
     # cases...
     a, b, c = get_line_equation_coefficients(begin, end)
+    coincident_endpoints = begin.latitude == end.latitude and begin.longitude == end.longitude
 
     # Initialize to safe values
     tmp_max_distance: float = 0
@@ -341,7 +342,9 @@ def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -
     
     # Check distance of all points between begin and end, exclusive
     for point_no, point in enumerate(points[1:-1], 1):
-        d = abs(a * point.latitude + b * point.longitude + c)
+        # A closed polyline has no baseline direction. Compare distances to
+        # the endpoint instead of projecting onto an arbitrary line.
+        d = (begin.distance_2d(point) or 0) if coincident_endpoints else abs(a * point.latitude + b * point.longitude + c)
         if d > tmp_max_distance:
             tmp_max_distance = d
             tmp_max_distance_position = point_no

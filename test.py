@@ -249,6 +249,27 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[0].elevation, 90)
         self.assertEqual(gpx.tracks[0].segments[0].points[1].elevation, None)
 
+    def test_simplify_closed_meridian_loop_preserves_excursion(self) -> None:
+        start = mod_gpx.GPXTrackPoint(0, 0)
+        far = mod_gpx.GPXTrackPoint(1, 0)
+        segment = mod_gpx.GPXTrackSegment(points=[
+            start, mod_gpx.GPXTrackPoint(0.000001, 0), far,
+            mod_gpx.GPXTrackPoint(0, 0),
+        ])
+        segment.simplify(max_distance=10)
+        self.assertIn(far, segment.points)
+        self.assertIs(segment.points[0], start)
+        self.assertEqual(segment.points[-1].latitude, 0)
+        self.assertGreater(segment.length_2d(), 200000)
+
+    def test_simplify_closed_loop_within_tolerance(self) -> None:
+        segment = mod_gpx.GPXTrackSegment(points=[
+            mod_gpx.GPXTrackPoint(0, 0), mod_gpx.GPXTrackPoint(0.000001, 0),
+            mod_gpx.GPXTrackPoint(0.000002, 0), mod_gpx.GPXTrackPoint(0, 0),
+        ])
+        segment.simplify(max_distance=10)
+        self.assertEqual(len(segment.points), 2)
+
     def test_duration_skips_all_untimed_edges(self) -> None:
         start = mod_datetime.datetime(2020, 1, 1, 12, 0, 0)
         end = start + mod_datetime.timedelta(seconds=90)
