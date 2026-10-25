@@ -1117,6 +1117,48 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(start_time, time_bounds.start_time)
         self.assertEqual(end_time, time_bounds.end_time)
 
+    def test_moving_data_counts_stationary_time(self) -> None:
+        start = mod_datetime.datetime(2020, 1, 1)
+        segment = mod_gpx.GPXTrackSegment([
+            mod_gpx.GPXTrackPoint(0, longitude, elevation=0,
+                                 time=start + mod_datetime.timedelta(seconds=seconds))
+            for longitude, seconds in [(0, 0), (0, 5), (0.001, 10), (0.001, 15)]
+        ])
+        track = mod_gpx.GPXTrack()
+        track.segments.append(segment)
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(track)
+
+        for source in (segment, track, gpx):
+            for raw in (False, True):
+                with self.subTest(source=type(source).__name__, raw=raw):
+                    moving = source.get_moving_data(raw=raw)
+                    assert moving is not None
+                    self.assertEqual(moving.stopped_time, 10)
+                    self.assertEqual(moving.moving_time, 5)
+                    self.assertEqual(moving.stopped_distance, 0)
+                    self.assertAlmostEqual(moving.moving_distance, segment.length_3d())
+
+    def test_moving_data_stationary_timestamps(self) -> None:
+        start = mod_datetime.datetime(2020, 1, 1)
+        cases: List[Tuple[List[Optional[int]], int]] = [
+            ([0, 5, 15], 15), ([None, 0, 0, -1], 0)]
+        for offsets, expected in cases:
+            with self.subTest(offsets=offsets):
+                segment = mod_gpx.GPXTrackSegment([
+                    mod_gpx.GPXTrackPoint(
+                        0, 0, time=None if offset is None else
+                        start + mod_datetime.timedelta(seconds=offset))
+                    for offset in offsets
+                ])
+                moving = segment.get_moving_data(raw=True)
+                assert moving is not None
+                self.assertEqual(moving.stopped_time, expected)
+                self.assertEqual(moving.moving_time, 0)
+                self.assertEqual(moving.stopped_distance, 0)
+                self.assertEqual(moving.moving_distance, 0)
+                self.assertEqual(moving.max_speed, 0)
+
     def test_named_tuples_values_moving_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 

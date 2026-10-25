@@ -912,15 +912,14 @@ class GPXTrackSegment:
                 if seconds > 0 and distance is not None:
                     # TODO: compute threshold in m/s instead this to kmh every time:
                     speed_kmh = (distance / 1000) / (seconds / 60 ** 2)
-                    if distance:
-                        if speed_kmh <= stopped_speed_threshold:
-                            stopped_time += seconds
-                            stopped_distance += distance
-                        else:
-                            moving_time += seconds
-                            moving_distance += distance
-                        if moving_time:
-                            speeds_and_distances.append((distance / seconds, distance, ))
+                    if speed_kmh <= stopped_speed_threshold:
+                        stopped_time += seconds
+                        stopped_distance += distance
+                    else:
+                        moving_time += seconds
+                        moving_distance += distance
+                    if distance and moving_time:
+                        speeds_and_distances.append((distance / seconds, distance, ))
 
         max_speed = None
         if speeds_and_distances:
