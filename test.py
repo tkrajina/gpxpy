@@ -3519,6 +3519,55 @@ class GPXTests(mod_unittest.TestCase):
         self.assertNotIn('e-', xml)
         f.close()
 
+    def test_fill_time_data_accepts_zero_interval(self) -> None:
+        start = mod_datetime.datetime(2026, 1, 1)
+        for use_end in (False, True):
+            with self.subTest(use_end=use_end):
+                gpx = mod_gpx.GPX()
+                track = mod_gpx.GPXTrack()
+                track.segments.append(mod_gpx.GPXTrackSegment([
+                    mod_gpx.GPXTrackPoint(0, i) for i in range(3)]))
+                gpx.tracks.append(track)
+                if use_end:
+                    gpx.fill_time_data_with_regular_intervals(
+                        end_time=start, time_delta=mod_datetime.timedelta(0))
+                else:
+                    gpx.fill_time_data_with_regular_intervals(
+                        start_time=start, time_delta=mod_datetime.timedelta(0))
+                self.assertEqual([point.time for point in gpx.walk(only_points=True)],
+                                 [start, start, start])
+                self.assertEqual(gpx.time, start)
+
+    def test_fill_time_data_single_point_matching_endpoints(self) -> None:
+        start = mod_datetime.datetime(2026, 1, 1)
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        point = mod_gpx.GPXTrackPoint(0, 0)
+        track.segments.append(mod_gpx.GPXTrackSegment([point]))
+        gpx.tracks.append(track)
+        gpx.fill_time_data_with_regular_intervals(start_time=start, end_time=start)
+        self.assertEqual(point.time, start)
+        self.assertEqual(gpx.time, start)
+
+    def test_fill_time_data_single_point_conflicting_endpoints(self) -> None:
+        start = mod_datetime.datetime(2026, 1, 1)
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        point = mod_gpx.GPXTrackPoint(0, 0)
+        track.segments.append(mod_gpx.GPXTrackSegment([point]))
+        gpx.tracks.append(track)
+        with self.assertRaises(mod_gpx.GPXException):
+            gpx.fill_time_data_with_regular_intervals(
+                start_time=start, end_time=start + mod_datetime.timedelta(seconds=1))
+        self.assertIsNone(point.time)
+
+    def test_fill_time_data_empty_tracks_do_not_infer_negative_interval(self) -> None:
+        start = mod_datetime.datetime(2026, 1, 1)
+        gpx = mod_gpx.GPX()
+        gpx.fill_time_data_with_regular_intervals(
+            end_time=start, time_delta=mod_datetime.timedelta(seconds=1))
+        self.assertEqual(gpx.time, start)
+
     def test_gpx_fill_time_data_with_start_time_and_end_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 

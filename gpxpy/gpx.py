@@ -2610,7 +2610,8 @@ class GPX:
         using start_time and end_time.
 
         The first GPX point will have a time equal to start_time. Then points are assumed to be recorded at regular
-        intervals time_delta.
+        intervals time_delta. A zero time_delta gives every point the same timestamp.
+        For a single point, start_time and end_time must be equal if both are provided.
 
         If the GPX file currently contains time data, it will be overwritten, unless the force flag is set to False, in
         which case the function will return a GPXException error.
@@ -2626,7 +2627,7 @@ class GPX:
         force: bool
             Overwrite current data if the GPX file currently contains time data
         """
-        if not (start_time and end_time) and not (start_time and time_delta) and not (time_delta and end_time):
+        if sum(value is not None for value in (start_time, time_delta, end_time)) < 2:
             raise GPXException('You must provide at least two parameters among start_time, time_step, and end_time')
 
         if self.has_times() and not force:
@@ -2634,12 +2635,15 @@ class GPX:
 
         point_no = self.get_points_no()
 
-        if start_time and end_time:
+        if start_time is not None and end_time is not None:
             if start_time > end_time:
                 raise GPXException('Invalid parameters: end_time must occur after start_time')
-            time_delta = (end_time - start_time) / (point_no - 1)
-        elif end_time and not start_time and time_delta:
-            start_time = end_time - (point_no - 1) * time_delta
+            if point_no == 1 and start_time != end_time:
+                raise GPXException('A single point must have the same start_time and end_time')
+            time_delta = ((end_time - start_time) / (point_no - 1)
+                          if point_no > 1 else mod_datetime.timedelta(0))
+        elif end_time is not None and start_time is None and time_delta is not None:
+            start_time = end_time - max(point_no - 1, 0) * time_delta
 
         if start_time:
             self.time = start_time
