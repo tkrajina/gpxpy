@@ -905,6 +905,28 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].segments[0].points[1].speed, 2.2)
         self.assertEqual(gpx.tracks[0].segments[0].points[2].speed, 3.2)
 
+    def test_get_speed_includes_stationary_neighbour(self) -> None:
+        start_time = mod_datetime.datetime(2026, 1, 1)
+        for stationary_before in (True, False):
+            with self.subTest(stationary_before=stationary_before):
+                longitudes = (0., 0., 0.001) if stationary_before else (0., 0.001, 0.001)
+                points = [mod_gpx.GPXTrackPoint(
+                    latitude=0., longitude=longitude,
+                    time=start_time + mod_datetime.timedelta(seconds=i))
+                    for i, longitude in enumerate(longitudes)]
+                segment = mod_gpx.GPXTrackSegment(points)
+                moving_speed = points[0].speed_between(points[-1])
+                self.assertIsNotNone(moving_speed)
+                self.assertAlmostEqual(segment.get_speed(1), moving_speed) # type: ignore
+
+    def test_get_speed_stationary_and_untimed_neighbour(self) -> None:
+        start_time = mod_datetime.datetime(2026, 1, 1)
+        points = [mod_gpx.GPXTrackPoint(latitude=0., longitude=0., time=start_time),
+                  mod_gpx.GPXTrackPoint(latitude=0., longitude=0.,
+                                       time=start_time + mod_datetime.timedelta(seconds=1)),
+                  mod_gpx.GPXTrackPoint(latitude=0., longitude=0.001)]
+        self.assertEqual(mod_gpx.GPXTrackSegment(points).get_speed(1), 0.)
+
     def test_speed_ignore_top_speed_percentiles(self) -> None:
         gpx = self.parse('cerknicko-jezero-with-elevations-zero.gpx')
 
