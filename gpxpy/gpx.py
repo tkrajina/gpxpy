@@ -1126,24 +1126,18 @@ class GPXTrackSegment:
         if not self.points or len(self.points) < 2:
             return 0.0
 
-        # Search for start:
-        first = self.points[0]
-        if not first.time:
-            first = self.points[1]
+        first_time = next((point.time for point in self.points if point.time is not None), None)
+        last_time = next((point.time for point in reversed(self.points) if point.time is not None), None)
 
-        last = self.points[-1]
-        if not last.time:
-            last = self.points[-2]
-
-        if not last.time or not first.time:
+        if first_time is None or last_time is None:
             log.debug('Can\'t find time')
             return None
 
-        if last.time < first.time:
+        if last_time < first_time:
             log.debug('Not enough time data')
             return None
 
-        return mod_utils.total_seconds(last.time - first.time)
+        return mod_utils.total_seconds(last_time - first_time)
 
     def get_uphill_downhill(self) -> UphillDownhill:
         """
