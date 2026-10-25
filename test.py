@@ -3644,6 +3644,33 @@ class GPXTests(mod_unittest.TestCase):
         with open('test_files/custom_schema_locations.gpx') as f:
             self.assertEqual(gpx.to_xml(), f.read())
 
+    def test_appended_extension_schema_locations(self) -> None:
+        extension_schema = [
+            'http://www.garmin.com/xmlschemas/GpxExtensions/v3',
+            'http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd',
+        ]
+        for version in ('1.0', '1.1'):
+            with self.subTest(version=version):
+                gpx = mod_gpx.GPX()
+                gpx.schema_locations += extension_schema
+                version_path = version.replace('.', '/')
+                expected = [
+                    f'http://www.topografix.com/GPX/{version_path}',
+                    f'http://www.topografix.com/GPX/{version_path}/gpx.xsd',
+                ] + extension_schema
+                xml = gpx.to_xml(version=version)
+                self.assertEqual(expected, gpx.schema_locations)
+                self.assertIn('xsi:schemaLocation="' + ' '.join(expected) + '"', xml)
+                self.assertEqual(xml, gpx.to_xml(version=version))
+
+    def test_custom_gpx_schema_location_is_preserved(self) -> None:
+        gpx = mod_gpx.GPX()
+        custom = ['http://www.topografix.com/GPX/1/1', 'https://example.com/custom-gpx.xsd']
+        gpx.schema_locations = custom[:]
+        xml = gpx.to_xml()
+        self.assertEqual(custom, gpx.schema_locations)
+        self.assertIn('xsi:schemaLocation="' + ' '.join(custom) + '"', xml)
+
     def test_parse_custom_schema_locations(self) -> None:
         gpx = self.parse('custom_schema_locations.gpx')
         self.assertEqual(
