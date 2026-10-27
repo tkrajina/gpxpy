@@ -1642,7 +1642,7 @@ class GPXTrack:
             provided,the join will be with the next segment after
             track_segment_no.
         """
-        if not track_segment_no_2:
+        if track_segment_no_2 is None:
             track_segment_no_2 = track_segment_no + 1
 
         if track_segment_no_2 >= len(self.segments):
