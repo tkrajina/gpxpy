@@ -272,10 +272,10 @@ def elevation_angle(location1: "Location", location2: "Location", radians: bool=
     b = location2.elevation - location1.elevation
     a = location2.distance_2d(location1)
 
-    if not a:
+    if a is None:
         return 0
 
-    angle = mod_math.atan(b / a)
+    angle = mod_math.atan2(b, a)
     
     return angle if radians else mod_math.degrees(angle)
 
