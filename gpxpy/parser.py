@@ -87,23 +87,27 @@ class GPXParser:
             GPXException: XML is valid but GPX data contains errors
 
         """
-        # Build prefix map for reserialization and extension handlings
-        for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
-            prefix, _, URI = namespace[6:].partition('=')
+        # Build prefix map for reserialization and extension handlings.
+        # Attribute values may be quoted with either single or double
+        # quotes and may span several lines (re.DOTALL).
+        for namespace in mod_re.finditer(
+                r"""\sxmlns:?[^=]*=(["'])(.+?)\1""", self.xml, mod_re.DOTALL):
+            prefix = namespace.group(0)[6:].partition('=')[0]
+            URI = namespace.group(2)
             prefix = prefix.lstrip(':')
             if prefix == '':
                 prefix = 'defaultns'  # alias default for easier handling
             else:
                 if prefix.startswith("ns"):
-                    mod_etree.register_namespace("noglobal_" + prefix, URI.strip('"'))
+                    mod_etree.register_namespace("noglobal_" + prefix, URI)
                 else:
-                    mod_etree.register_namespace(prefix, URI.strip('"'))
-            self.gpx.nsmap[prefix] = URI.strip('"')
+                    mod_etree.register_namespace(prefix, URI)
+            self.gpx.nsmap[prefix] = URI
 
-        schema_loc = mod_re.search(r'\sxsi:schemaLocation="[^"]+"', self.xml)
+        schema_loc = mod_re.search(
+            r"""\sxsi:schemaLocation=(["'])(.+?)\1""", self.xml, mod_re.DOTALL)
         if schema_loc:
-            _, _, value = schema_loc.group(0).partition('=')
-            self.gpx.schema_locations = value.strip('"').split()
+            self.gpx.schema_locations = schema_loc.group(2).split()
 
         # Remove default namespace to simplify processing later
         self.xml = mod_re.sub(r"""\sxmlns=(['"])[^'"]+\1""", '', self.xml, count=1)
