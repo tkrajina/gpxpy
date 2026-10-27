@@ -1279,7 +1279,13 @@ class GPXTrackSegment:
 
                     # TODO: Remove extremes threshold is meant only for 2D, elevation must be
                     # computed in different way!
-                    if min(d1, d2) < remove_elevation_extremes_threshold and abs((old_elevation or 0) - (new_elevation or 0)) < remove_2d_extremes_threshold:
+                    # Flat elevation is not an outlier at a zero threshold.
+                    elevation_change = abs(
+                        (old_elevation or 0) - (new_elevation or 0))
+                    if (d1 == 0 and d2 == 0) or (
+                            min(d1, d2) < remove_elevation_extremes_threshold
+                            and elevation_change < remove_2d_extremes_threshold
+                    ):
                         new_point = self.points[i]
                     else:
                         #print 'removed elevation'

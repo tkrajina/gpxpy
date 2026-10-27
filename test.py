@@ -728,6 +728,26 @@ class GPXTests(mod_unittest.TestCase):
 
         self.assertTrue(points_before - 2 == points_after)
 
+    def test_remove_extremes_preserves_flat_elevation(self) -> None:
+        for elevation in (0., 100., 12.3):
+            for moving in (False, True):
+                for horizontal in (False, True):
+                    with self.subTest(elevation=elevation, moving=moving,
+                                      horizontal=horizontal):
+                        points = [mod_gpx.GPXTrackPoint(
+                            latitude=45.,
+                            longitude=10. + (i * .001 if moving else 0),
+                            elevation=elevation,
+                            time=mod_datetime.datetime(2026, 1, 1, 0, 0, i),
+                        ) for i in range(5)]
+                        segment = mod_gpx.GPXTrackSegment(points=points[:])
+                        segment.smooth(vertical=True, horizontal=horizontal,
+                                       remove_extremes=True)
+                        self.assertEqual(len(segment.points), len(points))
+                        for actual, original in zip(segment.points, points):
+                            self.assertIs(actual, original)
+                            self.assertEqual(actual.elevation, elevation)
+
     def test_vertical_smooth_remove_extremes(self) -> None:
         with open('test_files/track-with-extremes.gpx') as f:
             parser = mod_parser.GPXParser(f)
