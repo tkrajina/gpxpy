@@ -879,7 +879,7 @@ class GPXTrackSegment:
             max_speed : float
                 Maximum speed (m/s) during the segment.
         """
-        if not stopped_speed_threshold:
+        if stopped_speed_threshold is None:
             stopped_speed_threshold = DEFAULT_STOPPED_SPEED_THRESHOLD
 
         if raw:

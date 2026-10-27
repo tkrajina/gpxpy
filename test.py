@@ -1135,6 +1135,39 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(start_time, time_bounds.start_time)
         self.assertEqual(end_time, time_bounds.end_time)
 
+    def test_zero_stopped_speed_threshold(self) -> None:
+        """Honor zero thresholds through segment, track, and GPX APIs."""
+        start = mod_datetime.datetime(2020, 1, 1)
+        segment = mod_gpx.GPXTrackSegment([
+            mod_gpx.GPXTrackPoint(0, 0, time=start),
+            mod_gpx.GPXTrackPoint(
+                0, 0.000001, time=start + mod_datetime.timedelta(seconds=1)),
+        ])
+        track = mod_gpx.GPXTrack()
+        track.segments.append(segment)
+        gpx = mod_gpx.GPX()
+        gpx.tracks.append(track)
+
+        for source in (segment, track, gpx):
+            with self.subTest(source=type(source).__name__):
+                moving = source.get_moving_data(
+                    stopped_speed_threshold=0, raw=True)
+                assert moving is not None
+                self.assertEqual(moving.moving_time, 1)
+                self.assertEqual(moving.stopped_time, 0)
+                self.assertAlmostEqual(
+                    moving.moving_distance, segment.length_2d())
+                self.assertEqual(moving.stopped_distance, 0)
+                self.assertAlmostEqual(moving.max_speed, segment.length_2d())
+
+                default = source.get_moving_data(raw=True)
+                explicit_default = source.get_moving_data(
+                    stopped_speed_threshold=1, raw=True)
+                self.assertEqual(default, explicit_default)
+                assert default is not None
+                self.assertEqual(default.moving_time, 0)
+                self.assertEqual(default.stopped_time, 1)
+
     def test_named_tuples_values_moving_data(self) -> None:
         gpx = self.parse('korita-zbevnica.gpx')
 
