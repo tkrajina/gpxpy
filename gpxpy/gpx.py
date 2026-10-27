@@ -422,6 +422,20 @@ class GPXRoute:
         """
         return mod_geo.length_2d(cast(List[mod_geo.Location], self.points))
 
+    def length_3d(self) -> float:
+        """Return route length in meters, including available elevation data."""
+        return mod_geo.length_3d(
+            cast(List[mod_geo.Location], self.points))
+
+    def get_uphill_downhill(self) -> UphillDownhill:
+        """Return smoothed uphill and downhill elevation changes in meters.
+
+        Missing elevations are ignored, as for track segments.
+        """
+        elevations = [point.elevation for point in self.points]
+        uphill, downhill = mod_geo.calculate_uphill_downhill(elevations)
+        return UphillDownhill(uphill, downhill)
+
     def get_center(self) -> Optional[mod_geo.Location]:
         """
         Get the center of the route.

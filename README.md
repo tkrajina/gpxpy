@@ -33,6 +33,8 @@ for waypoint in gpx.waypoints:
 
 for route in gpx.routes:
     print('Route:')
+    print('3D length:', route.length_3d())
+    print('Elevation gain/loss:', route.get_uphill_downhill())
     for point in route.points:
         print(f'Point at ({point.latitude},{point.longitude}) -> {point.elevation}')
 
