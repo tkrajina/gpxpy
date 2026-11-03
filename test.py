@@ -2807,6 +2807,17 @@ class GPXTests(mod_unittest.TestCase):
         gpx_2 = mod_gpxpy.parse(gpx.to_xml())
         self.assertTrue('<test>Test&lt;a&gt;jkljkl&lt;/gpx&gt;</test>' in gpx_2.to_xml())
         self.assertTrue('&lt;&amp;tail&gt;' in gpx_2.to_xml())
+
+    def test_extension_attribute_round_trip(self) -> None:
+        gpx = mod_gpxpy.parse(
+            '<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1" '
+            'xmlns:ext="urn:route-info"><extensions>'
+            '<ext:link href="https://example.org/map?lat=1&amp;lon=2" '
+            'label="&quot;Rider&apos;s &lt;route&gt;&quot;&#9;&#10;&#13;" />'
+            '</extensions></gpx>'
+        )
+        reparsed = mod_gpxpy.parse(gpx.to_xml())
+        self.assertEqual(reparsed.extensions[0].attrib, gpx.extensions[0].attrib)
         
 
     def test_10_to_11_conversion(self) -> None:

@@ -397,7 +397,7 @@ class GPXExtensionsField(AbstractGPXField):
         result.append(f'\n{indent}<{prefixedname}')
         for attrib, value in node.attrib.items():
             attrib = self._resolve_prefix(attrib, nsmap)
-            result.append(f' {attrib}="{value}"')
+            result.append(f' {attrib}={mod_saxutils.quoteattr(value)}')
         result.append('>')
         if node.text is not None:
             result.append(mod_saxutils.escape(node.text).strip())
