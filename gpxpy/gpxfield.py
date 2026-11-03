@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import inspect as mod_inspect
 import datetime as mod_datetime
 import re as mod_re
 import copy as mod_copy
@@ -398,7 +397,7 @@ class GPXExtensionsField(AbstractGPXField):
         result.append(f'\n{indent}<{prefixedname}')
         for attrib, value in node.attrib.items():
             attrib = self._resolve_prefix(attrib, nsmap)
-            result.append(f' {attrib}="{value}"')
+            result.append(f' {attrib}={mod_saxutils.quoteattr(value)}')
         result.append('>')
         if node.text is not None:
             result.append(mod_saxutils.escape(node.text).strip())
@@ -556,17 +555,28 @@ def gpx_fields_to_xml(instance: Any, tag: str, version: str, custom_attributes: 
     return ''.join(body)
 
 
-def gpx_fields_from_xml(class_or_instance: Any, node: Any, version: str) -> Any:
-    if mod_inspect.isclass(class_or_instance):
-        result = class_or_instance()
-    else:
-        result = class_or_instance
+class _GPXModel(Protocol):
+    gpx_10_fields: List[Any]
+    gpx_11_fields: List[Any]
+    __slots__: ClassVar[Sequence[str]]
+
+
+_ModelT = TypeVar('_ModelT', bound=_GPXModel)
+
+
+class _XMLNode(Protocol):
+    def find(self, path: str, /) -> Optional['_XMLNode']: ...
+
+
+def gpx_fields_from_xml(class_or_instance: Union[type[_ModelT], _ModelT],
+                        node: _XMLNode, version: str) -> _ModelT:
+    result = class_or_instance() if isinstance(class_or_instance, type) else class_or_instance
 
     fields = result.gpx_10_fields
     if version == '1.1':
         fields = result.gpx_11_fields
 
-    node_path: List[Union[str, int]] = [node]
+    node_path: List[Optional[_XMLNode]] = [node]
 
     for gpx_field in fields:
         current_node = node_path[-1]
@@ -578,7 +588,7 @@ def gpx_fields_from_xml(class_or_instance: Any, node: Any, version: str) -> Any:
                 if current_node is None:
                     node_path.append(None)
                 else:
-                    node_path.append(cast(str, current_node).find(gpx_field))
+                    node_path.append(current_node.find(gpx_field))
         else:
             if current_node is not None:
                 value = gpx_field.from_xml(current_node, version)
@@ -589,12 +599,12 @@ def gpx_fields_from_xml(class_or_instance: Any, node: Any, version: str) -> Any:
 
     return result
 
-def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
+def gpx_check_slots_and_default_values(classs: type[_GPXModel]) -> None:
     """
     Will fill the default values for this class. Instances will inherit those
     values so we don't need to fill default values for every instance.
     """
-    fields = classs.gpx_10_fields + classs.gpx_11_fields # type: ignore
+    fields = classs.gpx_10_fields + classs.gpx_11_fields
 
     instance = classs()
 

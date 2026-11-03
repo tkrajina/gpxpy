@@ -425,8 +425,8 @@ class GPXTests(mod_unittest.TestCase):
                 nearest_loc_info =test_nearest_part( gpx, loc)
                 location=nearest_loc_info.location
                 point = gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no].points[nearest_loc_info.point_no]
-                self.assertTrue(point.distance_2d(location) < 0.001) # type: ignore
-                self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001) # type: ignore
+                self.assertTrue(point.distance_2d(location) < 0.001)
+                self.assertTrue(point.distance_2d(nearest_loc_info.location) < 0.001)
                 test_nearest_part( gpx.tracks[nearest_loc_info.track_no], loc)
                 test_nearest_part( gpx.tracks[nearest_loc_info.track_no].segments[nearest_loc_info.segment_no], loc)
             
@@ -676,6 +676,11 @@ class GPXTests(mod_unittest.TestCase):
         distance = mod_geo.distance(48.56806, 21.43467, None, 48.599214, 21.430878, False)
         print(distance)
         self.assertTrue(3450 < distance < 3500)
+
+    def test_distance_to_missing_location(self) -> None:
+        location = mod_geo.Location(0, 0)
+        self.assertIsNone(location.distance_2d(None))
+        self.assertIsNone(location.distance_3d(None))
 
     def test_haversine_and_nonhaversine(self) -> None:
         haversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=True)
@@ -1295,7 +1300,7 @@ class GPXTests(mod_unittest.TestCase):
         loc2 = mod_geo.Location(0, 1)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + loc1.distance_2d(loc2) # type: ignore
+        loc2.elevation = loc1.elevation + loc1.distance_2d(loc2)
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -1308,7 +1313,7 @@ class GPXTests(mod_unittest.TestCase):
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + 0.5 * loc1.distance_2d(loc2) # type: ignore
+        loc2.elevation = loc1.elevation + 0.5 * loc1.distance_2d(loc2)
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -1321,7 +1326,7 @@ class GPXTests(mod_unittest.TestCase):
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation + 1.5 * loc1.distance_2d(loc2) # type: ignore
+        loc2.elevation = loc1.elevation + 1.5 * loc1.distance_2d(loc2)
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -1334,7 +1339,7 @@ class GPXTests(mod_unittest.TestCase):
         loc2 = mod_geo.Location(46, 45)
 
         loc1.elevation = 100
-        loc2.elevation = loc1.elevation - loc1.distance_2d(loc2) # type: ignore
+        loc2.elevation = loc1.elevation - loc1.distance_2d(loc2)
 
         angle_radians = mod_geo.elevation_angle(loc1, loc2, radians=True)
         angle_degrees = mod_geo.elevation_angle(loc1, loc2, radians=False)
@@ -2054,7 +2059,7 @@ class GPXTests(mod_unittest.TestCase):
         for angle in angles:
             new_location = location + mod_geo.LocationDelta(angle=angle, distance=distance)
             # All locations same distance from center
-            self.assertTrue(almostEqual(location.distance_2d(new_location), distance)) # type: ignore
+            self.assertTrue(almostEqual(location.distance_2d(new_location), distance))
             if previous_location:
                 distances_between_points.append(new_location.distance_2d(previous_location))
             previous_location = new_location
@@ -2802,6 +2807,17 @@ class GPXTests(mod_unittest.TestCase):
         gpx_2 = mod_gpxpy.parse(gpx.to_xml())
         self.assertTrue('<test>Test&lt;a&gt;jkljkl&lt;/gpx&gt;</test>' in gpx_2.to_xml())
         self.assertTrue('&lt;&amp;tail&gt;' in gpx_2.to_xml())
+
+    def test_extension_attribute_round_trip(self) -> None:
+        gpx = mod_gpxpy.parse(
+            '<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1" '
+            'xmlns:ext="urn:route-info"><extensions>'
+            '<ext:link href="https://example.org/map?lat=1&amp;lon=2" '
+            'label="&quot;Rider&apos;s &lt;route&gt;&quot;&#9;&#10;&#13;" />'
+            '</extensions></gpx>'
+        )
+        reparsed = mod_gpxpy.parse(gpx.to_xml())
+        self.assertEqual(reparsed.extensions[0].attrib, gpx.extensions[0].attrib)
         
 
     def test_10_to_11_conversion(self) -> None:

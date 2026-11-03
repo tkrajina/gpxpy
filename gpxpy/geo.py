@@ -375,7 +375,13 @@ class Location:
         """ Remove the elevation data from this location."""
         self.elevation = None
 
-    def distance_2d(self, location: "Location") -> Optional[float]:
+    @overload
+    def distance_2d(self, location: "Location") -> float: ...
+
+    @overload
+    def distance_2d(self, location: None) -> None: ...
+
+    def distance_2d(self, location: Optional["Location"]) -> Optional[float]:
         """
         Calculate the distance between self and location in meters.
         Does not take elevation in account.
@@ -383,19 +389,25 @@ class Location:
         Parameters
         ----------
         location: Location
-            Location to calculate the distance to.
+            Location to calculate the distance to. If None, the result is None.
 
         Returns
         ----------
         distance : float
             Distance returned in meters.
         """
-        if not location:
+        if location is None:
             return None
 
         return distance(self.latitude, self.longitude, None, location.latitude, location.longitude, None)
 
-    def distance_3d(self, location: "Location") -> Optional[float]:
+    @overload
+    def distance_3d(self, location: "Location") -> float: ...
+
+    @overload
+    def distance_3d(self, location: None) -> None: ...
+
+    def distance_3d(self, location: Optional["Location"]) -> Optional[float]:
         """
         Calculate the distance between self and location in meters.
         Takes elevation in account.
@@ -403,14 +415,14 @@ class Location:
         Parameters
         ----------
         location: Location
-            Location to calculate the distance to.
+            Location to calculate the distance to. If None, the result is None.
 
         Returns
         ----------
         distance : float
             Distance returned in meters.
         """
-        if not location:
+        if location is None:
             return None
 
         return distance(self.latitude, self.longitude, self.elevation, location.latitude, location.longitude, location.elevation)
