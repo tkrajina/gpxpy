@@ -1063,9 +1063,9 @@ class GPXTrackSegment:
             the point after them (with data), and distance ratios between points in the interval (the sum of distances ratios
             will be 1)
         """
-        if not get_data_function:
+        if not callable(get_data_function):
             raise GPXException(f'Invalid get_data_function: {get_data_function}')
-        if not add_missing_function:
+        if not callable(add_missing_function):
             raise GPXException(f'Invalid add_missing_function: {add_missing_function}')
 
         # Points (*without* data) between two points (*with* data):
@@ -1215,9 +1215,8 @@ class GPXTrackSegment:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Return the (location, track_point_no) on this track segment """
-        return min((NearestLocationData(pt, -1, -1, pt_no) for (pt, pt_no) in self.walk()) # type: ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
-                   ,default=None)
+        return min((NearestLocationData(pt, -1, -1, pt_no) for pt, pt_no in self.walk()),
+                   key=lambda x: x.location.distance_2d(location), default=None)
 
     def smooth(self, vertical: bool=True, horizontal: bool=False, remove_extremes: bool=False) -> None:
         """ "Smooths" the elevation graph. Can be called multiple times. """
@@ -1893,9 +1892,8 @@ class GPXTrack:
 
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_segment_no, track_point_no) for nearest location on track """
-        return min((NearestLocationData(pt, -1, seg, pt_no) for (pt, seg, pt_no) in self.walk()) # type: ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
-                   ,default=None)
+        return min((NearestLocationData(pt, -1, seg, pt_no) for pt, seg, pt_no in self.walk()),
+                   key=lambda x: x.location.distance_2d(location), default=None)
         
     def clone(self) -> "GPXTrack":
         return mod_copy.deepcopy(self)
@@ -2429,7 +2427,7 @@ class GPX:
         Returns a list of tuples containing the actual point, its distance from the start,
         track_no, segment_no, and segment_point_no
         """
-        distance_from_start = 0
+        distance_from_start: float = 0
         previous_point = None
 
         # (point, distance_from_start) pairs:
@@ -2509,9 +2507,8 @@ class GPX:
     def get_nearest_location(self, location: mod_geo.Location) -> Optional[NearestLocationData]:
         """ Returns (location, track_no, track_segment_no, track_point_no) for the
         nearest location on map """
-        return min((NearestLocationData(pt, tr, seg, pt_no) for (pt,tr, seg, pt_no) in self.walk()) # type:ignore
-                   ,key=lambda x: x.location.distance_2d(location) if x is not None else mod_math.inf
-                   ,default=None)
+        return min((NearestLocationData(pt, tr, seg, pt_no) for pt, tr, seg, pt_no in self.walk()),
+                   key=lambda x: x.location.distance_2d(location), default=None)
 
     def add_elevation(self, delta: float) -> None:
         """

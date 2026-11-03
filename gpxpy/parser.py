@@ -65,7 +65,7 @@ class GPXParser:
                 formatted xml
 
         """
-        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file # type: ignore
+        text = xml_or_file.read() if hasattr(xml_or_file, 'read') else xml_or_file
         if isinstance(text, bytes):
             text = text.decode()
         self.xml = mod_utils.make_str(cast(str, text))
