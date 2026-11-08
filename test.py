@@ -3712,6 +3712,185 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(original_point.extensions[0].tag, reparsed_point.extensions[0].tag)
             self.assertEqual(original_point.extensions[0].attrib, reparsed_point.extensions[0].attrib)
 
+    def test_waypoint_extension_namespaces(self) -> None:
+        """
+        Waypoints with extensions copied into a new gpx object must be
+        serialized with a declared namespace prefix.
+        """
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:ext="http://example.com/ext">
+          <wpt lat="48.1" lon="11.1">
+            <extensions><ext:foo a="1"/></extensions>
+          </wpt>
+        </gpx>""")
+
+        merged = mod_gpx.GPX()
+        merged.waypoints.extend(gpx.waypoints)
+
+        xml = merged.to_xml()
+
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        self.assertEqual(1, len(reparsed.waypoints))
+        self.assertEqual(1, len(reparsed.waypoints[0].extensions))
+        self.assertEqual('{http://example.com/ext}foo', reparsed.waypoints[0].extensions[0].tag)
+        self.assertEqual('1', reparsed.waypoints[0].extensions[0].attrib['a'])
+
+    def test_route_extension_namespaces(self) -> None:
+        """
+        Routes and route points with extensions copied into a new gpx object
+        must be serialized with a declared namespace prefix.
+        """
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:ext="http://example.com/ext">
+          <rte>
+            <name>Route</name>
+            <extensions><ext:bar b="2"/></extensions>
+            <rtept lat="48.1" lon="11.1">
+              <extensions><ext:baz c="3"/></extensions>
+            </rtept>
+          </rte>
+        </gpx>""")
+
+        merged = mod_gpx.GPX()
+        merged.routes.extend(gpx.routes)
+
+        xml = merged.to_xml()
+
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        self.assertEqual(1, len(reparsed.routes))
+        self.assertEqual(1, len(reparsed.routes[0].extensions))
+        self.assertEqual('{http://example.com/ext}bar', reparsed.routes[0].extensions[0].tag)
+        self.assertEqual('2', reparsed.routes[0].extensions[0].attrib['b'])
+
+        self.assertEqual(1, len(reparsed.routes[0].points))
+        self.assertEqual(1, len(reparsed.routes[0].points[0].extensions))
+        self.assertEqual('{http://example.com/ext}baz', reparsed.routes[0].points[0].extensions[0].tag)
+        self.assertEqual('3', reparsed.routes[0].points[0].extensions[0].attrib['c'])
+
+    def test_new_point_with_unknown_extension_namespace(self) -> None:
+        """
+        A newly created point with an extension in a namespace that is not
+        declared in the document must be serialized with a generated prefix.
+        """
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1">
+          <trk><trkseg><trkpt lat="48.1" lon="11.1"/></trkseg></trk>
+        </gpx>""")
+
+        point = mod_gpx.GPXTrackPoint(48.2, 11.2)
+        point.extensions.append(mod_etree.Element('{http://example.com/new}bar'))
+        gpx.tracks[0].segments[0].points.append(point)
+
+        xml = gpx.to_xml()
+
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+        self.assertIn('xmlns:ns0="http://example.com/new"', xml)
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        reparsed_points = reparsed.tracks[0].segments[0].points
+        self.assertEqual(2, len(reparsed_points))
+        self.assertEqual('{http://example.com/new}bar', reparsed_points[1].extensions[0].tag)
+
+    def test_merged_gpxs_with_colliding_prefixes(self) -> None:
+        """
+        Documents that use the same prefix for different namespaces must keep
+        both namespaces when they are merged into one document.
+        """
+        gpx_1 = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:ext="http://one.example/ext">
+          <trk><trkseg><trkpt lat="48.1" lon="11.1">
+            <extensions><ext:foo/></extensions>
+          </trkpt></trkseg></trk>
+        </gpx>""")
+
+        gpx_2 = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:ext="http://two.example/ext">
+          <trk><trkseg><trkpt lat="48.2" lon="11.2">
+            <extensions><ext:foo/></extensions>
+          </trkpt></trkseg></trk>
+        </gpx>""")
+
+        merged = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        merged.tracks.append(track)
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        for gpx in (gpx_1, gpx_2):
+            segment.points.extend(gpx.tracks[0].segments[0].points)
+
+        xml = merged.to_xml()
+
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        reparsed_points = reparsed.tracks[0].segments[0].points
+        self.assertEqual(2, len(reparsed_points))
+        self.assertEqual('{http://one.example/ext}foo', reparsed_points[0].extensions[0].tag)
+        self.assertEqual('{http://two.example/ext}foo', reparsed_points[1].extensions[0].tag)
+
+    def test_extension_with_namespaced_attribute(self) -> None:
+        """
+        Attributes in a namespace that is not declared in the document must be
+        serialized with a generated prefix.
+        """
+        element = mod_etree.Element('{http://example.com/ext}foo')
+        element.set('{http://example.com/attr}bar', '1')
+
+        gpx = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        gpx.tracks.append(track)
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        point = mod_gpx.GPXTrackPoint(48.1, 11.1)
+        point.extensions.append(element)
+        segment.points.append(point)
+
+        xml = gpx.to_xml()
+
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        reparsed_extension = reparsed.tracks[0].segments[0].points[0].extensions[0]
+        self.assertEqual('{http://example.com/ext}foo', reparsed_extension.tag)
+        self.assertEqual('1', reparsed_extension.attrib['{http://example.com/attr}bar'])
+
+    def test_original_prefix_is_preserved(self) -> None:
+        """
+        Namespaces that are already declared in the document must keep their
+        original prefix.
+        """
+        gpx = mod_gpxpy.parse("""<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker">
+          <trk><trkseg><trkpt lat="48.1" lon="11.1">
+            <extensions><geotracker:meta c="2.15"/></extensions>
+          </trkpt></trkseg></trk>
+        </gpx>""")
+
+        xml = gpx.to_xml()
+
+        self.assertIn('xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"', xml)
+        self.assertIn('<geotracker:meta', xml)
+        self.assertNotIn('ns0', xml)
+
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
 

@@ -2664,6 +2664,37 @@ class GPX:
         for track in self.tracks:
             track.move(location_delta)
 
+    def get_extension_namespaces(self) -> Set[str]:
+        """
+        Namespace uris used by the extension elements in this document.
+
+        The namespaces are collected from the content, they are not limited to
+        the namespaces declared in the nsmap (which are only known when the
+        document was parsed).
+
+        Returns:
+            set of namespace uris
+        """
+        elements: List[Any] = []
+        elements.extend(self.extensions)
+        elements.extend(self.metadata_extensions)
+
+        for waypoint in self.waypoints:
+            elements.extend(waypoint.extensions)
+        for route in self.routes:
+            elements.extend(route.extensions)
+            for route_point in route.points:
+                elements.extend(route_point.extensions)
+        for track in self.tracks:
+            elements.extend(track.extensions)
+            for segment in track.segments:
+                elements.extend(segment.extensions)
+                for point in segment.points:
+                    if point.extensions:
+                        elements.extend(point.extensions)
+
+        return mod_gpxfield.collect_namespaces(elements)
+
     def to_xml(self, version: Optional[str]=None, prettyprint: bool=True) -> str:
         """
         FIXME: Note, this method will change self.version
@@ -2687,6 +2718,13 @@ class GPX:
 
         self.nsmap['defaultns'] = f'http://www.topografix.com/GPX/{version_path}'
 
+        nsmap = self.nsmap
+        if version == '1.1':
+            # Extensions are only serialized in gpx 1.1, and every namespace
+            # used by them must have a prefix, otherwise the xml would not be
+            # well-formed.
+            nsmap = mod_gpxfield.extend_nsmap(self.nsmap, self.get_extension_namespaces())
+
         if not self.schema_locations:
             self.schema_locations = [
                 f'http://www.topografix.com/GPX/{version_path}',
@@ -2698,7 +2736,7 @@ class GPX:
             custom_attributes={
                 'xsi:schemaLocation': ' '.join(self.schema_locations)
             },
-            nsmap=self.nsmap,
+            nsmap=nsmap,
             prettyprint=prettyprint
         )
 

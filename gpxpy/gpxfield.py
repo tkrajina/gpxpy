@@ -352,22 +352,26 @@ class GPXExtensionsField(AbstractGPXField):
         Convert a tag from Clark notation using the nsmap into a
         prefixed tag. If the tag isn't in Clark notation, return the
         qname back. Converts {namespace}tag -> prefix:tag
-        
+
         Args:
             qname: string with the fully qualified name in Clark notation
             nsmap: a dict of prefix, namespace pairs
 
         Returns:
             string of the tag ready to be serialized.
+
+        Raises:
+            GPXException: if the namespace of the tag has no prefix in the nsmap
         """
         if nsmap is not None and '}' in qname:
             uri, _, localname = qname.partition("}")
             uri = uri.lstrip("{")
-            qname = uri + ':' + localname
             for prefix, namespace in nsmap.items():
                 if uri == namespace:
-                    qname = prefix + ':' + localname
-                    break
+                    return prefix + ':' + localname
+            # Imported here to avoid a circular import
+            from .gpx import GPXException
+            raise GPXException(f'No prefix defined for namespace: {uri}')
         return qname
 
     def _ETree_to_xml(self, node: Any, nsmap: Dict[str, str]={}, prettyprint: bool=True, indent: str='') -> str:
@@ -455,6 +459,71 @@ class GPXExtensionsField(AbstractGPXField):
 # ----------------------------------------------------------------------------------------------------
 # Utility methods:
 # ----------------------------------------------------------------------------------------------------
+
+def collect_namespaces(elements: Iterable[Any]) -> Set[str]:
+    """
+    Collect the namespace uris used by the given extension elements.
+
+    Extension elements are etree elements, their tags and attribute names are
+    in Clark notation ({namespace}localname), this function returns all the
+    namespace uris used by the given elements and their children.
+
+    Args:
+        elements: iterable of etree elements
+
+    Returns:
+        set of namespace uris
+    """
+    namespaces: Set[str] = set()
+
+    for element in elements:
+        for node in element.iter():
+            if not isinstance(node.tag, str):
+                # Comments and processing instructions have no name
+                continue
+            if '}' in node.tag:
+                namespaces.add(node.tag[1:].partition('}')[0])
+            for name in node.attrib:
+                if '}' in name:
+                    namespaces.add(name[1:].partition('}')[0])
+
+    return namespaces
+
+
+def extend_nsmap(nsmap: Dict[str, str], namespaces: Set[str]) -> Dict[str, str]:
+    """
+    Return a new nsmap in which every namespace uri that is not already
+    resolvable through a prefix gets a generated prefix (ns0, ns1, ...).
+
+    The given nsmap is not modified, the generated prefixes are only used for
+    serializing the current document.
+
+    Args:
+        nsmap: dict of prefixes and namespace uris
+        namespaces: namespace uris that must be resolvable through a prefix
+
+    Returns:
+        new dict of prefixes and namespace uris
+    """
+    result = dict(nsmap)
+    known_namespaces = set(result.values())
+    used_prefixes = set(result.keys())
+
+    counter = 0
+    for namespace in sorted(namespaces):
+        if namespace in known_namespaces:
+            # Already resolvable through an existing prefix
+            continue
+        while f'ns{counter}' in used_prefixes:
+            counter += 1
+        prefix = f'ns{counter}'
+        counter += 1
+        used_prefixes.add(prefix)
+        result[prefix] = namespace
+        known_namespaces.add(namespace)
+
+    return result
+
 
 def _check_dependents(gpx_object: Any, fieldname: str) -> Tuple[str, str]:
     """
