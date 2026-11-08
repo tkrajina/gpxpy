@@ -28,6 +28,7 @@ import codecs as mod_codecs
 import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
+import re as mod_re
 import math as mod_math
 import sys as mod_sys
 import unittest as mod_unittest
@@ -3491,6 +3492,225 @@ class GPXTests(mod_unittest.TestCase):
             self.assertEqual(1, len(extensions))
             self.assertEqual("125", list(extensions[0])[0].text.strip())
             self.assertEqual("75", list(extensions[0])[1].text.strip())
+
+    def test_merge_tracks_keeps_extension_namespaces(self) -> None:
+        """
+        Merging the points of parsed files into a new gpx object must not
+        produce xml in which a namespace uri is used as element prefix, such
+        xml is not well-formed and cannot be parsed again.
+        """
+        gpx_1 = """<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+          creator="Geo Tracker 5.2.2.3190 for Android by Ilya Bogdanovich">
+          <trk>
+            <name>Wertach</name>
+            <extensions>
+              <geotracker:meta>
+                <length>6220.79</length>
+              </geotracker:meta>
+            </extensions>
+            <trkseg>
+              <trkpt lat="48.33642665" lon="10.85664837">
+                <ele>617.5</ele>
+                <time>2023-04-26T15:14:02Z</time>
+                <extensions>
+                  <geotracker:meta c="2.15" s="1.68"/>
+                </extensions>
+              </trkpt>
+              <trkpt lat="48.33651685" lon="10.85670258">
+                <ele>613.49</ele>
+                <time>2023-04-26T15:14:04Z</time>
+                <extensions>
+                  <geotracker:meta c="1.88" s="0.71"/>
+                </extensions>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>"""
+
+        gpx_2 = """<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+          creator="Geo Tracker 5.2.2.3190 for Android by Ilya Bogdanovich">
+          <trk>
+            <name>Inningen</name>
+            <extensions>
+              <geotracker:meta>
+                <length>7226.24</length>
+              </geotracker:meta>
+            </extensions>
+            <trkseg>
+              <trkpt lat="48.33642666" lon="10.85664838">
+                <ele>617.4</ele>
+                <time>2023-04-21T14:38:45Z</time>
+                <extensions>
+                  <geotracker:meta c="2.15" s="0"/>
+                </extensions>
+              </trkpt>
+              <trkpt lat="48.33651686" lon="10.85670259">
+                <ele>613.4</ele>
+                <time>2023-04-21T14:38:47Z</time>
+                <extensions>
+                  <geotracker:meta c="1.88" s="0"/>
+                </extensions>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>"""
+
+        points: List[Any] = []
+        for gpx in (mod_gpxpy.parse(gpx_1), mod_gpxpy.parse(gpx_2)):
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    points.extend(segment.points)
+
+        merged = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        merged.tracks.append(track)
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        segment.points.extend(points)
+
+        xml = merged.to_xml()
+
+        # A namespace uri must never be used as an xml element prefix
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        # The result must be valid xml that can be parsed again
+        reparsed = mod_gpxpy.parse(xml)
+
+        reparsed_points = [point
+                           for reparsed_track in reparsed.tracks
+                           for reparsed_segment in reparsed_track.segments
+                           for point in reparsed_segment.points]
+        self.assertEqual(4, len(reparsed_points))
+        self.assertEqual('{http://ilyabogdanovich.com/gpx/extensions/geotracker}meta',
+                         reparsed_points[0].extensions[0].tag)
+
+        for original_point, reparsed_point in zip(points, reparsed_points):
+            self.assertEqual(1, len(original_point.extensions))
+            self.assertEqual(1, len(reparsed_point.extensions))
+            self.assertEqual(original_point.extensions[0].tag, reparsed_point.extensions[0].tag)
+            self.assertEqual(original_point.extensions[0].attrib, reparsed_point.extensions[0].attrib)
+
+    def test_merge_tracks_with_merged_nsmap(self) -> None:
+        """
+        Merging the namespace map of the parsed files into the new gpx object
+        keeps the original prefix of the extension elements.
+        """
+        gpx_1 = """<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+          creator="Geo Tracker 5.2.2.3190 for Android by Ilya Bogdanovich">
+          <trk>
+            <name>Wertach</name>
+            <extensions>
+              <geotracker:meta>
+                <length>6220.79</length>
+              </geotracker:meta>
+            </extensions>
+            <trkseg>
+              <trkpt lat="48.33642665" lon="10.85664837">
+                <ele>617.5</ele>
+                <time>2023-04-26T15:14:02Z</time>
+                <extensions>
+                  <geotracker:meta c="2.15" s="1.68"/>
+                </extensions>
+              </trkpt>
+              <trkpt lat="48.33651685" lon="10.85670258">
+                <ele>613.49</ele>
+                <time>2023-04-26T15:14:04Z</time>
+                <extensions>
+                  <geotracker:meta c="1.88" s="0.71"/>
+                </extensions>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>"""
+
+        gpx_2 = """<?xml version="1.0" encoding="UTF-8"?>
+        <gpx version="1.1" xmlns="http://www.topografix.com/GPX/1/1"
+          xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd"
+          creator="Geo Tracker 5.2.2.3190 for Android by Ilya Bogdanovich">
+          <trk>
+            <name>Inningen</name>
+            <extensions>
+              <geotracker:meta>
+                <length>7226.24</length>
+              </geotracker:meta>
+            </extensions>
+            <trkseg>
+              <trkpt lat="48.33642666" lon="10.85664838">
+                <ele>617.4</ele>
+                <time>2023-04-21T14:38:45Z</time>
+                <extensions>
+                  <geotracker:meta c="2.15" s="0"/>
+                </extensions>
+              </trkpt>
+              <trkpt lat="48.33651686" lon="10.85670259">
+                <ele>613.4</ele>
+                <time>2023-04-21T14:38:47Z</time>
+                <extensions>
+                  <geotracker:meta c="1.88" s="0"/>
+                </extensions>
+              </trkpt>
+            </trkseg>
+          </trk>
+        </gpx>"""
+
+        gpxes = [mod_gpxpy.parse(gpx_1), mod_gpxpy.parse(gpx_2)]
+
+        nsmap: Dict[str, str] = {}
+        for gpx in gpxes:
+            nsmap.update(gpx.nsmap)
+
+        points: List[Any] = []
+        for gpx in gpxes:
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    points.extend(segment.points)
+
+        merged = mod_gpx.GPX()
+        track = mod_gpx.GPXTrack()
+        merged.tracks.append(track)
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        segment.points.extend(points)
+
+        merged.nsmap.update(nsmap)
+
+        xml = merged.to_xml()
+
+        self.assertIn('xmlns:geotracker="http://ilyabogdanovich.com/gpx/extensions/geotracker"', xml)
+        self.assertIn('<geotracker:meta', xml)
+        self.assertIsNone(mod_re.search(r'<[^ />="]*://', xml),
+                          'namespace uri used as xml element prefix')
+
+        reparsed = mod_gpxpy.parse(xml)
+
+        reparsed_points = [point
+                           for reparsed_track in reparsed.tracks
+                           for reparsed_segment in reparsed_track.segments
+                           for point in reparsed_segment.points]
+        self.assertEqual(4, len(reparsed_points))
+        self.assertEqual('{http://ilyabogdanovich.com/gpx/extensions/geotracker}meta',
+                         reparsed_points[0].extensions[0].tag)
+
+        for original_point, reparsed_point in zip(points, reparsed_points):
+            self.assertEqual(1, len(original_point.extensions))
+            self.assertEqual(1, len(reparsed_point.extensions))
+            self.assertEqual(original_point.extensions[0].tag, reparsed_point.extensions[0].tag)
+            self.assertEqual(original_point.extensions[0].attrib, reparsed_point.extensions[0].attrib)
 
     def test_join_gpx_xml_files(self) -> None:
         import gpxpy.gpxxml
