@@ -1621,9 +1621,9 @@ class GPXTrack:
             segment = self.segments[i]
             if i == track_segment_no:
                 segment_1, segment_2 = segment.split(track_point_no)
-                if segment_1:
+                if segment_1.points:
                     new_segments.append(segment_1)
-                if segment_2:
+                if segment_2.points:
                     new_segments.append(segment_2)
             else:
                 new_segments.append(segment)
