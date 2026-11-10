@@ -629,6 +629,21 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(len(track.segments[1].points) == 21)
         self.assertTrue(len(track.segments[0].points) + len(track.segments[1].points) + len(track.segments[2].points) == track_points_no)
 
+    def test_split_on_impossible_point_index(self) -> None:
+        # Splitting on a point index beyond the segment must not add an
+        # empty second segment (the docstring of GPXTrack.split says an
+        # empty split segment is not added to the result).
+        track = mod_gpx.GPXTrack()
+        segment = mod_gpx.GPXTrackSegment()
+        track.segments.append(segment)
+        for i in range(20):
+            segment.points.append(mod_gpx.GPXTrackPoint(latitude=45 + i * 0.001, longitude=13))
+
+        track.split(0, 1000)
+
+        self.assertTrue(len(track.segments) == 1)
+        self.assertTrue(len(track.segments[0].points) == 20)
+
     def test_split_and_join(self) -> None:
         f = open('test_files/cerknicko-jezero.gpx')
         parser = mod_parser.GPXParser(f)
