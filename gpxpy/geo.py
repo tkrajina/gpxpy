@@ -45,6 +45,13 @@ def haversine_distance(latitude_1: float, longitude_1: float, latitude_2: float,
 
     Implemented from http://www.movable-type.co.uk/scripts/latlong.html
     """
+    if not all(mod_math.isfinite(v) for v in (latitude_1, longitude_1, latitude_2, longitude_2)):
+        # sin() raises a ValueError for infinities; propagate the infinity
+        # (or NaN) instead of crashing on non-finite coordinates.
+        if any(mod_math.isnan(v) for v in (latitude_1, longitude_1, latitude_2, longitude_2)):
+            return mod_math.nan
+        return mod_math.inf
+
     d_lon = mod_math.radians(longitude_1 - longitude_2)
     lat1 = mod_math.radians(latitude_1)
     lat2 = mod_math.radians(latitude_2)
