@@ -677,6 +677,17 @@ class GPXTests(mod_unittest.TestCase):
         print(distance)
         self.assertTrue(3450 < distance < 3500)
 
+    def test_haversine_distance_with_non_finite_coordinates(self) -> None:
+        # Non-finite coordinates come from values like lat="1e999" (which
+        # float() parses to inf) or lat="nan"; haversine used to raise a
+        # raw ValueError: math domain error from sin(inf).
+        self.assertEqual(mod_geo.haversine_distance(float('inf'), 0, 45, 0), mod_math.inf)
+        self.assertEqual(mod_geo.haversine_distance(45, 0, float('-inf'), 0), mod_math.inf)
+        self.assertTrue(mod_math.isnan(mod_geo.haversine_distance(float('nan'), 0, 45, 0)))
+
+        # Finite coordinates are unaffected:
+        self.assertAlmostEqual(mod_geo.haversine_distance(1, 2, 2, 3), 157401.56, places=2)
+
     def test_haversine_and_nonhaversine(self) -> None:
         haversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=True)
         nonhaversine_dist = mod_geo.distance(0, 0, 0, 0.1, 0.1, 0, haversine=False)
