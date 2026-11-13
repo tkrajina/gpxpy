@@ -234,6 +234,20 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(gpx.waypoints[0].time)
         self.assertTrue(isinstance(gpx.waypoints[0].time, mod_datetime.datetime))
 
+    def test_out_of_range_timezone_offset_is_dropped(self) -> None:
+        # A timezone offset of more than 24 hours parses, but made
+        # to_xml() raise a raw ValueError from datetime's isoformat(),
+        # so parse_time rejects it and the time becomes None, like
+        # other invalid times.
+        xml = '<gpx><wpt lat="45.0" lon="14.0"><time>2026-01-01T00:00:00+99:99</time></wpt></gpx>'
+        gpx = mod_gpxpy.parse(xml)
+        self.assertEqual(gpx.waypoints[0].time, None)
+        self.assertTrue('<time>' not in gpx.to_xml())
+
+        xml = '<gpx><wpt lat="45.0" lon="14.0"><time>2026-01-01T00:00:00+01:30</time></wpt></gpx>'
+        gpx = mod_gpxpy.parse(xml)
+        self.assertEqual(gpx.waypoints[0].time.utcoffset(), mod_datetime.timedelta(hours=1, minutes=30))
+
     def test_add_elevation(self) -> None:
         gpx = mod_gpx.GPX()
         gpx.tracks.append(mod_gpx.GPXTrack())
