@@ -1017,15 +1017,15 @@ class GPXTrackSegment:
         speed_1 = point.speed_between(previous_point) if previous_point else None
         speed_2 = point.speed_between(next_point) if next_point else None
 
-        if speed_1:
+        if speed_1 is not None:
             speed_1 = abs(speed_1)
-        if speed_2:
+        if speed_2 is not None:
             speed_2 = abs(speed_2)
 
-        if speed_1 and speed_2:
+        if speed_1 is not None and speed_2 is not None:
             return (speed_1 + speed_2) / 2
 
-        if speed_1:
+        if speed_1 is not None:
             return speed_1
 
         return speed_2
