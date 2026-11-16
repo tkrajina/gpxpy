@@ -326,28 +326,46 @@ def simplify_polyline(points: List["Location"], max_distance: Optional[float]) -
 
     begin, end = points[0], points[-1]
 
-    # Use a "normal" line just to detect the most distant point (not its real distance)
-    # this is because this is faster to compute than calling distance_from_line() for
-    # every point.
+    # Use planar point-to-segment distances to find the most distant point,
+    # then compute its real distance in meters. Clamp the projection to the
+    # endpoints so that excursions beyond the baseline are not discarded.
     #
     # This is an approximation and may have some errors near the poles and if
     # the points are too distant, but it should be good enough for most use
     # cases...
-    a, b, c = get_line_equation_coefficients(begin, end)
+    delta_lat = end.latitude - begin.latitude
+    delta_lon = end.longitude - begin.longitude
+    baseline_squared = delta_lat ** 2 + delta_lon ** 2
 
     # Initialize to safe values
-    tmp_max_distance: float = 0
+    tmp_max_distance: float = -1
     tmp_max_distance_position = 1
-    
+    furthest_projection = 0.
+
     # Check distance of all points between begin and end, exclusive
     for point_no, point in enumerate(points[1:-1], 1):
-        d = abs(a * point.latitude + b * point.longitude + c)
+        projection = 0.
+        if baseline_squared:
+            projection = (
+                (point.latitude - begin.latitude) * delta_lat +
+                (point.longitude - begin.longitude) * delta_lon
+            ) / baseline_squared
+            projection = max(0., min(1., projection))
+        d = ((point.latitude - begin.latitude - projection * delta_lat) ** 2 +
+             (point.longitude - begin.longitude - projection * delta_lon) ** 2)
         if d > tmp_max_distance:
             tmp_max_distance = d
             tmp_max_distance_position = point_no
+            furthest_projection = projection
 
     # Now that we have the most distance point, compute its real distance:
-    real_max_distance = distance_from_line(points[tmp_max_distance_position], begin, end)
+    furthest_point = points[tmp_max_distance_position]
+    if furthest_projection == 0:
+        real_max_distance = begin.distance_2d(furthest_point)
+    elif furthest_projection == 1:
+        real_max_distance = end.distance_2d(furthest_point)
+    else:
+        real_max_distance = distance_from_line(furthest_point, begin, end)
 
     # If furthest point is less than max_distance, remove all points between begin and end
     if real_max_distance is not None and real_max_distance < _max_distance:
