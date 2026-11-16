@@ -1781,6 +1781,53 @@ class GPXTests(mod_unittest.TestCase):
                                        mod_geo.Location(0, 1))
         self.assertTrue(abs(d - mod_geo.ONE_DEGREE) < 100) # type: ignore
 
+    def test_simplify_preserves_backtracking(self) -> None:
+        for coordinates in (
+                [(0, 0), (0, 0.02), (0, 0.001)],
+                [(0, 0), (0, -0.02), (0, 0.001)],
+                [(0, 0), (0.02, 0), (0.001, 0)],
+                [(0, 0), (0.02, 0.02), (0.001, 0.001)]):
+            with self.subTest(coordinates=coordinates):
+                points = [mod_gpx.GPXTrackPoint(lat, lon)
+                          for lat, lon in coordinates]
+                segment = mod_gpx.GPXTrackSegment(points[:])
+                original_length = segment.length_2d()
+
+                segment.simplify(max_distance=10)
+
+                self.assertEqual(segment.points, points)
+                self.assertAlmostEqual(segment.length_2d(), original_length)
+
+    def test_simplify_backtracking_within_tolerance(self) -> None:
+        points = [mod_gpx.GPXTrackPoint(0, lon) for lon in (0, 0.00101, 0.001)]
+        segment = mod_gpx.GPXTrackSegment(points[:])
+        segment.simplify(max_distance=10)
+        self.assertEqual(segment.points, [points[0], points[-1]])
+
+    def test_simplify_selects_furthest_backtracking_point(self) -> None:
+        points = [mod_gpx.GPXTrackPoint(0, lon)
+                  for lon in (0, 0.0005, 0.02, 0.001)]
+        segment = mod_gpx.GPXTrackSegment(points[:])
+        segment.simplify(max_distance=10)
+        self.assertEqual(segment.points, [points[0], points[2], points[-1]])
+
+    def test_simplify_collinear_points_within_segment(self) -> None:
+        points = [mod_gpx.GPXTrackPoint(0, lon) for lon in (0, 0.001, 0.002)]
+        segment = mod_gpx.GPXTrackSegment(points[:])
+        segment.simplify(max_distance=10)
+        self.assertEqual(segment.points, [points[0], points[-1]])
+
+    def test_simplify_coincident_endpoints(self) -> None:
+        for excursion, expected_count in ((0.02, 3), (0.00001, 2), (0, 2)):
+            with self.subTest(excursion=excursion):
+                points = [mod_gpx.GPXTrackPoint(0, lon)
+                          for lon in (0, excursion, 0)]
+                segment = mod_gpx.GPXTrackSegment(points[:])
+                segment.simplify(max_distance=10)
+                self.assertEqual(len(segment.points), expected_count)
+                self.assertIs(segment.points[0], points[0])
+                self.assertIs(segment.points[-1], points[-1])
+
     def test_simplify(self) -> None:
         for gpx_file in mod_os.listdir('test_files'):
             print('Parsing:', gpx_file)
