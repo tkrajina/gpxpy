@@ -88,10 +88,16 @@ class GPXParser:
 
         """
         # Build prefix map for reserialization and extension handlings
+        nested_default_namespaces: list[str] = []
         for namespace in mod_re.findall(r'\sxmlns:?[^=]*="[^"]+"', self.xml):
             prefix, _, URI = namespace[6:].partition('=')
             prefix = prefix.lstrip(':')
             if prefix == '':
+                if 'defaultns' in self.gpx.nsmap:
+                    # Default namespace declared on a nested element (for
+                    # example an extension), it gets a prefix below
+                    nested_default_namespaces.append(URI.strip('"'))
+                    continue
                 prefix = 'defaultns'  # alias default for easier handling
             else:
                 if prefix.startswith("ns"):
@@ -99,6 +105,13 @@ class GPXParser:
                 else:
                     mod_etree.register_namespace(prefix, URI.strip('"'))
             self.gpx.nsmap[prefix] = URI.strip('"')
+
+        for URI in nested_default_namespaces:
+            if URI not in self.gpx.nsmap.values():
+                n = 1
+                while f'ns{n}' in self.gpx.nsmap:
+                    n += 1
+                self.gpx.nsmap[f'ns{n}'] = URI
 
         schema_loc = mod_re.search(r'\sxsi:schemaLocation="[^"]+"', self.xml)
         if schema_loc:
