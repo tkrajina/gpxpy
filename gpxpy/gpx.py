@@ -1194,14 +1194,14 @@ class GPXTrackSegment:
         if not time:
             return None
 
-        first_time = self.points[0].time
-        last_time = self.points[-1].time
+        first_time = next((point.time for point in self.points if point.time is not None), None)
+        last_time = next((point.time for point in reversed(self.points) if point.time is not None), None)
 
-        if not first_time and not last_time:
+        if first_time is None or last_time is None:
             log.debug('No times for track segment')
             return None
 
-        if first_time and time and last_time and not first_time <= time <= last_time:
+        if not first_time <= time <= last_time:
             log.debug(f'Not in track (search for:{time}, start:{first_time}, end:{last_time})')
             return None
 
