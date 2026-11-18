@@ -1920,6 +1920,22 @@ class GPXTests(mod_unittest.TestCase):
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 0))[0], p1)
         self.assertEqual(gpx.tracks[0].get_location_at(mod_datetime.datetime(2013, 1, 2, 12, 31, 30)), [])
 
+    def test_get_location_at_with_untimed_edges(self) -> None:
+        start = mod_datetime.datetime(2020, 1, 1, 12, 0)
+        end = start + mod_datetime.timedelta(minutes=1)
+        first = mod_gpx.GPXTrackPoint(0, 0, time=start)
+        last = mod_gpx.GPXTrackPoint(0, 1, time=end)
+        untimed = mod_gpx.GPXTrackPoint(0, 2)
+        for points in ([untimed, first, last], [first, last, untimed],
+                       [untimed, first, last, untimed]):
+            with self.subTest(points=points):
+                segment = mod_gpx.GPXTrackSegment(points=points)
+                self.assertIsNone(segment.get_location_at(start - mod_datetime.timedelta(seconds=1)))
+                self.assertIs(segment.get_location_at(start), first)
+                self.assertIs(segment.get_location_at(start + mod_datetime.timedelta(seconds=1)), last)
+                self.assertIs(segment.get_location_at(end), last)
+                self.assertIsNone(segment.get_location_at(end + mod_datetime.timedelta(seconds=1)))
+
     def test_adjust_time_tracks_only(self) -> None:
         gpx = mod_gpx.GPX()
 
