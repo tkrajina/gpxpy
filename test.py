@@ -29,6 +29,7 @@ import copy as mod_copy
 import datetime as mod_datetime
 import random as mod_random
 import math as mod_math
+import subprocess as mod_subprocess
 import sys as mod_sys
 import unittest as mod_unittest
 import xml.dom.minidom as mod_minidom
@@ -172,6 +173,14 @@ class GPXTests(mod_unittest.TestCase):
             print('Parser error while reparsing')
 
         return gpx
+
+    def test_gpxinfo_average_distance(self) -> None:
+        for filename, average in [('track_with_speed.gpx', '9.33m'),
+                                  ('cerknicko-jezero.gpx', '15.85m')]:
+            with self.subTest(filename=filename):
+                output = mod_subprocess.check_output(
+                    [mod_sys.executable, 'gpxinfo', f'test_files/{filename}'], text=True)
+                self.assertIn(f'    Avg distance between points: {average}', output.splitlines())
 
     def test_simple_parse_function(self) -> None:
         # Must not throw any exception:
