@@ -76,18 +76,14 @@ def print_gpx_part_info(gpx_part: Union[mod_gpx.GPX, mod_gpx.GPXTrack, mod_gpx.G
     print(f'{indentation}Started: {start_time}')
     print(f'{indentation}Ended: {end_time}')
 
-    points_no = len(list(gpx_part.walk(only_points=True)))
+    points_no = gpx_part.get_points_no()
     print(f'{indentation}Points: {points_no}')
 
     if points_no > 0:
-        distances: List[float] = []
-        previous_point = None
-        for point in gpx_part.walk(only_points=True):
-            if previous_point:
-                distance = point.distance_2d(previous_point)
-                distances.append(distance)
-            previous_point = point
-        print(f'{indentation}Avg distance between points: {format_short_length(sum(distances) / len(list(gpx_part.walk())))}')
+        # The last index from walk() starts at zero in each segment.
+        interval_count = sum(1 for *_, point_no in gpx_part.walk() if point_no > 0)
+        average_distance = (length_2d or 0.0) / interval_count if interval_count else 0.0
+        print(f'{indentation}Avg distance between points: {format_short_length(average_distance)}')
 
     print('')
 
