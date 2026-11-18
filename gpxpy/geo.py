@@ -158,24 +158,24 @@ def calculate_max_speed(speeds_and_distances: List[Tuple[float, float]], extreme
         # ...
         assert len(speeds_and_distances[-1]) == 2
 
-    if not ignore_nonstandard_distances:
+    if ignore_nonstandard_distances:
+        size = len(speeds_and_distances)
+        if size < 2:
+            return None
+
+        distances = [x[1] for x in speeds_and_distances]
+        average_distance = sum(distances) / size
+        variance = sum((d - average_distance) ** 2 for d in distances) / size
+        distance_limit = mod_math.sqrt(variance) * 1.5
+        speeds_and_distances = [
+            sample for sample in speeds_and_distances
+            if abs(sample[1] - average_distance) <= distance_limit
+        ]
+    elif extremes_percentile == 0:
         return max(x[0] or 0 for x in speeds_and_distances)
 
-    size = len(speeds_and_distances)
-
-    if size < 2:
-        # log.debug('Segment too small to compute speed, size=%s', size)
-        return None
-
-    distances = [x[1] for x in speeds_and_distances]
-    average_distance = sum(distances) / size
-    standard_distance_deviation = mod_math.sqrt(sum((distance - average_distance) ** 2 for distance in distances) / size)
-
-    # Ignore items where the distance is too big:
-    filtered_speeds_and_distances = [x for x in speeds_and_distances if abs(x[1] - average_distance) <= standard_distance_deviation * 1.5]
-
     # sort by speed:
-    speeds = [x[0] for x in filtered_speeds_and_distances]
+    speeds = [x[0] for x in speeds_and_distances]
     if not speeds:
         return None
     speeds.sort()

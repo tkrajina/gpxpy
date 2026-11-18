@@ -23,6 +23,7 @@ Run single test with:
 
 import logging as mod_logging
 import os as mod_os
+import statistics as mod_statistics
 import time as mod_time
 import codecs as mod_codecs
 import copy as mod_copy
@@ -935,6 +936,20 @@ class GPXTests(mod_unittest.TestCase):
             data_2 = gpx.get_moving_data(speed_extreemes_percentiles=0.1*i)
             print(0.1*i, data_2.max_speed)
             self.assertTrue(data_1.max_speed >= data_2.max_speed)
+
+    def test_speed_percentile_without_distance_filter(self) -> None:
+        """Check the trimmed maximum against the drive's median speed."""
+        gpx = self.parse("around-visnjan-with-car.gpx")
+        points = gpx.tracks[0].segments[0].points
+        interval_speeds = (point.speed_between(previous)
+                           for previous, point in zip(points, points[1:]))
+        speeds = [speed for speed in interval_speeds if speed is not None]
+
+        moving_data = gpx.get_moving_data(
+            speed_extreemes_percentiles=0.5, ignore_nonstandard_distances=False
+        )
+        self.assertEqual(moving_data.max_speed, mod_statistics.median(speeds))
+        self.assertEqual(gpx.get_moving_data(raw=True).max_speed, max(speeds))
 
     def test_raw_max_speed(self) -> None:
         for gpx_file in ("around-visnjan-with-car.gpx", "korita-zbevnica.gpx"):
