@@ -2792,6 +2792,50 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue('<link href="https://brouter.m11n.de/#map=14/48.3257/8.9601/osm-mapnik-german_style&amp;lonlats=8.94809,48.336472;8.968735,48.323235&amp;name=&quot;Hechingen&quot;">' in xml)
         self.assertEqual(mod_gpxpy.parse(xml).tracks[0].link, gpx.tracks[0].link)
 
+    def test_multiple_links_round_trip(self) -> None:
+        links = ('<link href="first"><text>First</text></link>'
+                 '<link href="second"><type>image/png</type></link>')
+        source = ('<gpx version="1.1" creator="test">'
+                  f'<metadata>{links}</metadata><wpt lat="1" lon="2">{links}</wpt>'
+                  f'<rte>{links}<rtept lat="1" lon="2">{links}</rtept></rte>'
+                  f'<trk>{links}<trkseg><trkpt lat="1" lon="2">{links}</trkpt>'
+                  f'</trkseg></trk></gpx>')
+        gpx = mod_gpxpy.parse(source)
+        parents = (gpx, gpx.waypoints[0], gpx.routes[0], gpx.routes[0].points[0],
+                   gpx.tracks[0], gpx.tracks[0].segments[0].points[0])
+        for parent in parents:
+            self.assertEqual(parent.link, 'first')
+            self.assertEqual(parent.link_text, 'First')
+            self.assertIsNone(parent.link_type)
+            extra, = parent.additional_links
+            self.assertEqual((extra.href, extra.text, extra.type), ('second', None, 'image/png'))
+            parent.link = 'edited'
+            extra.text = 'Map & notes'
+
+        xml = mod_etree.fromstring(gpx.to_xml())
+        for tag in ('metadata', 'wpt', 'rte', 'rtept', 'trk', 'trkpt'):
+            with self.subTest(tag=tag):
+                node = xml.find('.//{*}' + tag)
+                self.assertIsNotNone(node)
+                assert node is not None
+                first, second = node.findall('{*}link')
+                self.assertEqual(first.get('href'), 'edited')
+                self.assertEqual(first.findtext('{*}text'), 'First')
+                self.assertEqual(second.get('href'), 'second')
+                self.assertEqual(second.findtext('{*}text'), 'Map & notes')
+                self.assertEqual(second.findtext('{*}type'), 'image/png')
+
+        xml_10 = mod_etree.fromstring(gpx.to_xml(version='1.0'))
+        self.assertEqual([url.text for url in xml_10.iterfind('.//{*}url')], ['edited'] * 6)
+        self.assertIsNone(xml_10.find('.//{*}link'))
+
+    def test_additional_metadata_link_without_primary_link(self) -> None:
+        gpx = mod_gpx.GPX()
+        gpx.additional_links.append(mod_gpx.GPXLink('map', 'Map'))
+        result = mod_gpxpy.parse(gpx.to_xml(version='1.1'))
+        self.assertEqual((result.link, result.link_text), ('map', 'Map'))
+        self.assertEqual(result.additional_links, [])
+
     def test_xml_chars_encode_decode_extensions(self) -> None:
         gpx = mod_gpxpy.gpx.GPX()
         ext = mod_etree.Element('test')
