@@ -75,6 +75,8 @@ For example, GPX 1.0 specified a `speed` attribute for every track point, but th
 
 ## GPX extensions
 
+GPX 1.1 allows multiple links on the file metadata, waypoints, routes, tracks, and their points. The first link uses the existing `link`, `link_text`, and `link_type` attributes. Later links are stored in order in `additional_links`, a list of `gpxpy.gpx.GPXLink` objects with `href`, `text`, and `type` attributes. For example, `waypoint.additional_links.append(gpxpy.gpx.GPXLink("https://example.org/map", "Map"))` adds another link. When exporting GPX 1.0, only `link` and `link_text` are written.
+
 gpx.py preserves GPX extensions. They are stored as [ElementTree](https://docs.python.org/2/library/xml.etree.elementtree.html#module-xml.etree.ElementTree) DOM objects. Extensions are part of GPX 1.1, and will be ignored when serializing a GPX object in a GPX 1.0 file.
 
 ## XML parsing

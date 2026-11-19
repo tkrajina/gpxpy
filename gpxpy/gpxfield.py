@@ -606,7 +606,10 @@ def gpx_check_slots_and_default_values(classs: Callable[[], Any]) -> None:
         raise Exception(f'Error reading attributes for {classs.__name__}: {e}')
 
     attributes.sort()
-    slots = list(classs.__slots__)
+    slots = [name for base in type(instance).__mro__
+             for name in vars(base).get('__slots__', ())
+             if not name.startswith('_')]
+    slots.extend(name for name in attributes if isinstance(getattr(type(instance), name, None), property))
     slots.sort()
 
     if attributes != slots:

@@ -49,6 +49,60 @@ SMOOTHING_RATIO = (0.4, 0.2, 0.4)
 # if speed is less than this value -- we'll assume it is zero
 DEFAULT_STOPPED_SPEED_THRESHOLD = 1
 
+class GPXLink:
+    """GPX 1.1 hyperlink with its optional display text and MIME type."""
+
+    __slots__ = ('href', 'text', 'type')
+    gpx_10_fields = gpx_11_fields = [
+        mod_gpxfield.GPXField('href', attribute='href'),
+        mod_gpxfield.GPXField('text'),
+        mod_gpxfield.GPXField('type'),
+    ]
+
+    def __init__(self, href: Optional[str] = None, text: Optional[str] = None,
+                 type: Optional[str] = None) -> None:
+        self.href = href
+        self.text = text
+        self.type = type
+
+
+class _GPXLinks:
+    __slots__ = ('link', 'link_text', 'link_type', '_additional_links')
+    link: Optional[str]
+    link_text: Optional[str]
+    link_type: Optional[str]
+    _additional_links: Optional[List[GPXLink]]
+
+    @property
+    def additional_links(self) -> List[GPXLink]:
+        """Links after the first one, allocated only when needed."""
+        links: Optional[List[GPXLink]] = getattr(self, '_additional_links', None)
+        if links is None:
+            links = []
+            self._additional_links = links
+        return links
+
+    @additional_links.setter
+    def additional_links(self, links: List[GPXLink]) -> None:
+        self._additional_links = links
+
+    @property
+    def _links(self) -> List[GPXLink]:
+        """Collect the links in XML order, including the legacy scalar fields."""
+        extra: List[GPXLink] = getattr(self, '_additional_links', None) or []
+        if self.link is None:
+            return extra
+        return [GPXLink(self.link, self.link_text, self.link_type), *extra]
+
+    @_links.setter
+    def _links(self, links: List[GPXLink]) -> None:
+        if links:
+            self.link, self.link_text, self.link_type = links[0].href, links[0].text, links[0].type
+        else:
+            self.link = self.link_text = self.link_type = None
+        self._additional_links = links[1:] if len(links) > 1 else None
+
+
 # Fields used for all point elements (route point, track point, waypoint):
 GPX_10_POINT_FIELDS = [
         mod_gpxfield.GPXField('latitude', attribute='lat', type=mod_gpxfield.FLOAT_TYPE, mandatory=True),
@@ -85,11 +139,7 @@ GPX_11_POINT_FIELDS = [
         mod_gpxfield.GPXField('comment', 'cmt'),
         mod_gpxfield.GPXField('description', 'desc'),
         mod_gpxfield.GPXField('source', 'src'),
-        'link:@link',
-            mod_gpxfield.GPXField('link', attribute='href'),
-            mod_gpxfield.GPXField('link_text', tag='text'),
-            mod_gpxfield.GPXField('link_type', tag='type'),
-        '/link',
+        mod_gpxfield.GPXComplexField('_links', GPXLink, tag='link', is_list=True),
         mod_gpxfield.GPXField('symbol', 'sym'),
         mod_gpxfield.GPXField('type'),
         mod_gpxfield.GPXField('type_of_gpx_fix', 'fix', possible=('none', '2d', '3d', 'dgps', 'pps', '3',)),
@@ -193,17 +243,17 @@ class GPXXMLSyntaxException(GPXException):
         self.__cause__ = original_exception
 
 
-class GPXWaypoint(mod_geo.Location):
+class GPXWaypoint(mod_geo.Location, _GPXLinks):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time',
                  'magnetic_variation', 'geoid_height', 'name', 'comment',
-                 'description', 'source', 'link', 'link_text', 'symbol',
+                 'description', 'source', 'symbol',
                  'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'extensions')
+                 'extensions')
 
     def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
                  time: Optional[mod_datetime.datetime]=None, name: Optional[str]=None, description: Optional[str]=None,
@@ -274,17 +324,17 @@ class GPXWaypoint(mod_geo.Location):
         return max(self.horizontal_dilution, self.vertical_dilution, self.position_dilution)
 
 
-class GPXRoutePoint(mod_geo.Location):
+class GPXRoutePoint(mod_geo.Location, _GPXLinks):
     gpx_10_fields = GPX_10_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time',
                  'magnetic_variation', 'geoid_height', 'name', 'comment',
-                 'description', 'source', 'link', 'link_text', 'symbol',
+                 'description', 'source', 'symbol',
                  'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'extensions')
+                 'extensions')
 
     def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None, time: Optional[mod_datetime.datetime]=None, name: Optional[str]=None,
                  description: Optional[str]=None, symbol: Optional[str]=None, type: Optional[str]=None, comment: Optional[str]=None,
@@ -343,7 +393,7 @@ class GPXRoutePoint(mod_geo.Location):
         self.time = None
 
 
-class GPXRoute:
+class GPXRoute(_GPXLinks):
     gpx_10_fields = [
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
@@ -360,19 +410,15 @@ class GPXRoute:
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            'link:@link',
-                mod_gpxfield.GPXField('link', attribute='href'),
-                mod_gpxfield.GPXField('link_text', tag='text'),
-                mod_gpxfield.GPXField('link_type', tag='type'),
-            '/link',
+            mod_gpxfield.GPXComplexField('_links', GPXLink, tag='link', is_list=True),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
             mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
             mod_gpxfield.GPXComplexField('points', tag='rtept', classs=GPXRoutePoint, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'link',
-                 'link_text', 'number', 'points', 'link_type', 'type',
+    __slots__ = ('name', 'comment', 'description', 'source',
+                 'number', 'points', 'type',
                  'extensions')
 
     def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
@@ -508,17 +554,17 @@ class GPXRoute:
         return f'GPXRoute({", ".join(parts)})'
 
 
-class GPXTrackPoint(mod_geo.Location):
+class GPXTrackPoint(mod_geo.Location, _GPXLinks):
     gpx_10_fields = GPX_TRACK_POINT_FIELDS
     gpx_11_fields = GPX_11_POINT_FIELDS
 
     __slots__ = ('latitude', 'longitude', 'elevation', 'time', 'course',
                  'speed', 'magnetic_variation', 'geoid_height', 'name',
-                 'comment', 'description', 'source', 'link', 'link_text',
+                 'comment', 'description', 'source',
                  'symbol', 'type', 'type_of_gpx_fix', 'satellites',
                  'horizontal_dilution', 'vertical_dilution',
                  'position_dilution', 'age_of_dgps_data', 'dgps_id',
-                 'link_type', 'extensions')
+                 'extensions')
 
     def __init__(self, latitude: Optional[float]=None, longitude: Optional[float]=None, elevation: Optional[float]=None,
                  time: Optional[mod_datetime.datetime]=None, symbol: Optional[str]=None, comment: Optional[str]=None,
@@ -1378,7 +1424,7 @@ class GPXTrackSegment:
         return mod_copy.deepcopy(self)
 
 
-class GPXTrack:
+class GPXTrack(_GPXLinks):
     gpx_10_fields = [
             mod_gpxfield.GPXField('name'),
             mod_gpxfield.GPXField('comment', 'cmt'),
@@ -1395,19 +1441,15 @@ class GPXTrack:
             mod_gpxfield.GPXField('comment', 'cmt'),
             mod_gpxfield.GPXField('description', 'desc'),
             mod_gpxfield.GPXField('source', 'src'),
-            'link:@link',
-                mod_gpxfield.GPXField('link', attribute='href'),
-                mod_gpxfield.GPXField('link_text', tag='text'),
-                mod_gpxfield.GPXField('link_type', tag='type'),
-            '/link',
+            mod_gpxfield.GPXComplexField('_links', GPXLink, tag='link', is_list=True),
             mod_gpxfield.GPXField('number', type=mod_gpxfield.INT_TYPE),
             mod_gpxfield.GPXField('type'),
             mod_gpxfield.GPXExtensionsField('extensions', is_list=True),
             mod_gpxfield.GPXComplexField('segments', tag='trkseg', classs=GPXTrackSegment, is_list=True),
     ]
 
-    __slots__ = ('name', 'comment', 'description', 'source', 'link',
-                 'link_text', 'number', 'segments', 'link_type', 'type',
+    __slots__ = ('name', 'comment', 'description', 'source',
+                 'number', 'segments', 'type',
                  'extensions')
 
     def __init__(self, name: Optional[str]=None, description: Optional[str]=None, number: Optional[int]=None) -> None:
@@ -1911,7 +1953,7 @@ class GPXTrack:
         return f'GPXTrack({", ".join(parts)})'
 
 
-class GPX:
+class GPX(_GPXLinks):
     gpx_10_fields = [
             mod_gpxfield.GPXField('version', attribute='version'),
             mod_gpxfield.GPXField('creator', attribute='creator'),
@@ -1938,7 +1980,7 @@ class GPX:
     gpx_11_fields = [
             mod_gpxfield.GPXField('version', attribute='version'),
             mod_gpxfield.GPXField('creator', attribute='creator'),
-            'metadata:name:description:author_name:author_email:author_link:copyright_author:copyright_year:copyright_license:link:time:keywords:bounds',
+            'metadata:name:description:author_name:author_email:author_link:copyright_author:copyright_year:copyright_license:_links:time:keywords:bounds',
                 mod_gpxfield.GPXField('name', 'name'),
                 mod_gpxfield.GPXField('description', 'desc'),
                 'author:author_name:author_email:author_link',
@@ -1955,11 +1997,7 @@ class GPX:
                     mod_gpxfield.GPXField('copyright_year', tag='year'),
                     mod_gpxfield.GPXField('copyright_license', tag='license'),
                 '/copyright',
-                'link:@link',
-                    mod_gpxfield.GPXField('link', attribute='href'),
-                    mod_gpxfield.GPXField('link_text', tag='text'),
-                    mod_gpxfield.GPXField('link_type', tag='type'),
-                '/link',
+                mod_gpxfield.GPXComplexField('_links', GPXLink, tag='link', is_list=True),
                 mod_gpxfield.GPXField('time', type=mod_gpxfield.TIME_TYPE),
                 mod_gpxfield.GPXField('keywords'),
                 mod_gpxfield.GPXComplexField('bounds', classs=GPXBounds, empty_body=True),
@@ -1972,10 +2010,10 @@ class GPX:
     ]
 
     __slots__ = ('version', 'creator', 'name', 'description', 'author_name',
-                 'author_email', 'link', 'link_text', 'time', 'keywords',
+                 'author_email', 'time', 'keywords',
                  'bounds', 'waypoints', 'routes', 'tracks', 'author_link',
                  'author_link_text', 'author_link_type', 'copyright_author',
-                 'copyright_year', 'copyright_license', 'link_type',
+                 'copyright_year', 'copyright_license',
                  'metadata_extensions', 'extensions', 'nsmap',
                  'schema_locations')
 
