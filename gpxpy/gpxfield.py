@@ -91,7 +91,13 @@ def parse_time(string: str) -> Optional[mod_datetime.datetime]:
         else:
             dt.append(0)
         if m.group(8):
-            dt.append(SimpleTZ(m.group(8))) # type: ignore
+            tz = SimpleTZ(m.group(8))
+            if abs(tz.offset) >= 24 * 60:
+                # An out-of-range offset parses, but makes datetime's
+                # isoformat() raise when the time is written back out, so
+                # reject it here: like other invalid times, it becomes None.
+                raise mod_gpx.GPXException(f'Invalid time: {string}')
+            dt.append(tz) # type: ignore
         return mod_datetime.datetime(*dt) # type: ignore
     raise mod_gpx.GPXException(f'Invalid time: {string}')
 
