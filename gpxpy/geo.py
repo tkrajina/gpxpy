@@ -447,7 +447,7 @@ class Location:
 
     def __add__(self, location_delta: "LocationDelta") -> "Location":
         latitude, longitude = location_delta.move(self)
-        return Location(latitude, longitude)
+        return Location(latitude, longitude, self.elevation)
 
     def __str__(self) -> str:
         return f'[loc:{self.latitude},{self.longitude}@{self.elevation}]'

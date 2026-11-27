@@ -2026,6 +2026,17 @@ class GPXTests(mod_unittest.TestCase):
         self.assertTrue(almostEqual(location.latitude, location_2.latitude))
         self.assertTrue(almostEqual(location.longitude, location_2.longitude))
 
+    def test_horizontal_delta_preserves_elevation(self) -> None:
+        delta = mod_geo.LocationDelta(latitude_diff=1, longitude_diff=2)
+        for elevation in (123.5, 0.0, None):
+            with self.subTest(elevation=elevation):
+                location = mod_geo.Location(45, 13, elevation)
+                moved = location + delta
+                self.assertEqual((location.latitude, location.longitude), (45, 13))
+                location.move(delta)
+                self.assertEqual((moved.latitude, moved.longitude), (location.latitude, location.longitude))
+                self.assertEqual(moved.elevation, location.elevation)
+
     def test_location_delta_equality(self) -> None:
         delta1 = mod_geo.LocationDelta(angle=20, distance=1000)
         delta2 = mod_geo.LocationDelta(angle=20, distance=1000)
