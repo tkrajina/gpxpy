@@ -115,6 +115,17 @@ class GPXParser:
             log.debug('Error in:\n%s\n-----------\n', self.xml, exc_info=True)
             raise mod_gpx.GPXXMLSyntaxException(f'Error parsing XML: {e}', e)
 
+        # Strip the GPX namespace from element tags so documents that bind
+        # it to a prefix (e.g. <ns2:gpx>) parse like documents using the
+        # default namespace. Elements in other namespaces (extensions)
+        # keep their qualified names.
+        for element in root.iter():
+            if isinstance(element.tag, str) and element.tag.startswith('{'):
+                namespace, _, name = element.tag[1:].partition('}')
+                if namespace in ('http://www.topografix.com/GPX/1/0',
+                                 'http://www.topografix.com/GPX/1/1'):
+                    element.tag = name
+
         if root is None or root.tag.lower() != 'gpx':
             raise mod_gpx.GPXException('Document must have a `gpx` root node.')
 
