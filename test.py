@@ -246,7 +246,9 @@ class GPXTests(mod_unittest.TestCase):
 
         xml = '<gpx><wpt lat="45.0" lon="14.0"><time>2026-01-01T00:00:00+01:30</time></wpt></gpx>'
         gpx = mod_gpxpy.parse(xml)
-        self.assertEqual(gpx.waypoints[0].time.utcoffset(), mod_datetime.timedelta(hours=1, minutes=30))
+        time = gpx.waypoints[0].time
+        assert time is not None
+        self.assertEqual(time.utcoffset(), mod_datetime.timedelta(hours=1, minutes=30))
 
     def test_add_elevation(self) -> None:
         gpx = mod_gpx.GPX()
