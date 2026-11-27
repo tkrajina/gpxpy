@@ -98,6 +98,8 @@ Branches:
 
 Send your pull request against `dev`, not `master`!
 
+Pull requests should be atomic -- one feature per PR. And one bug fix per PR!
+
 Before sending a pull request -- check that all tests are OK.  Run all the static typing checks and unit tests with:
 
     $ make mypy-and-tests
