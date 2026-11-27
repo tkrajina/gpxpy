@@ -3569,6 +3569,19 @@ class GPXTests(mod_unittest.TestCase):
         self.assertNotIn('e-', xml)
         f.close()
 
+    def test_small_coordinates_round_trip(self) -> None:
+        gpx = mod_gpx.GPX()
+        point = mod_gpx.GPXWaypoint(latitude=1e-11, longitude=-1.23456789e-5)
+        gpx.waypoints.append(point)
+
+        for version in ('1.0', '1.1'):
+            with self.subTest(version=version):
+                xml = gpx.to_xml(version=version)
+                self.assertNotIn('e-', xml)
+                parsed = mod_gpxpy.parse(xml).waypoints[0]
+                self.assertEqual(point.latitude, parsed.latitude)
+                self.assertEqual(point.longitude, parsed.longitude)
+
     def test_gpx_fill_time_data_with_start_time_and_end_time(self) -> None:
         gpx = self.parse('cerknicko-jezero.gpx')
 

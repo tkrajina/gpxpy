@@ -15,6 +15,7 @@
 import math as mod_math
 import xml.sax.saxutils as mod_saxutils
 import datetime as mod_datetime
+from decimal import Decimal
 
 from typing import Any, AnyStr
 
@@ -76,8 +77,11 @@ def make_str(s: AnyStr) -> str:
     """ Convert a str or unicode or float object into a str type. """
     if isinstance(s, float):
         result = str(s)
-        if not 'e' in result:
+        if 'e' not in result:
             return result
-        # scientific notation is illegal in GPX 1/1
-        return format(s, '.10f').rstrip('0').rstrip('.')
+        # GPX decimals cannot use scientific notation.
+        if 'e-' in result:
+            return format(Decimal(result), 'f')
+        # Floats large enough to have a positive exponent here are integers.
+        return format(s, '.0f')
     return str(s)
